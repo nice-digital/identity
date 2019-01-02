@@ -16,26 +16,21 @@ namespace NICE.Identity.Test.IntegrationTests
 			//Arrange
 			var context = GetContext();
 			var auditService = new AuditService(context);
-			var now = DateTime.Now;
-			var userId = Guid.NewGuid();
-			const string tableName = "User";
-			const string fieldName = "FirstName";
-			const string oldValue = "Peter";
-			const string newValue = "Phil";
+			var auditEntry = new Audit("User", "FirstName", "Peter", "Phil", DateTime.Now, Guid.NewGuid());
 
 			//Act
-			var rowsUpdated = auditService.WriteAuditEntry(new Audit(tableName, fieldName, oldValue, newValue, now, userId));
+			var rowsUpdated = auditService.WriteAuditEntry(auditEntry);
 			var allAuditLogs = context.Audit.ToList();
 
 			//Assert
 			rowsUpdated.ShouldBe(1);
 			var auditRecord = allAuditLogs.Single();
-			auditRecord.UserId.ShouldBe(userId);
-			auditRecord.Date.ShouldBe(now);
-			auditRecord.FieldName.ShouldBe(fieldName);
-			auditRecord.TableName.ShouldBe(tableName);
-			auditRecord.OldValue.ShouldBe(oldValue);
-			auditRecord.NewValue.ShouldBe(newValue);
+			auditRecord.UserId.ShouldBe(auditEntry.UserId);
+			auditRecord.Date.ShouldBe(auditEntry.Date);
+			auditRecord.FieldName.ShouldBe(auditEntry.FieldName);
+			auditRecord.TableName.ShouldBe(auditEntry.TableName);
+			auditRecord.OldValue.ShouldBe(auditEntry.OldValue);
+			auditRecord.NewValue.ShouldBe(auditEntry.NewValue);
 		}
 	}
 }
