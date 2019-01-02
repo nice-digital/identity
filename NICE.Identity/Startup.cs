@@ -7,8 +7,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using NICE.Identity.Models;
+using NICE.Identity.Services;
 
 namespace NICE.Identity
 {
@@ -24,6 +28,16 @@ namespace NICE.Identity
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+
+			var connectionString = Configuration.GetConnectionString("DefaultConnection");
+			if (!string.IsNullOrEmpty(connectionString) && !connectionString.StartsWith("NULL")) //todo: improve this. connection string is in secrets.json, don't save it in the appsettings.json. but it's useful having something there so the code doesn't fall over looking for it, and so that people can learn where it should be set.
+			{
+				services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connectionString));
+			}
+
+			//dependency injection goes here.
+			services.TryAddTransient<IAuditService, AuditService>();
+
 			services.Configure<CookiePolicyOptions>(options =>
 			{
 				// This lambda determines whether user consent for non-essential cookies is needed for a given request.

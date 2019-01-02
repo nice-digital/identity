@@ -62,5 +62,10 @@ namespace NICE.Identity.Test.Infrastructure
 			return _client;
 		}
 
+		protected IdentityContext GetContext()
+		{
+			return _context;
+		}
+
 	}
 }

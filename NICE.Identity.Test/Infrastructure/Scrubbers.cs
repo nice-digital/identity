@@ -22,16 +22,15 @@ namespace NICE.Identity.Test.Infrastructure
 	    }
 
 
-		//sample scrubbers:
-	    //public static string ScrubHashFromJavascriptFileName(string str)
-	    //{
-		   // return Regex.Replace(str, "(src=\\\".*.)(.[a-z0-9]{8}.)(js\\\")", "$1.$3"); //unescaped regex is: src=\".*.([a-z0-9]{8}.)js
-	    //}
+		public static string ScrubHashFromJavascriptFileName(string str)
+		{
+			return Regex.Replace(str, "(src=\\\".*.)(.[a-z0-9]{8}.)(js\\\")", "$1.$3"); //unescaped regex is: src=\".*.([a-z0-9]{8}.)js
+		}
 
-	    //public static string ScrubErrorMessage(string str)
-	    //{
-		   // return Regex.Replace(str, "(<!--)([\\d\\D]+)(-->)", "\"Error Message\":\"scrubbed by ScrubErrorMessage\"");
+		public static string ScrubErrorMessage(string str)
+		{
+		 return Regex.Replace(str, "(<!--)([\\d\\D]+)(-->)", "\"Error Message\":\"scrubbed by ScrubErrorMessage\"");
 
-	    //}
+		}
 	}
 }
