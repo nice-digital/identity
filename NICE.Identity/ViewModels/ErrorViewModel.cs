@@ -1,6 +1,4 @@
-using System;
-
-namespace NICE.Identity.Models
+namespace NICE.Identity.ViewModels
 {
 	public class ErrorViewModel
 	{

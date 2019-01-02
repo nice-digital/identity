@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Models;
+using NICE.Identity.ViewModels;
 
 namespace NICE.Identity.Controllers
 {
