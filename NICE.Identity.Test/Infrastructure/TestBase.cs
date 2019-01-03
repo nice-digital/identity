@@ -17,54 +17,45 @@ namespace NICE.Identity.Test.Infrastructure
 
 		public TestBase()
 		{
-			InitialiseClient();
+			InitialiseDefaultServerAndClientWithoutAddingDatabaseRecords();
 		}
 
-		private void InitialiseClient()
+		private void InitialiseDefaultServerAndClientWithoutAddingDatabaseRecords()
+		{
+			_context = GetContext();
+			var serverAndClient = InitialiseServerAndClient(_context);
+			_server = serverAndClient.testServer;
+			_client = serverAndClient.httpClient;
+		}
+
+		private static (TestServer testServer, HttpClient httpClient) InitialiseServerAndClient(IdentityContext identityContext)
+		{
+			var builder = new WebHostBuilder()
+				.ConfigureServices(services =>
+				{
+					services.TryAddTransient<IdentityContext>(provider => identityContext); //note: not a singleton like in the main code. 
+				})
+				.UseEnvironment("Production")
+				.UseStartup(typeof(Startup));
+			var server = new TestServer(builder);
+			return (testServer: server, httpClient: server.CreateClient());
+		}
+
+		protected HttpClient GetClient(IdentityContext identityContext = null)
+		{
+			if (identityContext == null)
+				return _client;
+
+			return InitialiseServerAndClient(identityContext).httpClient;
+		}
+
+		protected IdentityContext GetContext()
 		{
 			var databaseName = "TestIdentityDB" + Guid.NewGuid();
 			var dbOptions = new DbContextOptionsBuilder<IdentityContext>()
 				.UseInMemoryDatabase(databaseName)
 				.Options;
-
-			_context = new IdentityContext(dbOptions);
-			var builder = new WebHostBuilder()
-				//.UseContentRoot("../../../../Comments")
-				.ConfigureServices(services =>
-				{
-
-					services.TryAddSingleton<IdentityContext>(_context);
-
-				})
-				.Configure(app =>
-				{
-					//app.UseStaticFiles();
-
-					//app.Use((context, next) =>
-					//{
-					//	var httpRequestFeature = context.Features.Get<IHttpRequestFeature>();
-
-					//	if (httpRequestFeature != null && string.IsNullOrEmpty(httpRequestFeature.RawTarget))
-					//		httpRequestFeature.RawTarget = httpRequestFeature.Path;
-
-					//	return next();
-					//});
-
-				})
-				.UseEnvironment("Production")
-				.UseStartup(typeof(Startup));
-			_server = new TestServer(builder);
-			_client = _server.CreateClient();
-		}
-
-		protected HttpClient GetClient()
-		{
-			return _client;
-		}
-
-		protected IdentityContext GetContext()
-		{
-			return _context;
+			return new IdentityContext(dbOptions);
 		}
 
 	}

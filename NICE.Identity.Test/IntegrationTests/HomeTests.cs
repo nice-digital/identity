@@ -1,6 +1,8 @@
 ﻿using System;
 using NICE.Identity.Test.Infrastructure;
 using System.Threading.Tasks;
+using NICE.Identity.Models;
+using NICE.Identity.Services;
 using Xunit;
 
 namespace NICE.Identity.Test.IntegrationTests
@@ -21,6 +23,5 @@ namespace NICE.Identity.Test.IntegrationTests
 			//Assert
 			responseString.ShouldMatchApproved(new Func<string, string>[] { Scrubbers.ScrubCookieString });
 		}
-
 	}
 }

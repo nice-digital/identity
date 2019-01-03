@@ -1,0 +1,11 @@
+﻿[
+    {
+        "auditId":"scrubbed by ScrubAuditId",
+        "tableName":"User",
+        "fieldName":"FirstName",
+        "oldValue":"Peter",
+        "newValue":"Phil",
+        "date":"2019-01-03T10:25:00",
+        "userId":"00000000-0000-0000-0000-000000000000"
+    }
+]

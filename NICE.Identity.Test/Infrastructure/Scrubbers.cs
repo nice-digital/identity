@@ -21,6 +21,15 @@ namespace NICE.Identity.Test.Infrastructure
 			return Regex.Replace(str, @"data-cookie-string=\""([^\""]+)\""", @"data-cookie-string\""scrubbed by ScrubCookieString""");
 	    }
 
+		/// <summary>
+		/// Scrubs out the auditId in some json.
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns></returns>
+	    public static string ScrubAuditId(string str)
+	    {
+			return Regex.Replace(str, @"""auditId"":(\d+)", @"""auditId"":""scrubbed by ScrubAuditId""");
+		}
 
 		public static string ScrubHashFromJavascriptFileName(string str)
 		{
