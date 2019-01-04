@@ -1,0 +1,21 @@
+{
+  "name": "@nice-digital/nice-identity",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint **/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nhsevidence/identity.git"
+  },
+  "author": "NICE",
+  "license": "MIT",
+  "devDependencies": {
+    "@nice-digital/eslint-config": "^1.0.1",
+    "eslint": "^4.9.0",
+    "jest": "^23.6.0"
+  }
+}
