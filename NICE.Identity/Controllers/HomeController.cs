@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.ViewModels;
+using System.Diagnostics;
 
 namespace NICE.Identity.Controllers
 {
@@ -13,32 +8,13 @@ namespace NICE.Identity.Controllers
 	{
 		public IActionResult Index()
 		{
-			return View();
-		}
-
-		public IActionResult About()
-		{
-			ViewData["Message"] = "Your application description page.";
-
-			return View();
-		}
-
-		public IActionResult Contact()
-		{
-			ViewData["Message"] = "Your contact page.";
-
-			return View();
-		}
-
-		public IActionResult Privacy()
-		{
-			return View();
+			return View(new HomeViewModel("Home", "NICE Identity", false));
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()
 		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+			return View(new ErrorViewModel("Error", "Error", requestId: Activity.Current?.Id ?? HttpContext.TraceIdentifier));
 		}
 	}
 }

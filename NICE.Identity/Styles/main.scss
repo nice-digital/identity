@@ -1,0 +1,12 @@
+// Node imports
+$nice-font-base-path: "/fonts/";
+
+@import "nice-design-system";
+@import "nice-icons";
+
+// Project variables
+@import "styles/variables";
+
+// Component folder structure imports here
+@import "./components/App/App";
+

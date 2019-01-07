@@ -14,7 +14,10 @@
   "author": "NICE",
   "license": "MIT",
   "devDependencies": {
-    "@nice-digital/eslint-config": "^1.0.1",
+    "@nice-digital/browserslist-config": "^1.0.0",
+    "@nice-digital/design-system": "^0.5.3",
+    "@nice-digital/eslint-config": "^1.0.3",
+    "@nice-digital/icons": "^1.6.0",
     "eslint": "^4.9.0",
     "jest": "^23.6.0"
   }
