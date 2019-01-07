@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint **/*.js"
+    "lint": "eslint **/*.js",
+    "dev": "webpack --watch",
+    "build": "cross-env NODE_ENV=production webpack"
   },
   "repository": {
     "type": "git",
@@ -18,7 +20,26 @@
     "@nice-digital/design-system": "^0.5.3",
     "@nice-digital/eslint-config": "^1.0.3",
     "@nice-digital/icons": "^1.6.0",
+    "cross-env": "^5.2.0",
+    "css-loader": "^2.1.0",
+    "cssnano": "^4.1.8",
     "eslint": "^4.9.0",
-    "jest": "^23.6.0"
+    "file-loader": "^3.0.1",
+    "jest": "^23.6.0",
+    "mini-css-extract-plugin": "^0.5.0",
+    "node-sass": "^4.11.0",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.5.0",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.28.3",
+    "webpack-cli": "^3.2.1"
+  },
+  "-vs-binding": {
+    "BeforeBuild": [
+      "build"
+    ],
+    "ProjectOpened": [
+      "dev"
+    ]
   }
 }
