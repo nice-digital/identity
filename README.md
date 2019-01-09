@@ -2,7 +2,14 @@
 
  > NICE Identity and Access Management
  
- 
+### Browser support
+
+- IE: 8 and above
+- Chrome: (Current - 1) and Current
+- Edge: (Current - 1) and Current
+- Firefox: (Current - 1) and Current
+- Safari: (Current - 1) and Current
+
 ### Technical stack
 - [.NET Core 2.1](https://github.com/dotnet/core) on the server
     - [xUnit.net](https://xunit.github.io/) for .NET unit tests
@@ -14,6 +21,7 @@
 - [Razor](https://docs.microsoft.com/en-us/aspnet/core/mvc/views/razor?view=aspnetcore-2.2) front-end
     - [Jest](https://facebook.github.io/jest/) for JavaScript tests
     - [ESLint](https://eslint.org/) for JavaScript linting
+    - [jQuery 1.12.4)(https://jquery.com/browser-support/) for AJAX suport. using last version supporting IE8
 - [SASS](https://sass-lang.com/) as a CSS pre-processor
 - [Modernizr](https://modernizr.com/) for feature detection
 - [WebdriverIO](http://webdriver.io/) for automated functional testing
