@@ -1,10 +1,10 @@
 ﻿[
-  {
-    "outputFileName": "wwwroot/css/bundle.min.css",
-    "inputFiles": [
-      "wwwroot/css/site.css"
-    ]
-  },
+  //{
+  //  "outputFileName": "wwwroot/css/bundle.min.css",
+  //  "inputFiles": [
+  //    "wwwroot/css/site.css"
+  //  ]
+  //},
   {
     "outputFileName": "wwwroot/js/bundle.js",
     "inputFiles": [

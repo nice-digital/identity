@@ -7,5 +7,5 @@ $nice-font-base-path: "/fonts/";
 // Project variables
 @import "variables";
 
-// Component folder structure imports here
-
+// parts
+@import "profile.scss";

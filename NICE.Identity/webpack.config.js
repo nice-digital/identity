@@ -75,7 +75,13 @@ module.exports = {
 					{
 						// Adds support for Sass files, if using Less, then
 						// use the less-loader
-						loader: "sass-loader"
+						loader: "sass-loader",
+						options: {
+							includePaths: [
+								"node_modules/@nice-digital/design-system/src/stylesheets",
+								"node_modules/@nice-digital/icons/dist"
+							]
+						}
 					}
 				]
 			},
