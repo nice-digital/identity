@@ -1,14 +1,8 @@
 ﻿[
-  //{
-  //  "outputFileName": "wwwroot/css/bundle.min.css",
-  //  "inputFiles": [
-  //    "wwwroot/css/site.css"
-  //  ]
-  //},
   {
     "outputFileName": "wwwroot/js/bundle.js",
     "inputFiles": [
-      "wwwroot/js/helpers.js"
+      "Scripts/shared/helpers.js"
     ],
     "minify": {
       "enabled": true,
