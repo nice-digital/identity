@@ -30,7 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="NewFolder\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\fonts\" />
   </ItemGroup>
