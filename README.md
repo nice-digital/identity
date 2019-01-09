@@ -23,9 +23,9 @@
 
 ### Getting Started
 
-Install [KDiff3] (http://kdiff3.sourceforge.net/)
+Install [KDiff3](http://kdiff3.sourceforge.net/)
 
-Install [Node.js] (https://nodejs.org/en/download/)
+Install [Node.js](https://nodejs.org/en/download/)
 
 In Visual Studio 2017, go to Tools > Options > Projects and Solutions > Web Package Management 
 add the path to the Node installation at the top of the list. It'll be either `C:\Program Files\nodejs` or `C:\Program Files (x86)\nodejs` depending on whether you installed the x64 or x86 version of Node.js.
