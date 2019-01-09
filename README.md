@@ -21,7 +21,7 @@
 - [Razor](https://docs.microsoft.com/en-us/aspnet/core/mvc/views/razor?view=aspnetcore-2.2) front-end
     - [Jest](https://facebook.github.io/jest/) for JavaScript tests
     - [ESLint](https://eslint.org/) for JavaScript linting
-    - [jQuery 1.12.4)(https://jquery.com/browser-support/) for AJAX suport. using last version supporting IE8
+    - [jQuery 1.12.4](https://jquery.com/browser-support/) for AJAX suport. using last version supporting IE8
 - [SASS](https://sass-lang.com/) as a CSS pre-processor
 - [Modernizr](https://modernizr.com/) for feature detection
 - [WebdriverIO](http://webdriver.io/) for automated functional testing
