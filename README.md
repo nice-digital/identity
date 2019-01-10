@@ -32,7 +32,11 @@
 
 ### Getting Started
 
-Install [KDiff3](http://kdiff3.sourceforge.net/)
+Solution is only tested in Visual Studio 2017. ymmv in other IDE's.
+
+Install [NPM Task Runner Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner) 
+
+Install [KDiff3](http://kdiff3.sourceforge.net/) kdiff is currently expected to be installed here: `C:\Program Files\KDiff3\kdiff3.exe` changing this install location will 
 
 Install [Node.js](https://nodejs.org/en/download/)
 
