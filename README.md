@@ -32,9 +32,18 @@
 
 ### Getting Started
 
-Install [KDiff3](http://kdiff3.sourceforge.net/)
+Solution is only tested in Visual Studio 2017. ymmv in other IDE's.
+
+Install [NPM Task Runner Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner) 
+
+Install [KDiff3](http://kdiff3.sourceforge.net/) kdiff is currently expected to be installed here: `C:\Program Files\KDiff3\kdiff3.exe` changing this install location will mean the integration test diffing will fallback to vsDiffMerge.
 
 Install [Node.js](https://nodejs.org/en/download/)
 
 In Visual Studio 2017, go to Tools > Options > Projects and Solutions > Web Package Management 
 add the path to the Node installation at the top of the list. It'll be either `C:\Program Files\nodejs` or `C:\Program Files (x86)\nodejs` depending on whether you installed the x64 or x86 version of Node.js.
+
+#### Secrets.json
+
+The application's uses appsettings.json to store configuration. However, since this is a public repository, confidential configuration information (e.g. db connection string) is stored in secrets.json
+In order to run the application correctly (with it having access to a database), you'll need to acquire (from another dev) or create a secrets.json file with the correct configuration information in. For more  information see: [https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio)
