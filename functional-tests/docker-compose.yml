@@ -1,0 +1,32 @@
+# See https://github.com/SeleniumHQ/docker-selenium#via-docker-compose
+version: '2'
+services:
+  firefox:
+    image: selenium/node-firefox:3.11.0-antimony
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
+  chrome:
+    image: selenium/node-chrome:3.11.0-antimony
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
+  hub:
+    image: selenium/hub:3.11.0-antimony
+    ports:
+      - "4444:4444"
+    expose:
+      - "4444"
+
+  tests:
+    build: .
+    links:
+      - hub
