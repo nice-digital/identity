@@ -95,7 +95,7 @@
         <script>
           (window.jQuery||document.write("\u003Cscript src=\u0022\/lib\/jquery\/dist\/jquery.min.js\u0022 crossorigin=\u0022anonymous\u0022 integrity=\u0022sha384-nvAa0\u002B6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc\/r8MhnRDZ\u0022\u003E\u003C\/script\u003E"));
         </script>
-        <script src="/js/bundle.min.js">
+        <script src="/js/main.js">
         </script>
       </body>
     </html>
