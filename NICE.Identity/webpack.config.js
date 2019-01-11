@@ -1,6 +1,8 @@
 ﻿const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const postcssPresetEnv = require("postcss-preset-env");
+const MinifyPlugin = require('babel-minify-webpack-plugin');
+
 // We are getting 'process.env.NODE_ENV' from the NPM scripts
 // Remember the 'dev' script?
 const devMode = process.env.NODE_ENV !== "production";
@@ -10,7 +12,10 @@ module.exports = {
 	mode: devMode ? "development" : "production",
 	// Webpack needs to know where to start the bundling process,
 	// so we define the Sass file under './Styles' directory
-	entry: ["./Styles/main.scss"],
+	entry: {
+		main: ["./Scripts/index.js"],
+		css: ["./Styles/main.scss"]
+	},
 	// This is where we define the path where Webpack will place
 	// a bundled JS file. Webpack needs to produce this file,
 	// but for our purposes you can ignore it
@@ -22,7 +27,7 @@ module.exports = {
 		publicPath: "/css",
 		// The name of the output bundle. Path is also relative
 		// to the output path, so './wwwroot/js'
-		filename: "js/sass.js"
+		filename: "js/[name].js"
 	},
 	module: {
 		// Array of rules that tells Webpack how the modules (output)
@@ -110,7 +115,13 @@ module.exports = {
 						}
 					}
 				]
-			}
+			},
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				use: "babel-loader",
+				resolve: { extensions: [".js"] }
+			},
 		]
 	},
 	plugins: [
@@ -119,6 +130,7 @@ module.exports = {
 		// the location
 		new MiniCssExtractPlugin({
 			filename: devMode ? "css/site.css" : "css/site.min.css"
-		})
+		}),
+		new MinifyPlugin()
 	]
 };
