@@ -6,7 +6,7 @@ using NICE.Identity.Areas.Admin.Controllers;
 
 namespace NICE.Identity.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("admin/api/[controller]")]
     [ApiController]
     public class AuditController : AdministrationAPIControllerBase
     {
