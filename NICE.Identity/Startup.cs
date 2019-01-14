@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using NICE.Identity.Configuration;
 using NICE.Identity.Models;
 using NICE.Identity.Services;
 
@@ -12,16 +14,19 @@ namespace NICE.Identity
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration)
+		public Startup(IConfiguration configuration, IHostingEnvironment environment)
 		{
 			Configuration = configuration;
+			Environment = environment;
 		}
 
 		public IConfiguration Configuration { get; }
+		public IHostingEnvironment Environment { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			AppSettings.Configure(services, Configuration, Environment.IsDevelopment() ? @"c:\" : Environment.ContentRootPath);
 
 			var connectionString = Configuration.GetConnectionString("DefaultConnection");
 			if (!string.IsNullOrEmpty(connectionString) && !connectionString.StartsWith("NULL")
@@ -31,6 +36,7 @@ namespace NICE.Identity
 			}
 
 			//dependency injection goes here.
+			services.TryAddSingleton<ISeriLogger, SeriLogger>();
 			services.TryAddTransient<IAuditService, AuditService>();
 
 
@@ -38,16 +44,22 @@ namespace NICE.Identity
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)
 		{
+			seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
+			loggerFactory.CreateLogger<Startup>();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+				loggerFactory.AddDebug();
 			}
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
 				app.UseHsts();
+				app.UseStatusCodePagesWithReExecute("/error/{0}"); // url to errorcontroller
 			}
 
 			app.UseHttpsRedirection();

@@ -261,3 +261,4 @@ ClientApp/public/*.css.map
 .vscode
 /Comments/ClientApp/.vscode
 /NICE.Identity/node_modules
+/NICE.Identity/Serilog-*.json
