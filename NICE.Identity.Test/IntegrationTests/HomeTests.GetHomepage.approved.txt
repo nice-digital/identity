@@ -7,7 +7,7 @@
       <title>
         Home - NICE
       </title>
-      <link rel="stylesheet" href="/css/style.css?v=NZwJgYRBquF824oKlgEfGjK8BlczsVonkFDQjk3Rdmc" />
+      <link rel="stylesheet" href="/css/style.css?v=versionScrubbedByScrubVersion" />
       </head>
       <body>
         <div class="container">
@@ -49,7 +49,7 @@
         <script>
           (window.jQuery||document.write("\u003Cscript src=\u0022\/lib\/jquery\/dist\/jquery.min.js\u0022 crossorigin=\u0022anonymous\u0022 integrity=\u0022sha384-nvAa0\u002B6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc\/r8MhnRDZ\u0022\u003E\u003C\/script\u003E"));
         </script>
-        <script src="/js/main.js?v=qZgSQV5KYZvHh1a6627GBmVSw39UaoBMW7N-676GHA0">
+        <script src="/js/main.js?v=versionScrubbedByScrubVersion">
         </script>
       </body>
     </html>

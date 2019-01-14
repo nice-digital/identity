@@ -21,7 +21,7 @@ namespace NICE.Identity.Test.IntegrationTests
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			//Assert
-			responseString.ShouldMatchApproved(new Func<string, string>[] { Scrubbers.ScrubCookieString });
+			responseString.ShouldMatchApproved(new Func<string, string>[] { Scrubbers.ScrubCookieString, Scrubbers.ScrubVersion });
 		}
 	}
 }
