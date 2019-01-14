@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Models;
 using System;
 using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
 
 
 namespace NICE.Identity.Test.Infrastructure
@@ -31,9 +32,14 @@ namespace NICE.Identity.Test.Infrastructure
 		private static (TestServer testServer, HttpClient httpClient) InitialiseServerAndClient(IdentityContext identityContext)
 		{
 			var builder = new WebHostBuilder()
+				.UseContentRoot("../../../../NICE.Identity")
 				.ConfigureServices(services =>
 				{
 					services.TryAddTransient<IdentityContext>(provider => identityContext); //note: not a singleton like in the main code. 
+				})
+				.Configure(app =>
+				{
+					app.UseStaticFiles();
 				})
 				.UseEnvironment("Production")
 				.UseStartup(typeof(Startup));
