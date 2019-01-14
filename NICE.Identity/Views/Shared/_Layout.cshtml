@@ -7,16 +7,14 @@
     <title>@Model.HtmlHeadTitle - NICE</title>
 
     <environment include="Development">
-        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/style.css" />
     </environment>
     <environment exclude="Development">
-        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     </environment>
 </head>
 <body>
     
-	<partial name="_CookieConsentPartial" />
-
 	<div class="container">
 		<p class="phase-banner">
 			<span class="phase-banner__tag">

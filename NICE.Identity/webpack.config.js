@@ -6,6 +6,19 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 // We are getting 'process.env.NODE_ENV' from the NPM scripts
 // Remember the 'dev' script?
 const devMode = process.env.NODE_ENV !== "production";
+
+
+function recursiveIssuer(m) {
+	if (m.issuer) {
+		return recursiveIssuer(m.issuer);
+	} else if (m.name) {
+		return m.name;
+	} else {
+		return false;
+	}
+}
+
+
 module.exports = {
 	// Tells Webpack which built-in optimizations to use
 	// If you leave this out, Webpack will default to 'production'
@@ -14,8 +27,31 @@ module.exports = {
 	// so we define the Sass file under './Styles' directory
 	entry: {
 		main: ["./Scripts/index.js"],
-		css: ["./Styles/main.scss"]
+		style: ["./Styles/main.scss"],
+		admin: ["./Areas/Admin/Scripts/index-admin.js"],
+		admincss: ["./Areas/Admin/Styles/main-admin.scss"]
 	},
+
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				mainStyles: {
+					name: 'main',
+					test: (m, c, entry = 'main') => m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+					chunks: 'all',
+					enforce: true
+				},
+				adminCssStyles: {
+					name: 'admincss',
+					test: (m, c, entry = 'admincss') => m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+					chunks: 'all',
+					enforce: true
+				}
+			}
+		}
+	},
+
+
 	// This is where we define the path where Webpack will place
 	// a bundled JS file. Webpack needs to produce this file,
 	// but for our purposes you can ignore it
@@ -129,7 +165,7 @@ module.exports = {
 		// indicating what the CSS output file name should be and
 		// the location
 		new MiniCssExtractPlugin({
-			filename: devMode ? "css/site.css" : "css/site.min.css"
+			filename: devMode ? "css/[name].css" : "css/[name].min.css"
 		}),
 		new MinifyPlugin()
 	]

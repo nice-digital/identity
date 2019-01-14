@@ -30,7 +30,8 @@ namespace NICE.Identity
 		{
 
 			var connectionString = Configuration.GetConnectionString("DefaultConnection");
-			if (!string.IsNullOrEmpty(connectionString) && !connectionString.StartsWith("NULL")) //todo: improve this. connection string is in secrets.json, don't save it in the appsettings.json. but it's useful having something there so the code doesn't fall over looking for it, and so that people can learn where it should be set.
+			if (!string.IsNullOrEmpty(connectionString) && !connectionString.StartsWith("NULL")
+			) //todo: improve this. connection string is in secrets.json, don't save it in the appsettings.json. but it's useful having something there so the code doesn't fall over looking for it, and so that people can learn where it should be set.
 			{
 				services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connectionString));
 			}
@@ -69,8 +70,14 @@ namespace NICE.Identity
 			app.UseMvc(routes =>
 			{
 				routes.MapRoute(
+					name: "adminRoute",
+					template: "{area:exists}/{controller=home}/{action=index}/{id?}"
+				);
+
+				routes.MapRoute(
 					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
+					template: "{controller=home}/{action=index}/{id?}"
+				);
 			});
 		}
 	}
