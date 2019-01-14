@@ -2,12 +2,13 @@
 using NICE.Identity.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NICE.Identity.Areas.Admin.Controllers;
 
 namespace NICE.Identity.Controllers
 {
 	[Route("api/[controller]")]
     [ApiController]
-    public class AuditController : ControllerBase
+    public class AuditController : AdministrationAPIControllerBase
     {
         private readonly IdentityContext _context;
 
@@ -16,7 +17,7 @@ namespace NICE.Identity.Controllers
             _context = context;
         }
 
-        // GET: api/Audit
+        // GET: admin/api/Audit
         [HttpGet]
         public IEnumerable<Audit> GetAudit()
         {

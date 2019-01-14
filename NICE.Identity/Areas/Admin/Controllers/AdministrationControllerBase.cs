@@ -7,4 +7,9 @@ namespace NICE.Identity.Areas.Admin.Controllers
 	public abstract class AdministrationControllerBase : Controller
 	{
 	}
+
+	[Area("Admin")]
+	public abstract class AdministrationAPIControllerBase : ControllerBase
+	{
+	}
 }

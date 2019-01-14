@@ -1,6 +1,6 @@
 ﻿using NICE.Identity.ViewModels;
 
-namespace NICE.Identity.Areas.Admin.Models
+namespace NICE.Identity.Areas.Admin.ViewModels
 {
 	public class HomeViewModel : BaseViewModel
     {
