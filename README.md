@@ -50,6 +50,10 @@ add the path to the Node installation at the top of the list. It'll be either `C
 The application's uses appsettings.json to store configuration. However, since this is a public repository, confidential configuration information (e.g. db connection string) is stored in secrets.json
 In order to run the application correctly (with it having access to a database), you'll need to acquire (from another dev) or create a secrets.json file with the correct configuration information in. For more  information see: [https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio)
 
+#### Nuget sources
+
+The application currently uses a logging nuget package located on a local nuget server. You'll need to ask another developer on the project to get access to this nuget server. 
+
 #### Webpack bundling
 
 The Javascript in the project should be written in ES6 syntax. It gets transpiled to ES5 by babel, using webpack.
