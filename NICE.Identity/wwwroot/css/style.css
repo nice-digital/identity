@@ -3204,104 +3204,173 @@ ol, .list {
   font-family: "NICE Icons";
   font-style: normal;
   font-weight: normal;
-  src: url("/fonts/nice-icons.eot?9508636");
-  src: url("/fonts/nice-icons.eot?9508636#iefix") format("embedded-opentype"), url("/fonts/nice-icons.woff2?9508636") format("woff2"), url("/fonts/nice-icons.woff?9508636") format("woff"), url("/fonts/nice-icons.ttf?9508636") format("truetype"), url("/fonts/nice-icons.svg?9508636#nice-icons") format("svg"); }
+  src: url("/fonts/nice-icons.eot?838705428");
+  src: url("/fonts/nice-icons.eot?838705428#iefix") format("embedded-opentype"), url("/fonts/nice-icons.woff2?838705428") format("woff2"), url("/fonts/nice-icons.woff?838705428") format("woff"), url("/fonts/nice-icons.ttf?838705428") format("truetype"), url("/fonts/nice-icons.svg?838705428#nice-icons") format("svg"); }
 
-.icon {
+svg.icon {
+  display: inline-block;
+  font-style: normal;
+  font-weight: normal;
+  height: 1em;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: auto;
+  text-transform: none;
+  vertical-align: baseline;
+  width: 1em; }
+
+.icon[class*='icon--'] {
   display: inline-block;
   font-family: 'NICE Icons';
   font-style: normal;
   font-weight: normal;
   line-height: 1;
-  speak: none;
   text-decoration: inherit;
   text-rendering: auto;
   text-transform: none;
   vertical-align: baseline;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
-  .icon:before {
+  .icon[class*='icon--']:before {
     display: block; }
-  .icon--android:before {
-    content: '\f17b'; }
-  .icon--apple:before {
-    content: '\f179'; }
-  .icon--calendar:before {
-    content: '\e045'; }
-  .icon--chevron-down:before {
-    content: '\e03c'; }
-  .icon--chevron-left:before {
-    content: '\e03b'; }
-  .icon--chevron-right:before {
-    content: '\e03a'; }
-  .icon--chevron-up:before {
-    content: '\e039'; }
-  .icon--comment:before {
-    content: '\f101'; }
-  .icon--download:before {
-    content: '\e006'; }
-  .icon--email-closed:before {
-    content: '\e014'; }
-  .icon--evidence:before {
-    content: '\e017'; }
-  .icon--facebook-square:before {
-    content: '\f082'; }
-  .icon--facebook:before {
-    content: '\e012'; }
-  .icon--guidance:before {
-    content: '\e011'; }
-  .icon--hamburger:before {
-    content: '\e03d'; }
-  .icon--linkedin-sign:before {
-    content: '\f08c'; }
-  .icon--linkedin:before {
-    content: '\f0e1'; }
-  .icon--logo-name:before {
-    content: '\e01b'; }
-  .icon--logo:before {
-    content: '\e01a'; }
-  .icon--minus:before {
-    content: '\e02a'; }
-  .icon--pathways:before {
-    content: '\e005'; }
-  .icon--play:before {
-    content: '\e028'; }
-  .icon--plus:before {
-    content: '\e027'; }
-  .icon--podcast:before {
-    content: '\e00b'; }
-  .icon--print:before {
-    content: '\e001'; }
-  .icon--question-circle:before {
-    content: '\f059'; }
-  .icon--readnews:before {
-    content: '\e009'; }
-  .icon--remove:before {
-    content: '\e024'; }
-  .icon--search:before {
-    content: '\e004'; }
-  .icon--share:before {
-    content: '\e008'; }
-  .icon--standards:before {
-    content: '\e002'; }
-  .icon--stop:before {
-    content: '\e043'; }
-  .icon--syndication:before {
-    content: '\e013'; }
-  .icon--trash:before {
-    content: '\e020'; }
-  .icon--twitter-square:before {
-    content: '\f081'; }
-  .icon--twitter:before {
-    content: '\e000'; }
-  .icon--user:before {
-    content: '\e01f'; }
-  .icon--warning:before {
-    content: '\e04b'; }
-  .icon--youtube-play:before {
-    content: '\f16a'; }
-  .icon--youtube-square:before {
-    content: '\f166'; }
+
+.icon--android:before {
+  content: '\f17b'; }
+
+.icon--apple:before {
+  content: '\f179'; }
+
+.icon--calendar:before {
+  content: '\e045'; }
+
+.icon--check:before {
+  content: '\f102'; }
+
+.icon--chevron-down:before {
+  content: '\e03c'; }
+
+.icon--chevron-left:before {
+  content: '\e03b'; }
+
+.icon--chevron-right:before {
+  content: '\e03a'; }
+
+.icon--chevron-up:before {
+  content: '\e039'; }
+
+.icon--comment:before {
+  content: '\f101'; }
+
+.icon--download:before {
+  content: '\e006'; }
+
+.icon--email-closed:before {
+  content: '\e014'; }
+
+.icon--evidence:before {
+  content: '\e017'; }
+
+.icon--facebook-square:before {
+  content: '\f082'; }
+
+.icon--facebook:before {
+  content: '\e012'; }
+
+.icon--google-plus-square:before {
+  content: '\f0d4'; }
+
+.icon--google-plus:before {
+  content: '\f0d5'; }
+
+.icon--guidance:before {
+  content: '\e011'; }
+
+.icon--hamburger:before {
+  content: '\e03d'; }
+
+.icon--linkedin-sign:before {
+  content: '\f08c'; }
+
+.icon--linkedin:before {
+  content: '\f0e1'; }
+
+.icon--logo-name:before {
+  content: '\e01b'; }
+
+.icon--logo:before {
+  content: '\e01a'; }
+
+.icon--minus:before {
+  content: '\e02a'; }
+
+.icon--pathways:before {
+  content: '\e005'; }
+
+.icon--play:before {
+  content: '\e028'; }
+
+.icon--plus:before {
+  content: '\e027'; }
+
+.icon--podcast:before {
+  content: '\e00b'; }
+
+.icon--print:before {
+  content: '\e001'; }
+
+.icon--question-circle:before {
+  content: '\f059'; }
+
+.icon--readnews:before {
+  content: '\e009'; }
+
+.icon--remove:before {
+  content: '\e024'; }
+
+.icon--search:before {
+  content: '\e004'; }
+
+.icon--share:before {
+  content: '\e008'; }
+
+.icon--sorting-asc:before {
+  content: '\e022'; }
+
+.icon--sorting-desc:before {
+  content: '\e023'; }
+
+.icon--sorting:before {
+  content: '\e021'; }
+
+.icon--standards:before {
+  content: '\e002'; }
+
+.icon--stop:before {
+  content: '\e043'; }
+
+.icon--syndication:before {
+  content: '\e013'; }
+
+.icon--trash:before {
+  content: '\e020'; }
+
+.icon--twitter-square:before {
+  content: '\f081'; }
+
+.icon--twitter:before {
+  content: '\e000'; }
+
+.icon--user:before {
+  content: '\e01f'; }
+
+.icon--warning:before {
+  content: '\e04b'; }
+
+.icon--youtube-play:before {
+  content: '\f16a'; }
+
+.icon--youtube-square:before {
+  content: '\f166'; }
 
 .action-banner {
   background: #00506a;
@@ -3657,7 +3726,6 @@ ol, .list {
         font-style: normal;
         font-weight: normal;
         line-height: 1;
-        speak: none;
         text-decoration: inherit;
         text-rendering: auto;
         text-transform: none;
@@ -3731,7 +3799,6 @@ ol, .list {
         font-style: normal;
         font-weight: normal;
         line-height: 1;
-        speak: none;
         text-decoration: inherit;
         text-rendering: auto;
         text-transform: none;
@@ -4359,105 +4426,174 @@ table {
   font-family: "NICE Icons";
   font-style: normal;
   font-weight: normal;
-  src: url("/fonts/nice-icons.eot?1213750");
-  src: url("/fonts/nice-icons.eot?1213750#iefix") format("embedded-opentype"), url("/fonts/nice-icons.woff2?1213750") format("woff2"), url("/fonts/nice-icons.woff?1213750") format("woff"), url("/fonts/nice-icons.ttf?1213750") format("truetype"), url("/fonts/nice-icons.svg?1213750#nice-icons") format("svg"); }
+  src: url("/fonts/nice-icons.eot?356875635");
+  src: url("/fonts/nice-icons.eot?356875635#iefix") format("embedded-opentype"), url("/fonts/nice-icons.woff2?356875635") format("woff2"), url("/fonts/nice-icons.woff?356875635") format("woff"), url("/fonts/nice-icons.ttf?356875635") format("truetype"), url("/fonts/nice-icons.svg?356875635#nice-icons") format("svg"); }
 
-.icon {
+svg.icon {
+  display: inline-block;
+  font-style: normal;
+  font-weight: normal;
+  height: 1em;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: auto;
+  text-transform: none;
+  vertical-align: baseline;
+  width: 1em; }
+
+.icon[class*='icon--'] {
   display: inline-block;
   font-family: 'NICE Icons';
   font-style: normal;
   font-weight: normal;
   line-height: 1;
-  speak: none;
   text-decoration: inherit;
   text-rendering: auto;
   text-transform: none;
   vertical-align: baseline;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
-  .icon:before {
+  .icon[class*='icon--']:before {
     display: block; }
-  .icon--android:before {
-    content: '\f17b'; }
-  .icon--apple:before {
-    content: '\f179'; }
-  .icon--calendar:before {
-    content: '\e045'; }
-  .icon--chevron-down:before {
-    content: '\e03c'; }
-  .icon--chevron-left:before {
-    content: '\e03b'; }
-  .icon--chevron-right:before {
-    content: '\e03a'; }
-  .icon--chevron-up:before {
-    content: '\e039'; }
-  .icon--comment:before {
-    content: '\f101'; }
-  .icon--download:before {
-    content: '\e006'; }
-  .icon--email-closed:before {
-    content: '\e014'; }
-  .icon--evidence:before {
-    content: '\e017'; }
-  .icon--facebook-square:before {
-    content: '\f082'; }
-  .icon--facebook:before {
-    content: '\e012'; }
-  .icon--guidance:before {
-    content: '\e011'; }
-  .icon--hamburger:before {
-    content: '\e03d'; }
-  .icon--linkedin-sign:before {
-    content: '\f08c'; }
-  .icon--linkedin:before {
-    content: '\f0e1'; }
-  .icon--logo-name:before {
-    content: '\e01b'; }
-  .icon--logo:before {
-    content: '\e01a'; }
-  .icon--minus:before {
-    content: '\e02a'; }
-  .icon--pathways:before {
-    content: '\e005'; }
-  .icon--play:before {
-    content: '\e028'; }
-  .icon--plus:before {
-    content: '\e027'; }
-  .icon--podcast:before {
-    content: '\e00b'; }
-  .icon--print:before {
-    content: '\e001'; }
-  .icon--question-circle:before {
-    content: '\f059'; }
-  .icon--readnews:before {
-    content: '\e009'; }
-  .icon--remove:before {
-    content: '\e024'; }
-  .icon--search:before {
-    content: '\e004'; }
-  .icon--share:before {
-    content: '\e008'; }
-  .icon--standards:before {
-    content: '\e002'; }
-  .icon--stop:before {
-    content: '\e043'; }
-  .icon--syndication:before {
-    content: '\e013'; }
-  .icon--trash:before {
-    content: '\e020'; }
-  .icon--twitter-square:before {
-    content: '\f081'; }
-  .icon--twitter:before {
-    content: '\e000'; }
-  .icon--user:before {
-    content: '\e01f'; }
-  .icon--warning:before {
-    content: '\e04b'; }
-  .icon--youtube-play:before {
-    content: '\f16a'; }
-  .icon--youtube-square:before {
-    content: '\f166'; }
 
-.sampleStyleToBeDeleted {
+.icon--android:before {
+  content: '\f17b'; }
+
+.icon--apple:before {
+  content: '\f179'; }
+
+.icon--calendar:before {
+  content: '\e045'; }
+
+.icon--check:before {
+  content: '\f102'; }
+
+.icon--chevron-down:before {
+  content: '\e03c'; }
+
+.icon--chevron-left:before {
+  content: '\e03b'; }
+
+.icon--chevron-right:before {
+  content: '\e03a'; }
+
+.icon--chevron-up:before {
+  content: '\e039'; }
+
+.icon--comment:before {
+  content: '\f101'; }
+
+.icon--download:before {
+  content: '\e006'; }
+
+.icon--email-closed:before {
+  content: '\e014'; }
+
+.icon--evidence:before {
+  content: '\e017'; }
+
+.icon--facebook-square:before {
+  content: '\f082'; }
+
+.icon--facebook:before {
+  content: '\e012'; }
+
+.icon--google-plus-square:before {
+  content: '\f0d4'; }
+
+.icon--google-plus:before {
+  content: '\f0d5'; }
+
+.icon--guidance:before {
+  content: '\e011'; }
+
+.icon--hamburger:before {
+  content: '\e03d'; }
+
+.icon--linkedin-sign:before {
+  content: '\f08c'; }
+
+.icon--linkedin:before {
+  content: '\f0e1'; }
+
+.icon--logo-name:before {
+  content: '\e01b'; }
+
+.icon--logo:before {
+  content: '\e01a'; }
+
+.icon--minus:before {
+  content: '\e02a'; }
+
+.icon--pathways:before {
+  content: '\e005'; }
+
+.icon--play:before {
+  content: '\e028'; }
+
+.icon--plus:before {
+  content: '\e027'; }
+
+.icon--podcast:before {
+  content: '\e00b'; }
+
+.icon--print:before {
+  content: '\e001'; }
+
+.icon--question-circle:before {
+  content: '\f059'; }
+
+.icon--readnews:before {
+  content: '\e009'; }
+
+.icon--remove:before {
+  content: '\e024'; }
+
+.icon--search:before {
+  content: '\e004'; }
+
+.icon--share:before {
+  content: '\e008'; }
+
+.icon--sorting-asc:before {
+  content: '\e022'; }
+
+.icon--sorting-desc:before {
+  content: '\e023'; }
+
+.icon--sorting:before {
+  content: '\e021'; }
+
+.icon--standards:before {
+  content: '\e002'; }
+
+.icon--stop:before {
+  content: '\e043'; }
+
+.icon--syndication:before {
+  content: '\e013'; }
+
+.icon--trash:before {
+  content: '\e020'; }
+
+.icon--twitter-square:before {
+  content: '\f081'; }
+
+.icon--twitter:before {
+  content: '\e000'; }
+
+.icon--user:before {
+  content: '\e01f'; }
+
+.icon--warning:before {
+  content: '\e04b'; }
+
+.icon--youtube-play:before {
+  content: '\f16a'; }
+
+.icon--youtube-square:before {
+  content: '\f166'; }
+
+.sampleStyleToBeDeleted2 {
   animation: blinker 1s linear infinite; }
 

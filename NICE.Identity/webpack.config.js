@@ -2,6 +2,7 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const postcssPresetEnv = require("postcss-preset-env");
 const MinifyPlugin = require('babel-minify-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 // We are getting 'process.env.NODE_ENV' from the NPM scripts
 // Remember the 'dev' script?
@@ -120,7 +121,7 @@ module.exports = {
 						options: {
 							includePaths: [
 								"node_modules/@nice-digital/design-system/src/stylesheets",
-								"node_modules/@nice-digital/icons/dist"
+								"node_modules/@nice-digital/icons/scss"
 							]
 						}
 					}
@@ -167,6 +168,7 @@ module.exports = {
 		new MiniCssExtractPlugin({
 			filename: devMode ? "css/[name].css" : "css/[name].min.css"
 		}),
-		new MinifyPlugin()
+		new MinifyPlugin(),
+		new CopyWebpackPlugin([{ from: "node_modules/@nice-digital/icons/dist/*", to: "fonts", ignore: ["*.html"], flatten: true }]),
 	]
 };

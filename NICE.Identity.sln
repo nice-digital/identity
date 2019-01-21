@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity", "NICE.Identity\NICE.Identity.csproj", "{94687673-DE30-4345-831A-294E0BA149A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.WebTest", "NICE.Identity.WebTest\NICE.Identity.WebTest.csproj", "{7A16A07F-D56F-4C72-917F-D02835755043}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A16A07F-D56F-4C72-917F-D02835755043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A16A07F-D56F-4C72-917F-D02835755043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A16A07F-D56F-4C72-917F-D02835755043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A16A07F-D56F-4C72-917F-D02835755043}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
