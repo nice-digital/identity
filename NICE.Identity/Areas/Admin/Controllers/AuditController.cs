@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NICE.Identity.Areas.Admin.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using NICE.Identity.Models;
 
-namespace NICE.Identity.Controllers
+namespace NICE.Identity.Areas.Admin.Controllers
 {
 	[Route("admin/api/[controller]")]
     [ApiController]
