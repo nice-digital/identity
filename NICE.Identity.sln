@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity", "NICE.Ident
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.WebTest", "NICE.Identity.WebTest\NICE.Identity.WebTest.csproj", "{7A16A07F-D56F-4C72-917F-D02835755043}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NETCore", "NICE.Identity.TestClient.NETCore\NICE.Identity.TestClient.NETCore.csproj", "{5E0EBB3D-0DA2-4B12-9DA5-3E0A2BD3C41F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.React", "NICE.Identity.TestClient.React\NICE.Identity.TestClient.React.csproj", "{EC17CEE2-CF76-46B3-9118-4915F716CD53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,14 @@ Global
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A16A07F-D56F-4C72-917F-D02835755043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A16A07F-D56F-4C72-917F-D02835755043}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A16A07F-D56F-4C72-917F-D02835755043}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A16A07F-D56F-4C72-917F-D02835755043}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E0EBB3D-0DA2-4B12-9DA5-3E0A2BD3C41F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E0EBB3D-0DA2-4B12-9DA5-3E0A2BD3C41F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E0EBB3D-0DA2-4B12-9DA5-3E0A2BD3C41F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E0EBB3D-0DA2-4B12-9DA5-3E0A2BD3C41F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC17CEE2-CF76-46B3-9118-4915F716CD53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC17CEE2-CF76-46B3-9118-4915F716CD53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC17CEE2-CF76-46B3-9118-4915F716CD53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC17CEE2-CF76-46B3-9118-4915F716CD53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
