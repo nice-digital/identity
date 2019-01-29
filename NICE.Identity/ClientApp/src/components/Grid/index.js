@@ -5,8 +5,8 @@ import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import { GreedBorderDiv } from './components'
 
 
-export class Home extends Component {
-  displayName = Home.name
+export class GridComponent extends Component {
+  displayName = GridComponent.name
 
   constructor(props) {
     super(props);
