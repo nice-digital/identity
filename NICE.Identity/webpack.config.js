@@ -1,16 +1,58 @@
 ﻿const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const postcssPresetEnv = require("postcss-preset-env");
+const MinifyPlugin = require('babel-minify-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 // We are getting 'process.env.NODE_ENV' from the NPM scripts
 // Remember the 'dev' script?
 const devMode = process.env.NODE_ENV !== "production";
+
+
+function recursiveIssuer(m) {
+	if (m.issuer) {
+		return recursiveIssuer(m.issuer);
+	} else if (m.name) {
+		return m.name;
+	} else {
+		return false;
+	}
+}
+
+
 module.exports = {
 	// Tells Webpack which built-in optimizations to use
 	// If you leave this out, Webpack will default to 'production'
 	mode: devMode ? "development" : "production",
 	// Webpack needs to know where to start the bundling process,
 	// so we define the Sass file under './Styles' directory
-	entry: ["./Styles/main.scss"],
+	entry: {
+		main: ["./Scripts/index.js"],
+		style: ["./Styles/main.scss"],
+		admin: ["./Areas/Admin/Scripts/index-admin.js"],
+		admincss: ["./Areas/Admin/Styles/main-admin.scss"]
+	},
+
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				mainStyles: {
+					name: 'main',
+					test: (m, c, entry = 'main') => m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+					chunks: 'all',
+					enforce: true
+				},
+				adminCssStyles: {
+					name: 'admincss',
+					test: (m, c, entry = 'admincss') => m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+					chunks: 'all',
+					enforce: true
+				}
+			}
+		}
+	},
+
+
 	// This is where we define the path where Webpack will place
 	// a bundled JS file. Webpack needs to produce this file,
 	// but for our purposes you can ignore it
@@ -22,7 +64,7 @@ module.exports = {
 		publicPath: "/css",
 		// The name of the output bundle. Path is also relative
 		// to the output path, so './wwwroot/js'
-		filename: "js/sass.js"
+		filename: "js/[name].js"
 	},
 	module: {
 		// Array of rules that tells Webpack how the modules (output)
@@ -79,7 +121,7 @@ module.exports = {
 						options: {
 							includePaths: [
 								"node_modules/@nice-digital/design-system/src/stylesheets",
-								"node_modules/@nice-digital/icons/dist"
+								"node_modules/@nice-digital/icons/scss"
 							]
 						}
 					}
@@ -110,7 +152,13 @@ module.exports = {
 						}
 					}
 				]
-			}
+			},
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				use: "babel-loader",
+				resolve: { extensions: [".js"] }
+			},
 		]
 	},
 	plugins: [
@@ -118,7 +166,9 @@ module.exports = {
 		// indicating what the CSS output file name should be and
 		// the location
 		new MiniCssExtractPlugin({
-			filename: devMode ? "css/site.css" : "css/site.min.css"
-		})
+			filename: devMode ? "css/[name].css" : "css/[name].min.css"
+		}),
+		new MinifyPlugin(),
+		new CopyWebpackPlugin([{ from: "node_modules/@nice-digital/icons/dist/*", to: "fonts", ignore: ["*.html"], flatten: true }]),
 	]
 };

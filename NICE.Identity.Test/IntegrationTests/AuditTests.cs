@@ -19,7 +19,7 @@ namespace NICE.Identity.Test.IntegrationTests
 			var client = GetClient(context);
 
 			//Act
-			var response = await client.GetAsync("/api/Audit");
+			var response = await client.GetAsync("/admin/api/Audit");
 			response.EnsureSuccessStatusCode();
 			var responseString = await response.Content.ReadAsStringAsync();
 

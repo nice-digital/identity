@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace NICE.Identity.Models
 {
-    public partial class Audit
+	public partial class Audit
     {
 	    public Audit()
 	    {

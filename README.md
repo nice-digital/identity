@@ -22,13 +22,15 @@
     - [Jest](https://facebook.github.io/jest/) for JavaScript tests
     - [ESLint](https://eslint.org/) for JavaScript linting
     - [jQuery 1.12.4](https://jquery.com/browser-support/) for AJAX suport. using last version supporting IE8
-    - [jQuery validate](https://jqueryvalidation.org/) form validation
+    - [jQuery validate](https://jqueryvalidation.org/) form validation used with [jquery-validation-unobtrusive](https://github.com/aspnet/jquery-validation-unobtrusive) (part of .NET Core)
 - [SASS](https://sass-lang.com/) as a CSS pre-processor
 - [Modernizr](https://modernizr.com/) for feature detection
 - [WebdriverIO](http://webdriver.io/) for automated functional testing
-- [NICE Design System](https://nhsevidence.github.io/nice-design-system/) for NICE styling
+- [NICE Design System](https://nhsevidence.github.io/nice-design-system/) for NICE styling front-end
     - [NICE Icons](https://github.com/nhsevidence/nice-icons) for icon webfont
-
+- [Bootstrap 3.3.7](https://getbootstrap.com/) for styling back-end
+- [Webpack](https://webpack.js.org/) bundling and minification.
+- [Babel](https://babeljs.io/) for javascript transpilation
 
 ### Getting Started
 
@@ -47,3 +49,15 @@ add the path to the Node installation at the top of the list. It'll be either `C
 
 The application's uses appsettings.json to store configuration. However, since this is a public repository, confidential configuration information (e.g. db connection string) is stored in secrets.json
 In order to run the application correctly (with it having access to a database), you'll need to acquire (from another dev) or create a secrets.json file with the correct configuration information in. For more  information see: [https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio)
+
+#### Nuget sources
+
+The application currently uses a logging nuget package located on a local nuget server. You'll need to ask another developer on the project to get access to this nuget server. 
+
+#### Webpack bundling
+
+The Javascript in the project should be written in ES6 syntax. It gets transpiled to ES5 by babel, using webpack.
+The project has been configured via Task Runner Explorer in Visual Studio to run `webpack --watch` when the project is opened. If you don't use Visual Studio, you'll need to start a command prompt running that command in order to build the javascript and CSS.
+
+
+

@@ -5,7 +5,15 @@ VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity", "NICE.Identity\NICE.Identity.csproj", "{94687673-DE30-4345-831A-294E0BA149A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.NETCore", "TestClients\NICE.Identity.TestClient.NETCore\NICE.Identity.TestClient.NETCore.csproj", "{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NETFramework", "TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj", "{4C555E13-A02C-4529-AAFF-7DCAE97774AD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.React", "TestClients\NICE.Identity.TestClient.React\NICE.Identity.TestClient.React.csproj", "{E7DC7E68-5778-450A-BCBD-DA13B5221124}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestClients", "TestClients", "{F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +29,26 @@ Global
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
+		{4C555E13-A02C-4529-AAFF-7DCAE97774AD} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
+		{E7DC7E68-5778-450A-BCBD-DA13B5221124} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03D45238-C53B-4C50-8057-FFBBF8579DC1}

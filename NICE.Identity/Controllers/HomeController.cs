@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.ViewModels;
-using System.Diagnostics;
 
 namespace NICE.Identity.Controllers
 {
@@ -11,10 +11,15 @@ namespace NICE.Identity.Controllers
 			return View(new HomeViewModel("Home", "NICE Identity", false));
 		}
 
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
+		/// <summary>
+		/// GET /Home/RaiseError
+		/// 
+		/// this is just here to test the ELK stack. 
+		/// </summary>
+		/// <returns></returns>
+		public IActionResult RaiseError()
 		{
-			return View(new ErrorViewModel("Error", "Error", requestId: Activity.Current?.Id ?? HttpContext.TraceIdentifier));
+			throw new Exception("Exception raised by Home/RaiseError");
 		}
 	}
 }

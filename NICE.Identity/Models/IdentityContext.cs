@@ -1,10 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace NICE.Identity.Models
 {
-    public partial class IdentityContext : DbContext
+	public partial class IdentityContext : DbContext
     {
         public IdentityContext()
         {
