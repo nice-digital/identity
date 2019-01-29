@@ -5,7 +5,6 @@ import { FindUser } from './Pages/FindUser';
 
 
 export default class App extends Component {
-  displayName = App.name
 
   render() {
     return (
