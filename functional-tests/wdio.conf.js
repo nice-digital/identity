@@ -10,7 +10,7 @@ exports.config = {
         "./src/features/**/*.feature"
     ],
     exclude: [
-        "./src/features/**/homepage.feature"
+        // "./src/features/**/homepage.feature"
     ],
 
     // Assume user has Chrome and Firefox installed.
