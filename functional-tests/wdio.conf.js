@@ -9,23 +9,21 @@ exports.config = {
     specs: [
         "./src/features/**/*.feature"
     ],
-    exclude: [],
+    exclude: [
+        "./src/features/**/homepage.feature"
+    ],
 
     // Assume user has Chrome and Firefox installed.
     capabilities: [
         {
-            maxInstances: 2,
             browserName: "chrome",
-            chromeOptions: {
-                args: ["--window-size=1366,768"]
-            }
         }
     ],
 
     logLevel: "verbose",
     coloredLogs: true,
     screenshotPath: "./errorShots/",
-    baseUrl: "https://www.nice.org.uk/",
+    baseUrl: "http://test-identity.nice.org.uk",
     reporters: ["spec"],
 
     // Use BDD with Cucumber
@@ -37,7 +35,8 @@ exports.config = {
             "./src/steps/when.js",
             "./src/steps/then.js"
         ],
-        tagExpression: "not @pending" // See https://docs.cucumber.io/tag-expressions/
+        tagExpression: "not @pending", // See https://docs.cucumber.io/tag-expressions/
+        timeout: 30000,
     },
 
     // Set up global asssertion libraries
