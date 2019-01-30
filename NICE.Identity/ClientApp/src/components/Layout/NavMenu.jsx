@@ -1,41 +1,17 @@
-﻿import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Glyphicon, Nav, Navbar, NavItem } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import './NavMenu.css';
+﻿import React from 'react';
+import {LefthandMenuContainer, StyledLink, LefthandMenuWrapper} from "./component";
 
-export class NavMenu extends Component {
-  displayName = NavMenu.name
-
+export class NavMenu extends React.Component {
   render() {
     return (
-      <Navbar inverse fixedTop fluid collapseOnSelect>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <Link to={'/'}>WebApplication5</Link>
-          </Navbar.Brand>
-          <Navbar.Toggle />
-        </Navbar.Header>
-        <Navbar.Collapse>
-          <Nav>
-            <LinkContainer to={'/'} exact>
-              <NavItem>
-                <Glyphicon glyph='home' /> Home
-              </NavItem>
-            </LinkContainer>
-            <LinkContainer to={'/finduser'}>
-              <NavItem>
-                <Glyphicon glyph='education' /> Find User
-              </NavItem>
-            </LinkContainer>
-            <LinkContainer to={'/findwebsite'}>
-              <NavItem>
-                <Glyphicon glyph='th-list' /> Find website
-              </NavItem>
-            </LinkContainer>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+      <LefthandMenuWrapper>
+        <h1>User Admin Portal</h1>
+        <LefthandMenuContainer>
+            <StyledLink to="/">Users</StyledLink>
+            <StyledLink to="/roles">Roles</StyledLink>
+            <StyledLink to="/realms">Realms</StyledLink>
+        </LefthandMenuContainer> 
+      </LefthandMenuWrapper>
     );
   }
 }

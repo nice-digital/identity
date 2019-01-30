@@ -6,6 +6,6 @@ export const Container = styled(Row)`
   /* border: 1px solid #ececec; */
   margin: 1.5rem 0 1.5rem 0;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   padding: 2rem 0;
 `;
