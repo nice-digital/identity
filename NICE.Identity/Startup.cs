@@ -81,10 +81,9 @@ namespace NICE.Identity
 
 			try
 			{
-				using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-				{
-					serviceScope.ServiceProvider.GetService<IdentityContext>().Database.Migrate();
-				}
+				var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+				serviceScope.ServiceProvider.GetService<IdentityContext>().Database.Migrate();
+				serviceScope.Dispose();
 			}
 			catch (Exception ex)
 			{
