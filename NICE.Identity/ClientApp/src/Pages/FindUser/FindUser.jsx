@@ -6,27 +6,27 @@ import { Container } from './components';
 
 export class FindUser extends Component {
   state = {
-    gridData: null,
+    rowData: null,
   }
 
   componentDidMount(){
     axios.get('/data.json').then( res => {
       this.setState({
-        gridData: res.data,
+        rowData: res.data.data,
       })
     })
   }
 
   render() {
-    const {gridData} = this.state;
-    console.log('updated with:', gridData)
+    const {rowData} = this.state;
+    console.log('updated with:', rowData)
     return (
       <Fragment>
         <Container>
           <FindUserControls />
         </Container>
         <Container>
-          <MyGrid data={gridData} />
+          <MyGrid rowData={rowData} />
         </Container>
       </Fragment>
     );
