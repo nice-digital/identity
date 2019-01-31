@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,7 @@ namespace NICE.Identity
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)
 		{
 			seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
-			loggerFactory.CreateLogger<Startup>();
+			var startupLogger = loggerFactory.CreateLogger<Startup>();
 
 			if (env.IsDevelopment())
 			{
@@ -77,6 +78,17 @@ namespace NICE.Identity
 					template: "{controller=home}/{action=index}/{id?}"
 				);
 			});
+
+			try
+			{
+				var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+				serviceScope.ServiceProvider.GetService<IdentityContext>().Database.Migrate();
+				serviceScope.Dispose();
+			}
+			catch (Exception ex)
+			{
+				startupLogger.LogError($"EF Migrations Error: {ex}");
+			}
 		}
 	}
 }
