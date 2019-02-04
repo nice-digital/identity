@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,12 @@ namespace NICE.Identity
 
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+			// In production, the React files will be served from this directory
+			services.AddSpaStaticFiles(configuration =>
+			{
+				configuration.RootPath = "Administration/build";
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,6 +86,16 @@ namespace NICE.Identity
 				);
 			});
 
+			app.UseSpa(spa =>
+			{
+				spa.Options.SourcePath = "Administration";
+
+				if (env.IsDevelopment())
+				{
+					spa.UseReactDevelopmentServer(npmScript: "start");
+				}
+			});
+
 			try
 			{
 				var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
@@ -89,6 +106,7 @@ namespace NICE.Identity
 			{
 				startupLogger.LogError($"EF Migrations Error: {ex}");
 			}
+			
 		}
 	}
 }
