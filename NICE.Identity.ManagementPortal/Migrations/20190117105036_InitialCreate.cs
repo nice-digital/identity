@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace NICE.Identity.Migrations
+namespace z_deprecated_NICE.Identity.Migrations
 {
     public partial class InitialCreate : Migration
     {

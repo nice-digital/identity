@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NICE.Identity\NICE.Identity.csproj" />
+    <ProjectReference Include="..\NICE.Identity.Authentication.WebAPI\NICE.Identity.Authentication.WebAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
