@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>b69bc28e-14c9-4c24-bd25-232e24a55745</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NICE.Identity.Client\NICE.Identity.Client.csproj" />
+    <ProjectReference Include="..\..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
   </ItemGroup>
 
 </Project>

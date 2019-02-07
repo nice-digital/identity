@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NICE.Identity.Client\NICE.Identity.Client.csproj" />
+    <ProjectReference Include="..\..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

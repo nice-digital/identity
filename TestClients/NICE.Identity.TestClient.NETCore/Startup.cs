@@ -9,12 +9,13 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NICE.Identity.Authentication.Sdk;
 
 namespace NICE.Identity.TestClient.NETCore
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration)
+		public Startup(Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
 			Configuration = configuration;
 		}
@@ -33,6 +34,7 @@ namespace NICE.Identity.TestClient.NETCore
 
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+		    services.AddAuthenticationSdk();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
