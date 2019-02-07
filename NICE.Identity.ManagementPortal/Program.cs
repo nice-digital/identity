@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace NICE.Identity.ManagementPortal
+namespace z_deprecated_NICE.Identity
 {
 	public class Program
 	{

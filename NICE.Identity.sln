@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "z_deprecated_NICE.Identity"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.Authentication.WebAPI", "NICE.Identity.Authentication.WebAPI\NICE.Identity.Authentication.WebAPI.csproj", "{49686688-A53B-499B-B59D-07777A4D0907}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.RoleManagement.WebAPI", "NICE.Identity.RoleManagement.WebAPI\NICE.Identity.RoleManagement.WebAPI.csproj", "{D6DC0156-319A-4E17-9388-7E522A34F105}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.Authorisation.WebAPI", "NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj", "{D6DC0156-319A-4E17-9388-7E522A34F105}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.Client", "NICE.Identity.Client\NICE.Identity.Client.csproj", "{70C51A94-78C5-4513-95B4-BACAD50B2701}"
 EndProject

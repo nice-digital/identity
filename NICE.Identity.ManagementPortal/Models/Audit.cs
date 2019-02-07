@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NICE.Identity.ManagementPortal.Models
+namespace z_deprecated_NICE.Identity.Models
 {
 	public partial class Audit
     {

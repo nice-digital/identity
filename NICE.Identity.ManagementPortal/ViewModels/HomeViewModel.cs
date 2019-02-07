@@ -1,4 +1,4 @@
-﻿namespace NICE.Identity.ManagementPortal.ViewModels
+﻿namespace z_deprecated_NICE.Identity.ViewModels
 {
 	public class HomeViewModel : BaseViewModel
     {

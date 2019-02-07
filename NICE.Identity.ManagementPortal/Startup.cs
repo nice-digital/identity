@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.ManagementPortal.Configuration;
-using NICE.Identity.ManagementPortal.Models;
-using NICE.Identity.ManagementPortal.Services;
+using z_deprecated_NICE.Identity.Configuration;
+using z_deprecated_NICE.Identity.Models;
+using z_deprecated_NICE.Identity.Services;
 
-namespace NICE.Identity.ManagementPortal
+namespace z_deprecated_NICE.Identity
 {
 	public class Startup
 	{

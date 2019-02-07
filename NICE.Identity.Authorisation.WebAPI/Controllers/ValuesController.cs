@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
-namespace NICE.Identity.RoleManagement.WebAPI.Controllers
+namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]

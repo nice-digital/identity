@@ -1,4 +1,4 @@
-namespace NICE.Identity.ManagementPortal.Configuration
+namespace z_deprecated_NICE.Identity.Configuration
 {
     public class EnvironmentConfig
     {

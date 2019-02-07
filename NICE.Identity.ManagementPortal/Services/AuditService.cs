@@ -1,6 +1,6 @@
-﻿using NICE.Identity.ManagementPortal.Models;
+﻿using z_deprecated_NICE.Identity.Models;
 
-namespace NICE.Identity.ManagementPortal.Services
+namespace z_deprecated_NICE.Identity.Services
 {
 	public interface IAuditService
 	{
