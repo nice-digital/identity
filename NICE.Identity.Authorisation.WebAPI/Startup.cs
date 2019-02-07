@@ -5,11 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace NICE.Identity.RoleManagement.WebAPI
+namespace NICE.Identity.Authorisation.WebAPI
 {
     public class Startup
     {
-        private const string ApiTitle = "NICE.Identity.RoleManagement.WebAPI";
+        private const string ApiTitle = "NICE.Identity.Authorisation.WebAPI";
         private const string ApiVersion = "v1";
 
         public Startup(IConfiguration configuration)

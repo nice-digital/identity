@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.ManagementPortal.Configuration;
 using NICE.Logging;
 using NICE.Logging.Sinks.RabbitMQ;
 using Serilog;
+using z_deprecated_NICE.Identity.Configuration;
 
-namespace NICE.Identity.ManagementPortal
+namespace z_deprecated_NICE.Identity
 {
     public interface ISeriLogger {
         void Configure(ILoggerFactory loggerFactory, IConfiguration configuration, IApplicationLifetime appLifetime, IHostingEnvironment env);

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace NICE.Identity.RoleManagement.WebAPI.Controllers
+namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]

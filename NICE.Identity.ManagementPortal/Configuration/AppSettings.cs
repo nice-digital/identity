@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace NICE.Identity.ManagementPortal.Configuration
+namespace z_deprecated_NICE.Identity.Configuration
 {
     public static class AppSettings 
     {

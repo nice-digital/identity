@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.ManagementPortal.ViewModels;
+using z_deprecated_NICE.Identity.ViewModels;
 
-namespace NICE.Identity.ManagementPortal.Controllers
+namespace z_deprecated_NICE.Identity.Controllers
 {
 	public class HomeController : Controller
 	{
