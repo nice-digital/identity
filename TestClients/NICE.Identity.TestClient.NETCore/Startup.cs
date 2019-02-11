@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
+using NICE.Identity.Authentication.Sdk.Abstractions;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.TestClient.NETCore
 {
@@ -32,9 +29,11 @@ namespace NICE.Identity.TestClient.NETCore
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
 
+			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+			services.TryAddTransient<INICEAuthenticationService, NICEAuthenticationService>();
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-		    services.AddAuthenticationSdk();
+		    services.AddAuthenticationSdk(Configuration);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +52,7 @@ namespace NICE.Identity.TestClient.NETCore
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
+			app.UseAuthentication();
 
 			app.UseMvc(routes =>
 			{
