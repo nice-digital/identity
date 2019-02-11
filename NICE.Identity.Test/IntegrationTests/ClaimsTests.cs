@@ -16,7 +16,7 @@ namespace NICE.Identity.Test.IntegrationTests
 		{
 			//Arrange
 			var context = GetContext();
-			AddTestData(context);
+			TestData.AddAll(ref context);
 			var client = GetClient(context);
 
 			//Act
@@ -28,16 +28,6 @@ namespace NICE.Identity.Test.IntegrationTests
 			responseString.ShouldMatchApproved();
 		}
 
-		public void AddTestData(IdentityContext context)
-		{
-			context.Services.Add(new Services(1, "Comments"));
-			context.Environments.Add(new Environments(1, "Test"));
-			context.Websites.Add(new Websites(1, 1, 1, "test.com"));
-			context.Roles.Add(new Roles(1, 1, "Admin"));
-			context.UserRoles.Add(new UserRoles(1, 1, 1));
-			context.Users.Add(new Users(1, null, null, null, "Joe", "Bloggs", true, true, null, null, true, null, null, null,
-				true, true));
-			context.SaveChanges();
-		}
+		
 	}
 }

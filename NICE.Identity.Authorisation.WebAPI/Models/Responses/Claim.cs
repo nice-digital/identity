@@ -1,15 +1,20 @@
 ﻿namespace NICE.Identity.Authorisation.WebAPI.Models.Responses
 {
+	public enum ClaimType
+	{
+		Role,
+		FirstName
+	}
+
     public class Claim
     {
-	    public Claim(int roleId, string roleName)
+	    public Claim(ClaimType type, string value)
 	    {
-		    RoleId = roleId;
-		    RoleName = roleName;
+		    Type = type;
+		    Value = value;
 	    }
 
-	    public int RoleId { get; set; }
-
-        public string RoleName { get; set; }
+	    public ClaimType Type { get; set; }
+        public string Value { get; set; }
     }
 }
