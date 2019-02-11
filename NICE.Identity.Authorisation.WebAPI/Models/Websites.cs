@@ -5,12 +5,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Models
 {
     public partial class Websites
     {
+
         public Websites()
         {
             Roles = new HashSet<Roles>();
         }
 
-        public int WebsiteId { get; set; }
+		public Websites(int websiteId, int serviceId, int environmentId, string host)
+		{
+			WebsiteId = websiteId;
+			ServiceId = serviceId;
+			EnvironmentId = environmentId;
+			Host = host;
+			Roles = new HashSet<Roles>();
+		}
+
+		public int WebsiteId { get; set; }
         public int ServiceId { get; set; }
         public int EnvironmentId { get; set; }
         public string Host { get; set; }

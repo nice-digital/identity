@@ -5,7 +5,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Models
 {
     public partial class UserRoles
     {
-        public int UserRoleId { get; set; }
+	    public UserRoles()
+	    {
+	    }
+
+	    public UserRoles(int userRoleId, int roleId, int userId)
+		{
+			UserRoleId = userRoleId;
+			RoleId = roleId;
+			UserId = userId;
+		}
+
+		public int UserRoleId { get; set; }
         public int RoleId { get; set; }
         public int UserId { get; set; }
 
