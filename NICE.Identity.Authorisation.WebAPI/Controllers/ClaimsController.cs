@@ -17,8 +17,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 	    public ClaimsController(IRoleRepository roleRepository)
 	    {
-	        _roleRepository = roleRepository;
-	    }
+	        _roleRepository = roleRepository ?? throw new ArgumentNullException(nameof(roleRepository));
+        }
 
 		// GET api/claims/1234
 		[HttpGet("{userId}")]

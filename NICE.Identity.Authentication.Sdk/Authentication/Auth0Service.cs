@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Authentication
 {
-	public class Auth0AuthenticationService : Abstractions.IAuthenticationService
+	internal class Auth0Service : Abstractions.IAuthenticationService
 	{
 	    private const string AuthenticationScheme = "Auth0";
 
@@ -14,8 +13,7 @@ namespace NICE.Identity.Authentication.Sdk
 		{
 			await context.ChallengeAsync(AuthenticationScheme, new AuthenticationProperties() { RedirectUri = returnUrl });
 		}
-
-		[Authorize]
+        
 		public async Task Logout(HttpContext context, string returnUrl = "/")
 		{
 			await context.SignOutAsync(AuthenticationScheme, new AuthenticationProperties
