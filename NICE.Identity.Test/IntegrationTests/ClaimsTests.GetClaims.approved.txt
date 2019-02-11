@@ -1,6 +1,10 @@
 ﻿[
     {
-        "roleId":1,
-        "roleName":"Admin"
+        "type":0,
+        "value":"Administrator"
+    },
+    {
+        "type":1,
+        "value":"Steve"
     }
 ]
