@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.Authentication.Sdk.Authentication;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.TestClient.NETCore
@@ -30,7 +31,6 @@ namespace NICE.Identity.TestClient.NETCore
 			});
 
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-			services.TryAddTransient<IAuthenticationService, Auth0AuthenticationService>();
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		    services.AddAuthenticationSdk(Configuration);

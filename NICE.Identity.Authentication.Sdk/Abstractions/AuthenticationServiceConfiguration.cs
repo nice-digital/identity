@@ -1,6 +1,6 @@
 ﻿namespace NICE.Identity.Authentication.Sdk.Abstractions
 {
-    public interface IConfiguration
+    public class AuthenticationServiceConfiguration
     {
         string Domain { get; set; }
 
