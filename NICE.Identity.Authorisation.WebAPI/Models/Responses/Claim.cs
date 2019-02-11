@@ -2,7 +2,13 @@
 {
     public class Claim
     {
-        public string RoleId { get; set; }
+	    public Claim(int roleId, string roleName)
+	    {
+		    RoleId = roleId;
+		    RoleName = roleName;
+	    }
+
+	    public int RoleId { get; set; }
 
         public string RoleName { get; set; }
     }

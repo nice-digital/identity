@@ -25,7 +25,7 @@ namespace NICE.Identity.Test.IntegrationTests
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			//Assert
-			responseString.ShouldMatchApproved(new Func<string, string>[] { Scrubbers.ScrubAuditId });
+			responseString.ShouldMatchApproved();
 		}
 
 		public void AddTestData(IdentityContext context)
