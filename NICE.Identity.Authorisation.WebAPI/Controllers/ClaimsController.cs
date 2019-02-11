@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authorisation.WebAPI.Abstractions;
 using NICE.Identity.Authorisation.WebAPI.Domain;
 using NICE.Identity.Authorisation.WebAPI.Models.Responses;
+using NICE.Identity.Authorisation.WebAPI.Services;
 using Claim = NICE.Identity.Authorisation.WebAPI.Models.Requests.Claim;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
@@ -14,23 +15,20 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	public class ClaimsController : ControllerBase
 	{
 	    private readonly IRoleRepository _roleRepository;
+		private readonly IClaimsService _claimsService;
 
-	    public ClaimsController(IRoleRepository roleRepository)
+		public ClaimsController(IRoleRepository roleRepository, IClaimsService claimsService)
 	    {
 	        _roleRepository = roleRepository ?? throw new ArgumentNullException(nameof(roleRepository));
-        }
+		    _claimsService = claimsService;
+	    }
 
 		// GET api/claims/1234
 		[HttpGet("{userId}")]
 		public async Task<ActionResult<IEnumerable<Models.Responses.Claim[]>>> Get(int userId)
 		{
-            throw new NotImplementedException();
-
-            
-
-            //_roleRepository.AddToUser()
-
-		    return Ok();
+			var result = _claimsService.GetClaims(userId);
+		    return Ok(result);
 		}
 
 	    // PUT api/claims

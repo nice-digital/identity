@@ -13,7 +13,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		List<Models.Responses.Claim> GetClaims(int userId);
 	}
 
-	public class ClaimsService
+	public class ClaimsService : IClaimsService
 	{
 		private readonly IdentityContext _context;
 
@@ -29,7 +29,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 			foreach (var userRole in userRoles)
 			{
-				claims.Add(new Claim(userRole.RoleId, userRole.Role.Name){});
+				claims.Add(new Claim(userRole.RoleId, userRole.Role.Name));
 			}
 
 			return claims;
