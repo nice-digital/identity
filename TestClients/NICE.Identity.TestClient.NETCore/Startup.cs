@@ -2,23 +2,30 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
-using NICE.Identity.Authentication.Sdk.Abstractions;
-using NICE.Identity.Authentication.Sdk.Authentication;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.TestClient.NETCore
 {
 	public class Startup
 	{
-		public Startup(Microsoft.Extensions.Configuration.IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+	    private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
+	    private const string AuthenticationServiceConfigurationPath = "AuthenticationServiceConfiguration";
 
-		public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
+	    {
+	        var builder = new ConfigurationBuilder()
+	            .SetBasePath(env.ContentRootPath)
+	            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+	            //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+	            .AddEnvironmentVariables();
+	        Configuration = builder.Build();
+	    }
+
+        public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
@@ -31,9 +38,9 @@ namespace NICE.Identity.TestClient.NETCore
 			});
 
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-		    services.AddAuthenticationSdk(Configuration);
+
+		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath, AuthenticationServiceConfigurationPath);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

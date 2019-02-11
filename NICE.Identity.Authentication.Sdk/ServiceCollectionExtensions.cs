@@ -14,8 +14,14 @@ namespace NICE.Identity.Authentication.Sdk
 {
 	public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
+                                                              IConfiguration configuration,
+                                                              string authorisationServiceConfigurationPath,
+                                                              string authenticationServiceConfigurationPath)
         {
+            services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
+            services.Configure<AuthenticationServiceConfiguration>(configuration.GetSection(authenticationServiceConfigurationPath));
+
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
