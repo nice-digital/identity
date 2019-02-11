@@ -11,7 +11,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
             var roles = new List<Role>();
 
-            // TODO Entity frameowrk code
+            // TODO Entity framework code
 
             return roles;
         }
