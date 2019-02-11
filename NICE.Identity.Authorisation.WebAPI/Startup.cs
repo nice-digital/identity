@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using NICE.Identity.Authorisation.WebAPI.Repositories;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -23,6 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddRepositories()
                 .AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc(ApiVersion, new Info {Title = ApiTitle, Version = ApiVersion});
