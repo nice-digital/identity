@@ -30,7 +30,7 @@ namespace NICE.Identity.TestClient.NETCore
 			});
 
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-			services.TryAddTransient<INICEAuthenticationService, NICEAuthenticationService>();
+			services.TryAddTransient<IAuthenticationService, Auth0AuthenticationService>();
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		    services.AddAuthenticationSdk(Configuration);

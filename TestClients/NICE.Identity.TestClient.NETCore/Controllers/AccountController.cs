@@ -9,9 +9,9 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 	public class AccountController : Controller
 	{
 		private readonly IHttpContextAccessor _httpContextAccessor;
-		private readonly INICEAuthenticationService _niceAuthenticationService;
+		private readonly IAuthenticationService _niceAuthenticationService;
 
-		public AccountController(IHttpContextAccessor httpContextAccessor, INICEAuthenticationService niceAuthenticationService)
+		public AccountController(IHttpContextAccessor httpContextAccessor, IAuthenticationService niceAuthenticationService)
 		{
 			_httpContextAccessor = httpContextAccessor;
 			_niceAuthenticationService = niceAuthenticationService;
