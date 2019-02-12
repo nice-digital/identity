@@ -22,14 +22,49 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		{
 			_context = context;
 		}
+
+		//public List<Models.Responses.Claim> GetClaims(int userId)
+		//{
+		//	var claims = new List<Claim>();
+		//	var userRoles = _context.GetClaims(userId);
+
+		//	if (userRoles.Count == 0)
+		//	{
+		//		//second hit to the DB to get user
+		//		var users = _context.GetUser(userId);
+
+		//		if (users.Count == 0)
+		//			return null;
+
+		//		foreach (var user in users)
+		//		{
+		//			claims.Add(new Claim(ClaimType.FirstName, user.FirstName));
+		//		}
+		//	}
+		//	else
+		//	{
+		//		claims.Add(new Claim(ClaimType.FirstName, userRoles.FirstOrDefault().User.FirstName));
+
+		//		foreach (var userRole in userRoles)
+		//		{
+		//			claims.Add(new Claim(ClaimType.Role, userRole.Role.Name));
+		//		}
+		//	}
+
+		//	return claims;
+		//}
+
 		public List<Models.Responses.Claim> GetClaims(int userId)
 		{
 			var claims = new List<Claim>();
-			var userRoles = _context.GetClaims(userId);
+			var users = _context.GetUser(userId);
 
-			claims.Add(new Claim(ClaimType.FirstName, userRoles.FirstOrDefault().User.FirstName));
+			if (users.Count == 0)
+				return null; //TODO What should be returned here?
 
-			foreach (var userRole in userRoles)
+			claims.Add(new Claim(ClaimType.FirstName, users.FirstOrDefault().FirstName)); //will there be more than one user?
+
+			foreach (var userRole in users.FirstOrDefault().UserRoles)
 			{
 				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name));
 			}

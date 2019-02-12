@@ -56,5 +56,11 @@ namespace NICE.Identity.Test.Infrastructure
 			AddUserRole(ref context, userRoleId: 2, roleId: 2);
 			context.SaveChanges();
 		}
+
+		public static void AddUserNoRole(ref IdentityContext context)
+		{
+			AddUser(ref context);
+			context.SaveChanges();
+		}
 	}
 }

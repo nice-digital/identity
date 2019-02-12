@@ -25,6 +25,33 @@ namespace NICE.Identity.Test.UnitTests
 			claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
 		}
 
+		[Fact]
+		public void UserIsNotRegistered()
+		{
+			//Arrange
+			var context = GetContext();
+			var claimsService = new ClaimsService(context);
 
+			//Act
+			var claims = claimsService.GetClaims(1);
+
+			//Assert
+			claims.ShouldBe(null);
+		}
+
+		[Fact]
+		public void UserDoesNotHaveRoles()
+		{
+			//Arrange
+			var context = GetContext();
+			TestData.AddUserNoRole(ref context);
+			var claimsService = new ClaimsService(context);
+
+			//Act
+			var claims = claimsService.GetClaims(1);
+
+			//Assert
+			claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
+		}
 	}
 }
