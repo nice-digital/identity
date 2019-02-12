@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>NICE.Identity.Authentication.Sdk</RootNamespace>
+    <AssemblyName>NICE.Identity.Authentication.Sdk</AssemblyName>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>$(VersionSuffix)</Version>
   </PropertyGroup>
 
   <ItemGroup>
