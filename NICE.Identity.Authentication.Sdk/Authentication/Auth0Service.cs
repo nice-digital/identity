@@ -23,6 +23,7 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 				// **Allowed Logout URLs** settings for the client.
 				RedirectUri = returnUrl
 			});
+
 			await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 		}
 	}

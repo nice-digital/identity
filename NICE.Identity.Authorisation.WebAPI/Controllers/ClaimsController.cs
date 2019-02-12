@@ -33,7 +33,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 	    // PUT api/claims
 	    [HttpPut("{userId}")]
-	    public async Task<ActionResult> CreateOrUpdate(int userId, [FromBody] Models.Requests.Claim claim)
+	    public async Task<ActionResult> Put(int userId, [FromBody] Models.Requests.Claim claim)
 	    {
 	        var role = MapClaimToRole(claim);
 

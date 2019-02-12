@@ -6,8 +6,8 @@ namespace NICE.Identity.Authentication.Sdk.Abstractions
 {
     public interface IAuthorisationService
     {
-        Task<IEnumerable<Role>> GetByUserId(string userId);
+        Task<IEnumerable<Claim>> GetByUserId(string userId);
 
-        Task AddToUser(Role role);
+        Task CreateOrUpdate(string userId, Claim role);
     }
 }
