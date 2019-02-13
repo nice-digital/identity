@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using NICE.Identity.Authorisation.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
@@ -17,22 +20,25 @@ namespace NICE.Identity.Authorisation.WebAPI
         private const string ApiTitle = "NICE.Identity.Authorisation.WebAPI";
         private const string ApiVersion = "v1";
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             Configuration = configuration;
-        }
+	        Environment = environment;
+		}
 
         public IConfiguration Configuration { get; }
+	    public IHostingEnvironment Environment { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
         {
+	        AppSettings.Configure(services, Configuration, Environment.IsDevelopment() ? @"c:\" : Environment.ContentRootPath);
+			services.AddDbContext<IdentityContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));       
 
-		    services.AddDbContext<IdentityContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));       
+	        services.TryAddSingleton<ISeriLogger, SeriLogger>();
+	        services.AddTransient<IClaimsService, ClaimsService>();
 
-			services.AddTransient<IClaimsService, ClaimsService>();
-
-            services
+			services
                 .AddRepositories()
                 .AddSwaggerGen(c =>
                 {
@@ -43,9 +49,12 @@ namespace NICE.Identity.Authorisation.WebAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)
         {
-            if (env.IsDevelopment())
+	        seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
+	        var startupLogger = loggerFactory.CreateLogger<Startup>();
+
+			if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
 
@@ -63,6 +72,17 @@ namespace NICE.Identity.Authorisation.WebAPI
 
             app.UseHttpsRedirection();
             app.UseMvc();
-        }
+
+	        try
+	        {
+		        var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+		        serviceScope.ServiceProvider.GetService<IdentityContext>().Database.Migrate();
+		        serviceScope.Dispose();
+	        }
+	        catch (Exception ex)
+	        {
+		        startupLogger.LogError($"EF Migrations Error: {ex}");
+	        }
+		}
     }
 }
