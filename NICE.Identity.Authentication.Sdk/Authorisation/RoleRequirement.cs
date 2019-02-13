@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 
-namespace NICE.Identity.TestClient.NETCore.Authorisation
+namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
 	public class RoleRequirement : IAuthorizationRequirement
 	{

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Abstractions;
@@ -33,7 +35,8 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
             IEnumerable<Claim> claims;
 
             var uri = new Uri(_baseUrl, userId);
-
+            //string uri = new Uri($"{_baseUrl}{userId}");
+            
             try
             {
                 var response = await _httpClient.GetStringAsync(uri);
@@ -63,6 +66,15 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
                 // TODO: LOG
                 throw;
             }
+        }
+
+        public async Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roleName)
+        {
+            var claims = await GetByUserId(userId);
+
+            bool userHasRole = claims.Any(x => x.Type == "Role" && x.Value == roleName.Single());
+
+            return userHasRole;
         }
     }
 }
