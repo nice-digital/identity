@@ -28,13 +28,7 @@ namespace NICE.Identity.Authorisation.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
-	        var connectionString = Configuration.GetConnectionString("DefaultConnection");
-	        if (string.IsNullOrEmpty(connectionString))
-	        {
-		        throw new Exception("Connection string not found.");
-	        }
-		    services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connectionString));
-	        
+		    services.AddDbContext<IdentityContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));       
 
 			services.AddTransient<IClaimsService, ClaimsService>();
 
