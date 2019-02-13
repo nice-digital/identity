@@ -1,19 +1,41 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.Authentication.Sdk.Authentication;
+using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.External;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk
 {
 	public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
+                                                              IConfiguration configuration,
+                                                              string authorisationServiceConfigurationPath,
+                                                              string authenticationServiceConfigurationPath)
         {
-			// Add authentication services
-			services.AddAuthentication(options => {
+            services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
+            services.Configure<AuthenticationServiceConfiguration>(configuration.GetSection(authenticationServiceConfigurationPath));
+
+            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+
+            InstallAuthenticationService(services, configuration);
+
+            return services;
+        }
+
+        private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddScoped<IAuthenticationService, Auth0Service>();
+
+            // Add authentication services
+            services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -70,9 +92,6 @@ namespace NICE.Identity.Authentication.Sdk
 					}
 				};
 			});
-
-
-			return services;
         }
     }
 }
