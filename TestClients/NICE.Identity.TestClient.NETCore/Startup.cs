@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
+using NICE.Identity.TestClient.NETCore.Authorisation;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.TestClient.NETCore
@@ -40,6 +41,11 @@ namespace NICE.Identity.TestClient.NETCore
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+			services.AddAuthorization(options =>
+			{
+				//options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
+				options.AddPolicy("RequireAdminRole", policy => policy.Requirements.Add(new RoleRequirement("Administrator")));
+			});
 		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath, AuthenticationServiceConfigurationPath);
 		}
 
