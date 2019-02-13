@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NICE.Identity.Authorisation.WebAPI.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using NICE.Identity.Authorisation.WebAPI.Services;
@@ -24,7 +27,16 @@ namespace NICE.Identity.Authorisation.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-	        services.AddTransient<IClaimsService, ClaimsService>();
+
+	        var connectionString = Configuration.GetConnectionString("DefaultConnection");
+	        if (string.IsNullOrEmpty(connectionString))
+	        {
+		        throw new Exception("Connection string not found.");
+	        }
+		    services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connectionString));
+	        
+
+			services.AddTransient<IClaimsService, ClaimsService>();
 
             services
                 .AddRepositories()
