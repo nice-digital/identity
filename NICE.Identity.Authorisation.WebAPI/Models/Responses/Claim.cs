@@ -1,4 +1,7 @@
-﻿namespace NICE.Identity.Authorisation.WebAPI.Models.Responses
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace NICE.Identity.Authorisation.WebAPI.Models.Responses
 {
 	public enum ClaimType
 	{
@@ -14,6 +17,7 @@
 		    Value = value;
 	    }
 
+	    [JsonConverter(typeof(StringEnumConverter))] 
 	    public ClaimType Type { get; set; }
         public string Value { get; set; }
     }

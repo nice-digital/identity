@@ -1,10 +1,10 @@
 ﻿[
     {
-        "type":1,
+        "type":"FirstName",
         "value":"Steve"
     },
     {
-        "type":0,
+        "type":"Role",
         "value":"Administrator"
     }
 ]
