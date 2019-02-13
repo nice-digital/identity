@@ -3,7 +3,7 @@ using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
 using System.Linq;
-using NICE.Identity.Authorisation.WebAPI.Models.Responses;
+using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using Xunit;
 
 namespace NICE.Identity.Test.UnitTests

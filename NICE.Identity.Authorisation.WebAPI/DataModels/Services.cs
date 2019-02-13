@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NICE.Identity.Authorisation.WebAPI.Models
+namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
     public partial class Services
     {

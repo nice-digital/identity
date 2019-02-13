@@ -6,7 +6,7 @@ using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using NICE.Identity.Authorisation.WebAPI;
-using NICE.Identity.Authorisation.WebAPI.Models;
+using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Test.Infrastructure
 {

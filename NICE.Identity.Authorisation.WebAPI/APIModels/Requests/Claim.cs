@@ -1,4 +1,4 @@
-﻿namespace NICE.Identity.Authorisation.WebAPI.Models.Requests
+﻿namespace NICE.Identity.Authorisation.WebAPI.APIModels.Requests
 {
     public class Claim
     {

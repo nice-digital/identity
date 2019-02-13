@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NICE.Identity.Authorisation.WebAPI.Models;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
+using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Test.Infrastructure
 {

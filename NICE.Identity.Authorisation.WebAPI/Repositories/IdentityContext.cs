@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
 
-namespace NICE.Identity.Authorisation.WebAPI.Models
+namespace NICE.Identity.Authorisation.WebAPI.Repositories
 {
     public partial class IdentityContext : DbContext
     {
@@ -10,14 +9,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Models
         {
         }
 
-        public IdentityContext(DbContextOptions<IdentityContext> options)
+        public IdentityContext(DbContextOptions<Repositories.IdentityContext> options)
             : base(options)
         {
         }
 
         public virtual DbSet<Environments> Environments { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
-        public virtual DbSet<Services> Services { get; set; }
+        public virtual DbSet<DataModels.Services> Services { get; set; }
         public virtual DbSet<UserRoles> UserRoles { get; set; }
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Websites> Websites { get; set; }
@@ -62,7 +61,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Models
                     .HasConstraintName("FK_Roles_Roles");
             });
 
-            modelBuilder.Entity<Services>(entity =>
+            modelBuilder.Entity<DataModels.Services>(entity =>
             {
                 entity.HasKey(e => e.ServiceId);
 

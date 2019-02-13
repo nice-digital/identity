@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using NICE.Identity.Authorisation.WebAPI.Configuration;
 
-namespace NICE.Identity.Authorisation.Configuration
+namespace NICE.Identity.Authorisation.WebAPI.Configuration
 {
     public static class AppSettings 
     {

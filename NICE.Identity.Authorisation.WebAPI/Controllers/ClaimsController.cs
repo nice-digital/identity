@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.Authorisation.WebAPI.Abstractions;
-using NICE.Identity.Authorisation.WebAPI.Domain;
-using NICE.Identity.Authorisation.WebAPI.Models.Responses;
+using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using Claim = NICE.Identity.Authorisation.WebAPI.Models.Requests.Claim;
+using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Requests.Claim;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -14,18 +12,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	[ApiController]
 	public class ClaimsController : ControllerBase
 	{
-	    private readonly IRoleRepository _roleRepository;
 		private readonly IClaimsService _claimsService;
 
-		public ClaimsController(IRoleRepository roleRepository, IClaimsService claimsService)
+		public ClaimsController(IClaimsService claimsService)
 	    {
-	        _roleRepository = roleRepository ?? throw new ArgumentNullException(nameof(roleRepository));
-		    _claimsService = claimsService;
+		    _claimsService = claimsService ?? throw new ArgumentNullException(nameof(claimsService));
 	    }
 
-		// GET api/claims/1234
+		// GET api/claims/1
 		[HttpGet("{userId}")]
-		public async Task<ActionResult<IEnumerable<Models.Responses.Claim[]>>> Get(int userId)
+		public async Task<ActionResult<IEnumerable<APIModels.Responses.Claim[]>>> Get(int userId)
 		{
 			var result = _claimsService.GetClaims(userId);
 		    return Ok(result);
@@ -33,38 +29,38 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 	    // PUT api/claims
 	    [HttpPut("{userId}")]
-	    public async Task<ActionResult> Put(int userId, [FromBody] Models.Requests.Claim claim)
+	    public async Task<ActionResult> Put(int userId, [FromBody] Claim claim)
 	    {
-	        var role = MapClaimToRole(claim);
+	        //var role = MapClaimToRole(claim);
 
-	        try
-	        {
-	            await _roleRepository.AddToUser(role);
-            }
-	        catch (Exception e)
-	        {
-	            // TODO: Implement Logging and custom exception types
+	        //try
+	        //{
+	        //    await _claimsService.AddToUser(role);
+         //   }
+	        //catch (Exception e)
+	        //{
+	        //    // TODO: Implement Logging and custom exception types
 
-	            var error = new ErrorDetail()
-	            {
-                    ErrorMessage = e.Message
-	            };
+	        //    var error = new ErrorDetail()
+	        //    {
+         //           ErrorMessage = e.Message
+	        //    };
 
-	            return StatusCode(503, error);
-	        }
+	        //    return StatusCode(503, error);
+	        //}
 
 	        return Ok();
 	    }
 
-	    private Role MapClaimToRole(Claim claim)
-	    {
-	        var role = new Role()
-	        {
-	            Id = claim.RoleId,
-	            Name = claim.RoleName
-	        };
+	    //private Role MapClaimToRole(Claim claim)
+	    //{
+	    //    var role = new Role()
+	    //    {
+	    //        Id = claim.RoleId,
+	    //        Name = claim.RoleName
+	    //    };
 
-	        return role;
-	    }
+	    //    return role;
+	    //}
     }
 }

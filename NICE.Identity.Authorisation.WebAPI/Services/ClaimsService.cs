@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NICE.Identity.Authorisation.WebAPI.Models;
-using NICE.Identity.Authorisation.WebAPI.Models.Requests;
-using NICE.Identity.Authorisation.WebAPI.Models.Responses;
-using Claim = NICE.Identity.Authorisation.WebAPI.Models.Responses.Claim;
+using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
+using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Responses.Claim;
+using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IClaimsService
 	{
-		List<Models.Responses.Claim> GetClaims(int userId);
+		List<Claim> GetClaims(int userId);
+		Task AddToUser(Roles role);
 	}
 
 	public class ClaimsService : IClaimsService
@@ -54,7 +55,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		//	return claims;
 		//}
 
-		public List<Models.Responses.Claim> GetClaims(int userId)
+		public List<Claim> GetClaims(int userId)
 		{
 			var claims = new List<Claim>();
 			var users = _context.GetUser(userId);
@@ -70,6 +71,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 
 			return claims;
+		}
+
+		public Task AddToUser(Roles role)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

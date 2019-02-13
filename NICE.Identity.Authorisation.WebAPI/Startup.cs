@@ -7,11 +7,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.Configuration;
-using NICE.Identity.Authorisation.WebAPI.Models;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
 using Swashbuckle.AspNetCore.Swagger;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using NICE.Identity.Authorisation.WebAPI.Services;
+using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -39,7 +39,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 	        services.AddTransient<IClaimsService, ClaimsService>();
 
 			services
-                .AddRepositories()
                 .AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc(ApiVersion, new Info {Title = ApiTitle, Version = ApiVersion});
