@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <Folder Include="DiffTools\" />
+    <Folder Include="UnitTests\Authentication.Sdk\Authorisation\" />
   </ItemGroup>
 
   <ItemGroup>

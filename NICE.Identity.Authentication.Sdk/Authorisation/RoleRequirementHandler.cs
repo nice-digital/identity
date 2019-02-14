@@ -20,8 +20,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
         {
-            var claims = context.User.Claims.ToList();
-
             if (!context.User.HasClaim(x => x.Type.Equals(UserIdClaimType)) ||
                 context.User.Claims.Single(x => x.Type.Equals(UserIdClaimType)).Value == null)
             {

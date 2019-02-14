@@ -34,9 +34,8 @@ namespace NICE.Identity.Authentication.Sdk
 
             services.AddAuthorization(options =>
             {
-                //options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
+                //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
                 options.AddPolicy(PolicyTypes.Administrator,
-                    //policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator},{PolicyTypes.Editor}")));
                     policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
             });
 
