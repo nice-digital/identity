@@ -17,12 +17,10 @@ namespace NICE.Identity.Authentication.Sdk
     {
         public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
                                                               IConfiguration configuration,
-                                                              string authorisationServiceConfigurationPath,
-                                                              string authenticationServiceConfigurationPath)
+                                                              string authorisationServiceConfigurationPath)
         {
             services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
-            //services.Configure<AuthenticationServiceConfiguration>(configuration.GetSection(authenticationServiceConfigurationPath));
-
+            
             InstallAuthorisation(services);
             InstallAuthenticationService(services, configuration);
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Requests.Claim;
 
@@ -20,12 +19,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	    }
 
 		// GET api/claims/1
-		[HttpGet("{userId}")]
-		public async Task<ActionResult<IEnumerable<APIModels.Responses.Claim[]>>> Get(int userId)
-		{
-			var result = _claimsService.GetClaims(userId);
-		    return Ok(result);
-		}
+	    [HttpGet("{userId}")]
+	    public async Task<ActionResult<IEnumerable<APIModels.Responses.Claim[]>>> Get(int userId)
+	    {
+	        try
+	        {
+	            var result = _claimsService.GetClaims(userId);
+
+	            if (result == null)
+	            {
+	                return StatusCode(404, "User not found");
+	            }
+
+	            return Ok(result);
+	        }
+	        catch (Exception e)
+	        {
+	            return StatusCode(503, e.Message);
+	        }
+	    }
 
 	    // PUT api/claims
 	    [HttpPut("{userId}")]
