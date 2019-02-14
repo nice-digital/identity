@@ -1,14 +1,14 @@
 ﻿using System;
-using NICE.Identity.Authorisation.WebAPI.Services;
-using NICE.Identity.Test.Infrastructure;
-using Shouldly;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
+using NICE.Identity.Authorisation.WebAPI.Services;
+using NICE.Identity.Test.Infrastructure;
+using Shouldly;
 using Xunit;
 
-namespace NICE.Identity.Test.UnitTests
+namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
     public class ClaimsServiceTests : TestBase
     {

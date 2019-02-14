@@ -14,8 +14,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
         public RoleRequirementHandler(IAuthorisationService authorisationService)
         {
-            _authorisationService =
-                authorisationService ?? throw new ArgumentNullException(nameof(authorisationService));
+            _authorisationService = authorisationService ?? throw new ArgumentNullException(nameof(authorisationService));
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
