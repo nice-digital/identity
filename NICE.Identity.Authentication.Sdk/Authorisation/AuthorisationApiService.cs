@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,12 +12,15 @@ using NICE.Identity.Authentication.Sdk.External;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
-    internal class AuthorisationApiService : IAuthorisationService
+    public class AuthorisationApiService : IAuthorisationService
     {
+        private const string RoleClaimTypeName = "Role";
+
         private readonly IHttpClientDecorator _httpClient;
         private readonly Uri _baseUrl;
-        
-        public AuthorisationApiService(IOptions<AuthorisationServiceConfiguration> configuration, IHttpClientDecorator httpClient)
+
+        public AuthorisationApiService(IOptions<AuthorisationServiceConfiguration> configuration,
+            IHttpClientDecorator httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
@@ -41,8 +45,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
             }
             catch (Exception e)
             {
-                // TODO: LOG
-                throw;
+                throw new Exception("Error when calling Authorisation service; see inner exception.", e);
             }
 
             return claims;
@@ -60,9 +63,40 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
             }
             catch (Exception e)
             {
-                // TODO: LOG
-                throw;
+                throw new Exception("Error when calling Authorisation service; see inner exception.", e);
             }
+        }
+
+        public async Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles)
+        {
+            IEnumerable<Claim> claims;
+
+            var uri = new Uri(_baseUrl, userId);
+
+            try
+            {
+                var response = await _httpClient.GetStringAsync(uri);
+                claims = JsonConvert.DeserializeObject<Claim[]>(response);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error when calling Authorisation service; see inner exception.", e);
+            }
+
+            bool userHasRole = false;
+
+            foreach (var role in roles)
+            {
+                userHasRole = claims.Any(x => x.Type == RoleClaimTypeName &&
+                                              x.Value == role);
+
+                if (userHasRole)
+                {
+                    break;
+                }
+            }
+            
+            return userHasRole;
         }
     }
 }

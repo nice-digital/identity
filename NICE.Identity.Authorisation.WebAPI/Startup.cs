@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
 using Swashbuckle.AspNetCore.Swagger;
-using NICE.Identity.Authorisation.WebAPI.Repositories;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
@@ -30,21 +29,28 @@ namespace NICE.Identity.Authorisation.WebAPI
 	    public IHostingEnvironment Environment { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
-	        AppSettings.Configure(services, Configuration, Environment.IsDevelopment() ? @"c:\" : Environment.ContentRootPath);
-			services.AddDbContext<IdentityContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));       
+            AppSettings.Configure(services, Configuration,
+                Environment.IsDevelopment() ? @"c:\" : Environment.ContentRootPath);
+            services.AddDbContext<IdentityContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-	        services.TryAddSingleton<ISeriLogger, SeriLogger>();
-	        services.AddTransient<IClaimsService, ClaimsService>();
+            services.TryAddSingleton<ISeriLogger, SeriLogger>();
+            services.AddTransient<IClaimsService, ClaimsService>();
 
-			services
+            services
                 .AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc(ApiVersion, new Info {Title = ApiTitle, Version = ApiVersion});
                 })
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.ConfigureSwaggerGen(c =>
+            {
+                c.CustomSchemaIds(x => x.FullName);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +14,14 @@ namespace NICE.Identity.TestClient.NETCore
 	public class Startup
 	{
 	    private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
-	    private const string AuthenticationServiceConfigurationPath = "AuthenticationServiceConfiguration";
-
+	    
         public Startup(IConfiguration configuration, IHostingEnvironment env)
 	    {
 	        var builder = new ConfigurationBuilder()
 	            .SetBasePath(env.ContentRootPath)
 	            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	            //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddUserSecrets(Assembly.GetAssembly(typeof(Startup)))
 	            .AddEnvironmentVariables();
 	        Configuration = builder.Build();
 	    }
@@ -39,8 +40,8 @@ namespace NICE.Identity.TestClient.NETCore
 
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath, AuthenticationServiceConfigurationPath);
+            
+		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

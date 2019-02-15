@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.TestClient.NETCore.Models;
 
 namespace NICE.Identity.TestClient.NETCore.Controllers
@@ -29,6 +31,8 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 			return View();
 		}
 
+		//[Authorize(Roles = "Administrator,EditorSpecial")]
+		[Authorize(Policy = PolicyTypes.Administrator)]
 		public IActionResult Privacy()
 		{
 			return View();
