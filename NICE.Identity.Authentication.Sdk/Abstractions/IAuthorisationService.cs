@@ -10,6 +10,6 @@ namespace NICE.Identity.Authentication.Sdk.Abstractions
 
         Task CreateOrUpdate(string userId, Claim role);
 
-	    Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roleName);
+	    Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles);
     }
 }

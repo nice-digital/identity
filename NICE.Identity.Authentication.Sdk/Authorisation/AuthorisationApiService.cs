@@ -12,7 +12,7 @@ using NICE.Identity.Authentication.Sdk.External;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
-    internal class AuthorisationApiService : IAuthorisationService
+    public class AuthorisationApiService : IAuthorisationService
     {
         private const string RoleClaimTypeName = "Role";
 
@@ -67,7 +67,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
             }
         }
 
-        public async Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roleName)
+        public async Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles)
         {
             IEnumerable<Claim> claims;
 
@@ -83,9 +83,19 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
                 throw new Exception("Error when calling Authorisation service; see inner exception.", e);
             }
 
-            bool userHasRole = claims.Any(x => x.Type == RoleClaimTypeName &&
-                                               x.Value == roleName.Single());
+            bool userHasRole = false;
 
+            foreach (var role in roles)
+            {
+                userHasRole = claims.Any(x => x.Type == RoleClaimTypeName &&
+                                              x.Value == role);
+
+                if (userHasRole)
+                {
+                    break;
+                }
+            }
+            
             return userHasRole;
         }
     }
