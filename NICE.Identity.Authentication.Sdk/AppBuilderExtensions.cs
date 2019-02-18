@@ -11,12 +11,7 @@ namespace NICE.Identity.Authentication.Sdk
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddAuthentication(this IAppBuilder app, NameValueCollection appSettings)
-		{
-			AddAuthentication(app, appSettings["Domain"], appSettings["ClientId"], appSettings["ClientSecret"], appSettings["RedirectUri"], appSettings["PostLogoutRedirectUri"]);
-		}
-
-		public static void AddAuthentication(this IAppBuilder app, string domain, string clientId, string clientSecret, string redirectURI, string postLogoutRedirectURI)
+		public static void AddAuthentication(this IAppBuilder app, AuthConfiguration authConfiguration)
 		{
 
 			// Enable Kentor Cookie Saver middleware
@@ -35,13 +30,13 @@ namespace NICE.Identity.Authentication.Sdk
 			{
 				AuthenticationType = "Auth0",
 
-				Authority = $"https://{domain}",
+				Authority = $"https://{authConfiguration.Domain}",
 
-				ClientId = clientId,
-				ClientSecret = clientSecret,
+				ClientId = authConfiguration.ClientId,
+				ClientSecret = authConfiguration.ClientSecret,
 
-				RedirectUri = redirectURI,
-				PostLogoutRedirectUri = postLogoutRedirectURI,
+				RedirectUri = authConfiguration.RedirectUri,
+				PostLogoutRedirectUri = authConfiguration.PostLogoutRedirectUri,
 
 				ResponseType = OpenIdConnectResponseType.CodeIdToken,
 				Scope = "openid profile",
@@ -57,7 +52,7 @@ namespace NICE.Identity.Authentication.Sdk
 					{
 						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
 						{
-							var logoutUri = $"https://{domain}/v2/logout?client_id={clientId}";
+							var logoutUri = $"https://{authConfiguration.Domain}/v2/logout?client_id={authConfiguration.ClientId}";
 
 							var postLogoutUri = notification.ProtocolMessage.PostLogoutRedirectUri;
 							if (!string.IsNullOrEmpty(postLogoutUri))

@@ -25,14 +25,16 @@ namespace NICE.Identity.TestClient.NETFramework
 			var secretsPath = Path.Combine(appDataPath, @"Microsoft\UserSecrets\b69bc28e-14c9-4c24-bd25-232e24a55745\secrets.json");
 			var secretsFile = JObject.Parse(File.ReadAllText(secretsPath));
 
-			// Configure Auth0 parameters
-			string auth0Domain = secretsFile.SelectToken("Auth0")["Domain"].ToString();
-			string auth0ClientId = secretsFile.SelectToken("Auth0")["ClientId"].ToString();
-			string auth0ClientSecret = secretsFile.SelectToken("Auth0")["ClientSecret"].ToString();
-			string auth0RedirectUri = secretsFile.SelectToken("Auth0")["RedirectUri"].ToString();
-			string auth0PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString();
+			var authConfiguration = new AuthConfiguration
+			{
+				Domain = secretsFile.SelectToken("Auth0")["Domain"].ToString(),
+				ClientId = secretsFile.SelectToken("Auth0")["ClientId"].ToString(),
+				ClientSecret = secretsFile.SelectToken("Auth0")["ClientSecret"].ToString(),
+				RedirectUri = secretsFile.SelectToken("Auth0")["RedirectUri"].ToString(),
+				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString()
+			};
 
-			app.AddAuthentication(auth0Domain, auth0ClientId, auth0ClientSecret, auth0RedirectUri, auth0PostLogoutRedirectUri);
+			app.AddAuthentication(authConfiguration);
 			
 		}
 	}
