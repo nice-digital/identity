@@ -33,7 +33,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             TestData.AddWithTwoRoles(ref _identityContext);
 
             //Act
-            var claims = _sut.GetClaims(1);
+            var claims = _sut.GetClaims("some auth0 userid");
 
             //Assert
             claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
@@ -47,7 +47,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Act
             Action getClaims = () =>
             {
-                _sut.GetClaims(1);
+                _sut.GetClaims("some auth0 userid");
             };
 
             //Assert
@@ -61,7 +61,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             TestData.AddUserNoRole(ref _identityContext);
 
             //Act
-            var claims = _sut.GetClaims(1);
+            var claims = _sut.GetClaims("some auth0 userid");
 
             //Assert
             claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");

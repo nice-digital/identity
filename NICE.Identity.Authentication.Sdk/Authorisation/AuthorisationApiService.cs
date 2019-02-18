@@ -71,7 +71,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         {
             IEnumerable<Claim> claims;
 
-            var uri = new Uri(_baseUrl, $"api/claims/{userId}");
+            var uri = new Uri(_baseUrl, string.Format(Constants.AuthorisationURLs.GetClaims, userId));
 
             try
             {
