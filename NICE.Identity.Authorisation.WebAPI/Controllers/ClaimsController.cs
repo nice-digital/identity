@@ -18,13 +18,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		    _claimsService = claimsService ?? throw new ArgumentNullException(nameof(claimsService));
 	    }
 
-		// GET api/claims/1
-	    [HttpGet("{userId}")]
-	    public async Task<ActionResult<IEnumerable<APIModels.Responses.Claim[]>>> Get(int userId)
+		// GET api/claims/someuserid
+	    [HttpGet("{authenticationProviderUserId}")]
+	    public async Task<ActionResult<IEnumerable<APIModels.Responses.Claim[]>>> Get(string authenticationProviderUserId)
 	    {
 	        try
 	        {
-	            var result = _claimsService.GetClaims(userId);
+	            var result = _claimsService.GetClaims(authenticationProviderUserId);
 
 	            if (result == null)
 	            {

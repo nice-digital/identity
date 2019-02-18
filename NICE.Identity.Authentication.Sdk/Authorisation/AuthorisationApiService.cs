@@ -71,11 +71,12 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         {
             IEnumerable<Claim> claims;
 
-            var uri = new Uri(_baseUrl, userId);
+            var uri = new Uri(_baseUrl, $"api/claims/{userId}");
 
             try
             {
-                var response = await _httpClient.GetStringAsync(uri);
+
+				var response = await _httpClient.GetStringAsync(uri);
                 claims = JsonConvert.DeserializeObject<Claim[]>(response);
             }
             catch (Exception e)
