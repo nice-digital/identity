@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Responses.Claim;
@@ -18,54 +18,47 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public class ClaimsService : IClaimsService
 	{
 		private readonly IdentityContext _context;
+	    private readonly ILogger<ClaimsService> _logger;
 
-		public ClaimsService(IdentityContext context)
-		{
-			_context = context;
-		}
+	    public ClaimsService(IdentityContext context, ILoggerFactory loggerFactory)
+	    {
+	        _context = context ?? throw new ArgumentNullException(nameof(context));
 
-		//public List<Models.Responses.Claim> GetClaims(int userId)
-		//{
-		//	var claims = new List<Claim>();
-		//	var userRoles = _context.GetClaims(userId);
+	        if (loggerFactory == null)
+	        {
+	            throw new ArgumentNullException(nameof(loggerFactory));
+	        }
 
-		//	if (userRoles.Count == 0)
-		//	{
-		//		//second hit to the DB to get user
-		//		var users = _context.GetUser(userId);
+	        _logger = loggerFactory.CreateLogger<ClaimsService>();
+	    }
 
-		//		if (users.Count == 0)
-		//			return null;
+	    public List<Claim> GetClaims(int userId)
+	    {
+	        Users user;
 
-		//		foreach (var user in users)
-		//		{
-		//			claims.Add(new Claim(ClaimType.FirstName, user.FirstName));
-		//		}
-		//	}
-		//	else
-		//	{
-		//		claims.Add(new Claim(ClaimType.FirstName, userRoles.FirstOrDefault().User.FirstName));
-
-		//		foreach (var userRole in userRoles)
-		//		{
-		//			claims.Add(new Claim(ClaimType.Role, userRole.Role.Name));
-		//		}
-		//	}
-
-		//	return claims;
-		//}
-
-		public List<Claim> GetClaims(int userId)
-		{
 			var claims = new List<Claim>();
-			var users = _context.GetUser(userId);
+            
+		    try
+		    {
+		        user = _context.GetUser(userId);
+            }
+		    catch (Exception e)
+		    {
+		        _logger.LogError($"GetUser failed - exception: '{e.Message}' userId: '{userId}'");
 
-			if (users.Count == 0)
-				return null; //TODO What should be returned here?
+                throw new Exception("Failed to get user");
+		    }
+            
+		    if (user == null)
+		    {
+		        _logger.LogWarning("No users found");
 
-			claims.Add(new Claim(ClaimType.FirstName, users.FirstOrDefault().FirstName)); //will there be more than one user?
+                return null;
+		    }
 
-			foreach (var userRole in users.FirstOrDefault().UserRoles)
+		    claims.Add(new Claim(ClaimType.FirstName, user.FirstName));
+		    
+			foreach (var userRole in user.UserRoles)
 			{
 				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name));
 			}

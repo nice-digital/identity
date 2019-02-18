@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
@@ -16,18 +17,29 @@ namespace NICE.Identity.Authentication.Sdk
     {
         public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
                                                               IConfiguration configuration,
-                                                              string authorisationServiceConfigurationPath,
-                                                              string authenticationServiceConfigurationPath)
+                                                              string authorisationServiceConfigurationPath)
         {
             services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
-            services.Configure<AuthenticationServiceConfiguration>(configuration.GetSection(authenticationServiceConfigurationPath));
-
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
-            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
-
+            
+            InstallAuthorisation(services);
             InstallAuthenticationService(services, configuration);
 
             return services;
+        }
+
+        private static void InstallAuthorisation(IServiceCollection services)
+        {
+            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+
+            services.AddAuthorization(options =>
+            {
+                //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
+                options.AddPolicy(PolicyTypes.Administrator,
+                    policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
+            });
+
+            services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
         private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
@@ -68,6 +80,10 @@ namespace NICE.Identity.Authentication.Sdk
 
 				options.Events = new OpenIdConnectEvents
 				{
+                    OnTokenValidated = (context) =>
+                    {
+                        return Task.CompletedTask;
+                    },
 					// handle the logout redirection 
 					OnRedirectToIdentityProviderForSignOut = (context) =>
 					{
