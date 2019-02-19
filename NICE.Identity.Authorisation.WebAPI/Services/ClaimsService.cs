@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
-using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Responses.Claim;
+using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Responses.Claim;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services

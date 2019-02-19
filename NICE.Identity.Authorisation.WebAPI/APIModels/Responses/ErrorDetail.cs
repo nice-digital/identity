@@ -1,4 +1,4 @@
-﻿namespace NICE.Identity.Authorisation.WebAPI.APIModels.Responses
+﻿namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Responses
 {
     public class ErrorDetail
     {

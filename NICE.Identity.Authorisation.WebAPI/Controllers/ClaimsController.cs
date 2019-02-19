@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Requests.Claim;
+using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.Claim;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -20,7 +20,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// GET api/claims/1
 	    [HttpGet("{userId}")]
-	    public async Task<ActionResult<IEnumerable<APIModels.Responses.Claim[]>>> Get(int userId)
+	    public async Task<ActionResult<IEnumerable<ApiModels.Responses.Claim[]>>> Get(int userId)
 	    {
 	        try
 	        {
@@ -39,8 +39,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	        }
 	    }
 
-	    // PUT api/claims
-	    [HttpPut("{userId}")]
+        // PUT api/claims
+        [HttpPut("{userId}")]
 	    public async Task<ActionResult> Put(int userId, [FromBody] Claim claim)
 	    {
 	        //var role = MapClaimToRole(claim);
