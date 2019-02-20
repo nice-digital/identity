@@ -32,7 +32,7 @@ module.exports = function (user, context, cb) {
     path: '/default/users',
     method: 'POST',
     headers: {
-      'x-api-key': 'HMC8IKPFNj2rwzgtz1NZLa4e8tXTlXrPvYN6cl90',
+      'x-api-key': '',
       'Content-Type': 'application/json'
     }
   };
@@ -58,7 +58,6 @@ module.exports = function (user, context, cb) {
 // write data to request body
   req.write(postData);
   req.end();
-
   
   cb();
 };

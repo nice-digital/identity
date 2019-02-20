@@ -23,5 +23,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 .Single();
         }
 
+        public void AddUser(Users user)
+        {
+            Users.Add(user);
+            SaveChanges();
+        }
     }
 }
