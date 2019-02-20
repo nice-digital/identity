@@ -21,18 +21,25 @@
 module.exports = function (user, context, cb) {
 
   const https = require('https');
-  
+
   const postData = JSON.stringify({
-    'userId': 'Abc123'
+    'userId': user.user_id,
+    'title': user.user_metadata.title,
+    'firstName': user.user_metadata.firstName,
+    'lastName': user.user_metadata.lastName,
+    'email': user.email,
+    'acceptedTerms': user.user_metadata.acceptedTerms,
+    'allowContactMe': user.user_metadata.allowContactMe,
+    'isStaffMember': user.user_metadata.isStaffMember
   });
 
   const options = {
-    hostname: 'npjyw5dg34.execute-api.eu-west-2.amazonaws.com',
+    hostname: '#{variable name}',
     port: 443,
     path: '/default/users',
     method: 'POST',
     headers: {
-      'x-api-key': '',
+      'x-api-key': 'qgi737VSbK1GrOJ24Qlxo93Wd09LduIi31l62NPs',
       'Content-Type': 'application/json'
     }
   };
@@ -40,7 +47,7 @@ module.exports = function (user, context, cb) {
   const req = https.request(options, (res) => {
     console.log(`STATUS: ${res.statusCode}`);
     console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-  
+
     res.setEncoding('utf8');
     res.on('data', (chunk) => {
       console.log(`BODY: ${chunk}`);
@@ -51,13 +58,13 @@ module.exports = function (user, context, cb) {
   });
 
   req.on('error', (e) => {
-  
+
     console.error(`problem with request: ${e.message}`);
   });
 
-// write data to request body
+  // write data to request body
   req.write(postData);
   req.end();
-  
+
   cb();
 };
