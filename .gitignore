@@ -253,7 +253,7 @@ ClientApp/public/*.css.map
 *.jfm
 *.orig
 .DS_Store
-/Comments/Serilog-*.json
+**/Serilog-*.json
 /Comments/ClientApp/.idea.bak
 
 /Comments/published-app
