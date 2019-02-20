@@ -21,6 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authorisation
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authentication.Sdk", "NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj", "{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth0Hooks", "Auth0Hooks", "{5A982A7F-78E5-405C-BAFE-86E3D9F9616A}"
+	ProjectSection(SolutionItems) = preProject
+		PostUserRegistration.js = PostUserRegistration.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
