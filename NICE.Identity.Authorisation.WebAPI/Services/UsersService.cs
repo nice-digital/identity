@@ -46,17 +46,20 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         }
 
         private Users MapUserToDomainModel(User user)
-        {
-            // TODO: Check required fields
-
-            var userEntity = new Users()
+        {           
+            var userEntity = new Users
             {
-                AcceptedTerms = true,
-                AllowContactMe = true,
+                AcceptedTerms = user.AcceptedTerms,
+                AllowContactMe = user.AllowContactMe,
                 Auth0UserId = user.UserId,
+				Title = user.Title,
                 FirstName = user.FirstName,
+				LastName = user.LastName,
                 InitialRegistrationDate = DateTime.UtcNow,
-                EmailAddress = user.Email
+                EmailAddress = user.Email,
+				IsLockedOut = false,
+				IsStaffMember = user.IsStaffMember,
+				HasVerifiedEmailAddress = false
             };
 
             return userEntity;
