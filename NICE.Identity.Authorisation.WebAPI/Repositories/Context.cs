@@ -23,5 +23,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 .ThenInclude(userRoles => userRoles.Role)
                 .Single();
         }
+
     }
 }

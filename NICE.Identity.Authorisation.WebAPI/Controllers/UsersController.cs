@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.User;
@@ -11,11 +13,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUsersService _usersService;
+	    private readonly ILogger<UsersController> _logger;
+	    private readonly IUsersService _usersService;
 
-        public UsersController(IUsersService usersService)
+        public UsersController(IUsersService usersService, ILogger<UsersController> logger)
         {
-            _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
+	        _logger = logger;
+	        _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
         }
 
         // PUT api/users
@@ -24,7 +28,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Request failed validation");
+	            var serializableModelState = new SerializableError(ModelState);
+	            var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+	            _logger.LogError($"Invalid Model State at UsersController.Put for user id: {user.UserId}", modelStateJson);
+
+				return BadRequest("Request failed validation");
             }
 
             try
