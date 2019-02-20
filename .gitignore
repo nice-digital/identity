@@ -253,7 +253,7 @@ ClientApp/public/*.css.map
 *.jfm
 *.orig
 .DS_Store
-/Comments/Serilog-*.json
+**/Serilog-*.json
 /Comments/ClientApp/.idea.bak
 
 /Comments/published-app
@@ -262,3 +262,4 @@ ClientApp/public/*.css.map
 /Comments/ClientApp/.vscode
 /NICE.Identity/node_modules
 /NICE.Identity/Serilog-*.json
+/NICE.Identity.Authorisation.WebAPI/Serilog-*.json

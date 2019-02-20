@@ -11,7 +11,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IClaimsService
 	{
-		List<Claim> GetClaims(int userId);
+		List<Claim> GetClaims(string authenticationProviderUserId);
 		Task AddToUser(Roles role);
 	}
 
@@ -32,7 +32,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = loggerFactory.CreateLogger<ClaimsService>();
 	    }
 
-	    public List<Claim> GetClaims(int userId)
+	    public List<Claim> GetClaims(string authenticationProviderUserId)
 	    {
 	        Users user;
 
@@ -40,11 +40,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             
 		    try
 		    {
-		        user = _context.GetUser(userId);
+		        user = _context.GetUser(authenticationProviderUserId);
             }
 		    catch (Exception e)
 		    {
-		        _logger.LogError($"GetUser failed - exception: '{e.Message}' userId: '{userId}'");
+		        _logger.LogError($"GetUser failed - exception: '{e.Message}' authenticationProviderUserId: '{authenticationProviderUserId}'");
 
                 throw new Exception("Failed to get user");
 		    }

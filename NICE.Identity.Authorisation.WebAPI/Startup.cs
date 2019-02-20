@@ -59,23 +59,26 @@ namespace NICE.Identity.Authorisation.WebAPI
 	        seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
 	        var startupLogger = loggerFactory.CreateLogger<Startup>();
 
+	        if (!env.IsProduction())
+	        {
+				app.UseSwagger();
+
+		        app.UseSwaggerUI(c =>
+		        {
+			        c.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
+		        });
+			}
+
 			if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-                app.UseSwagger();
-
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
-                });
             }
             else
             {
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
             app.UseMvc();
 
 	        try

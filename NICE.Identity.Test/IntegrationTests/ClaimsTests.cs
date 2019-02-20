@@ -15,7 +15,7 @@ namespace NICE.Identity.Test.IntegrationTests
 			var client = GetClient(context);
 
 			//Act
-			var response = await client.GetAsync("api/claims/1");
+			var response = await client.GetAsync("api/claims/some%20auth0%20userid");
 			response.EnsureSuccessStatusCode();
 			var responseString = await response.Content.ReadAsStringAsync();
 

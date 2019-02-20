@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.External;
@@ -19,7 +20,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {
     public class AuthorisationApiServiceTests : TestBase
     {
-        private const string BaseUrl = "https://someurl.com/";
+        private const string BaseUrl = "https://someurl.com";
 
         private readonly Mock<IHttpClientDecorator> _httpClientMock;
         private readonly AuthorisationApiService _sut;
@@ -45,7 +46,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
             //Arrange
             string[] requiredRoles = { PolicyTypes.Administrator, PolicyTypes.Editor };
             string userId = "auth0|user1234";
-            string url = $"{BaseUrl}{userId}";
+            string url = $"{BaseUrl}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
             var userRoles = new[]
             {
@@ -69,7 +70,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
             //Arrange
             string[] requiredRoles = { PolicyTypes.Administrator, "SomeRole1" };
             string userId = "auth0|user1234";
-            string url = $"{BaseUrl}{userId}";
+            string url = $"{BaseUrl}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
             var userRoles = new[]
             {
