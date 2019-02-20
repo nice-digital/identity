@@ -17,16 +17,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		private readonly IdentityContext _context;
 	    private readonly ILogger<UsersService> _logger;
 
-	    public UsersService(IdentityContext context, ILoggerFactory loggerFactory)
+	    public UsersService(IdentityContext context, ILogger<UsersService> logger)
 	    {
 	        _context = context ?? throw new ArgumentNullException(nameof(context));
-
-	        if (loggerFactory == null)
-	        {
-	            throw new ArgumentNullException(nameof(loggerFactory));
-	        }
-
-	        _logger = loggerFactory.CreateLogger<UsersService>();
+	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
         public async Task CreateUser(User user)

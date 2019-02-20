@@ -20,16 +20,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		private readonly IdentityContext _context;
 	    private readonly ILogger<ClaimsService> _logger;
 
-	    public ClaimsService(IdentityContext context, ILoggerFactory loggerFactory)
+	    public ClaimsService(IdentityContext context, ILogger<ClaimsService> logger)
 	    {
 	        _context = context ?? throw new ArgumentNullException(nameof(context));
-
-	        if (loggerFactory == null)
-	        {
-	            throw new ArgumentNullException(nameof(loggerFactory));
-	        }
-
-	        _logger = loggerFactory.CreateLogger<ClaimsService>();
+	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
 	    public List<Claim> GetClaims(string authenticationProviderUserId)
