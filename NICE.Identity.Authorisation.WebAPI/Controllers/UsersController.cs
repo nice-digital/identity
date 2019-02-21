@@ -21,10 +21,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
         }
-
-        // PUT api/users
-        [HttpPut]
-        public async Task<ActionResult> Put([FromBody] User user)
+        
+        // POST api/users
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] User user)
         {
             if (!ModelState.IsValid)
             {

@@ -7,8 +7,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Requests
         [Required]
         public string UserId { get; set; }
 
-		public string Title { get; set; }
-
         [Required]
 		[StringLength(100)]
         public string FirstName { get; set; }
@@ -23,8 +21,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Requests
 	    public bool AcceptedTerms { get; set; }
 
 		[Required]
-	    public bool AllowContactMe { get; set; }
-
-		public bool IsStaffMember { get; set; }
+	    public bool InitialAllowContactMe { get; set; }
 	}
 }

@@ -29,7 +29,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             {
                 var userEntity = MapUserToDomainModel(user);
 
-                await _context.Users.AddAsync(userEntity);
+                _context.AddUser(userEntity);
             }
             catch (Exception e)
             {
@@ -44,15 +44,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             var userEntity = new Users
             {
                 AcceptedTerms = user.AcceptedTerms,
-                AllowContactMe = user.AllowContactMe,
+                //TODO: AllowContactMe = user.AllowContactMe,
                 Auth0UserId = user.UserId,
-				Title = user.Title,
                 FirstName = user.FirstName,
 				LastName = user.LastName,
                 InitialRegistrationDate = DateTime.UtcNow,
                 EmailAddress = user.Email,
 				IsLockedOut = false,
-				IsStaffMember = user.IsStaffMember,
 				HasVerifiedEmailAddress = false
             };
 
