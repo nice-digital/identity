@@ -1,32 +1,26 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
-namespace NICE.Identity.TestClient.NETCore
+namespace NICE.Identity.TestClient.Consumer.NETCore
 {
 	public class Startup
 	{
-	    private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
-	    
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
-	    {
-	        var builder = new ConfigurationBuilder()
-	            .SetBasePath(env.ContentRootPath)
-	            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-	            //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                .AddUserSecrets(Assembly.GetAssembly(typeof(Startup)))
-	            .AddEnvironmentVariables();
-	        Configuration = builder.Build();
-	    }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
@@ -38,10 +32,11 @@ namespace NICE.Identity.TestClient.NETCore
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
 
-			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
-		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath, supportM2M:true);
+
+
+			services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,7 +55,6 @@ namespace NICE.Identity.TestClient.NETCore
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
-			app.UseAuthentication();
 
 			app.UseMvc(routes =>
 			{

@@ -4,11 +4,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.External;
+using IAuthenticationService = NICE.Identity.Authentication.Sdk.Abstractions.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk
@@ -17,12 +20,18 @@ namespace NICE.Identity.Authentication.Sdk
     {
         public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
                                                               IConfiguration configuration,
-                                                              string authorisationServiceConfigurationPath)
+                                                              string authorisationServiceConfigurationPath,
+																bool supportM2M = false)
         {
             services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
             
             InstallAuthorisation(services);
-            InstallAuthenticationService(services, configuration);
+            var authenticationBuilder = InstallAuthenticationService(services, configuration);
+	        if (supportM2M)
+	        {
+		        authenticationBuilder.InstallM2MAuthentication(services, configuration);
+
+	        }
 
             return services;
         }
@@ -42,16 +51,49 @@ namespace NICE.Identity.Authentication.Sdk
             services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
-        private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
+	    private static void InstallM2MAuthentication(this AuthenticationBuilder builder, IServiceCollection services, IConfiguration configuration)
+	    {
+			string domain = $"https://{configuration["Auth0:Domain"]}/";
+		    builder
+			    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+			    {
+				    options.Authority = domain;
+				    options.Audience = configuration["Auth0:ApiIdentifier"];
+			    });
+
+			//services.AddAuthentication(options =>
+			//{
+			//	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			//	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			//}).AddJwtBearer(options =>
+			//{
+			//	options.Authority = domain;
+			//	options.Audience = configuration["Auth0:ApiIdentifier"];
+			//});
+
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy("read:messages",
+					policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
+			});
+
+			// register the scope authorization handler
+			services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+		}
+
+
+	    private static AuthenticationBuilder InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthenticationService, Auth0Service>();
 
             // Add authentication services
-            services.AddAuthentication(options => {
+            var authenticationBuilder = services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			})
+				
+			});
+	        authenticationBuilder
 			.AddCookie()
 			.AddOpenIdConnect("Auth0", options => {
 				// Set the authority to your Auth0 domain
@@ -108,6 +150,7 @@ namespace NICE.Identity.Authentication.Sdk
 					}
 				};
 			});
+	        return authenticationBuilder;
         }
     }
 }
