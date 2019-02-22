@@ -14,14 +14,15 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
     [ApiController]
     public class PublicationController : ControllerBase
     {
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+                   Policy = "read:messages")]
 		[HttpGet]
 	    public Publication Get()
 		{
 			var pub = new Publication()
 			{
-				Id = "1",
-				SomeText = "SomeText"
+				Id = "1234",
+				SomeText = "My publication"
 			};
 
 		    return pub;

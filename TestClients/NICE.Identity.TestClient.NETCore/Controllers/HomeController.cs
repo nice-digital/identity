@@ -32,7 +32,7 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 		}
 
 		//[Authorize(Roles = "Administrator,EditorSpecial")]
-		[Authorize(Policy = PolicyTypes.Administrator)]
+		//[Authorize(Policy = PolicyTypes.Administrator)]
 		public IActionResult Privacy()
 		{
 			return View();

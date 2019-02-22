@@ -5,12 +5,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.TestClient.Consumer.NETCore.Models;
+using NICE.Identity.TestClient.M2MApp.Services;
 
-namespace NICE.Identity.TestClient.Consumer.NETCore.Controllers
+namespace NICE.Identity.TestClient.M2MApp.Controllers
 {
 	public class HomeController : Controller
 	{
-		public IActionResult Index()
+	    private readonly ITestClientApiService _apiService;
+
+	    public HomeController(ITestClientApiService apiService)
+	    {
+	        _apiService = apiService;
+	    }
+
+        public IActionResult Index()
 		{
 			return View();
 		}
@@ -34,7 +42,17 @@ namespace NICE.Identity.TestClient.Consumer.NETCore.Controllers
 			return View();
 		}
 
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+	    public IActionResult Publication()
+	    {
+	        var publication = _apiService.GetPublication().Result;
+
+	        ViewData["Id"] = publication.Id;
+	        ViewData["Text"] = publication.SomeText;
+
+	        return View();
+	    }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()
 		{
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

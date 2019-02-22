@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -22,7 +23,7 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             _client = client;
             _tokenService = tokenService;
         }
-        
+
         public async Task<Publication> GetPublication()
         {
             JwtToken token;
@@ -37,16 +38,22 @@ namespace NICE.Identity.TestClient.M2MApp.Services
 
             string url = "https://localhost:5001/api/publication";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("authorization", $"{token.token_type} {token.access_token}");
-            request.Headers.Add("content-type", "application/json");
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
 
-            var result = await _client.SendAsync(request);
-            string resultString = await result.Content.ReadAsStringAsync();
+                var result = await _client.SendAsync(request);
+                string resultString = await result.Content.ReadAsStringAsync();
 
-            var publiction = JsonConvert.DeserializeObject<Publication>(resultString);
+                var publiction = JsonConvert.DeserializeObject<Publication>(resultString);
 
-            return publiction;
+                return publiction;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 

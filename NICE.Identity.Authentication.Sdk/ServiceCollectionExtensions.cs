@@ -27,11 +27,11 @@ namespace NICE.Identity.Authentication.Sdk
             
             InstallAuthorisation(services);
             var authenticationBuilder = InstallAuthenticationService(services, configuration);
-	        if (supportM2M)
-	        {
-		        authenticationBuilder.InstallM2MAuthentication(services, configuration);
+	        //if (supportM2M)
+	        //{
+		       // authenticationBuilder.InstallM2MAuthentication(services, configuration);
 
-	        }
+	        //}
 
             return services;
         }
@@ -41,14 +41,14 @@ namespace NICE.Identity.Authentication.Sdk
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
-            services.AddAuthorization(options =>
-            {
-                //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
-                options.AddPolicy(PolicyTypes.Administrator,
-                    policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
-            });
+            //services.AddAuthorization(options =>
+            //{
+            //    //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
+            //    options.AddPolicy(PolicyTypes.Administrator,
+            //        policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
+            //});
 
-            services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+            //services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
 	    private static void InstallM2MAuthentication(this AuthenticationBuilder builder, IServiceCollection services, IConfiguration configuration)
@@ -85,14 +85,30 @@ namespace NICE.Identity.Authentication.Sdk
 	    private static AuthenticationBuilder InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthenticationService, Auth0Service>();
+            
+
+            string domain = $"https://{configuration["Auth0:Domain"]}/";
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("read:messages",
+                    policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
+            });
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
             // Add authentication services
             var authenticationBuilder = services.AddAuthentication(options => {
-				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				
-			});
+                //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                {
+                    options.Authority = domain;
+                    options.Audience = configuration["Auth0:ApiIdentifier"];
+                }); ;
 	        authenticationBuilder
 			.AddCookie()
 			.AddOpenIdConnect("Auth0", options => {
