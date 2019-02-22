@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NICE.Identity.Authentication.Sdk;
+using NICE.Identity.TestClient.M2MApp.Services;
 
 namespace NICE.Identity.TestClient.Consumer.NETCore
 {
@@ -35,8 +35,8 @@ namespace NICE.Identity.TestClient.Consumer.NETCore
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-
-			services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath);
+		    services.AddHttpClient<ITestClientApiService, TestClientApiService>();
+		    services.AddHttpClient<ITokenService, Auth0TokenService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

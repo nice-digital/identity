@@ -21,7 +21,7 @@ namespace NICE.Identity.Authentication.Sdk
         public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
                                                               IConfiguration configuration,
                                                               string authorisationServiceConfigurationPath,
-																bool supportM2M = false)
+															  bool supportM2M = false)
         {
             services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
             

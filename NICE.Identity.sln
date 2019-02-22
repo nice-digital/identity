@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.NETCore", "TestClients\NICE.Identity.TestClient.NETCore\NICE.Identity.TestClient.NETCore.csproj", "{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.Api", "TestClients\NICE.Identity.TestClient.NETCore\NICE.Identity.TestClient.Api.csproj", "{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NETFramework", "TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj", "{4C555E13-A02C-4529-AAFF-7DCAE97774AD}"
 EndProject
@@ -26,7 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth0Hooks", "Auth0Hooks", 
 		PostUserRegistration.js = PostUserRegistration.js
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.API", "TestClients\NICE.Identity.TestClient.Consumer.NETCore\NICE.Identity.TestClient.API.csproj", "{D1009255-974B-46F4-8888-BFC6A72FD674}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.M2MApp", "TestClients\NICE.Identity.TestClient.Consumer.NETCore\NICE.Identity.TestClient.M2MApp.csproj", "{D1009255-974B-46F4-8888-BFC6A72FD674}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
