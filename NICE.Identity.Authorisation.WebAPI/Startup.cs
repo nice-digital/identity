@@ -40,13 +40,15 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddTransient<IClaimsService, ClaimsService>();
             services.AddTransient<IUsersService, UsersService>();
 
-            services
-                .AddSwaggerGen(c =>
+            services.AddMvc()
+	            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+			services
+				.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc(ApiVersion, new Info {Title = ApiTitle, Version = ApiVersion});
                 })
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                ;
 
             services.ConfigureSwaggerGen(c =>
             {
@@ -67,6 +69,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 		        app.UseSwaggerUI(c =>
 		        {
 			        c.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
+			        c.RoutePrefix = string.Empty;
 		        });
 			}
 
