@@ -38,6 +38,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 
             services.TryAddSingleton<ISeriLogger, SeriLogger>();
             services.AddTransient<IClaimsService, ClaimsService>();
+            services.AddTransient<IUsersService, UsersService>();
 
             services
                 .AddSwaggerGen(c =>

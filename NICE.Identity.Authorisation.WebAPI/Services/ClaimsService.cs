@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
-using Claim = NICE.Identity.Authorisation.WebAPI.APIModels.Responses.Claim;
+using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Responses.Claim;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -20,16 +20,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		private readonly IdentityContext _context;
 	    private readonly ILogger<ClaimsService> _logger;
 
-	    public ClaimsService(IdentityContext context, ILoggerFactory loggerFactory)
+	    public ClaimsService(IdentityContext context, ILogger<ClaimsService> logger)
 	    {
 	        _context = context ?? throw new ArgumentNullException(nameof(context));
-
-	        if (loggerFactory == null)
-	        {
-	            throw new ArgumentNullException(nameof(loggerFactory));
-	        }
-
-	        _logger = loggerFactory.CreateLogger<ClaimsService>();
+	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
 	    public List<Claim> GetClaims(string authenticationProviderUserId)

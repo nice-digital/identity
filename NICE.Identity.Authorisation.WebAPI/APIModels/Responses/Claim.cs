@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace NICE.Identity.Authorisation.WebAPI.APIModels.Responses
+namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Responses
 {
 	public enum ClaimType
 	{

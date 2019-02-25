@@ -1,29 +1,30 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
+using Moq;
+using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using Xunit;
+using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
     public class ClaimsServiceTests : TestBase
     {
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly Mock<ILogger<ClaimsService>> _logger;
         private IdentityContext _identityContext;
 
         private ClaimsService _sut;
 
         public ClaimsServiceTests()
         {
-            _loggerFactory = new LoggerFactory();
-
+            _logger = new Mock<ILogger<ClaimsService>>();
             _identityContext = GetContext();
 
-            _sut = new ClaimsService(_identityContext, _loggerFactory);
+            _sut = new ClaimsService(_identityContext, _logger.Object);
         }
 
         [Fact]
@@ -45,13 +46,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
 
             //Act
-            Action getClaims = () =>
-            {
-                _sut.GetClaims("some auth0 userid");
-            };
+            var result = _sut.GetClaims("some auth0 userid");
 
             //Assert
-            Should.Throw<Exception>(getClaims, "Failed to get user");
+            result.ShouldBeNull();
         }
 
         [Fact]
