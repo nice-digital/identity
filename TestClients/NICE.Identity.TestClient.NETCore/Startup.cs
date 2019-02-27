@@ -14,7 +14,8 @@ namespace NICE.Identity.TestClient.NETCore
 	public class Startup
 	{
 	    private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
-	    
+	    private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
+
         public Startup(IConfiguration configuration, IHostingEnvironment env)
 	    {
 	        var builder = new ConfigurationBuilder()
@@ -42,6 +43,7 @@ namespace NICE.Identity.TestClient.NETCore
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
 		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath);
+		    services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, AuthorisationServiceConfigurationPath);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

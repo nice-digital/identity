@@ -5,9 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Options;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.External;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -15,7 +18,33 @@ namespace NICE.Identity.Authentication.Sdk
 {
 	public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
+	    public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
+	                                                          IConfiguration configuration,
+	                                                          string redisCacheServiceConfigurationPath,
+	                                                          string authorisationServiceConfigurationPath)
+	    {
+		    var clientID = configuration.GetSection(authorisationServiceConfigurationPath).GetSection("ClientId").Value;
+            services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
+		    var serviceProvider = services.BuildServiceProvider();
+            var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
+            services.AddDistributedMemoryCache();
+
+		    services.AddSession(options =>
+		    {
+			    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+			    options.Cookie.Name = $"{clientID}.Session";
+			    options.Cookie.HttpOnly = true;
+            });
+
+            services.AddDistributedRedisCache(o =>
+            {
+                o.Configuration = redisConfiguration.ConnectionString;
+            });
+
+            return services;
+	    }
+
+	    public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
                                                               IConfiguration configuration,
                                                               string authorisationServiceConfigurationPath)
         {
