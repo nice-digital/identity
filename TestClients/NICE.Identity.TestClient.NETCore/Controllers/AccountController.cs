@@ -19,6 +19,9 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 
 		public async Task Login(string returnUrl = "/")
 		{
+
+			_httpContextAccessor.HttpContext.Session.SetString("_Name", "Test");
+			_httpContextAccessor.HttpContext.Session.SetInt32("_Time", 773);
 			await _niceAuthenticationService.Login(_httpContextAccessor.HttpContext, returnUrl);
 		}
 

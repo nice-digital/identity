@@ -15,8 +15,9 @@ namespace NICE.Identity.TestClient.NETCore
 	{
 	    private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
 	    private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
+		private const string Auth0ServiceConfigurationPath = "Auth0";
 
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+		public Startup(IConfiguration configuration, IHostingEnvironment env)
 	    {
 	        var builder = new ConfigurationBuilder()
 	            .SetBasePath(env.ContentRootPath)
@@ -43,7 +44,7 @@ namespace NICE.Identity.TestClient.NETCore
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
 		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath);
-		    services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, AuthorisationServiceConfigurationPath);
+		    services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, Auth0ServiceConfigurationPath);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +64,7 @@ namespace NICE.Identity.TestClient.NETCore
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
 			app.UseAuthentication();
+			app.UseSession();
 
 			app.UseMvc(routes =>
 			{

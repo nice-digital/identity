@@ -21,13 +21,14 @@ namespace NICE.Identity.Authentication.Sdk
 	    public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
 	                                                          IConfiguration configuration,
 	                                                          string redisCacheServiceConfigurationPath,
-	                                                          string authorisationServiceConfigurationPath)
+	                                                          string auth0ServiceConfigurationPath)
 	    {
-		    var clientID = configuration.GetSection(authorisationServiceConfigurationPath).GetSection("ClientId").Value;
+		    var clientID = configuration.GetSection(auth0ServiceConfigurationPath).GetSection("ClientId").Value;
             services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
 		    var serviceProvider = services.BuildServiceProvider();
             var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
-            services.AddDistributedMemoryCache();
+
+			services.AddDistributedMemoryCache();
 
 		    services.AddSession(options =>
 		    {
@@ -36,9 +37,11 @@ namespace NICE.Identity.Authentication.Sdk
 			    options.Cookie.HttpOnly = true;
             });
 
-            services.AddDistributedRedisCache(o =>
+            services.AddDistributedRedisCache(options =>
             {
-                o.Configuration = redisConfiguration.ConnectionString;
+	            options.Configuration = redisConfiguration.ConnectionString;
+	            options.InstanceName = "test";
+
             });
 
             return services;
