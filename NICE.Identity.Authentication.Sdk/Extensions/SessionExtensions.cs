@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class SessionExtensions
 	{

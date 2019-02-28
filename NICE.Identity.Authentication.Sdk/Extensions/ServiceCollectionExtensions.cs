@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Options;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
@@ -14,17 +13,16 @@ using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.External;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
     {
 	    public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
 	                                                          IConfiguration configuration,
 	                                                          string redisCacheServiceConfigurationPath,
-	                                                          string auth0ServiceConfigurationPath)
+	                                                          string clientName)
 	    {
-		    var clientID = configuration.GetSection(auth0ServiceConfigurationPath).GetSection("ClientId").Value;
-            services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
+			services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
 		    var serviceProvider = services.BuildServiceProvider();
             var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
 
@@ -33,7 +31,7 @@ namespace NICE.Identity.Authentication.Sdk
 		    services.AddSession(options =>
 		    {
 			    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-			    options.Cookie.Name = $"{clientID}.Session";
+			    options.Cookie.Name = $"{clientName}.Session";
 			    options.Cookie.HttpOnly = true;
             });
 
@@ -41,7 +39,6 @@ namespace NICE.Identity.Authentication.Sdk
             {
 	            options.Configuration = redisConfiguration.ConnectionString;
 	            options.InstanceName = "test";
-
             });
 
             return services;

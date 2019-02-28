@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace NICE.Identity.TestClient.NETCore
 {
@@ -7,11 +12,25 @@ namespace NICE.Identity.TestClient.NETCore
 	{
 		public static void Main(string[] args)
 		{
-			CreateWebHostBuilder(args).Build().Run();
-		}
+			Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory = env =>
+				new ConfigurationBuilder()
+					.SetBasePath(env.ContentRootPath)
+					.AddEnvironmentVariables()
+					.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+					//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
+					.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
 
-		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-			WebHost.CreateDefaultBuilder(args)
-				.UseStartup<Startup>();
+            var startup = new Startup("Publications", configurationFactory, ProductionDependencies.AddProductionDependencies);
+
+			var builder = new WebHostBuilder()
+			              .UseKestrel()
+			              .UseContentRoot(Directory.GetCurrentDirectory())
+			              .ConfigureServices(services => services.TryAddSingleton<IStartup>(startup));
+
+			using (var host = builder.Build())
+			{
+				host.Run();
+			}
+		}
 	}
 }
