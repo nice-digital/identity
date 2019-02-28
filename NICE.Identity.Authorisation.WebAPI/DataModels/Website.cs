@@ -4,21 +4,21 @@ using NICE.Identity.Authorisation.WebAPI.DataModels;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
-    public partial class Websites
+    public partial class Website
     {
 
-        public Websites()
+        public Website()
         {
-            Roles = new HashSet<Roles>();
+            Roles = new HashSet<Role>();
         }
 
-		public Websites(int websiteId, int serviceId, int environmentId, string host)
+		public Website(int websiteId, int serviceId, int environmentId, string host)
 		{
 			WebsiteId = websiteId;
 			ServiceId = serviceId;
 			EnvironmentId = environmentId;
 			Host = host;
-			Roles = new HashSet<Roles>();
+			Roles = new HashSet<Role>();
 		}
 
 		public int WebsiteId { get; set; }
@@ -26,8 +26,8 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public int EnvironmentId { get; set; }
         public string Host { get; set; }
 
-        public Environments Environment { get; set; }
-        public Services Service { get; set; }
-        public ICollection<Roles> Roles { get; set; }
+        public Environment Environment { get; set; }
+        public Service Service { get; set; }
+        public ICollection<Role> Roles { get; set; }
     }
 }

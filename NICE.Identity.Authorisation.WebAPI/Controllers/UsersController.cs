@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using User = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.User;
+using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -24,7 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         
         // POST api/users
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] User user)
+        public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
             if (!ModelState.IsValid)
             {

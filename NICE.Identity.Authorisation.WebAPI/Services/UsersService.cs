@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
@@ -9,7 +10,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IUsersService
     {
-		Task CreateUser(User user);
+		Task CreateUser(CreateUser user);
 	}
 
 	public class UsersService : IUsersService
@@ -23,7 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
-        public async Task CreateUser(User user)
+        public async Task CreateUser(CreateUser user)
         {
             try
             {
@@ -39,11 +40,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        private Users MapUserToDomainModel(User user)
+        private DataModels.User MapUserToDomainModel(CreateUser user)
         {           
-            var userEntity = new Users
+            var userEntity = new User
             {
-                AcceptedTerms = user.AcceptedTerms,
+                //AcceptedTerms = user.AcceptedTerms,
                 //TODO: AllowContactMe = user.AllowContactMe,
                 Auth0UserId = user.UserId,
                 FirstName = user.FirstName,
@@ -53,6 +54,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				IsLockedOut = false,
 				HasVerifiedEmailAddress = false
             };
+            if (user.AcceptedTerms)
+            {
+                var currentTerms = _context.GetLatestTermsVersion();
+                if (currentTerms != null)
+                {
+                    userEntity.UserAcceptedTermsVersions = new List<UserAcceptedTermsVersion>() { new UserAcceptedTermsVersion(currentTerms) };
+                }
+            }
 
             return userEntity;
         }

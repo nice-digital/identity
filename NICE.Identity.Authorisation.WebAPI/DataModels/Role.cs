@@ -3,27 +3,27 @@ using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
-    public partial class Roles
+    public partial class Role
     {
 
-        public Roles()
+        public Role()
         {
-            UserRoles = new HashSet<UserRoles>();
+            UserRoles = new HashSet<UserRole>();
         }
 
-		public Roles(int roleId, int websiteId, string name)
+		public Role(int roleId, int websiteId, string name)
 		{
 			RoleId = roleId;
 			WebsiteId = websiteId;
 			Name = name;
-			UserRoles = new HashSet<UserRoles>(); ;
+			UserRoles = new HashSet<UserRole>(); ;
 		}
 
 		public int RoleId { get; set; }
         public int WebsiteId { get; set; }
         public string Name { get; set; }
 
-        public Websites Website { get; set; }
-        public ICollection<UserRoles> UserRoles { get; set; }
+        public Website Website { get; set; }
+        public ICollection<UserRole> UserRoles { get; set; }
     }
 }

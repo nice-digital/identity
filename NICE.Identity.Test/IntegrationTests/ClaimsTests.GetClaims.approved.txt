@@ -6,5 +6,9 @@
     {
         "type":"Role",
         "value":"Administrator"
+    },
+    {
+        "type":"TermsAndConditions",
+        "value":"1"
     }
 ]
