@@ -8,11 +8,29 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_UserRoles_UserID",
-                table: "UserRoles");
+	        migrationBuilder.Sql($@"
+				DELETE FROM UserRoles
+				DELETE FROM Users
+				DELETE FROM Roles
+				DELETE FROM Websites
+				DELETE FROM [Services]
+				DELETE FROM Environments				
+			");
 
-            migrationBuilder.DropColumn(
+
+	        //migrationBuilder.DropIndex(
+	        //             name: "IX_UserRoles_UserID",
+	        //             table: "UserRoles");
+			
+			//doing the above inside an if exists.
+			migrationBuilder.Sql(@"
+				IF EXISTS (SELECT * FROM sys.indexes WHERE name='IX_UserRoles_UserID' AND object_id = OBJECT_ID('dbo.UserRoles'))
+				BEGIN
+					DROP INDEX IX_UserRoles_UserID ON UserRoles
+				END
+			");
+
+			migrationBuilder.DropColumn(
                 name: "DSActiveDirectoryUsername",
                 table: "Users");
 
