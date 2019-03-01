@@ -3,24 +3,24 @@ using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
-    public partial class Services
+    public partial class Service
     {
 
-        public Services()
+        public Service()
         {
-            Websites = new HashSet<Websites>();
+            Websites = new HashSet<Website>();
         }
 
-		public Services(int serviceId, string name)
+		public Service(int serviceId, string name)
 		{
 			ServiceId = serviceId;
 			Name = name;
-			Websites = new HashSet<Websites>();
+			Websites = new HashSet<Website>();
 		}
 
 		public int ServiceId { get; set; }
         public string Name { get; set; }
 
-        public ICollection<Websites> Websites { get; set; }
+        public ICollection<Website> Websites { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public interface IClaimsService
 	{
 		List<Claim> GetClaims(string authenticationProviderUserId);
-		Task AddToUser(Roles role);
+		Task AddToUser(Role role);
 	}
 
 	public class ClaimsService : IClaimsService
@@ -28,7 +28,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 	    public List<Claim> GetClaims(string authenticationProviderUserId)
 	    {
-	        Users user;
+	        User user;
 
 			var claims = new List<Claim>();
             
@@ -57,10 +57,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name));
 			}
 
-			return claims;
+            var latv = user.LatestAcceptedTermsVersion();
+            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString()));
+
+            return claims;
 		}
 
-		public Task AddToUser(Roles role)
+		public Task AddToUser(Role role)
 		{
 			throw new NotImplementedException();
 		}

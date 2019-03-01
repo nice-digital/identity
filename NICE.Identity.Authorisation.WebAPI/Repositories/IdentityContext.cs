@@ -14,12 +14,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
         }
 
-        public virtual DbSet<Environments> Environments { get; set; }
-        public virtual DbSet<Roles> Roles { get; set; }
-        public virtual DbSet<DataModels.Services> Services { get; set; }
-        public virtual DbSet<UserRoles> UserRoles { get; set; }
-        public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<Websites> Websites { get; set; }
+        public virtual DbSet<Environment> Environments { get; set; }
+        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<Service> Services { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Website> Websites { get; set; }
+        public virtual DbSet<TermsVersion> TermsVersions { get; set; }
+        public virtual DbSet<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -31,8 +33,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Environments>(entity =>
+            modelBuilder.Entity<Environment>(entity =>
             {
+                entity.ToTable("Environments");
+
                 entity.HasKey(e => e.EnvironmentId);
 
                 entity.Property(e => e.EnvironmentId).HasColumnName("EnvironmentID");
@@ -40,10 +44,21 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.HasData(new Environment[] {
+                    new Environment(1, "Local", 10),
+                    new Environment(2, "Dev", 20),
+                    new Environment(3, "Test", 30),
+                    new Environment(4, "Alpha", 40),
+                    new Environment(5, "Beta", 50),
+                    new Environment(6, "Live", 60),
+                });
             });
 
-            modelBuilder.Entity<Roles>(entity =>
+            modelBuilder.Entity<Role>(entity =>
             {
+                entity.ToTable("Roles");
+
                 entity.HasKey(e => e.RoleId);
 
                 entity.Property(e => e.RoleId).HasColumnName("RoleID");
@@ -61,8 +76,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                     .HasConstraintName("FK_Roles_Roles");
             });
 
-            modelBuilder.Entity<DataModels.Services>(entity =>
+            modelBuilder.Entity<Service>(entity =>
             {
+                entity.ToTable("Services");
+
                 entity.HasKey(e => e.ServiceId);
 
                 entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
@@ -70,10 +87,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.HasData(new Service[] {
+                    new Service(1, "NICE Website"),
+                    new Service(2, "EPPI Reviewer v5")
+                });
             });
 
-            modelBuilder.Entity<UserRoles>(entity =>
+            modelBuilder.Entity<UserRole>(entity =>
             {
+                entity.ToTable("UserRoles");
+
                 entity.HasKey(e => e.UserRoleId);
 
                 entity.Property(e => e.UserRoleId).HasColumnName("UserRoleID");
@@ -93,10 +117,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_UserRoles_Users");
+
+                entity.HasAlternateKey(c => new { c.UserId, c.RoleId }).HasName("IX_UserRoles_UserID_RoleID");
             });
 
-            modelBuilder.Entity<Users>(entity =>
+            modelBuilder.Entity<User>(entity =>
             {
+                entity.ToTable("Users");
+
                 entity.HasKey(e => e.UserId);
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
@@ -106,10 +134,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                     .HasColumnName("Auth0UserID")
                     .HasMaxLength(100);
 
-                entity.Property(e => e.DsactiveDirectoryUsername)
-                    .HasColumnName("DSActiveDirectoryUsername")
-                    .HasMaxLength(100);
-
                 entity.Property(e => e.EmailAddress)
                     .IsRequired()
                     .HasMaxLength(320);
@@ -117,18 +141,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 entity.Property(e => e.FirstName).HasMaxLength(100);
 
                 entity.Property(e => e.LastName).HasMaxLength(100);
-
-                entity.Property(e => e.NiceaccountsId).HasColumnName("NICEAccountsID");
-
-                entity.Property(e => e.NiceactiveDirectoryUsername)
-                    .HasColumnName("NICEActiveDirectoryUsername")
-                    .HasMaxLength(100);
-
-                entity.Property(e => e.Title).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<Websites>(entity =>
+            modelBuilder.Entity<Website>(entity =>
             {
+                entity.ToTable("Websites");
+
                 entity.HasKey(e => e.WebsiteId);
 
                 entity.Property(e => e.WebsiteId).HasColumnName("WebsiteID");
@@ -153,6 +171,58 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ServiceInstance_Services");
             });
+
+            modelBuilder.Entity<TermsVersion>(entity =>
+            {
+                entity.ToTable("TermsVersions");
+
+                entity.HasKey(e => e.TermsVersionId);
+
+                entity.Property(t => t.TermsVersionId)
+                    .HasColumnName("TermsVersionID")
+                    .ValueGeneratedNever();
+
+                entity.Property(x => x.CreatedByUserId)
+                    .HasColumnName("CreatedByUserID");
+
+                entity.Property(x => x.VersionDate)
+                    .IsRequired();
+
+                entity.HasOne(d => d.CreatedByUser)
+                    .WithMany(x => x.UserCreatedTermsVersions)
+                    .HasForeignKey(x => x.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TermsVersion_CreatedByUser");
+            });
+
+            modelBuilder.Entity<UserAcceptedTermsVersion>(entity =>
+            {
+                entity.ToTable("UserAcceptedTermsVersion");
+
+                entity.HasKey(x => x.UserAcceptedTermsVersionId);
+
+                entity.Property(e => e.UserAcceptedTermsVersionId)
+                    .HasColumnName("UserAcceptedTermsVersionID");
+
+                entity.Property(e => e.TermsVersionId)
+                    .HasColumnName("TermsVersionID");
+
+                entity.Property(x => x.UserAcceptedDate)
+                    .IsRequired();
+
+                entity.HasOne(x => x.TermsVersion)
+                    .WithMany(x => x.UserAcceptedTermsVersions)
+                    .HasForeignKey(x => x.TermsVersionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserAcceptedTermsVersion_TermsVersion");
+
+                entity.HasOne(x => x.User)
+                    .WithMany(x => x.UserAcceptedTermsVersions)
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserAcceptedTermsVersion_User");
+            });
+
         }
     }
 }
