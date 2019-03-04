@@ -12,7 +12,6 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/claims/5",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.Common;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
@@ -23,6 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
         
         // POST api/users
+		[AuthoriseWithApiKey]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
