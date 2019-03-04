@@ -27,11 +27,13 @@
     <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.0.1" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1" />
     <PackageReference Include="Owin" Version="1.0.0" />
+    <PackageReference Include="Rhasta.Owin.Security.Cookies.Store.Redis" Version="1.0.0" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="4.0.5" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Microsoft.AspNetCore.Authorization">
-      <HintPath>..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.authorization\2.1.1\lib\netstandard2.0\Microsoft.AspNetCore.Authorization.dll</HintPath>
+      <HintPath>..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.authorization\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authorization.dll</HintPath>
     </Reference>
   </ItemGroup>
 

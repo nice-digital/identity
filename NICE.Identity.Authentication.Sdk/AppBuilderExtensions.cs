@@ -6,23 +6,28 @@ using Owin;
 using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Owin.Security.DataProtection;
+using NICE.Identity.Authentication.Sdk.Configurations;
+using Rhasta.Owin.Security.Cookies.Store.Redis;
+using TicketDataFormat = Microsoft.Owin.Security.DataHandler.TicketDataFormat;
 
 namespace NICE.Identity.Authentication.Sdk
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddAuthentication(this IAppBuilder app, AuthConfiguration authConfiguration)
+		public static void AddAuthentication(this IAppBuilder app, AuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
-
 			// Enable Kentor Cookie Saver middleware
 			app.UseKentorOwinCookieSaver();
-
-			// Set Cookies as default authentication type
-			app.SetDefaultSignInAsAuthenticationType(Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType);
-			app.UseCookieAuthentication(new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions
+			IDataProtector dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
+            // Set Cookies as default authentication type
+            app.SetDefaultSignInAsAuthenticationType(Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType);
+			app.UseCookieAuthentication(options: new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions
 			{
 				AuthenticationType = Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType,
-				LoginPath = new Microsoft.Owin.PathString("/Account/Login")
+				SessionStore = new RedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+                LoginPath = new Microsoft.Owin.PathString("/Account/Login")
 			});
 
 			// Configure Auth0 authentication

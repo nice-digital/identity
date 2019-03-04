@@ -10,6 +10,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Newtonsoft.Json.Linq;
 using NICE.Identity.Authentication.Sdk;
+using NICE.Identity.Authentication.Sdk.Configurations;
 using Owin;
 
 [assembly: OwinStartup(typeof(NICE.Identity.TestClient.NETFramework.Startup))]
@@ -34,7 +35,13 @@ namespace NICE.Identity.TestClient.NETFramework
 				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString()
 			};
 
-			app.AddAuthentication(authConfiguration);
+			var redisConfig = new RedisConfiguration
+			{
+				IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
+				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString())
+			};
+
+			app.AddAuthentication(authConfiguration, redisConfig);
 			
 		}
 	}
