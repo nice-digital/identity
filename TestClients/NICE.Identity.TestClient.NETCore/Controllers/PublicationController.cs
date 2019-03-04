@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace NICE.Identity.TestClient.NETCore.Controllers
+namespace NICE.Identity.TestClient.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class PublicationController : ControllerBase
     {
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-                   Policy = "read:messages")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "read:messages")]
 		[HttpGet]
 	    public Publication Get()
 		{

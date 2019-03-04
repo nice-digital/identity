@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.TestClient.NETCore.Models;
+using NICE.Identity.TestClient.Api.Models;
 
-namespace NICE.Identity.TestClient.NETCore.Controllers
+namespace NICE.Identity.TestClient.Api.Controllers
 {
 	public class HomeController : Controller
 	{

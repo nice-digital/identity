@@ -60,7 +60,8 @@ namespace NICE.Identity.Authentication.Sdk
 				 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			}).AddCookie().AddJwtBearer(options =>
+			}).AddCookie()
+			.AddJwtBearer(options =>
 			{
 				 options.Authority = domain;
 				 options.Audience = configuration["Auth0:ApiIdentifier"];

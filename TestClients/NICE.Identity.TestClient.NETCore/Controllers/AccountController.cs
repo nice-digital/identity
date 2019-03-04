@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authentication.Sdk.Abstractions;
-using System.Threading.Tasks;
 
-namespace NICE.Identity.TestClient.NETCore.Controllers
+namespace NICE.Identity.TestClient.Api.Controllers
 {
 	public class AccountController : Controller
 	{

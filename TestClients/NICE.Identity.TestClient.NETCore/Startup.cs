@@ -9,13 +9,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
-namespace NICE.Identity.TestClient.NETCore
+namespace NICE.Identity.TestClient.Api
 {
 	public class Startup
 	{
 	    private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
 	    
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IHostingEnvironment env)
 	    {
 	        var builder = new ConfigurationBuilder()
 	            .SetBasePath(env.ContentRootPath)
@@ -41,7 +41,7 @@ namespace NICE.Identity.TestClient.NETCore
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
-		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath, supportM2M:true);
+		    services.AddAuthenticationSdk(Configuration, AuthorisationServiceConfigurationPath);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
