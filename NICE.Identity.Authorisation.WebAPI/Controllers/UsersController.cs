@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Web.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -53,5 +54,26 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(503, error);
             }
         }
-    }
+
+	    // Get api/users
+	    [AuthoriseWithApiKey]
+	    [HttpGet]
+	    [Produces("application/json")]
+		public IActionResult Get()
+	    {
+		    try
+		    {
+			    return Ok(_usersService.GetUsers());
+		    }
+		    catch (Exception e)
+		    {
+			    var error = new ErrorDetail()
+			    {
+				    ErrorMessage = e.Message
+			    };
+
+			    return StatusCode(503, error);
+		    }
+	    }
+	}
 }

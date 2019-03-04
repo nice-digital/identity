@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
+using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
@@ -11,7 +14,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public interface IUsersService
     {
 		Task CreateUser(CreateUser user);
-	}
+	    List<UserInList> GetUsers();
+    }
 
 	public class UsersService : IUsersService
     {
@@ -40,7 +44,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        private DataModels.User MapUserToDomainModel(CreateUser user)
+	    public List<UserInList> GetUsers()
+	    {
+		    return _context.Users.Select(user => new UserInList(user)).ToList();
+	    }
+
+	    private DataModels.User MapUserToDomainModel(CreateUser user)
         {           
             var userEntity = new User
             {
