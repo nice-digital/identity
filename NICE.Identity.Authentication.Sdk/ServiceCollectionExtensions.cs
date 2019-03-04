@@ -26,14 +26,15 @@ namespace NICE.Identity.Authentication.Sdk
             services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
             
             InstallAuthorisation(services);
-            var authenticationBuilder = InstallAuthenticationService(services, configuration);
-	        //if (supportM2M)
-	        //{
-		       // authenticationBuilder.InstallM2MAuthentication(services, configuration);
+	        InstallAuthenticationService(services, configuration);
+			//var authenticationBuilder = InstallAuthenticationService(services, configuration);
+			//if (supportM2M)
+			//{
+			// authenticationBuilder.InstallM2MAuthentication(services, configuration);
 
-	        //}
+			//}
 
-            return services;
+			return services;
         }
 
         private static void InstallAuthorisation(IServiceCollection services)
@@ -96,21 +97,36 @@ namespace NICE.Identity.Authentication.Sdk
             });
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
-            // Add authentication services
-            var authenticationBuilder = services.AddAuthentication(options => {
-                //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-                {
-                    options.Authority = domain;
-                    options.Audience = configuration["Auth0:ApiIdentifier"];
-                }); ;
-	        authenticationBuilder
-			.AddCookie()
+			var authenticationBuilder = services.AddAuthentication(options =>
+			 {
+				 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			 }).AddCookie().AddJwtBearer(options =>
+			 {
+				 options.Authority = domain;
+				 options.Audience = configuration["Auth0:ApiIdentifier"];
+			 });
+
+
+			//Add authentication services
+			//var authenticationBuilder = services.AddAuthentication(options =>
+			//		{
+			//			 //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			//			 //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			//			 //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			//			 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			//			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			//		})
+			//			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+			//			{
+			//				options.Authority = domain;
+			//				options.Audience = configuration["Auth0:ApiIdentifier"];
+			//			});
+			//authenticationBuilder
+	  //.AddCookie()
+
+			authenticationBuilder
 			.AddOpenIdConnect("Auth0", options => {
 				// Set the authority to your Auth0 domain
 				options.Authority = $"https://{configuration["Auth0:Domain"]}";
