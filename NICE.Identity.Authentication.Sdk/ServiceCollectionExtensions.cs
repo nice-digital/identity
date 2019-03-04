@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
@@ -17,117 +15,57 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 namespace NICE.Identity.Authentication.Sdk
 {
 	public static class ServiceCollectionExtensions
-    {
-        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
-                                                              IConfiguration configuration,
-                                                              string authorisationServiceConfigurationPath,
-															  bool supportM2M = false)
-        {
-            services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
-            
-            InstallAuthorisation(services);
-	        InstallAuthenticationService(services, configuration);
-			//var authenticationBuilder = InstallAuthenticationService(services, configuration);
-			//if (supportM2M)
-			//{
-			// authenticationBuilder.InstallM2MAuthentication(services, configuration);
+	{
+		public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration, string authorisationServiceConfigurationPath)
+		{
+			services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
 
-			//}
+			InstallAuthorisation(services);
+			InstallAuthenticationService(services, configuration);
 
 			return services;
-        }
+		}
 
-        private static void InstallAuthorisation(IServiceCollection services)
-        {
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
-            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+		private static void InstallAuthorisation(IServiceCollection services)
+		{
+			services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+			services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
-            //services.AddAuthorization(options =>
-            //{
-            //    //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
-            //    options.AddPolicy(PolicyTypes.Administrator,
-            //        policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
-            //});
-
-            //services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
-        }
-
-	    private static void InstallM2MAuthentication(this AuthenticationBuilder builder, IServiceCollection services, IConfiguration configuration)
-	    {
-			string domain = $"https://{configuration["Auth0:Domain"]}/";
-		    builder
-			    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-			    {
-				    options.Authority = domain;
-				    options.Audience = configuration["Auth0:ApiIdentifier"];
-			    });
-
-			//services.AddAuthentication(options =>
+			//services.AddAuthorization(options =>
 			//{
-			//	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-			//	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-			//}).AddJwtBearer(options =>
-			//{
-			//	options.Authority = domain;
-			//	options.Audience = configuration["Auth0:ApiIdentifier"];
+			//    //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
+			//    options.AddPolicy(PolicyTypes.Administrator,
+			//        policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
 			//});
+
+			//services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+		}
+
+		private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
+		{
+			services.AddScoped<IAuthenticationService, Auth0Service>();
+
+			string domain = $"https://{configuration["Auth0:Domain"]}/";
 
 			services.AddAuthorization(options =>
 			{
 				options.AddPolicy("read:messages",
 					policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
 			});
-
-			// register the scope authorization handler
 			services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-		}
 
-
-	    private static AuthenticationBuilder InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddScoped<IAuthenticationService, Auth0Service>();
-            
-
-            string domain = $"https://{configuration["Auth0:Domain"]}/";
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("read:messages",
-                    policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
-            });
-            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-
-			var authenticationBuilder = services.AddAuthentication(options =>
-			 {
+			//Add authentication services
+			services.AddAuthentication(options =>
+			{
 				 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			 }).AddCookie().AddJwtBearer(options =>
-			 {
+			}).AddCookie().AddJwtBearer(options =>
+			{
 				 options.Authority = domain;
 				 options.Audience = configuration["Auth0:ApiIdentifier"];
-			 });
-
-
-			//Add authentication services
-			//var authenticationBuilder = services.AddAuthentication(options =>
-			//		{
-			//			 //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			//			 //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			//			 //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			//			 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-			//			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-			//		})
-			//			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-			//			{
-			//				options.Authority = domain;
-			//				options.Audience = configuration["Auth0:ApiIdentifier"];
-			//			});
-			//authenticationBuilder
-	  //.AddCookie()
-
-			authenticationBuilder
-			.AddOpenIdConnect("Auth0", options => {
+			}).AddOpenIdConnect("Auth0", options =>
+			{
 				// Set the authority to your Auth0 domain
 				options.Authority = $"https://{configuration["Auth0:Domain"]}";
 
@@ -154,10 +92,10 @@ namespace NICE.Identity.Authentication.Sdk
 
 				options.Events = new OpenIdConnectEvents
 				{
-                    OnTokenValidated = (context) =>
-                    {
-                        return Task.CompletedTask;
-                    },
+					OnTokenValidated = (context) =>
+					{
+						return Task.CompletedTask;
+					},
 					// handle the logout redirection 
 					OnRedirectToIdentityProviderForSignOut = (context) =>
 					{
@@ -168,8 +106,8 @@ namespace NICE.Identity.Authentication.Sdk
 						{
 							if (postLogoutUri.StartsWith("/"))
 							{
-								// transform to absolute
-								var request = context.Request;
+							// transform to absolute
+							var request = context.Request;
 								postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
 							}
 							logoutUri += $"&returnTo={ Uri.EscapeDataString(postLogoutUri)}";
@@ -182,7 +120,6 @@ namespace NICE.Identity.Authentication.Sdk
 					}
 				};
 			});
-	        return authenticationBuilder;
-        }
-    }
+		}
+	}
 }
