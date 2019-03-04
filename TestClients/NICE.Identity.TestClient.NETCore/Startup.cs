@@ -29,7 +29,7 @@ namespace NICE.Identity.TestClient.NETCore
 	        });
 
 	        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-	        services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+	        services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
 
 	        return services;
         }

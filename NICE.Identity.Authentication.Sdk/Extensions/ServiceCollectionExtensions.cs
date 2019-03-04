@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.External;
+using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
@@ -25,20 +27,18 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
 		    var serviceProvider = services.BuildServiceProvider();
             var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
+            var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
 
-			services.AddDistributedMemoryCache();
+            services.AddDataProtection()
+                    .SetApplicationName(clientName)
+                    .PersistKeysToStackExchangeRedis(redis, $"{clientName}.DataProtection-Keys");
 
-		    services.AddSession(options =>
+            services.AddSession(options =>
 		    {
 			    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 			    options.Cookie.Name = $"{clientName}.Session";
 			    options.Cookie.HttpOnly = true;
-            });
-
-            services.AddDistributedRedisCache(options =>
-            {
-	            options.Configuration = redisConfiguration.ConnectionString;
-	            options.InstanceName = "test";
+			    options.IdleTimeout = TimeSpan.FromMinutes(10);
             });
 
             return services;
