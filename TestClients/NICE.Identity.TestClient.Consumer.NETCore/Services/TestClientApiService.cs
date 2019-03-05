@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NICE.Identity.TestClient.M2MApp.Common;
+using NICE.Identity.TestClient.M2MApp.Models;
 
 namespace NICE.Identity.TestClient.M2MApp.Services
 {
@@ -29,7 +30,7 @@ namespace NICE.Identity.TestClient.M2MApp.Services
 		public Publication GetPublication(string url, JwtToken token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
+            request.Headers.Add("Authorization", $"{token.TokenType} {token.AccessToken}");
 
             var response = HttpResponseHelpers.Send(_client, request);
 			if (response.StatusCode != HttpStatusCode.OK)
@@ -43,7 +44,7 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             return publication;
         }
     }
-}
+
 
     public class Publication
     {
