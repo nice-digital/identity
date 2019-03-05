@@ -46,7 +46,7 @@ namespace NICE.Identity.TestClient.M2MApp.Controllers
 
 	    public IActionResult Publication()
 	    {
-		    JwtToken jwtToken = _tokenService.GetToken().Result;
+		    JwtToken jwtToken = _tokenService.GetToken();
 	        var publication = _apiService.GetPublication("https://localhost:5001/api/publication", jwtToken);
 
 	        ViewData["Id"] = publication.Id;

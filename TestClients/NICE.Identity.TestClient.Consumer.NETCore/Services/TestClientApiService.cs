@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NICE.Identity.TestClient.M2MApp.Common;
 
 namespace NICE.Identity.TestClient.M2MApp.Services
 {
@@ -25,30 +26,18 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             _tokenService = tokenService;
         }
 
-	    public HttpResponseMessage Send(HttpRequestMessage request)
-	    {
-		    return _client.SendAsync(request).Result;
-	    }
-
-	    private string GetString(HttpResponseMessage response)
-	    {
-		    var content = response.Content;
-		    var readTask = content.ReadAsStringAsync();
-		    return readTask.Result;
-	    }
-
 		public Publication GetPublication(string url, JwtToken token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
 
-            var response = Send(request);
+            var response = HttpResponseHelpers.Send(_client, request);
 			if (response.StatusCode != HttpStatusCode.OK)
 			{
 				throw new HttpRequestException("An Error Occured");
 			}
 
-			var content = GetString(response);
+			var content = HttpResponseHelpers.GetString(response);
             var publication = JsonConvert.DeserializeObject<Publication>(content);
 
             return publication;

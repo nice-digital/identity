@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using NICE.Identity.TestClient.M2MApp.Common;
+using NICE.Identity.TestClient.M2MApp.Models;
 
 namespace NICE.Identity.TestClient.M2MApp.Services
 {
     public interface ITokenService
     {
-        Task<JwtToken> GetToken();
+        JwtToken GetToken();
     }
 
     public class Auth0TokenService : ITokenService
@@ -23,49 +25,32 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             _config = config;
         }
 
-        public async Task<JwtToken> GetToken()
+        public JwtToken GetToken()
         {
-            var clientId = _config["Auth0:ClientId"];
-            var clientSecret = _config["Auth0:ClientSecret"];
-            var apiId = _config["Auth0:ApiIdentifier"];
             var domain = _config["Auth0:Domain"];
 
             var url = $"https://{domain}/oauth/token";
 
-            JwtToken token;
+	        var request = new HttpRequestMessage(HttpMethod.Post, url)
+	        {
+		        Content = new StringContent("{\"grant_type\":\"client_credentials\"," +
+		                                    "\"client_id\": \"" + _config["Auth0:ClientId"] + "\"," +
+		                                    "\"client_secret\": \"" + _config["Auth0:ClientSecret"] + "\"," +
+		                                    "\"audience\": \"" + _config["Auth0:ApiIdentifier"] + "\"}",
+			    Encoding.UTF8,
+			    "application/json")
+	        };
 
-            try
-            {
-	            var request = new HttpRequestMessage(HttpMethod.Post, url)
-	            {
-		            Content = new StringContent("{\"grant_type\":\"client_credentials\"," +
-		                                        "\"client_id\": \"" + clientId + "\"," +
-		                                        "\"client_secret\": \"" + clientSecret + "\"," +
-		                                        "\"audience\": \"" + apiId + "\"}",
-			            Encoding.UTF8,
-			            "application/json")
-	            };
+	        var response = HttpResponseHelpers.Send(_client, request);
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				throw new HttpRequestException("An Error Occured");
+			}
 
-	            var result = await _client.SendAsync(request);
-                string resultString = await result.Content.ReadAsStringAsync();
-
-                token = JsonConvert.DeserializeObject<JwtToken>(resultString);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-
+			var content = HttpResponseHelpers.GetString(response);
+            var token = JsonConvert.DeserializeObject<JwtToken>(content);
+           
             return token;
         }
-    }
-
-    public class JwtToken
-    {
-        public string access_token { get; set; }
-
-        public string token_type { get; set; }
-
-        public int expires_in { get; set; }
     }
 }
