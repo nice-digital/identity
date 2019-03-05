@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.TestClient.Consumer.NETCore.Models;
+using NICE.Identity.TestClient.M2MApp.Models;
 using NICE.Identity.TestClient.M2MApp.Services;
 
 namespace NICE.Identity.TestClient.M2MApp.Controllers
