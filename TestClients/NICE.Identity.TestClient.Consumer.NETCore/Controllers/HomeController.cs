@@ -12,10 +12,12 @@ namespace NICE.Identity.TestClient.M2MApp.Controllers
 	public class HomeController : Controller
 	{
 	    private readonly ITestClientApiService _apiService;
+		private readonly ITokenService _tokenService;
 
-	    public HomeController(ITestClientApiService apiService)
+		public HomeController(ITestClientApiService apiService, ITokenService tokenService)
 	    {
 	        _apiService = apiService;
+		    _tokenService = tokenService;
 	    }
 
         public IActionResult Index()
@@ -44,7 +46,8 @@ namespace NICE.Identity.TestClient.M2MApp.Controllers
 
 	    public IActionResult Publication()
 	    {
-	        var publication = _apiService.GetPublication().Result;
+		    JwtToken jwtToken = _tokenService.GetToken().Result;
+	        var publication = _apiService.GetPublication("https://localhost:5001/api/publication", jwtToken);
 
 	        ViewData["Id"] = publication.Id;
 	        ViewData["Text"] = publication.SomeText;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -10,8 +11,8 @@ namespace NICE.Identity.TestClient.M2MApp.Services
 {
     public interface ITestClientApiService
     {
-        Task<Publication> GetPublication();
-    }
+        Publication GetPublication(string url, JwtToken token);
+	}
 
     public class TestClientApiService : ITestClientApiService
     {
@@ -24,38 +25,36 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             _tokenService = tokenService;
         }
 
-        public async Task<Publication> GetPublication()
+	    public HttpResponseMessage Send(HttpRequestMessage request)
+	    {
+		    return _client.SendAsync(request).Result;
+	    }
+
+	    private string GetString(HttpResponseMessage response)
+	    {
+		    var content = response.Content;
+		    var readTask = content.ReadAsStringAsync();
+		    return readTask.Result;
+	    }
+
+		public Publication GetPublication(string url, JwtToken token)
         {
-            JwtToken token;
-            try
-            {
-                token = await _tokenService.GetToken();
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
 
-            string url = "https://localhost:5001/api/publication";
+            var response = Send(request);
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				throw new HttpRequestException("An Error Occured");
+			}
 
-            try
-            {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
+			var content = GetString(response);
+            var publication = JsonConvert.DeserializeObject<Publication>(content);
 
-                var result = await _client.SendAsync(request);
-                string resultString = await result.Content.ReadAsStringAsync();
-
-                var publiction = JsonConvert.DeserializeObject<Publication>(resultString);
-
-                return publiction;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return publication;
         }
     }
+}
 
     public class Publication
     {
