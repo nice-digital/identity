@@ -30,23 +30,23 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             var apiId = _config["Auth0:ApiIdentifier"];
             var domain = _config["Auth0:Domain"];
 
-            string url = $"https://{domain}/oauth/token";
+            var url = $"https://{domain}/oauth/token";
 
             JwtToken token;
 
             try
             {
+	            var request = new HttpRequestMessage(HttpMethod.Post, url)
+	            {
+		            Content = new StringContent("{\"grant_type\":\"client_credentials\"," +
+		                                        "\"client_id\": \"" + clientId + "\"," +
+		                                        "\"client_secret\": \"" + clientSecret + "\"," +
+		                                        "\"audience\": \"" + apiId + "\"}",
+			            Encoding.UTF8,
+			            "application/json")
+	            };
 
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-                //request.Headers.Add("content-type", "application/json");
-                request.Content = new StringContent("{\"grant_type\":\"client_credentials\"," +
-                                                    "\"client_id\": \"" + clientId + "\"," +
-                                                    "\"client_secret\": \"" + clientSecret + "\"," +
-                                                    "\"audience\": \"" + apiId + "\"}",
-                    Encoding.UTF8,
-                    "application/json");
-
-                var result = await _client.SendAsync(request);
+	            var result = await _client.SendAsync(request);
                 string resultString = await result.Content.ReadAsStringAsync();
 
                 token = JsonConvert.DeserializeObject<JwtToken>(resultString);
