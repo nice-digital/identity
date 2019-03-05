@@ -13,8 +13,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IUsersService
     {
-		Task CreateUser(CreateUser user);
+		Task CreateOrUpdateUser(CreateUser user);
 	    List<UserInList> GetUsers();
+	    void DeleteUser(int userId);
     }
 
 	public class UsersService : IUsersService
@@ -28,17 +29,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
-        public async Task CreateUser(CreateUser user)
+        public async Task CreateOrUpdateUser(CreateUser user)
         {
             try
             {
-                var userEntity = MapUserToDomainModel(user);
+				var userEntity = MapUserToDomainModel(user);
 
-                _context.AddUser(userEntity);
+                _context.AddOrUpdateUser(userEntity);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to add user - exception: '{e.Message}' userId: '{user.UserId}'");
+                _logger.LogError($"Failed to add user - exception: '{e.Message}' userId: '{user.Auth0UserId}'");
 
                 throw new Exception("Failed to add user");
             }
@@ -49,13 +50,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		    return _context.Users.Select(user => new UserInList(user)).ToList();
 	    }
 
+	    public void DeleteUser(int userId)
+	    {
+		    _context.DeleteUser(userId);
+	    }
+
 	    private DataModels.User MapUserToDomainModel(CreateUser user)
         {           
             var userEntity = new User
             {
                 //AcceptedTerms = user.AcceptedTerms,
                 //TODO: AllowContactMe = user.AllowContactMe,
-                Auth0UserId = user.UserId,
+                Auth0UserId = user.Auth0UserId,
                 FirstName = user.FirstName,
 				LastName = user.LastName,
                 InitialRegistrationDate = DateTime.UtcNow,

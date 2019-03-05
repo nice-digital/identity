@@ -22,12 +22,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Common
 			{
 				if (!parsedAPIKey.Equals(AppSettings.AuthorisationAPI.APIKey.Value))
 				{
-					context.Result = new NotFoundResult();
+					context.Result = new UnauthorizedResult();
 				}
 			}
 			else
 			{
-				context.Result = new NotFoundResult();
+				context.Result = new UnauthorizedResult();
 			}
 		}
 	}
