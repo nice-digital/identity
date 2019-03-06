@@ -1,37 +1,44 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.OpenIdConnect;
-using Owin;
-using System;
-using System.Collections.Specialized;
+﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Owin;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
+using Microsoft.Owin.Security.OpenIdConnect;
 using NICE.Identity.Authentication.Sdk.Configurations;
+using Owin;
 using Rhasta.Owin.Security.Cookies.Store.Redis;
-using TicketDataFormat = Microsoft.Owin.Security.DataHandler.TicketDataFormat;
 
 namespace NICE.Identity.Authentication.Sdk
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddAuthentication(this IAppBuilder app, AuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
+		public static void AddAuthentication(this IAppBuilder app, string clientName, AuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
-			// Enable Kentor Cookie Saver middleware
-			app.UseKentorOwinCookieSaver();
-			IDataProtector dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
+            // Enable Kentor Cookie Saver middleware
+            app.UseKentorOwinCookieSaver();
+			var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
             // Set Cookies as default authentication type
-            app.SetDefaultSignInAsAuthenticationType(Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType);
-			app.UseCookieAuthentication(options: new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions
-			{
-				AuthenticationType = Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType,
-				SessionStore = new RedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
-                LoginPath = new Microsoft.Owin.PathString("/Account/Login")
-			});
+            app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
+            var options = new CookieAuthenticationOptions
+            {
+	            AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
+				AuthenticationMode = AuthenticationMode.Active,
+	            SessionStore = new RedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+	            CookieHttpOnly = true,
+	            CookieSecure = CookieSecureOption.Always,
+                CookieName = $"{clientName}.Data-Protection",
+	            ExpireTimeSpan = TimeSpan.FromMinutes(30),
+	            LoginPath = new PathString("/Account/Login")
+            };
 
-			// Configure Auth0 authentication
-			app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions
+            app.UseCookieAuthentication(options, PipelineStage.PreHandlerExecute);
+
+            // Configure Auth0 authentication
+            app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions
 			{
 				AuthenticationType = "Auth0",
 
@@ -78,7 +85,6 @@ namespace NICE.Identity.Authentication.Sdk
 					}
 				}
 			});
-
 		}
 	}
 }

@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OpenIdConnect;
 using Newtonsoft.Json.Linq;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Configurations;
@@ -41,7 +34,7 @@ namespace NICE.Identity.TestClient.NETFramework
 				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString())
 			};
 
-			app.AddAuthentication(authConfiguration, redisConfig);
+			app.AddAuthentication("DefaultApp", authConfiguration, redisConfig);
 			
 		}
 	}

@@ -23,9 +23,11 @@ namespace NICE.Identity.Authentication.Sdk
             var serializer = new NewtonsoftSerializer(jsonSetting);
             var mux = ConnectionMultiplexer.Connect(new ConfigurationOptions
             {
-                DefaultVersion = new Version(3, 0, 500),
+                DefaultVersion = new Version(3, 0, 503),
                 EndPoints = {{redisConfiguration.IpConfig, redisConfiguration.Port}},
-                AllowAdmin = true
+                AllowAdmin = true,
+                ConnectTimeout = 5000,
+                Ssl = false
             });
             _cacheClient = new StackExchangeRedisCacheClient(mux, serializer);
             _formatter = formatter;
