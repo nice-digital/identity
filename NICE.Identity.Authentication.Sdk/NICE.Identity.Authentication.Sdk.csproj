@@ -12,6 +12,7 @@
     <PackageReference Include="Auth0.AuthenticationApi" Version="5.11.0" />
     <PackageReference Include="Auth0.Core" Version="5.11.0" />
     <PackageReference Include="Kentor.OwinCookieSaver" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.2" />
@@ -26,6 +27,7 @@
     <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.0.1" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1" />
     <PackageReference Include="Owin" Version="1.0.0" />
+    <PackageReference Include="Polly" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup>

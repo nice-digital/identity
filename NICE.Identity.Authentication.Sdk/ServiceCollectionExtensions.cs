@@ -5,9 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Abstractions.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
@@ -16,9 +18,13 @@ namespace NICE.Identity.Authentication.Sdk
 {
 	public static class ServiceCollectionExtensions
 	{
-		public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration, string authorisationServiceConfigurationPath)
+		public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration,
+			string authorisationServiceConfigurationPath)
 		{
-			services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
+			services.Configure<AuthorisationServiceConfiguration>(
+				configuration.GetSection(authorisationServiceConfigurationPath));
+			services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
+			services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
 
 			InstallAuthorisation(services);
 			InstallAuthenticationService(services, configuration);
@@ -29,6 +35,7 @@ namespace NICE.Identity.Authentication.Sdk
 		private static void InstallAuthorisation(IServiceCollection services)
 		{
 			services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+			services.AddHttpClient<IAuth0HttpClient, Auth0HttpClient>();
 			services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
 			//services.AddAuthorization(options =>
@@ -56,71 +63,94 @@ namespace NICE.Identity.Authentication.Sdk
 
 			//Add authentication services
 			services.AddAuthentication(options =>
-			{
-				 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			}).AddCookie()
-			.AddJwtBearer(options =>
-			{
-				 options.Authority = domain;
-				 options.Audience = configuration["Auth0:ApiIdentifier"];
-			}).AddOpenIdConnect("Auth0", options =>
-			{
-				// Set the authority to your Auth0 domain
-				options.Authority = $"https://{configuration["Auth0:Domain"]}";
-
-				// Configure the Auth0 Client ID and Client Secret
-				options.ClientId = configuration["Auth0:ClientId"];
-				options.ClientSecret = configuration["Auth0:ClientSecret"];
-
-				// Set response type to code
-				options.ResponseType = "code";
-
-				// Configure the scope
-				options.Scope.Clear();
-				options.Scope.Add("openid read:profile");
-
-				// Set the callback path, so Auth0 will call back to http://localhost:5000/signin-auth0 
-				// Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard 
-				options.CallbackPath = new PathString("/signin-auth0");
-
-				// Configure the Claims Issuer to be Auth0
-				options.ClaimsIssuer = "Auth0";
-
-				// Saves tokens to the AuthenticationProperties
-				options.SaveTokens = true;
-
-				options.Events = new OpenIdConnectEvents
 				{
-					OnTokenValidated = (context) =>
-					{
-						return Task.CompletedTask;
-					},
-					// handle the logout redirection 
-					OnRedirectToIdentityProviderForSignOut = (context) =>
-					{
-						var logoutUri = $"https://{configuration["Auth0:Domain"]}/v2/logout?client_id={configuration["Auth0:ClientId"]}";
+					options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+					options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+					options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				}).AddCookie()
+				.AddJwtBearer(options =>
+				{
+					options.Authority = domain;
+					options.Audience = configuration["Auth0:ApiIdentifier"];
+				}).AddOpenIdConnect("Auth0", options =>
+				{
+					// Set the authority to your Auth0 domain
+					options.Authority = $"https://{configuration["Auth0:Domain"]}";
 
-						var postLogoutUri = context.Properties.RedirectUri;
-						if (!string.IsNullOrEmpty(postLogoutUri))
+					// Configure the Auth0 Client ID and Client Secret
+					options.ClientId = configuration["Auth0:ClientId"];
+					options.ClientSecret = configuration["Auth0:ClientSecret"];
+
+					// Set response type to code
+					options.ResponseType = "code";
+
+					// Configure the scope
+					options.Scope.Clear();
+					options.Scope.Add("openid read:profile");
+
+					// Set the callback path, so Auth0 will call back to http://localhost:5000/signin-auth0 
+					// Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard 
+					options.CallbackPath = new PathString("/signin-auth0");
+
+					// Configure the Claims Issuer to be Auth0
+					options.ClaimsIssuer = "Auth0";
+
+					// Saves tokens to the AuthenticationProperties
+					options.SaveTokens = true;
+
+					options.Events = new OpenIdConnectEvents
+					{
+						OnTokenValidated = (context) => { return Task.CompletedTask; },
+						// handle the logout redirection 
+						OnRedirectToIdentityProviderForSignOut = (context) =>
 						{
-							if (postLogoutUri.StartsWith("/"))
+							var logoutUri = $"https://{configuration["Auth0:Domain"]}/v2/logout?client_id={configuration["Auth0:ClientId"]}";
+
+							var postLogoutUri = context.Properties.RedirectUri;
+							if (!string.IsNullOrEmpty(postLogoutUri))
 							{
-							// transform to absolute
-							var request = context.Request;
-								postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+								if (postLogoutUri.StartsWith("/"))
+								{
+									// transform to absolute
+									var request = context.Request;
+									postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+								}
+
+								logoutUri += $"&returnTo={Uri.EscapeDataString(postLogoutUri)}";
 							}
-							logoutUri += $"&returnTo={ Uri.EscapeDataString(postLogoutUri)}";
+
+							context.Response.Redirect(logoutUri);
+							context.HandleResponse();
+
+							return Task.CompletedTask;
 						}
+					};
+				});
+		}
 
-						context.Response.Redirect(logoutUri);
-						context.HandleResponse();
 
-						return Task.CompletedTask;
-					}
-				};
-			});
+		public static T GetConfiguration<T>(this IServiceCollection collection) where T : class, new()
+		{
+			var sp = collection.BuildServiceProvider();
+			return sp.GetService<IOptions<T>>().Value;
+		}
+
+		public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
+			where T : class, IHttpConfiguration, new()
+		{
+			if (services == null)
+				throw new ArgumentNullException(nameof(services));
+			if (name == null)
+				throw new ArgumentNullException(nameof(name));
+
+			IHttpConfiguration options = services.GetConfiguration<T>();
+
+			services.AddHttpClient(name, client =>
+			{
+				client.BaseAddress = new Uri(options.Host);
+				client.Timeout = TimeSpan.FromMinutes(1);
+				client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
+			}).AddTransientHttpErrorPolicy(options.CircuitBreaker);
 		}
 	}
 }

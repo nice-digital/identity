@@ -5,7 +5,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authorisation.WebAPI;
+using NICE.Identity.TestClient.M2MApp.Services;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Test.Infrastructure
@@ -63,6 +65,5 @@ namespace NICE.Identity.Test.Infrastructure
 				.Options;
 			return new IdentityContext(dbOptions);
 		}
-
 	}
 }
