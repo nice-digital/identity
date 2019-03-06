@@ -7,23 +7,25 @@ using Polly;
 
 namespace NICE.Identity.Authentication.Sdk.Configuration
 {
-	public class Auth0ServiceConfiguration : IAuth0Configration, IHttpConfiguration
+	public class Auth0ServiceConfiguration : IAuth0Configuration, IHttpConfiguration
 	{
-		public string Token => throw new NotImplementedException();
+		public string Token => null;
 
-		public string Host { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public string Password { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public string UserName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public int HandledEventsAllowedBeforeBreaking { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public int DurationOfBreakInMinutes { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public string Host{ get; set; }
+		public string Password{ get; set; }
+		public string UserName{ get; set; }
+		public int HandledEventsAllowedBeforeBreaking{ get; set; }
+		public int DurationOfBreakInMinutes{ get; set; }
 
-		public Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> CircuitBreaker => throw new NotImplementedException();
+		public Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> CircuitBreaker => builder => builder.CircuitBreakerAsync(
+			HandledEventsAllowedBeforeBreaking,
+			TimeSpan.FromMinutes(DurationOfBreakInMinutes));
 
-		public AuthenticationHeaderValue AuthenticationHeaderValue => throw new NotImplementedException();
+		public AuthenticationHeaderValue AuthenticationHeaderValue => null;
 
-		public string ClientId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public string GrantType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public string ClientSecret { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public string ApiIdentifier { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public string ClientId { get; set; }
+		public string GrantType { get; set; }
+		public string ClientSecret { get; set; }
+		public string ApiIdentifier{ get; set; }
 	}
 }

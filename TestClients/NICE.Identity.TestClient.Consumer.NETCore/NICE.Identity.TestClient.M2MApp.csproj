@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="Views\Home\Publication.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

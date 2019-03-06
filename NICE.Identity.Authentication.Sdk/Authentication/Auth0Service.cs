@@ -15,10 +15,10 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 	{
 	    private const string AuthenticationScheme = "Auth0";
 		private readonly HttpClient _client;
-		private readonly IAuth0Configration _auth0Configuraton;
+		private readonly IAuth0Configuration _auth0Configuraton;
 
 
-		public Auth0Service(IHttpClientFactory client, IAuth0Configration auth0Configration)
+		public Auth0Service(IHttpClientFactory client, IAuth0Configuration auth0Configration)
 		{
 			_client = client.CreateClient("Auth0ServiceApiClient");
 			_auth0Configuraton = auth0Configration;

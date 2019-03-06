@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.TestClient.M2MApp.Common;
-using NICE.Identity.TestClient.M2MApp.Models;
 
 namespace NICE.Identity.TestClient.M2MApp.Services
 {
@@ -19,9 +14,9 @@ namespace NICE.Identity.TestClient.M2MApp.Services
     public class TestClientApiService : ITestClientApiService
     {
         private readonly HttpClient _client;
-        private readonly ITokenService _tokenService;
+        private readonly IAuthenticationService _tokenService;
 
-        public TestClientApiService(HttpClient client, ITokenService tokenService)
+        public TestClientApiService(HttpClient client, IAuthenticationService tokenService)
         {
             _client = client;
             _tokenService = tokenService;
@@ -44,6 +39,7 @@ namespace NICE.Identity.TestClient.M2MApp.Services
             return publication;
         }
     }
+
 
 
     public class Publication

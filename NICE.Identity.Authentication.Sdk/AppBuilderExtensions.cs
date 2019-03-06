@@ -6,6 +6,7 @@ using Owin;
 using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk
 {

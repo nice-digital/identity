@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.TestClient.Consumer.NETCore.Models;
-using NICE.Identity.TestClient.M2MApp.Models;
 using NICE.Identity.TestClient.M2MApp.Services;
 
 namespace NICE.Identity.TestClient.M2MApp.Controllers
@@ -13,9 +10,9 @@ namespace NICE.Identity.TestClient.M2MApp.Controllers
 	public class HomeController : Controller
 	{
 	    private readonly ITestClientApiService _apiService;
-		private readonly ITokenService _tokenService;
+		private readonly IAuthenticationService _tokenService;
 
-		public HomeController(ITestClientApiService apiService, ITokenService tokenService)
+		public HomeController(ITestClientApiService apiService, IAuthenticationService tokenService)
 	    {
 	        _apiService = apiService;
 		    _tokenService = tokenService;
@@ -45,9 +42,9 @@ namespace NICE.Identity.TestClient.M2MApp.Controllers
 			return View();
 		}
 
-	    public IActionResult Publication()
+	    public async Task<IActionResult> PublicationAsync()
 	    {
-		    JwtToken jwtToken = _tokenService.GetToken();
+		    var jwtToken = await _tokenService.GetToken();
 	        var publication = _apiService.GetPublication("https://localhost:5001/api/publication", jwtToken);
 
 	        ViewData["Id"] = publication.Id;

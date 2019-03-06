@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth0Hooks", "Auth0Hooks", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.M2MApp", "TestClients\NICE.Identity.TestClient.Consumer.NETCore\NICE.Identity.TestClient.M2MApp.csproj", "{D1009255-974B-46F4-8888-BFC6A72FD674}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{F799E16E-96DF-4385-BC0D-885533D9E437}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
