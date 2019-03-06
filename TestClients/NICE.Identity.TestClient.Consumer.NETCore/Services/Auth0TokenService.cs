@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using NICE.Identity.TestClient.M2MApp.Common;
+using NICE.Identity.TestClient.M2MApp.Configuration;
 using NICE.Identity.TestClient.M2MApp.Models;
 
 namespace NICE.Identity.TestClient.M2MApp.Services
@@ -27,16 +28,14 @@ namespace NICE.Identity.TestClient.M2MApp.Services
 
         public JwtToken GetToken()
         {
-            var domain = _config["Auth0:Domain"];
-
-            var url = $"https://{domain}/oauth/token";
+            var url = $"https://{AppSettings.Auth0Config.Domain}/oauth/token";
 
 	        var request = new HttpRequestMessage(HttpMethod.Post, url)
 	        {
 		        Content = new StringContent("{\"grant_type\":\"client_credentials\"," +
-		                                    "\"client_id\": \"" + _config["Auth0:ClientId"] + "\"," +
-		                                    "\"client_secret\": \"" + _config["Auth0:ClientSecret"] + "\"," +
-		                                    "\"audience\": \"" + _config["Auth0:ApiIdentifier"] + "\"}",
+		                                    "\"client_id\": \"" + AppSettings.Auth0Config.ClientId + "\"," +
+		                                    "\"client_secret\": \"" + AppSettings.Auth0Config.ClientSecret + "\"," +
+		                                    "\"audience\": \"" + AppSettings.Auth0Config.ApiIdentifier + "\"}",
 			    Encoding.UTF8,
 			    "application/json")
 	        };
