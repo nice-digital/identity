@@ -9,7 +9,7 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Newtonsoft.Json.Linq;
-using NICE.Identity.Authentication.Sdk;
+using NICE.Identity.NETFramework.Nuget;
 using Owin;
 
 [assembly: OwinStartup(typeof(NICE.Identity.TestClient.NETFramework.Startup))]
