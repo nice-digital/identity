@@ -1,14 +1,13 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OpenIdConnect;
-using Owin;
-using System;
-using System.Collections.Specialized;
-using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Configuration;
+using Owin;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{

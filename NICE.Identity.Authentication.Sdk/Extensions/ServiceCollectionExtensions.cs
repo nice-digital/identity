@@ -1,34 +1,23 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.External;
-using IAuthenticationService = NICE.Identity.Authentication.Sdk.Abstractions.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
 	{
-		public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration,
-			string authorisationServiceConfigurationPath)
+		public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services, IConfiguration configuration)
 		{
-			services.Configure<AuthorisationServiceConfiguration>(
-				configuration.GetSection(authorisationServiceConfigurationPath));
-			services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
-			services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
-			services.AddScoped<IAuthenticationService, Auth0Service>();
-			services.AddScoped<IAuth0Configuration, AuthConfiguration>();
-			services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
-
 			InstallAuthorisation(services);
 			InstallAuthenticationService(services, configuration);
 			
@@ -37,9 +26,7 @@ namespace NICE.Identity.Authentication.Sdk
 
 		private static void InstallAuthorisation(IServiceCollection services)
 		{
-			
 			services.AddScoped<IAuthorisationService, AuthorisationApiService>();
-			
 
 			//services.AddAuthorization(options =>
 			//{

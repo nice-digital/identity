@@ -11,7 +11,8 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	{
 		public string Token => null;
 
-		public string Host{ get; set; }
+		public string Domain { get; set; }
+		public string Host => $"https://{Domain}/";
 		public string Password{ get; set; }
 		public string UserName{ get; set; }
 		public int HandledEventsAllowedBeforeBreaking{ get; set; }

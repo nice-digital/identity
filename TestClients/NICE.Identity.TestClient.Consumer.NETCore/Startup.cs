@@ -5,29 +5,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NICE.Identity.TestClient.M2MApp.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.TestClient.M2MApp.Services;
 
 namespace NICE.Identity.TestClient.M2MApp
 {
-	public class Startup
+	public class Startup : CoreStartUpBase
 	{
-		public Startup(IConfiguration configuration, IHostingEnvironment environment)
+		public Startup(Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory,
+		               Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices)
+			: base(configurationFactory, configureVariantServices) { }
+
+		protected override IServiceCollection ConfigureInvariantServices(IServiceCollection services, IHostingEnvironment env, IConfigurationRoot configuration)
 		{
-			Configuration = configuration;
-			Environment = environment;
-		}
-
-		public IHostingEnvironment Environment { get; }
-
-		public IConfiguration Configuration { get; }
-
-		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
-		{
-			AppSettings.Configure(services, Configuration,
-				Environment.IsDevelopment() ? @"c:\" : Environment.ContentRootPath);
-
 			services.Configure<CookiePolicyOptions>(options =>
 			{
 				// This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -35,16 +26,17 @@ namespace NICE.Identity.TestClient.M2MApp
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
 
+			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddHttpClient<ITestClientApiService, TestClientApiService>();
 
-		    services.AddHttpClient<ITestClientApiService, TestClientApiService>();
-		   
+            return services;
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public override void Configure(IApplicationBuilder app)
 		{
-			if (env.IsDevelopment())
+			if (environment.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
@@ -65,5 +57,5 @@ namespace NICE.Identity.TestClient.M2MApp
 					template: "{controller=Home}/{action=Index}/{id?}");
 			});
 		}
-	}
+    }
 }
