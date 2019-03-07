@@ -20,7 +20,7 @@ namespace NICE.Identity.NETFramework.Nuget.Authorisation
         private readonly IHttpClientDecorator _httpClient;
         private readonly Uri _baseUrl;
 
-        public AuthorisationApiService(IOptions<NICE.Identity.NETFramework.Nuget.Abstractions.AuthorisationServiceConfiguration> configuration,
+        public AuthorisationApiService(IOptions<AuthorisationServiceConfiguration> configuration,
             IHttpClientDecorator httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
