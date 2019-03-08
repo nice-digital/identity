@@ -1,16 +1,9 @@
-﻿using System;
-using System.Configuration;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OpenIdConnect;
+﻿using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using NICE.Identity.NETFramework.Nuget;
 using Owin;
+using System;
+using System.IO;
 
 [assembly: OwinStartup(typeof(NICE.Identity.TestClient.NETFramework.Startup))]
 
@@ -35,7 +28,7 @@ namespace NICE.Identity.TestClient.NETFramework
 			};
 
 			app.AddAuthentication(authConfiguration);
-			
+
 		}
 	}
 }
