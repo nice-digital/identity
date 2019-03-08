@@ -22,7 +22,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		public override async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
 		{
 			// Check static policies first
-
 			var policy = await base.GetPolicyAsync(policyName);
 
 			if (policy == null)
