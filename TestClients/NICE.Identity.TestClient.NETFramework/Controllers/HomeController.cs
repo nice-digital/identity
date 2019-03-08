@@ -18,7 +18,7 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 			return View();
 		}
 
-		[AuthoriseRole("Administrator")]
+		[AuthoriseRole("")]
 		public ActionResult Contact()
 		{
 			ViewBag.Message = "Your contact page.";

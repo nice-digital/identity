@@ -12,7 +12,7 @@ namespace NICE.Identity.NETFramework.Nuget
 	/// <summary>
 	/// The AuthorizeAttribute in the System.Web.Mvc namespace is for use in Web Controllers 
 	/// </summary>
-	public class AuthoriseRoleAttribute : System.Web.Mvc.AuthorizeAttribute //System.Web.Http.Filters.AuthorizationFilterAttribute
+	public class AuthoriseRoleAttribute : System.Web.Mvc.AuthorizeAttribute
 	{
 		public AuthoriseRoleAttribute(string roles)
 		{
@@ -21,9 +21,6 @@ namespace NICE.Identity.NETFramework.Nuget
 
 		public override void OnAuthorization(AuthorizationContext filterContext)
 		{
-			if (string.IsNullOrEmpty(Roles))
-				return; //no roles specified. just let it through.
-
 			var authService = new AuthorisationApiService(ConfigurationManager.AppSettings["AuthorisationAPIBaseUrl"]);
 
 			var principal = filterContext.RequestContext.HttpContext.User;
@@ -39,7 +36,7 @@ namespace NICE.Identity.NETFramework.Nuget
 
 					var rolesRequested = Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
-					if (authService.UserSatisfiesAtLeastOneRole(idClaim.Value, rolesRequested))
+					if (!rolesRequested.Any() || authService.UserSatisfiesAtLeastOneRole(idClaim.Value, rolesRequested))
 					{
 						return; //successfully verified user has role.
 					}
