@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using NICE.Identity.NETFramework.Nuget.Abstractions;
 using NICE.Identity.NETFramework.Nuget.Authorisation;
@@ -7,17 +8,31 @@ using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Web.Mvc;
-using AuthorizationContext = System.Web.Mvc.AuthorizationContext;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Controllers;
 
 namespace NICE.Identity.NETFramework.Nuget
 {
-	public class AuthoriseRoleAttribute : AuthorizeAttribute
+	public class AuthoriseRoleAttribute : System.Web.Http.AuthorizeAttribute //System.Web.Http.Filters.AuthorizationFilterAttribute
 	{
-		public override void OnAuthorization(AuthorizationContext filterContext)
-		{
-			base.OnAuthorization(filterContext);
+		//public override void OnAuthorization(HttpActionContext actionContext)
+		//{
+		//	base.OnAuthorization(actionContext);
+		//}
+		//public override void OnAuthorization(HttpActionContext actionContext)
+		//{
+		//	base.OnAuthorization(actionContext);
+		//}
 
+		public override Task OnAuthorizationAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+		{
+			return base.OnAuthorizationAsync(actionContext, cancellationToken);
+		}
+
+		public override void OnAuthorization(HttpActionContext actionContext)
+		{
 			if (string.IsNullOrEmpty(Roles))
 				return; //no roles specified. just let it through.
 
@@ -28,7 +43,7 @@ namespace NICE.Identity.NETFramework.Nuget
 			var httpClient = new HttpClientDecorator(new HttpClient()); //TODO: figure out how to avoid new'ing up a new HttpClient here.
 			var authService = new AuthorisationApiService(config, httpClient);
 
-			var principal = filterContext.RequestContext.HttpContext.User;
+			var principal = actionContext.RequestContext.Principal;
 			if (principal != null && principal.Identity != null && principal.Identity.IsAuthenticated && principal.Identity is ClaimsIdentity)
 			{
 				var claims = ((ClaimsIdentity)principal.Identity).Claims;
@@ -36,16 +51,19 @@ namespace NICE.Identity.NETFramework.Nuget
 				var idClaim = claims.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.NameIdentifier));
 				if (idClaim != null)
 				{
-					var rolesRequested = Roles.Split(new[] {","}, StringSplitOptions.RemoveEmptyEntries);
+					actionContext.Request.Properties["UserId"] = idClaim.Value;
+					actionContext.Request.Properties["Name"] = principal.Identity.Name;
 
-					if (authService.UserSatisfiesAtLeastOneRole(idClaim.Value, rolesRequested).Result) //TODO: async
+					var rolesRequested = Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+					if (authService.UserSatisfiesAtLeastOneRole(idClaim.Value, rolesRequested).Result)
 					{
 						return; //successfully verified user has role.
 					}
 				}
 			}
 
-			HandleUnauthorizedRequest(filterContext);
+			HandleUnauthorizedRequest(actionContext);
 		}
 	}
 }
