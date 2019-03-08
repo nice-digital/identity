@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.External;
+using System;
+using System.Threading.Tasks;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk
@@ -32,14 +32,10 @@ namespace NICE.Identity.Authentication.Sdk
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
-            services.AddAuthorization(options =>
-            {
-                //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
-                options.AddPolicy(PolicyTypes.Administrator,
-                    policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
-            });
+	        services.AddAuthorization(); 
+			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); //policies added here.
 
-            services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
         private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
