@@ -1,15 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.Common;
 using NICE.Identity.Authorisation.WebAPI.Services;
+using System;
+using System.Threading.Tasks;
 using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+	[Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -23,6 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
         
         // POST api/users
+		[AuthoriseWithApiKey]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
@@ -30,14 +32,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             {
 	            var serializableModelState = new SerializableError(ModelState);
 	            var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-	            _logger.LogError($"Invalid Model State at UsersController.Put for user id: {user.UserId}", modelStateJson);
+	            _logger.LogError($"Invalid Model State at UsersController.Put for user id: {user.Auth0UserId}", modelStateJson);
 
 				return BadRequest("Request failed validation");
             }
 
             try
             {
-                await _usersService.CreateUser(user);
+                _usersService.CreateOrUpdateUser(user);
 
                 return Ok();
             }
@@ -48,8 +50,51 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                     ErrorMessage = e.Message
                 };
 
-                return StatusCode(503, error);
+                return StatusCode(500, error);
             }
         }
-    }
+
+	    // Get api/users
+	    [AuthoriseWithApiKey]
+	    [HttpGet]
+	    [Produces("application/json")]
+		public IActionResult Get()
+	    {
+		    try
+		    {
+			    return Ok(_usersService.GetUsers());
+		    }
+		    catch (Exception e)
+		    {
+			    var error = new ErrorDetail()
+			    {
+				    ErrorMessage = e.Message
+			    };
+
+			    return StatusCode(500, error);
+		    }
+	    }
+
+	    // Delete api/users
+	    [AuthoriseWithApiKey]
+	    [HttpDelete]
+	    [Produces("application/json")]
+	    public IActionResult Delete(int userId)
+	    {
+		    try
+		    {
+			    _usersService.DeleteUser(userId);
+				return Ok();
+		    }
+		    catch (Exception e)
+		    {
+			    var error = new ErrorDetail()
+			    {
+				    ErrorMessage = e.Message
+			    };
+
+			    return StatusCode(500, error);
+		    }
+	    }
+	}
 }
