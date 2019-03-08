@@ -1,19 +1,15 @@
-﻿using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Owin;
+using System;
+using System.Threading.Tasks;
 
 namespace NICE.Identity.NETFramework.Nuget
 {
 	public static class AppBuilderExtensions
 	{
-		
-
 		public static void AddAuthentication(this IAppBuilder app, AuthConfiguration authConfiguration)
 		{
 			// Enable Kentor Cookie Saver middleware

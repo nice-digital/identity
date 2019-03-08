@@ -32,7 +32,7 @@ namespace NICE.Identity.Test.Infrastructure
 		private static (TestServer testServer, HttpClient httpClient) InitialiseServerAndClient(IdentityContext identityContext)
 		{
 			var builder = new WebHostBuilder()
-				.UseContentRoot("../../../../NICE.Identity")
+				//.UseContentRoot("../../../../NICE.Identity")
 				.ConfigureServices(services =>
 				{
 					services.TryAddTransient<IdentityContext>(provider => identityContext); //note: not a singleton like in the main code. 

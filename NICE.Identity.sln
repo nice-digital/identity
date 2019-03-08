@@ -11,22 +11,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.React", "TestClients\NICE.Identity.TestClient.React\NICE.Identity.TestClient.React.csproj", "{E7DC7E68-5778-450A-BCBD-DA13B5221124}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestClients", "TestClients", "{F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "z_deprecated_NICE.Identity", "NICE.Identity.ManagementPortal\z_deprecated_NICE.Identity.csproj", "{AB9564B5-E6D4-41FA-97E8-5240C0273879}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deprecated", "Deprecated", "{3E38D0E5-C94E-41D8-A2E2-96BC666DA999}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleClients", "SampleClients", "{F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authorisation.WebAPI", "NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj", "{B90B1505-E44F-40E7-BDE6-882A2F1E653A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authentication.Sdk", "NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj", "{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth0Hooks", "Auth0Hooks", "{5A982A7F-78E5-405C-BAFE-86E3D9F9616A}"
-	ProjectSection(SolutionItems) = preProject
-		PostUserRegistration.js = PostUserRegistration.js
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.NETFramework.Nuget", "NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj", "{43F18937-65B5-4942-BBDB-06EFF86DD319}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.Core", "NICE.Identity.Core\NICE.Identity.Core.csproj", "{869BDD0C-0DB0-41FC-811E-20CA8416A6FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,10 +43,6 @@ Global
 		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7DC7E68-5778-450A-BCBD-DA13B5221124}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB9564B5-E6D4-41FA-97E8-5240C0273879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB9564B5-E6D4-41FA-97E8-5240C0273879}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB9564B5-E6D4-41FA-97E8-5240C0273879}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB9564B5-E6D4-41FA-97E8-5240C0273879}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B90B1505-E44F-40E7-BDE6-882A2F1E653A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B90B1505-E44F-40E7-BDE6-882A2F1E653A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B90B1505-E44F-40E7-BDE6-882A2F1E653A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -66,6 +55,10 @@ Global
 		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869BDD0C-0DB0-41FC-811E-20CA8416A6FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869BDD0C-0DB0-41FC-811E-20CA8416A6FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869BDD0C-0DB0-41FC-811E-20CA8416A6FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869BDD0C-0DB0-41FC-811E-20CA8416A6FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,7 +67,6 @@ Global
 		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 		{4C555E13-A02C-4529-AAFF-7DCAE97774AD} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 		{E7DC7E68-5778-450A-BCBD-DA13B5221124} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
-		{AB9564B5-E6D4-41FA-97E8-5240C0273879} = {3E38D0E5-C94E-41D8-A2E2-96BC666DA999}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03D45238-C53B-4C50-8057-FFBBF8579DC1}

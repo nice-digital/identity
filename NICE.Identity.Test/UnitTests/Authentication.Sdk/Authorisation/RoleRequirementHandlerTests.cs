@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Moq;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Core.Abstractions;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using Xunit;
@@ -42,7 +43,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
             });
 
             _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRole(userId, new[] {roleName}))
-                            .Returns(Task.FromResult(true));
+                            .Returns(true);
 
             var roleRequirement = new RoleRequirement(roleName);
 
@@ -72,7 +73,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
                 })
             });
 
-            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRole(userId, new[] { roleName }))
+            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRoleAsync(userId, new[] { roleName }))
                 .Returns(Task.FromResult(false));
 
             var roleRequirement = new RoleRequirement(roleName);

@@ -6,9 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.Authentication.Sdk.External;
 using System;
 using System.Threading.Tasks;
+using NICE.Identity.Core.Abstractions;
+using NICE.Identity.Core.Authorisation;
+using NICE.Identity.Core.External;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk

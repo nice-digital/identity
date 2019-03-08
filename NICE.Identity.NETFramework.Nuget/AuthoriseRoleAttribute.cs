@@ -1,10 +1,10 @@
-﻿using NICE.Identity.NETFramework.Nuget.Authorisation;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Web.Mvc;
+using NICE.Identity.Core.Authorisation;
 using AuthorizationContext = System.Web.Mvc.AuthorizationContext;
 
 namespace NICE.Identity.NETFramework.Nuget
@@ -12,9 +12,11 @@ namespace NICE.Identity.NETFramework.Nuget
 	/// <summary>
 	/// The AuthorizeAttribute in the System.Web.Mvc namespace is for use in Web Controllers 
 	/// </summary>
-	public class AuthoriseRoleAttribute : System.Web.Mvc.AuthorizeAttribute
+	public class AuthoriseAttribute : System.Web.Mvc.AuthorizeAttribute
 	{
-		public AuthoriseRoleAttribute(string roles)
+		public AuthoriseAttribute()
+		{}
+		public AuthoriseAttribute(string roles)
 		{
 			this.Roles = roles;
 		}

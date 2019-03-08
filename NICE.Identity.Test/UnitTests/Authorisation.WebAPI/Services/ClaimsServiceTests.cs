@@ -1,18 +1,16 @@
-﻿using System;
-using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
+using System.Linq;
 using Xunit;
-using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
-    public class ClaimsServiceTests : TestBase
+	public class ClaimsServiceTests : TestBase
     {
         private readonly Mock<ILogger<ClaimsService>> _logger;
         private IdentityContext _identityContext;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.Core.Abstractions;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -27,7 +28,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
             var userId = context.User.Claims.Single(x => x.Type.Equals(UserIdClaimType)).Value;
 
-            var userIsAuthorised = _authorisationService.UserSatisfiesAtLeastOneRole(userId, new[] {requirement.Role}).Result;
+            var userIsAuthorised = _authorisationService.UserSatisfiesAtLeastOneRole(userId, new[] {requirement.Role});
 
             if (userIsAuthorised)
             {

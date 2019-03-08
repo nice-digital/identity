@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.TestClient.NETCore.Models;
+using System.Diagnostics;
 
 namespace NICE.Identity.TestClient.NETCore.Controllers
 {

@@ -1,11 +1,11 @@
-﻿using NICE.Identity.NETFramework.Nuget.Authorisation;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Web.Http.Controllers;
+using NICE.Identity.Core.Authorisation;
 
 namespace NICE.Identity.NETFramework.Nuget
 {
@@ -13,12 +13,16 @@ namespace NICE.Identity.NETFramework.Nuget
 	/// The AuthorizeAttribute in the System.Web.Http namespace is for use in ApiController's
 	/// 
 	/// </summary>
-	public class AuthoriseRoleApiAttribute : System.Web.Http.AuthorizeAttribute
+	public class AuthoriseApiAttribute : System.Web.Http.AuthorizeAttribute
 	{
-		public AuthoriseRoleApiAttribute(string roles)
+		public AuthoriseApiAttribute()
+		{
+		}
+		public AuthoriseApiAttribute(string roles)
 		{
 			this.Roles = roles;
 		}
+		
 
 		public override void OnAuthorization(HttpActionContext actionContext)
 		{

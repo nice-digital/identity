@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using NICE.Identity.NETFramework.Nuget;
 using System.Web.Http;
-using NICE.Identity.NETFramework.Nuget;
 
 namespace NICE.Identity.TestClient.NETFramework.Controllers
 {
@@ -24,7 +19,7 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 		// GET /api/secured
 		[HttpGet]
 		[Route("secured")]
-		[AuthoriseRoleApi("Administrator")]
+		[AuthoriseApi("Administrator")]
 	    public IHttpActionResult SecuredAdministrator()
 	    {
 
@@ -34,7 +29,7 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 		// GET /api/secured-editor
 		[HttpGet]
 	    [Route("secured-editor")]
-	    [AuthoriseRoleApi("Editor")]
+	    [AuthoriseApi("Editor")]
 	    public IHttpActionResult SecuredEditor()
 	    {
 

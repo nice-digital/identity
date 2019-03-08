@@ -10,7 +10,10 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.Authentication.Sdk.External;
+using NICE.Identity.Core;
+using NICE.Identity.Core.Abstractions;
+using NICE.Identity.Core.Authorisation;
+using NICE.Identity.Core.External;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using Xunit;
@@ -50,15 +53,15 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 
             var userRoles = new[]
             {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Administrator),
-                new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+                new Claim("Role", PolicyTypes.Administrator),
+                new Claim("FirstName", "User")
             };
 
             var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
             _httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
             
             //Act
-            var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+            var result = await _sut.UserSatisfiesAtLeastOneRoleAsync(userId, requiredRoles);
 
             //Assert
             result.ShouldBeTrue();
@@ -74,15 +77,15 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 
             var userRoles = new[]
             {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Editor),
-                new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+                new Claim("Role", PolicyTypes.Editor),
+                new Claim("FirstName", "User")
             };
 
             var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
             _httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
 
             //Act
-            var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+            var result = await _sut.UserSatisfiesAtLeastOneRoleAsync(userId, requiredRoles);
 
             //Assert
             result.ShouldBeFalse();
