@@ -9,7 +9,8 @@ namespace NICE.Identity.NETFramework.Nuget.Abstractions
         Task<IEnumerable<Claim>> GetByUserId(string userId);
 
         Task CreateOrUpdate(string userId, Claim role);
-
-	    Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles);
-    }
+		
+	    bool UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles);
+	    Task<bool> UserSatisfiesAtLeastOneRoleAsync(string userId, IEnumerable<string> roles);
+	}
 }

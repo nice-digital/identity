@@ -3,30 +3,31 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
-using System.Web.Mvc;
-using AuthorizationContext = System.Web.Mvc.AuthorizationContext;
+using System.Web.Http.Controllers;
 
 namespace NICE.Identity.NETFramework.Nuget
 {
 	/// <summary>
-	/// The AuthorizeAttribute in the System.Web.Mvc namespace is for use in Web Controllers 
+	/// The AuthorizeAttribute in the System.Web.Http namespace is for use in ApiController's
+	/// 
 	/// </summary>
-	public class AuthoriseRoleAttribute : System.Web.Mvc.AuthorizeAttribute //System.Web.Http.Filters.AuthorizationFilterAttribute
+	public class AuthoriseRoleApiAttribute : System.Web.Http.AuthorizeAttribute //System.Web.Http.Filters.AuthorizationFilterAttribute
 	{
-		public AuthoriseRoleAttribute(string roles)
+		public AuthoriseRoleApiAttribute(string roles)
 		{
 			this.Roles = roles;
 		}
 
-		public override void OnAuthorization(AuthorizationContext filterContext)
+		public override void OnAuthorization(HttpActionContext actionContext)
 		{
 			if (string.IsNullOrEmpty(Roles))
 				return; //no roles specified. just let it through.
 
 			var authService = new AuthorisationApiService(ConfigurationManager.AppSettings["AuthorisationAPIBaseUrl"]);
 
-			var principal = filterContext.RequestContext.HttpContext.User;
+			var principal = actionContext.RequestContext.Principal;
 			if (principal != null && principal.Identity != null && principal.Identity.IsAuthenticated && principal.Identity is ClaimsIdentity)
 			{
 				var claims = ((ClaimsIdentity)principal.Identity).Claims;
@@ -34,8 +35,8 @@ namespace NICE.Identity.NETFramework.Nuget
 				var idClaim = claims.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.NameIdentifier));
 				if (idClaim != null)
 				{
-					filterContext.HttpContext.Items["UserId"] = idClaim.Value;
-					filterContext.HttpContext.Items["Name"] = principal.Identity.Name;
+					actionContext.Request.Properties["UserId"] = idClaim.Value;
+					actionContext.Request.Properties["Name"] = principal.Identity.Name;
 
 					var rolesRequested = Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -44,11 +45,12 @@ namespace NICE.Identity.NETFramework.Nuget
 						return; //successfully verified user has role.
 					}
 
-					filterContext.Result = new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Permission denied"); //403
+					actionContext.Response = actionContext.ControllerContext.Request.CreateErrorResponse(HttpStatusCode.Forbidden, "Permission denied"); //403
 					return;
 				}
 			}
-			HandleUnauthorizedRequest(filterContext); //401 - which will likely result in a 302 redirect to the login page.
+
+			HandleUnauthorizedRequest(actionContext); //401 - which will likely result in a 302 redirect to the login page.
 		}
 	}
 }

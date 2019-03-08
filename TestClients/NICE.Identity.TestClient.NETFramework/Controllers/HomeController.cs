@@ -10,7 +10,7 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 			return View();
 		}
 
-		[AuthoriseRole(Roles = "Editor")]
+		[AuthoriseRole("Editor")]
 		public ActionResult About()
 		{
 			ViewBag.Message = "Your application description page.";
@@ -18,8 +18,7 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 			return View();
 		}
 
-		//[AuthoriseRole(Roles = "Administrator")]
-		[AuthoriseRole(Roles = "Administrator")]
+		[AuthoriseRole("Administrator")]
 		public ActionResult Contact()
 		{
 			ViewBag.Message = "Your contact page.";

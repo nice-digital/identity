@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +34,12 @@ namespace NICE.Identity.NETFramework.Nuget.Authorisation
             _baseUrl = new Uri(configuration.Value.BaseUrl);
         }
 
-        public async Task<IEnumerable<Claim>> GetByUserId(string userId)
+	    public AuthorisationApiService(string baseUrl)
+	    {
+		    _baseUrl = new Uri(baseUrl);
+	    }
+
+		public async Task<IEnumerable<Claim>> GetByUserId(string userId)
         {
             IEnumerable<Claim> claims;
 
@@ -68,7 +74,7 @@ namespace NICE.Identity.NETFramework.Nuget.Authorisation
             }
         }
 
-        public async Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles)
+        public async Task<bool> UserSatisfiesAtLeastOneRoleAsync(string userId, IEnumerable<string> roles)
         {
             IEnumerable<Claim> claims;
 
@@ -84,21 +90,43 @@ namespace NICE.Identity.NETFramework.Nuget.Authorisation
             {
                 throw new Exception("Error when calling Authorisation service; see inner exception.", e);
             }
+	        return UserHasRole(roles, claims);
+		}
+	    public bool UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles)
+	    {
+		    IEnumerable<Claim> claims;
 
-            bool userHasRole = false;
+		    var uri = new Uri(_baseUrl, string.Format(Constants.AuthorisationURLs.GetClaims, userId));
 
-            foreach (var role in roles)
-            {
-                userHasRole = claims.Any(x => x.Type == RoleClaimTypeName &&
-                                              x.Value == role);
+		    try
+		    {
 
-                if (userHasRole)
-                {
-                    break;
-                }
-            }
-            
-            return userHasRole;
-        }
+				var webClient = new WebClient();
+			    var response = webClient.DownloadString(uri);
+			    claims = JsonConvert.DeserializeObject<Claim[]>(response);
+		    }
+		    catch (Exception e)
+		    {
+			    throw new Exception("Error when calling Authorisation service; see inner exception.", e);
+		    }
+		    return UserHasRole(roles, claims);
+	    }
+
+	    private static bool UserHasRole(IEnumerable<string> roles, IEnumerable<Claim> claims)
+	    {
+		    var roleFound = false;
+
+		    foreach (var role in roles)
+		    {
+			    roleFound = claims.Any(x => x.Type == RoleClaimTypeName &&
+			                                  x.Value == role);
+
+			    if (roleFound)
+			    {
+				    break;
+			    }
+		    }
+		    return roleFound;
+		}
     }
 }
