@@ -39,7 +39,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                await _usersService.CreateOrUpdateUser(user);
+                _usersService.CreateOrUpdateUser(user);
 
                 return Ok();
             }

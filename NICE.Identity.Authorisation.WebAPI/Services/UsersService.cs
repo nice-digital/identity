@@ -13,7 +13,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IUsersService
     {
-		Task CreateOrUpdateUser(CreateUser user);
+		void CreateOrUpdateUser(CreateUser user);
 	    List<UserInList> GetUsers();
 	    void DeleteUser(int userId);
     }
@@ -29,7 +29,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
-        public async Task CreateOrUpdateUser(CreateUser user)
+        public void CreateOrUpdateUser(CreateUser user)
         {
             try
             {

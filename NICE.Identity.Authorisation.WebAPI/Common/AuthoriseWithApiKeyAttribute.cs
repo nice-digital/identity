@@ -7,6 +7,9 @@ using System.Security;
 
 namespace NICE.Identity.Authorisation.WebAPI.Common
 {
+	/// <summary>
+	/// This is only here until M2M is working. once that's done, we can get rid of api key authorisation and use Auth0.
+	/// </summary>
 	public class AuthoriseWithApiKeyAttribute : Attribute, IAuthorizationFilter
 	{
 		public void OnAuthorization(AuthorizationFilterContext context)
