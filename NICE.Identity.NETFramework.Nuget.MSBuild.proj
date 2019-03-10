@@ -28,17 +28,17 @@
     <Configuration>Debug</Configuration>
     <Platform>Any CPU</Platform>
     <AspNetConfiguration>Debug</AspNetConfiguration>
-    <SolutionDir>C:\_src\identity\</SolutionDir>
+    <SolutionDir>$(MSBuildProjectDirectory)</SolutionDir>
     <SolutionExt>.sln</SolutionExt>
     <SolutionFileName>NICE.Identity.NETFramework.Nuget.sln</SolutionFileName>
     <SolutionName>NICE.Identity.NETFramework.Nuget</SolutionName>
-    <SolutionPath>C:\_src\identity\NICE.Identity.NETFramework.Nuget.sln</SolutionPath>
+    <SolutionPath>$(MSBuildProjectDirectory)\identity\NICE.Identity.NETFramework.Nuget.sln</SolutionPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <CurrentSolutionConfigurationContents>
       <SolutionConfiguration xmlns="">
-  <ProjectConfiguration Project="{3D6DC2B1-4A84-4E63-BA11-8E3E7AD7E0B4}" AbsolutePath="C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
-  <ProjectConfiguration Project="{43F18937-65B5-4942-BBDB-06EFF86DD319}" AbsolutePath="C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
-  <ProjectConfiguration Project="{4C555E13-A02C-4529-AAFF-7DCAE97774AD}" AbsolutePath="C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{3D6DC2B1-4A84-4E63-BA11-8E3E7AD7E0B4}" AbsolutePath="$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{43F18937-65B5-4942-BBDB-06EFF86DD319}" AbsolutePath="$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{4C555E13-A02C-4529-AAFF-7DCAE97774AD}" AbsolutePath="$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
 </SolutionConfiguration>
     </CurrentSolutionConfigurationContents>
     <NuGetRestoreTargets>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\..\Common7\IDE\CommonExtensions\Microsoft\NuGet\NuGet.targets</NuGetRestoreTargets>
@@ -55,7 +55,7 @@
     <_GenerateRestoreGraphProjectEntryInputProperties>
       ExcludeRestorePackageImports=true;
       _RestoreSolutionFileUsed=true;
-      SolutionDir=C:\_src\identity\;
+      SolutionDir=$(MSBuildProjectDirectory)\;
       SolutionName=NICE.Identity.NETFramework.Nuget;
     </_GenerateRestoreGraphProjectEntryInputProperties>
   </PropertyGroup>
@@ -66,9 +66,9 @@
       <Platform>Any CPU</Platform>
       <Content>
         <SolutionConfiguration xmlns="">
-  <ProjectConfiguration Project="{3D6DC2B1-4A84-4E63-BA11-8E3E7AD7E0B4}" AbsolutePath="C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
-  <ProjectConfiguration Project="{43F18937-65B5-4942-BBDB-06EFF86DD319}" AbsolutePath="C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
-  <ProjectConfiguration Project="{4C555E13-A02C-4529-AAFF-7DCAE97774AD}" AbsolutePath="C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{3D6DC2B1-4A84-4E63-BA11-8E3E7AD7E0B4}" AbsolutePath="$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{43F18937-65B5-4942-BBDB-06EFF86DD319}" AbsolutePath="$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{4C555E13-A02C-4529-AAFF-7DCAE97774AD}" AbsolutePath="$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
 </SolutionConfiguration>
       </Content>
     </SolutionConfiguration>
@@ -77,15 +77,15 @@
       <Platform>Any CPU</Platform>
       <Content>
         <SolutionConfiguration xmlns="">
-  <ProjectConfiguration Project="{3D6DC2B1-4A84-4E63-BA11-8E3E7AD7E0B4}" AbsolutePath="C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj" BuildProjectInSolution="True">Release|AnyCPU</ProjectConfiguration>
-  <ProjectConfiguration Project="{43F18937-65B5-4942-BBDB-06EFF86DD319}" AbsolutePath="C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj" BuildProjectInSolution="True">Release|AnyCPU</ProjectConfiguration>
-  <ProjectConfiguration Project="{4C555E13-A02C-4529-AAFF-7DCAE97774AD}" AbsolutePath="C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj" BuildProjectInSolution="True">Release|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{3D6DC2B1-4A84-4E63-BA11-8E3E7AD7E0B4}" AbsolutePath="$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj" BuildProjectInSolution="True">Release|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{43F18937-65B5-4942-BBDB-06EFF86DD319}" AbsolutePath="$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj" BuildProjectInSolution="True">Release|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{4C555E13-A02C-4529-AAFF-7DCAE97774AD}" AbsolutePath="$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj" BuildProjectInSolution="True">Release|AnyCPU</ProjectConfiguration>
 </SolutionConfiguration>
       </Content>
     </SolutionConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj">
+    <ProjectReference Include="$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj">
       <ToolsVersion>
       </ToolsVersion>
       <SkipNonexistentProjects>False</SkipNonexistentProjects>
@@ -93,7 +93,7 @@
       <Configuration>Debug</Configuration>
       <Platform>AnyCPU</Platform>
     </ProjectReference>
-    <ProjectReference Include="C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj">
+    <ProjectReference Include="$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj">
       <ToolsVersion>
       </ToolsVersion>
       <SkipNonexistentProjects>False</SkipNonexistentProjects>
@@ -101,7 +101,7 @@
       <Configuration>Debug</Configuration>
       <Platform>AnyCPU</Platform>
     </ProjectReference>
-    <ProjectReference Include="C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj">
+    <ProjectReference Include="$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj">
       <ToolsVersion>
       </ToolsVersion>
       <SkipNonexistentProjects>False</SkipNonexistentProjects>
@@ -298,51 +298,51 @@
     <MSBuild Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" Properties="BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" SkipNonexistentProjects="%(ProjectReference.SkipNonexistentProjects)" />
   </Target>
   <Target Name="NICE_Identity_Core" Outputs="@(NICE_Identity_CoreBuildOutput)">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
       <Output TaskParameter="TargetOutputs" ItemName="NICE_Identity_CoreBuildOutput" />
     </MSBuild>
   </Target>
   <Target Name="NICE_Identity_Core:Clean">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
   </Target>
   <Target Name="NICE_Identity_Core:Rebuild" Outputs="@(NICE_Identity_CoreBuildOutput)">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
       <Output TaskParameter="TargetOutputs" ItemName="NICE_Identity_CoreBuildOutput" />
     </MSBuild>
   </Target>
   <Target Name="NICE_Identity_Core:Publish">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.Core\NICE.Identity.Core.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
   </Target>
   <Target Name="NICE_Identity_NETFramework_Nuget" Outputs="@(NICE_Identity_NETFramework_NugetBuildOutput)">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
       <Output TaskParameter="TargetOutputs" ItemName="NICE_Identity_NETFramework_NugetBuildOutput" />
     </MSBuild>
   </Target>
   <Target Name="NICE_Identity_NETFramework_Nuget:Clean">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
   </Target>
   <Target Name="NICE_Identity_NETFramework_Nuget:Rebuild" Outputs="@(NICE_Identity_NETFramework_NugetBuildOutput)">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
       <Output TaskParameter="TargetOutputs" ItemName="NICE_Identity_NETFramework_NugetBuildOutput" />
     </MSBuild>
   </Target>
   <Target Name="NICE_Identity_NETFramework_Nuget:Publish">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\NICE.Identity.NETFramework.Nuget\NICE.Identity.NETFramework.Nuget.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
   </Target>
   <Target Name="NICE_Identity_TestClient_NETFramework" Outputs="@(NICE_Identity_TestClient_NETFrameworkBuildOutput)">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
       <Output TaskParameter="TargetOutputs" ItemName="NICE_Identity_TestClient_NETFrameworkBuildOutput" />
     </MSBuild>
   </Target>
   <Target Name="NICE_Identity_TestClient_NETFramework:Clean">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
   </Target>
   <Target Name="NICE_Identity_TestClient_NETFramework:Rebuild" Outputs="@(NICE_Identity_TestClient_NETFrameworkBuildOutput)">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
       <Output TaskParameter="TargetOutputs" ItemName="NICE_Identity_TestClient_NETFrameworkBuildOutput" />
     </MSBuild>
   </Target>
   <Target Name="NICE_Identity_TestClient_NETFramework:Publish">
-    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\_src\identity\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+    <MSBuild Condition="'%(ProjectReference.Identity)' == '$(MSBuildProjectDirectory)\TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
   </Target>
 </Project>
