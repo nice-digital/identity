@@ -9,8 +9,8 @@ using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.OpenIdConnect;
 using NICE.Identity.Authentication.Sdk.Configurations;
+using NICE.Identity.Authentication.Sdk.Redis;
 using Owin;
-using Rhasta.Owin.Security.Cookies.Store.Redis;
 
 namespace NICE.Identity.Authentication.Sdk
 {
@@ -26,16 +26,13 @@ namespace NICE.Identity.Authentication.Sdk
             var options = new CookieAuthenticationOptions
             {
 	            AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
-				AuthenticationMode = AuthenticationMode.Active,
-	            SessionStore = new RedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+	            SessionStore = new NiceRedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
 	            CookieHttpOnly = true,
 	            CookieSecure = CookieSecureOption.Always,
-                CookieName = $"{clientName}.Data-Protection",
-	            ExpireTimeSpan = TimeSpan.FromMinutes(30),
 	            LoginPath = new PathString("/Account/Login")
             };
 
-            app.UseCookieAuthentication(options, PipelineStage.PreHandlerExecute);
+            app.UseCookieAuthentication(options);
 
             // Configure Auth0 authentication
             app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions

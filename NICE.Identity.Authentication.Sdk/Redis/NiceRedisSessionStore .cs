@@ -1,24 +1,23 @@
-﻿using Microsoft.Owin.Security;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Configurations;
+using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core;
 using StackExchange.Redis.Extensions.Newtonsoft;
-using System;
-using System.Threading.Tasks;
-using NICE.Identity.Authentication.Sdk.Configurations;
-using Rhasta.Owin.Security.Cookies.Store.Redis;
-using StackExchange.Redis;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Redis
 {
-    public class RedisSessionStore : IAuthenticationSessionStore
+    public class NiceRedisSessionStore : IAuthenticationSessionStore
     {
         private readonly ICacheClient _cacheClient;
         private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         private TicketDataFormat _formatter;
 
-        public RedisSessionStore(TicketDataFormat formatter, RedisConfiguration redisConfiguration)
+        public NiceRedisSessionStore(TicketDataFormat formatter, RedisConfiguration redisConfiguration)
         {
             var serializer = new NewtonsoftSerializer(jsonSetting);
             var mux = ConnectionMultiplexer.Connect(new ConfigurationOptions

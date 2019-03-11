@@ -26,5 +26,10 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 
 			return View();
 		}
-	}
+
+		public ActionResult Callback()
+		{
+			return RedirectToAction("Index");
+		}
+    }
 }
