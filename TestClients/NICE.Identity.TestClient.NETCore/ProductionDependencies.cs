@@ -12,7 +12,7 @@ namespace NICE.Identity.TestClient.Api
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info {Title = "Test API", Version = "v1"});
+                c.SwaggerDoc("v1", new Info {Title = "Sample API", Version = "v1"});
                 c.AddSecurityDefinition("Bearer", new ApiKeyScheme {In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey"});
                 c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
                 {

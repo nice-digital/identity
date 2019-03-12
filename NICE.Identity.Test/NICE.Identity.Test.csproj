@@ -48,7 +48,6 @@
   <ItemGroup>
     <ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
     <ProjectReference Include="..\NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj" />
-    <ProjectReference Include="..\TestClients\NICE.Identity.TestClient.Consumer.NETCore\NICE.Identity.TestClient.M2MApp.csproj" />
   </ItemGroup>
 
 </Project>

@@ -50,7 +50,7 @@ namespace NICE.Identity.TestClient.Api
 			app.UseSwagger();
 			app.UseSwaggerUI(c =>
 			{
-				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+				c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sample API V1");
 			});
 
             app.UseMvc(routes =>
