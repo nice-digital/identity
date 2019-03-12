@@ -12,7 +12,7 @@ namespace NICE.Identity.TestClient.Api.Controllers
 		[HttpGet]
 	    public Publication Get()
 		{
-			var pub = new Publication()
+			var pub = new Publication
 			{
 				Id = "1234",
 				SomeText = "My publication"

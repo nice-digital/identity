@@ -47,8 +47,13 @@ namespace NICE.Identity.TestClient.Api
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
+			app.UseSwagger();
+			app.UseSwaggerUI(c =>
+			{
+				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+			});
 
-			app.UseMvc(routes =>
+            app.UseMvc(routes =>
 			{
 				routes.MapRoute(
 					name: "default",
