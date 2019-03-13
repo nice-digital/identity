@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 
-namespace NICE.Identity.TestClient.Api.Controllers
+namespace NICE.Identity.TestClient.NetCore.Controllers
 {
 	public class AccountController : Controller
 	{

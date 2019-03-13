@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace NICE.Identity.TestClient.Api.Controllers
+namespace NICE.Identity.TestClient.NetCore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

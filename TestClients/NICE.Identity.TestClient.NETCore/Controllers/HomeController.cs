@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.TestClient.Api.Models;
+using NICE.Identity.TestClient.NetCore.Models;
 
-namespace NICE.Identity.TestClient.Api.Controllers
+namespace NICE.Identity.TestClient.NetCore.Controllers
 {
 	public class HomeController : Controller
 	{

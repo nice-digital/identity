@@ -1,4 +1,4 @@
-namespace NICE.Identity.TestClient.Api.Models
+namespace NICE.Identity.TestClient.NetCore.Models
 {
 	public class ErrorViewModel
 	{

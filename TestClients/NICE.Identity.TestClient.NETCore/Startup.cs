@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authentication.Sdk;
 
-namespace NICE.Identity.TestClient.Api
+namespace NICE.Identity.TestClient.NetCore
 {
 	public class Startup : CoreStartUpBase
 	{

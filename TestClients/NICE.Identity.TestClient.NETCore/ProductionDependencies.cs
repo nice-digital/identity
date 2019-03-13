@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace NICE.Identity.TestClient.Api
+namespace NICE.Identity.TestClient.NetCore
 {
     internal class ProductionDependencies
     {

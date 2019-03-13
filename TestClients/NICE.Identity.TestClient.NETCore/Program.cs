@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace NICE.Identity.TestClient.Api
+namespace NICE.Identity.TestClient.NetCore
 {
 	public class Program
 	{
