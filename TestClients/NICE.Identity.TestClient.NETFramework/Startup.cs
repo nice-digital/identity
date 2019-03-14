@@ -25,8 +25,9 @@ namespace NICE.Identity.TestClient.NETFramework
 				ClientId = secretsFile.SelectToken("Auth0")["ClientId"].ToString(),
 				ClientSecret = secretsFile.SelectToken("Auth0")["ClientSecret"].ToString(),
 				RedirectUri = secretsFile.SelectToken("Auth0")["RedirectUri"].ToString(),
-				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString()
-			};
+				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString(),
+				ApiIdentifier = secretsFile.SelectToken("Auth0")["ApiIdentifier"].ToString()
+            };
 
 			var redisConfig = new RedisConfiguration
 			{

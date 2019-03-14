@@ -73,7 +73,7 @@ namespace NICE.Identity.Authentication.Sdk.Redis
             var ticketData = new RedisAuthenticationTicket
             {
                 TicketValue = _formatter.Protect(ticket),
-                Key = Guid.NewGuid().ToString()
+                Key = $"{Guid.NewGuid().ToString()}.Id-Keys"
 
             };
 

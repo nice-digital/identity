@@ -31,7 +31,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
             services.AddDataProtection()
                     .SetApplicationName(clientName)
-                    .PersistKeysToStackExchangeRedis(redis, $"{clientName}.DataProtection-Keys");
+                    .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
 
             services.AddSession(options =>
 		    {

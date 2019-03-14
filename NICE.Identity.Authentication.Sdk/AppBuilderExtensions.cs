@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -47,7 +48,7 @@ namespace NICE.Identity.Authentication.Sdk
 				RedirectUri = authConfiguration.RedirectUri,
 				PostLogoutRedirectUri = authConfiguration.PostLogoutRedirectUri,
 
-				ResponseType = OpenIdConnectResponseType.CodeIdToken,
+				ResponseType = OpenIdConnectResponseType.CodeIdTokenToken,
 				Scope = "openid profile",
 
 				TokenValidationParameters = new TokenValidationParameters
@@ -57,9 +58,21 @@ namespace NICE.Identity.Authentication.Sdk
 
 				Notifications = new OpenIdConnectAuthenticationNotifications
 				{
-					RedirectToIdentityProvider = notification =>
+					SecurityTokenValidated = notification =>
 					{
-						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
+						notification.AuthenticationTicket.Identity.AddClaim(new Claim("id_token", notification.ProtocolMessage.IdToken));
+						notification.AuthenticationTicket.Identity.AddClaim(new Claim("access_token", notification.ProtocolMessage.AccessToken));
+
+						return Task.FromResult(0);
+					},
+
+                    RedirectToIdentityProvider = notification =>
+					{
+						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication)
+						{
+							notification.ProtocolMessage.SetParameter("audience", authConfiguration.ApiIdentifier);
+						}
+						else if(notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
 						{
 							var logoutUri = $"https://{authConfiguration.Domain}/v2/logout?client_id={authConfiguration.ClientId}";
 
