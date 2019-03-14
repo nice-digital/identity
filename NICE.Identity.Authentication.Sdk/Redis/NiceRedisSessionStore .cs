@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
+using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Configurations;
 using StackExchange.Redis;
@@ -61,8 +62,9 @@ namespace NICE.Identity.Authentication.Sdk.Redis
         public async Task<AuthenticationTicket> RetrieveAsync(string key)
         {
             var ticketData = await _cacheClient.GetAsync<RedisAuthenticationTicket>(key);
-
-            return _formatter.Unprotect(ticketData.TicketValue);
+            
+            var result = _formatter.Unprotect(ticketData.TicketValue);
+            return result;
 
         }
 
