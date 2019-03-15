@@ -23,14 +23,12 @@ module.exports = function (user, context, cb) {
   const https = require('https');
 
   const postData = JSON.stringify({
-    'userId': user.user_id,
-    'title': user.user_metadata.title,
+    'userId': 'auth0|' + user.id,
     'firstName': user.user_metadata.firstName,
     'lastName': user.user_metadata.lastName,
     'email': user.email,
     'acceptedTerms': user.user_metadata.acceptedTerms,
-    'allowContactMe': user.user_metadata.allowContactMe,
-    'isStaffMember': user.user_metadata.isStaffMember
+    'initialAllowContactMe': user.user_metadata.allowContactMe
   });
 
   const options = {
@@ -39,7 +37,7 @@ module.exports = function (user, context, cb) {
     path: '/default/users',
     method: 'POST',
     headers: {
-      'x-api-key': 'qgi737VSbK1GrOJ24Qlxo93Wd09LduIi31l62NPs',
+      'x-api-key': '#{variable name}',
       'Content-Type': 'application/json'
     }
   };

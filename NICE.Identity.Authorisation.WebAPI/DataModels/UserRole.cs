@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
-    public partial class UserRoles
+    public partial class UserRole
     {
-	    public UserRoles()
+	    public UserRole()
 	    {
 	    }
 
-	    public UserRoles(int userRoleId, int roleId, int userId)
+	    public UserRole(int userRoleId, int roleId, int userId)
 		{
 			UserRoleId = userRoleId;
 			RoleId = roleId;
@@ -20,7 +20,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public int RoleId { get; set; }
         public int UserId { get; set; }
 
-        public Roles Role { get; set; }
-        public Users User { get; set; }
+        public Role Role { get; set; }
+        public User User { get; set; }
     }
 }

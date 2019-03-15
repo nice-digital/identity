@@ -40,13 +40,15 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddTransient<IClaimsService, ClaimsService>();
             services.AddTransient<IUsersService, UsersService>();
 
-            services
-                .AddSwaggerGen(c =>
+            services.AddMvc()
+	            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+			services
+				.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc(ApiVersion, new Info {Title = ApiTitle, Version = ApiVersion});
                 })
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                ;
 
             services.ConfigureSwaggerGen(c =>
             {
@@ -62,12 +64,18 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 	        if (!env.IsProduction())
 	        {
+		        startupLogger.LogWarning("IdAM started in non-production mode, so loading swagger."); //temporary debug messages here to figure out why swagger doesn't work on alpha.
 				app.UseSwagger();
 
 		        app.UseSwaggerUI(c =>
 		        {
 			        c.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
+			        c.RoutePrefix = string.Empty;
 		        });
+	        }
+	        else
+	        {
+		        startupLogger.LogWarning($"IdAM started in production mode. environment: ${env.EnvironmentName}"); //temporary debug messages here to figure out why swagger doesn't work on alpha.
 			}
 
 			if (env.IsDevelopment())

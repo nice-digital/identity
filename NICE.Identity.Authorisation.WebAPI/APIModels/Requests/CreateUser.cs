@@ -2,7 +2,7 @@
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Requests
 {
-    public class User
+    public class CreateUser
     {
         [Required]
         public string UserId { get; set; }

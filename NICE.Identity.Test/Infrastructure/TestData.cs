@@ -11,33 +11,45 @@ namespace NICE.Identity.Test.Infrastructure
 	{
 		private static void AddService(ref IdentityContext context, int serviceId = 1, string serviceName = "Consultation comments")
 		{
-			context.Services.Add(new Services(serviceId, serviceName));
+			context.Services.Add(new Service(serviceId, serviceName));
 		}
 
 		private static void AddEnvironment(ref IdentityContext context, int environemntId = 1, string environmentName = "beta")
 		{
-			context.Environments.Add(new Environments(environemntId, environmentName));
+			context.Environments.Add(new Authorisation.WebAPI.DataModels.Environment(environemntId, environmentName));
 		}
 
 		private static void AddWebsite(ref IdentityContext context, int websiteId = 1, int serviceId = 1, int environmentId = 1, string host = "test.nice.org.uk")
 		{
-			context.Websites.Add(new Websites(websiteId, serviceId, environmentId, host));
+			context.Websites.Add(new Website(websiteId, serviceId, environmentId, host));
 		}
 
 		private static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator")
 		{
-			context.Roles.Add(new Roles(roleId, websiteId, name));
+			context.Roles.Add(new Role(roleId, websiteId, name));
 		}
 
 		private static void AddUserRole(ref IdentityContext context, int userRoleId = 1, int roleId = 1, int userId = 1)
 		{
-			context.UserRoles.Add(new UserRoles(userRoleId, roleId, userId));
+			context.UserRoles.Add(new UserRole(userRoleId, roleId, userId));
 		}
 
-		private static void AddUser(ref IdentityContext context, int userId = 1, string title = "Mr", string firstName = "Steve", string lastName = "Zissou", string auth0UserId = "some auth0 userid")
+		private static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string auth0UserId = "some auth0 userid")
 		{
-			context.Users.Add(new Users(userId, auth0UserId, null, title, firstName, lastName, true, true, null, null, true, null, null, null, true, true));
+			context.Users.Add(new User(userId, auth0UserId, firstName, lastName, true, true, null, null, true, null, true, true, true));
 		}
+
+        private static void AddTermsVersion(ref IdentityContext context, int creatorId = 1, int version = 1, DateTime? versionDate = null)
+        {
+            var vdate = versionDate ?? new DateTime(2019, 1, 1);
+            context.TermsVersions.Add(new TermsVersion(11, vdate, creatorId));
+        }
+
+        private static void AddUserAcceptedTermsVersion(ref IdentityContext context, int acceptedId = 1, int userId = 1, int versionId = 1, DateTime? acceptedDate = null)
+        {
+            var adate = acceptedDate ?? new DateTime(2019, 1, 1, 1, 1, 1);
+            context.UserAcceptedTermsVersions.Add(new UserAcceptedTermsVersion(acceptedId, userId, versionId, adate));
+        }
 
 		public static void AddAll(ref IdentityContext context)
 		{
@@ -47,6 +59,8 @@ namespace NICE.Identity.Test.Infrastructure
 			AddRole(ref context);
 			AddUserRole(ref context);
 			AddUser(ref context);
+            AddTermsVersion(ref context);
+            AddUserAcceptedTermsVersion(ref context);
 			context.SaveChanges();
 		}
 

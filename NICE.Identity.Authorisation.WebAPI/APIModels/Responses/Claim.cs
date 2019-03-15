@@ -6,7 +6,8 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Responses
 	public enum ClaimType
 	{
 		Role,
-		FirstName
+		FirstName,
+        TermsAndConditions
 	}
 
     public class Claim
