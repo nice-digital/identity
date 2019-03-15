@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NICE.Identity.Authentication.Sdk.Abstractions;
-using NICE.Identity.Authentication.Sdk.Authentication;
-using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 
 namespace NICE.Identity.Authentication.Sdk
@@ -31,15 +28,7 @@ namespace NICE.Identity.Authentication.Sdk
             environment = tempServiceProvider.GetService<IHostingEnvironment>();
             var configuration = configurationFactory(environment).Build();
 
-            services.Configure<AuthorisationServiceConfiguration>(
-                configuration.GetSection("AuthorisationServiceConfiguration"));
-            services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
-            services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
-            services.AddScoped<IAuthenticationService, Auth0Service>();
-            services.AddScoped<IAuth0Configuration, AuthConfiguration>();
-            services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
-
-            services.AddAuthenticationSdk(configuration);
+            services.AddAuthenticationSdk(configuration, "AuthorisationServiceConfiguration");
 
             configureVariantServices(services, configuration);
 
