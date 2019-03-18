@@ -61,14 +61,10 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
-            services.AddAuthorization(options =>
-            {
-                //TODO: Investigate Roles - options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Administrator"));
-                options.AddPolicy(PolicyTypes.Administrator,
-                    policy => policy.Requirements.Add(new RoleRequirement($"{PolicyTypes.Administrator}")));
-            });
+	        services.AddAuthorization(); 
+			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); //policies added here.
 
-            services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
         private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)

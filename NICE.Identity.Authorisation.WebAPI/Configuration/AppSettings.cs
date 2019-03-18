@@ -9,14 +9,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
         // this is a static class for storing appsettings so we don't have to use DI for passing configuration stuff
         // (i.e. to stop us having to pass IOptions<SomeConfig> through the stack)
 
-        public static EnvironmentConfig Environment { get; private set; }
+        public static AuthorisationAPIConfig AuthorisationAPI { get; private set; }
        
 		public static void Configure(IServiceCollection services, IConfiguration configuration, string contentRootPath)
         {
-            services.Configure<EnvironmentConfig>(configuration.GetSection("AppSettings:Environment"));
+            services.Configure<AuthorisationAPIConfig>(configuration.GetSection("AuthorisationAPI"));
             
 			var sp = services.BuildServiceProvider();
-            Environment = sp.GetService<IOptions<EnvironmentConfig>>().Value;
+	        AuthorisationAPI = sp.GetService<IOptions<AuthorisationAPIConfig>>().Value;
 		}
     }
 }

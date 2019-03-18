@@ -27,7 +27,7 @@ namespace NICE.Identity.Authorisation.WebAPI
             bool.TryParse(logCfg["UseRabbit"], out var useRabbit);
             string logFilePath = logCfg["LogFilePath"]; ;
 
-            var formatter = new NiceSerilogFormatter(AppSettings.Environment.Name, "IdAM");
+            var formatter = new NiceSerilogFormatter(logCfg["Environment"], "IdAM");
             var logConfig = new LoggerConfiguration()
                 .MinimumLevel
                 .Warning();

@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
+using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
@@ -9,8 +13,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IUsersService
     {
-		Task CreateUser(User user);
-	}
+		void CreateOrUpdateUser(CreateUser user);
+	    List<UserInList> GetUsers();
+	    void DeleteUser(int userId);
+    }
 
 	public class UsersService : IUsersService
     {
@@ -23,29 +29,39 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
-        public async Task CreateUser(User user)
+        public void CreateOrUpdateUser(CreateUser user)
         {
             try
             {
-                var userEntity = MapUserToDomainModel(user);
+				var userEntity = MapUserToDomainModel(user);
 
-                _context.AddUser(userEntity);
+                _context.AddOrUpdateUser(userEntity);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to add user - exception: '{e.Message}' userId: '{user.UserId}'");
+                _logger.LogError($"Failed to add user - exception: '{e.Message}' userId: '{user.Auth0UserId}'");
 
                 throw new Exception("Failed to add user");
             }
         }
 
-        private Users MapUserToDomainModel(User user)
+	    public List<UserInList> GetUsers()
+	    {
+		    return _context.Users.Select(user => new UserInList(user)).ToList();
+	    }
+
+	    public void DeleteUser(int userId)
+	    {
+		    _context.DeleteUser(userId);
+	    }
+
+	    private DataModels.User MapUserToDomainModel(CreateUser user)
         {           
-            var userEntity = new Users
+            var userEntity = new User
             {
-                AcceptedTerms = user.AcceptedTerms,
+                //AcceptedTerms = user.AcceptedTerms,
                 //TODO: AllowContactMe = user.AllowContactMe,
-                Auth0UserId = user.UserId,
+                Auth0UserId = user.Auth0UserId,
                 FirstName = user.FirstName,
 				LastName = user.LastName,
                 InitialRegistrationDate = DateTime.UtcNow,
@@ -53,6 +69,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				IsLockedOut = false,
 				HasVerifiedEmailAddress = false
             };
+            if (user.AcceptedTerms)
+            {
+                var currentTerms = _context.GetLatestTermsVersion();
+                if (currentTerms != null)
+                {
+                    userEntity.UserAcceptedTermsVersions = new List<UserAcceptedTermsVersion>() { new UserAcceptedTermsVersion(currentTerms) };
+                }
+            }
 
             return userEntity;
         }
