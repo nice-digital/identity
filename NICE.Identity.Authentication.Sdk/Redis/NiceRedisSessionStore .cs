@@ -61,10 +61,17 @@ namespace NICE.Identity.Authentication.Sdk.Redis
 
         public async Task<AuthenticationTicket> RetrieveAsync(string key)
         {
-            var ticketData = await _cacheClient.GetAsync<RedisAuthenticationTicket>(key);
-            
-            var result = _formatter.Unprotect(ticketData.TicketValue);
-            return result;
+            var redisAuthenticationTicket = await _cacheClient.GetAsync<RedisAuthenticationTicket>(key);
+
+	        if (redisAuthenticationTicket == null)
+		        return null;
+
+			var result = _formatter.Unprotect(redisAuthenticationTicket.TicketValue);
+
+			if (result == default(AuthenticationTicket))
+				return null;
+
+			return result;
 
         }
 
@@ -77,7 +84,7 @@ namespace NICE.Identity.Authentication.Sdk.Redis
 
             };
 
-            await _cacheClient.AddAsync(ticketData.Key, ticketData);
+            await _cacheClient.AddAsync(ticketData.Key, ticketData, TimeSpan.FromSeconds(3600));
             return ticketData.Key;
         }
 

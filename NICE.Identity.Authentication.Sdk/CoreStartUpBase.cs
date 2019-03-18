@@ -12,8 +12,9 @@ namespace NICE.Identity.Authentication.Sdk {
         protected readonly Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory;
         protected readonly Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices;
         protected IHostingEnvironment environment;
+	    protected IConfigurationRoot configuration;
 
-        private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
+		private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
         private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
         private const string Auth0ServiceConfigurationPath = "Auth0";
 
@@ -32,7 +33,7 @@ namespace NICE.Identity.Authentication.Sdk {
         {
             var tempServiceProvider = services.BuildServiceProvider();
             environment = tempServiceProvider.GetService<IHostingEnvironment>();
-            var configuration = configurationFactory(environment).Build();
+            configuration = configurationFactory(environment).Build();
 
             services.AddAuthenticationSdk(configuration, AuthorisationServiceConfigurationPath);
             services.AddRedisCacheSDK(configuration, RedisServiceConfigurationPath, clientName);
