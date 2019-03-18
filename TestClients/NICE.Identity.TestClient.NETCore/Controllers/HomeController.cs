@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.TestClient.NetCore.Models;
 
 namespace NICE.Identity.TestClient.NetCore.Controllers
