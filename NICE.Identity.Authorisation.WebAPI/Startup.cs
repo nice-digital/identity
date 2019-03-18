@@ -62,9 +62,9 @@ namespace NICE.Identity.Authorisation.WebAPI
 	        seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
 	        var startupLogger = loggerFactory.CreateLogger<Startup>();
 
-	        if (!env.IsProduction())
-	        {
-		        startupLogger.LogWarning("IdAM started in non-production mode, so loading swagger."); //temporary debug messages here to figure out why swagger doesn't work on alpha.
+			//enabling swagger on all environments for now. alpha thinks it's production even though it's got the environment variable set.
+	        //if (!env.IsProduction())
+	        //{
 				app.UseSwagger();
 
 		        app.UseSwaggerUI(c =>
@@ -72,11 +72,8 @@ namespace NICE.Identity.Authorisation.WebAPI
 			        c.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
 			        c.RoutePrefix = string.Empty;
 		        });
-	        }
-	        else
-	        {
-		        startupLogger.LogWarning($"IdAM started in production mode. environment: ${env.EnvironmentName}"); //temporary debug messages here to figure out why swagger doesn't work on alpha.
-			}
+			//}
+
 
 			if (env.IsDevelopment())
             {

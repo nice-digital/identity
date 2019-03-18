@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 
@@ -17,11 +19,33 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return !result.Any() ? null : result.Single();
         }
 
-        public void AddUser(User user)
+        public void AddOrUpdateUser(User newUserOrUserToUpdate)
         {
-            Users.Add(user);
-            SaveChanges();
+	        var foundUserWithMatchingEmail = Users.FirstOrDefault(u => u.EmailAddress.Equals(newUserOrUserToUpdate.EmailAddress));
+	        if (foundUserWithMatchingEmail  == null) //new user
+	        {
+		        Users.Add(newUserOrUserToUpdate);
+	        }
+	        else if (string.IsNullOrEmpty(foundUserWithMatchingEmail.Auth0UserId)) //existing user, just update the auth0 user id. this happens when the user logs in for the first time with AD, if that user has been imported.
+			{
+		        foundUserWithMatchingEmail.Auth0UserId = newUserOrUserToUpdate.Auth0UserId;
+	        }
+	        else
+	        {
+		        throw new Exception("Attempt to create or update an existing user");
+	        }
+	        SaveChanges();
         }
+
+		/// <summary>
+		/// deletes a user without querying the database for it first unnecessarily.
+		/// </summary>
+		/// <param name="userId"></param>
+	    public void DeleteUser(int userId)
+	    {
+			Users.RemoveRange(new List<User> { new User { UserId = userId } });
+		    SaveChanges();
+		}
 
         #endregion
 
