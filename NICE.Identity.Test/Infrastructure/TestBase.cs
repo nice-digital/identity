@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NICE.Identity.Authorisation.WebAPI;
 using System;
 using System.Net.Http;
-using Microsoft.AspNetCore.Builder;
-using NICE.Identity.Authorisation.WebAPI;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Test.Infrastructure
@@ -15,7 +15,7 @@ namespace NICE.Identity.Test.Infrastructure
 		private TestServer _server;
 		private HttpClient _client;
 		private IdentityContext _context;
-
+		
 		public TestBase()
 		{
 			InitialiseDefaultServerAndClientWithoutAddingDatabaseRecords();

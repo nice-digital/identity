@@ -24,6 +24,7 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 			return View();
 		}
 
+		[Authorize(Policy = PolicyTypes.Editor)]
 		public IActionResult Contact()
 		{
 			ViewData["Message"] = "Your contact page.";
