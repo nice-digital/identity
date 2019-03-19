@@ -1,21 +1,50 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.External;
-using System;
-using System.Threading.Tasks;
+using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
-namespace NICE.Identity.Authentication.Sdk
+namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
+	    public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
+	                                                          IConfiguration configuration,
+	                                                          string redisCacheServiceConfigurationPath,
+	                                                          string clientName)
+	    {
+			services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
+		    var serviceProvider = services.BuildServiceProvider();
+            var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
+            var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
+
+            services.AddDataProtection()
+                    .SetApplicationName(clientName)
+                    .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
+
+            services.AddSession(options =>
+		    {
+			    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+			    options.Cookie.Name = $"{clientName}.Session";
+			    options.Cookie.HttpOnly = true;
+			    options.IdleTimeout = TimeSpan.FromMinutes(10);
+            });
+
+            return services;
+	    }
+
+	    public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
                                                               IConfiguration configuration,
                                                               string authorisationServiceConfigurationPath)
         {

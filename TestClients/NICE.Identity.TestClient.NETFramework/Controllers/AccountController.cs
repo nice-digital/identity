@@ -13,9 +13,11 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 	{
 		public ActionResult Login(string returnUrl)
 		{
-			HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties
+			var test = Url.Action("Index", "Home");
+            HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties
 				{
-					RedirectUri = returnUrl ?? Url.Action("Index", "Home")
+                    RedirectUri = returnUrl ?? test,
+					IsPersistent = true
 				},
 				"Auth0");
 			return new HttpUnauthorizedResult();

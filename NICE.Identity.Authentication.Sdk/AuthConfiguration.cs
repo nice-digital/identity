@@ -11,5 +11,6 @@ namespace NICE.Identity.Authentication.Sdk
 		public string ClientSecret { get; set; }
 		public string RedirectUri { get; set; }
 		public string PostLogoutRedirectUri { get; set; }
+        public string ApiIdentifier { get; set; }
 	}
 }
