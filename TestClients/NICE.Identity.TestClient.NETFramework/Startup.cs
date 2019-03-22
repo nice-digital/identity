@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OpenIdConnect;
 using Newtonsoft.Json.Linq;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Configuration;
@@ -33,10 +26,17 @@ namespace NICE.Identity.TestClient.NETFramework
 				ClientId = secretsFile.SelectToken("Auth0")["ClientId"].ToString(),
 				ClientSecret = secretsFile.SelectToken("Auth0")["ClientSecret"].ToString(),
 				RedirectUri = secretsFile.SelectToken("Auth0")["RedirectUri"].ToString(),
-				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString()
+				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString(),
+				ApiIdentifier = secretsFile.SelectToken("Auth0")["ApiIdentifier"].ToString()
+            };
+
+			var redisConfig = new RedisConfiguration
+			{
+				IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
+				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString())
 			};
 
-			app.AddAuthentication(authConfiguration);
+			app.AddAuthentication("DefaultApp", authConfiguration, redisConfig);
 			
 		}
 	}

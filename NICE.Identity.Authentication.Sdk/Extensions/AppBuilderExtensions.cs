@@ -1,32 +1,42 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Owin;
 using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.DataHandler;
+using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.OpenIdConnect;
-using NICE.Identity.Authentication.Sdk.Configuration;
+using NICE.Identity.Authentication.Sdk.Configurations;
+using NICE.Identity.Authentication.Sdk.Redis;
 using Owin;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddAuthentication(this IAppBuilder app, AuthConfiguration authConfiguration)
+		public static void AddAuthentication(this IAppBuilder app, string clientName, AuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
+            // Enable Kentor Cookie Saver middleware
+            app.UseKentorOwinCookieSaver();
+			var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
+            // Set Cookies as default authentication type
+            app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
+            var options = new CookieAuthenticationOptions
+            {
+	            AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
+	            SessionStore = new NiceRedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+	            CookieHttpOnly = true,
+	            CookieSecure = CookieSecureOption.Always,
+	            LoginPath = new PathString("/Account/Login")
+            };
 
-			// Enable Kentor Cookie Saver middleware
-			app.UseKentorOwinCookieSaver();
+            app.UseCookieAuthentication(options);
 
-			// Set Cookies as default authentication type
-			app.SetDefaultSignInAsAuthenticationType(Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType);
-			app.UseCookieAuthentication(new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions
-			{
-				AuthenticationType = Microsoft.Owin.Security.Cookies.CookieAuthenticationDefaults.AuthenticationType,
-				LoginPath = new Microsoft.Owin.PathString("/Account/Login")
-			});
-
-			// Configure Auth0 authentication
-			app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions
+            // Configure Auth0 authentication
+            app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions
 			{
 				AuthenticationType = "Auth0",
 
@@ -38,7 +48,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 				RedirectUri = authConfiguration.RedirectUri,
 				PostLogoutRedirectUri = authConfiguration.PostLogoutRedirectUri,
 
-				ResponseType = OpenIdConnectResponseType.CodeIdToken,
+				ResponseType = OpenIdConnectResponseType.CodeIdTokenToken,
 				Scope = "openid profile",
 
 				TokenValidationParameters = new TokenValidationParameters
@@ -48,9 +58,21 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 				Notifications = new OpenIdConnectAuthenticationNotifications
 				{
-					RedirectToIdentityProvider = notification =>
+					SecurityTokenValidated = notification =>
 					{
-						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
+						notification.AuthenticationTicket.Identity.AddClaim(new Claim("id_token", notification.ProtocolMessage.IdToken));
+						notification.AuthenticationTicket.Identity.AddClaim(new Claim("access_token", notification.ProtocolMessage.AccessToken));
+
+						return Task.FromResult(0);
+					},
+
+                    RedirectToIdentityProvider = notification =>
+					{
+						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication)
+						{
+							notification.ProtocolMessage.SetParameter("audience", authConfiguration.ApiIdentifier);
+						}
+						else if(notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
 						{
 							var logoutUri = $"https://{authConfiguration.Domain}/v2/logout?client_id={authConfiguration.ClientId}";
 
@@ -73,7 +95,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 					}
 				}
 			});
-
 		}
 	}
 }

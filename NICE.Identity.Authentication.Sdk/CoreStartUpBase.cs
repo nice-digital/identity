@@ -9,13 +9,20 @@ namespace NICE.Identity.Authentication.Sdk
 {
     public abstract class CoreStartUpBase : ICoreStartUpBase
     {
+        protected readonly string clientName;
         protected readonly Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory;
         protected readonly Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices;
         protected IHostingEnvironment environment;
+        protected IConfigurationRoot configuration;
 
-        protected CoreStartUpBase(Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory,
+        private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
+        private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
+
+        protected CoreStartUpBase(string clientName, 
+                                  Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory,
                                   Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices)
         {
+            this.clientName = clientName;
             this.configurationFactory = configurationFactory;
             this.configureVariantServices = configureVariantServices;
         }
@@ -28,7 +35,8 @@ namespace NICE.Identity.Authentication.Sdk
             environment = tempServiceProvider.GetService<IHostingEnvironment>();
             var configuration = configurationFactory(environment).Build();
 
-            services.AddAuthenticationSdk(configuration, "AuthorisationServiceConfiguration");
+            services.AddAuthenticationSdk(configuration, AuthorisationServiceConfigurationPath);
+            services.AddRedisCacheSDK(configuration, RedisServiceConfigurationPath, clientName);
 
             configureVariantServices(services, configuration);
 
@@ -45,7 +53,8 @@ namespace NICE.Identity.Authentication.Sdk
 
         public virtual void Configure(IApplicationBuilder app)
         {
-            app.UseAuthentication();
+            app.UseAuthentication()
+               .UseSession();
         }
     }
 }

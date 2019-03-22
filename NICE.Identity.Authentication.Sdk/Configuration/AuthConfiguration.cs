@@ -9,5 +9,6 @@
 		public string ApiIdentifier { get; set; }
 		public string RedirectUri { get; set; }
 		public string PostLogoutRedirectUri { get; set; }
+        public string ApiIdentifier { get; set; }
 	}
 }

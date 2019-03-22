@@ -25,7 +25,7 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 		}
 		public async Task Login(HttpContext context, string returnUrl = "/")
 		{
-			await context.ChallengeAsync(AuthenticationScheme, new AuthenticationProperties() { RedirectUri = returnUrl });
+			await context.ChallengeAsync(AuthenticationScheme, new AuthenticationProperties { RedirectUri = returnUrl });
 		}
         
 		public async Task Logout(HttpContext context, string returnUrl = "/")
