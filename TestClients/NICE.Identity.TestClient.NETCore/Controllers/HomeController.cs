@@ -41,7 +41,8 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
 
-		[Route("/signin-auth0")]
+		[ApiExplorerSettings(IgnoreApi = true)]
+        [Route("/signin-auth0")]
 		public IActionResult CallBack()
 		{
 			return RedirectToAction("Index");
