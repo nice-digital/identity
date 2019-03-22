@@ -1,4 +1,4 @@
-﻿namespace NICE.Identity.Authentication.Sdk.Configurations
+﻿namespace NICE.Identity.Authentication.Sdk.Configuration
 {
     public class RedisConfiguration
     {

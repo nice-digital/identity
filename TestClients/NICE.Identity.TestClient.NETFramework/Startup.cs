@@ -4,7 +4,6 @@ using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using Owin;
 

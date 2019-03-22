@@ -4,7 +4,7 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
 using Newtonsoft.Json;
-using NICE.Identity.Authentication.Sdk.Configurations;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core;
 using StackExchange.Redis.Extensions.Newtonsoft;

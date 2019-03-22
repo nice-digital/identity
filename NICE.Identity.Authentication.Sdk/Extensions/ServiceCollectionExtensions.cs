@@ -11,7 +11,6 @@ using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
