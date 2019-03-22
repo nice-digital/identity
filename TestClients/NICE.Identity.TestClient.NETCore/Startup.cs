@@ -14,7 +14,7 @@ namespace NICE.Identity.TestClient.NetCore
 	{
 		public Startup(Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory,
 		               Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices)
-			: base(configurationFactory, configureVariantServices) { }
+			: base("Default App", configurationFactory, configureVariantServices) { }
 
 		protected override IServiceCollection ConfigureInvariantServices(IServiceCollection services, IHostingEnvironment env, IConfigurationRoot configuration)
 		{
@@ -26,7 +26,7 @@ namespace NICE.Identity.TestClient.NetCore
 			});
 
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 			return services;
 		}

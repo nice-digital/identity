@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
@@ -22,15 +23,15 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="4.0.1" />
     <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.0.1" />
-    <PackageReference Include="Microsoft.Owin.Security.OAuth" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Owin.Security.OAuth" Version="4.0.1" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1" />
     <PackageReference Include="Owin" Version="1.0.0" />
-    <PackageReference Include="Polly" Version="7.0.3" />
+    <PackageReference Include="Polly" Version="7.1.0" />
     <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="4.0.5" />
     <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="4.0.5" />
   </ItemGroup>

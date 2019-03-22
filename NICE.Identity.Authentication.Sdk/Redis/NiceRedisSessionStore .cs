@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
-using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Configurations;
 using StackExchange.Redis;

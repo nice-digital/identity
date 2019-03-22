@@ -9,6 +9,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.OpenIdConnect;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Configurations;
 using NICE.Identity.Authentication.Sdk.Redis;
 using Owin;
