@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.TestClient.NETCore.Models;
+using NICE.Identity.TestClient.NetCore.Models;
 
-namespace NICE.Identity.TestClient.NETCore.Controllers
+namespace NICE.Identity.TestClient.NetCore.Controllers
 {
 	public class HomeController : Controller
 	{
@@ -33,7 +29,7 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 		}
 
 		//[Authorize(Roles = "Administrator,EditorSpecial")]
-		[Authorize(Policy = PolicyTypes.Administrator)]
+		//[Authorize(Policy = PolicyTypes.Administrator)]
 		public IActionResult Privacy()
 		{
 			return View();
@@ -44,5 +40,12 @@ namespace NICE.Identity.TestClient.NETCore.Controllers
 		{
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
-	}
+
+		[ApiExplorerSettings(IgnoreApi = true)]
+        [Route("/signin-auth0")]
+		public IActionResult CallBack()
+		{
+			return RedirectToAction("Index");
+		}
+    }
 }

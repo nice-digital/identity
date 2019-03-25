@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace NICE.Identity.TestClient.NETCore
+namespace NICE.Identity.TestClient.NetCore
 {
 	public class Program
 	{
@@ -19,7 +19,7 @@ namespace NICE.Identity.TestClient.NETCore
 					//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
 					.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
 
-            var startup = new Startup("Publications", configurationFactory, ProductionDependencies.AddProductionDependencies);
+			var startup = new Startup(configurationFactory, ProductionDependencies.AddProductionDependencies);
 
 			var builder = new WebHostBuilder()
 			              .UseKestrel()
@@ -31,5 +31,5 @@ namespace NICE.Identity.TestClient.NETCore
 				host.Run();
 			}
 		}
-	}
+    }
 }

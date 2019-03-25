@@ -63,6 +63,5 @@ namespace NICE.Identity.Test.Infrastructure
 				.Options;
 			return new IdentityContext(dbOptions);
 		}
-
 	}
 }

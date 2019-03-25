@@ -5,20 +5,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NICE.Identity.Authentication.Sdk.Extensions;
 
-namespace NICE.Identity.Authentication.Sdk {
+namespace NICE.Identity.Authentication.Sdk
+{
     public abstract class CoreStartUpBase : ICoreStartUpBase
     {
         protected readonly string clientName;
         protected readonly Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory;
         protected readonly Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices;
         protected IHostingEnvironment environment;
-	    protected IConfigurationRoot configuration;
+        protected IConfigurationRoot configuration;
 
-		private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
+        private const string AuthorisationServiceConfigurationPath = "AuthorisationServiceConfiguration";
         private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
-        private const string Auth0ServiceConfigurationPath = "Auth0";
 
-        protected CoreStartUpBase(string clientName,
+        protected CoreStartUpBase(string clientName, 
                                   Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory,
                                   Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices)
         {
@@ -33,7 +33,7 @@ namespace NICE.Identity.Authentication.Sdk {
         {
             var tempServiceProvider = services.BuildServiceProvider();
             environment = tempServiceProvider.GetService<IHostingEnvironment>();
-            configuration = configurationFactory(environment).Build();
+            var configuration = configurationFactory(environment).Build();
 
             services.AddAuthenticationSdk(configuration, AuthorisationServiceConfigurationPath);
             services.AddRedisCacheSDK(configuration, RedisServiceConfigurationPath, clientName);
@@ -55,6 +55,6 @@ namespace NICE.Identity.Authentication.Sdk {
         {
             app.UseAuthentication()
                .UseSession();
-        } 
+        }
     }
 }

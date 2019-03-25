@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.Authentication.Sdk.Configurations;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
@@ -49,7 +49,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                                                               string authorisationServiceConfigurationPath)
         {
             services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
-            
+            services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
+            services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
+            services.AddScoped<IAuthenticationService, Auth0Service>();
+            services.AddScoped<IAuth0Configuration, AuthConfiguration>();
+            services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
+
             InstallAuthorisation(services);
             InstallAuthenticationService(services, configuration);
 
@@ -69,16 +74,23 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
         {
+	        string domain = $"https://{configuration["Auth0:Domain"]}/";
+
             services.AddScoped<IAuthenticationService, Auth0Service>();
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
             // Add authentication services
             services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			})
-			.AddCookie()
-			.AddOpenIdConnect("Auth0", options => {
+			}).AddCookie()
+			.AddJwtBearer(options =>
+			{
+				options.Authority = domain;
+				options.Audience = configuration["Auth0:ApiIdentifier"];
+			}).AddOpenIdConnect("Auth0", options => 
+			{
 				// Set the authority to your Auth0 domain
 				options.Authority = $"https://{configuration["Auth0:Domain"]}";
 
@@ -133,6 +145,30 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 					}
 				};
 			});
+        }
+
+        public static T GetConfiguration<T>(this IServiceCollection collection) where T : class, new()
+        {
+	        var sp = collection.BuildServiceProvider();
+	        return sp.GetService<IOptions<T>>().Value;
+        }
+
+        public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
+	        where T : class, IHttpConfiguration, new()
+        {
+	        if (services == null)
+		        throw new ArgumentNullException(nameof(services));
+	        if (name == null)
+		        throw new ArgumentNullException(nameof(name));
+
+	        IHttpConfiguration options = services.GetConfiguration<T>();
+
+	        services.AddHttpClient(name, client =>
+	                               {
+		                               client.BaseAddress = new Uri(options.Host);
+		                               client.Timeout = TimeSpan.FromMinutes(1);
+		                               client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
+	                               }).AddTransientHttpErrorPolicy(options.CircuitBreaker);
         }
     }
 }

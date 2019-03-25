@@ -1,6 +1,4 @@
-using System;
-
-namespace NICE.Identity.TestClient.NETCore.Models
+namespace NICE.Identity.TestClient.NetCore.Models
 {
 	public class ErrorViewModel
 	{
