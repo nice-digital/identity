@@ -37,8 +37,10 @@ namespace NICE.Identity.Authorisation.WebAPI
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.TryAddSingleton<ISeriLogger, SeriLogger>();
+            services.AddTransient<IManagementApiService, ManagementApiService>();
             services.AddTransient<IClaimsService, ClaimsService>();
             services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<IJobsService, JobsService>();
 
             services.AddMvc()
 	            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

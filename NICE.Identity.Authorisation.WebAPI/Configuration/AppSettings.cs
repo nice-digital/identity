@@ -10,13 +10,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
         // (i.e. to stop us having to pass IOptions<SomeConfig> through the stack)
 
         public static AuthorisationAPIConfig AuthorisationAPI { get; private set; }
+        public static ManagementAPIConfig ManagementAPI { get; private set; }
        
 		public static void Configure(IServiceCollection services, IConfiguration configuration, string contentRootPath)
         {
             services.Configure<AuthorisationAPIConfig>(configuration.GetSection("AuthorisationAPI"));
-            
+            services.Configure<ManagementAPIConfig>(configuration.GetSection("Auth0Management"));
+
 			var sp = services.BuildServiceProvider();
-	        AuthorisationAPI = sp.GetService<IOptions<AuthorisationAPIConfig>>().Value;
+			AuthorisationAPI = sp.GetService<IOptions<AuthorisationAPIConfig>>().Value;
+			ManagementAPI = sp.GetService<IOptions<ManagementAPIConfig>>().Value;
 		}
     }
 }
