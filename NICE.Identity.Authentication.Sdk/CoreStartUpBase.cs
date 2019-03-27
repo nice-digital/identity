@@ -33,7 +33,7 @@ namespace NICE.Identity.Authentication.Sdk
         {
             var tempServiceProvider = services.BuildServiceProvider();
             environment = tempServiceProvider.GetService<IHostingEnvironment>();
-            var configuration = configurationFactory(environment).Build();
+            configuration = configurationFactory(environment).Build();
 
             services.AddAuthenticationSdk(configuration, AuthorisationServiceConfigurationPath);
             services.AddRedisCacheSDK(configuration, RedisServiceConfigurationPath, clientName);
@@ -51,10 +51,10 @@ namespace NICE.Identity.Authentication.Sdk
         /// </summary>
         protected abstract IServiceCollection ConfigureInvariantServices(IServiceCollection services, IHostingEnvironment env, IConfigurationRoot configuration);
 
-        public virtual void Configure(IApplicationBuilder app)
-        {
-            app.UseAuthentication()
-               .UseSession();
-        }
-    }
+		public virtual void Configure(IApplicationBuilder app)
+		{
+			app.UseAuthentication()
+			   .UseSession();
+		}
+	}
 }

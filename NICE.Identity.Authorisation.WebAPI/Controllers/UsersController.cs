@@ -2,10 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
-using NICE.Identity.Authorisation.WebAPI.Common;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
@@ -22,10 +23,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
         }
-        
-        // POST api/users
-		[AuthoriseWithApiKey]
-        [HttpPost]
+
+		// POST api/users
+		//[AuthoriseWithApiKey]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
+		[HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
             if (!ModelState.IsValid)
@@ -54,9 +56,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
         }
 
-	    // Get api/users
-	    [AuthoriseWithApiKey]
-	    [HttpGet]
+		// Get api/users
+		// [AuthoriseWithApiKey]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+		[HttpGet]
 	    [Produces("application/json")]
 		public IActionResult Get()
 	    {
@@ -75,9 +78,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		    }
 	    }
 
-	    // Delete api/users
-	    [AuthoriseWithApiKey]
-	    [HttpDelete]
+		// Delete api/users
+		//[AuthoriseWithApiKey]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
+		[HttpDelete]
 	    [Produces("application/json")]
 	    public IActionResult Delete(int userId)
 	    {

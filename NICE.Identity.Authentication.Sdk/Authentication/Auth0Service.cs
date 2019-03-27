@@ -11,7 +11,7 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {
-	internal class Auth0Service : Abstractions.IAuthenticationService
+	public class Auth0Service : Abstractions.IAuthenticationService
 	{
 	    private const string AuthenticationScheme = "Auth0";
 		private readonly HttpClient _client;

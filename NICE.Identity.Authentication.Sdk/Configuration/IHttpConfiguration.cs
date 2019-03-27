@@ -10,7 +10,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	public interface IHttpConfiguration
 	{
 		string Token { get; }
-		string Domain { get; set; }
 		string Host { get; }
 		string Password { get; set; }
 		string UserName { get; set; }

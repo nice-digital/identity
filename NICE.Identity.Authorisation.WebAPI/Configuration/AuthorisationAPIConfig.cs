@@ -1,9 +1,9 @@
-using System;
+//using System;
 
-namespace NICE.Identity.Authorisation.WebAPI.Configuration
-{
-    public class AuthorisationAPIConfig
-    {
-        public Guid? APIKey { get; set; }
-    }
-}
+//namespace NICE.Identity.Authorisation.WebAPI.Configuration
+//{
+//    public class AuthorisationAPIConfig
+//    {
+//        public Guid? APIKey { get; set; }
+//    }
+//}

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Logging;
 using NICE.Logging.Sinks.RabbitMQ;
 using Serilog;
