@@ -26,7 +26,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// POST api/users
 		//[AuthoriseWithApiKey]
-	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "read:messages")]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
 		[HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
@@ -58,7 +58,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// Get api/users
 		// [AuthoriseWithApiKey]
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "read:messages")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 		[HttpGet]
 	    [Produces("application/json")]
 		public IActionResult Get()
@@ -80,7 +80,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// Delete api/users
 		//[AuthoriseWithApiKey]
-	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "read:messages")]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
 		[HttpDelete]
 	    [Produces("application/json")]
 	    public IActionResult Delete(int userId)

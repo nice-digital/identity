@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.Claim;
@@ -19,6 +21,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	    }
 
 		// GET api/claims/someuserid
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	    [HttpGet("{authenticationProviderUserId}")]
 	    public async Task<ActionResult<IEnumerable<ApiModels.Responses.Claim[]>>> Get(string authenticationProviderUserId)
 	    {
