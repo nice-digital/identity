@@ -77,15 +77,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         {
 	        string domain = $"https://{configuration["Auth0:Domain"]}/";
 
-	  //      services.AddAuthorization(options =>
-	  //      {
-		 //       options.AddPolicy("read:messages",
-			//        policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
-
-		 //       options.AddPolicy("getusers",
-			//        policy => policy.Requirements.Add(new HasScopeRequirement("getusers", domain)));
-			//});
-
 			services.AddScoped<IAuthenticationService, Auth0Service>();
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
