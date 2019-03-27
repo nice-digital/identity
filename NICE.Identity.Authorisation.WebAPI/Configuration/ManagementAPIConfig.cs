@@ -16,5 +16,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
         public string Grant_Type { get; set; }
         public string DurationOfBreakInMinutes { get; set; }
         public string HandledEventsAllowedBeforeBreaking { get; set; }
+        public string[] CorsOrigins { get; set; }
     }
 }

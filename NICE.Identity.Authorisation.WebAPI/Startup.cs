@@ -28,7 +28,9 @@ namespace NICE.Identity.Authorisation.WebAPI
         public IConfiguration Configuration { get; }
 	    public IHostingEnvironment Environment { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
+	    private const string ApiSpecificOrigins = "_apiSpecificOrigins";
+
+	    // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             AppSettings.Configure(services, Configuration,
@@ -56,7 +58,19 @@ namespace NICE.Identity.Authorisation.WebAPI
             {
                 c.CustomSchemaIds(x => x.FullName);
             });
-        }
+
+			services.AddCors(options =>
+			{
+				options.AddPolicy(ApiSpecificOrigins,
+					builder =>
+					{
+						builder.WithOrigins(AppSettings.ManagementAPI.CorsOrigins)
+							.AllowCredentials()
+							.AllowAnyHeader()
+							.AllowAnyMethod();
+					});
+			});
+		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)
@@ -85,7 +99,7 @@ namespace NICE.Identity.Authorisation.WebAPI
             {
                 app.UseHsts();
             }
-
+			app.UseCors(ApiSpecificOrigins);
 			app.UseHttpsRedirection();
             app.UseMvc();
 

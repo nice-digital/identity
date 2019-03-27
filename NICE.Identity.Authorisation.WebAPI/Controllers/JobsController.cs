@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -25,6 +26,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
         // POST: api/Jobs/VerificationEmail
         // [Authorize]
+        /// <summary>
+        /// Send a "verify email address" email
+        /// </summary>
+        /// <param name="body">The user_id of the user to whom the email will be sent</param>
         [HttpPost]
         public async Task<ActionResult> VerificationEmail([FromBody] VerificationEmail verificationEmail)
         {
