@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -87,8 +89,12 @@ namespace NICE.Identity.Authorisation.WebAPI
 				.AddSwaggerGen(c =>
 				{
 					c.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
-				})
-				;
+					c.AddSecurityDefinition("Bearer", new ApiKeyScheme { In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
+					c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+					{
+						{"Bearer", Enumerable.Empty<string>()},
+					});
+				});
 
 			services.ConfigureSwaggerGen(c =>
 			{
