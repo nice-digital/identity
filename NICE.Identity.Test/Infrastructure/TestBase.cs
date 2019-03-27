@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NICE.Identity.Authorisation.WebAPI;
 using System;
 using System.Net.Http;
+using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Test.Infrastructure
@@ -31,20 +34,36 @@ namespace NICE.Identity.Test.Infrastructure
 
 		private static (TestServer testServer, HttpClient httpClient) InitialiseServerAndClient(IdentityContext identityContext)
 		{
+			Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory = env =>
+				new ConfigurationBuilder()
+					.SetBasePath(env.ContentRootPath)
+					.AddEnvironmentVariables()
+					.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+					//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
+					.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
+
+
+			var startup = new Startup("TestApp", configurationFactory, ConfigureVariantServices);
+
 			var builder = new WebHostBuilder()
 				.UseContentRoot("../../../../NICE.Identity")
 				.ConfigureServices(services =>
 				{
-					services.TryAddTransient<IdentityContext>(provider => identityContext); //note: not a singleton like in the main code. 
+					services.AddSingleton<IStartup>(startup);
+					services.TryAddTransient<IdentityContext>(provider => identityContext);
 				})
 				.Configure(app =>
 				{
 					app.UseStaticFiles();
 				})
-				.UseEnvironment("Production")
-				.UseStartup(typeof(Startup));
+				.UseEnvironment("Production");
 			var server = new TestServer(builder);
 			return (testServer: server, httpClient: server.CreateClient());
+		}
+
+		private static IServiceCollection ConfigureVariantServices(IServiceCollection services, IConfigurationRoot configurationRoot)
+		{
+			return services;
 		}
 
 		protected HttpClient GetClient(IdentityContext identityContext = null)
