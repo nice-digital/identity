@@ -56,7 +56,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 	    // Get api/users
 	   // [AuthoriseWithApiKey]
-	    [Authorize(Policy = "getusers")]
+	    //[Authorize(Policy = "getusers")]
 	    [HttpGet]
 	    [Produces("application/json")]
 		public IActionResult Get()

@@ -19,7 +19,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 					//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
 					.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
 
-			var startup = new Startup("AuthorisationAPI",configurationFactory, ProductionDependencies.AddProductionDependencies);
+			var startup = new Startup("AuthorisationAPI", configurationFactory, ProductionDependencies.AddProductionDependencies);
 
 			var builder = new WebHostBuilder()
 				.UseKestrel()
@@ -34,3 +34,5 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 	}
 }
+
+
