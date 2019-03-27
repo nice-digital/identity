@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
