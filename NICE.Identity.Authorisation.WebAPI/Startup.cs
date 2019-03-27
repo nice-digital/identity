@@ -5,61 +5,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.Configuration;
+using NICE.Identity.Authentication.Sdk;
+using NICE.Identity.Authentication.Sdk.Extensions;
 using Swashbuckle.AspNetCore.Swagger;
-using NICE.Identity.Authorisation.WebAPI.Services;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
-    public class Startup
+    public class Startup :CoreStartUpBase
     {
         private const string ApiTitle = "NICE.Identity.Authorisation.WebAPI";
         private const string ApiVersion = "v1";
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
-        {
-            Configuration = configuration;
-	        Environment = environment;
-		}
+	    public Startup(string clientName, 
+			Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory, 
+			Func<IServiceCollection, IConfigurationRoot, IServiceCollection> configureVariantServices) : base(clientName, configurationFactory, configureVariantServices)
+	    {
 
-        public IConfiguration Configuration { get; }
-	    public IHostingEnvironment Environment { get; }
-
-		// This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            AppSettings.Configure(services, Configuration,
-                Environment.IsDevelopment() ? @"c:\" : Environment.ContentRootPath);
-            services.AddDbContext<IdentityContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.TryAddSingleton<ISeriLogger, SeriLogger>();
-            services.AddTransient<IClaimsService, ClaimsService>();
-            services.AddTransient<IUsersService, UsersService>();
-
-            services.AddMvc()
-	            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-			services
-				.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc(ApiVersion, new Info {Title = ApiTitle, Version = ApiVersion});
-                })
-                ;
-
-            services.ConfigureSwaggerGen(c =>
-            {
-                c.CustomSchemaIds(x => x.FullName);
-            });
-        }
+	    }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)
         {
-	        seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
+	        seriLogger.Configure(loggerFactory, configuration, appLifetime, env);
 	        var startupLogger = loggerFactory.CreateLogger<Startup>();
 
 			//enabling swagger on all environments for now. alpha thinks it's production even though it's got the environment variable set.
@@ -98,5 +67,29 @@ namespace NICE.Identity.Authorisation.WebAPI
 		        startupLogger.LogError($"EF Migrations Error: {ex}");
 	        }
 		}
+
+	    protected override IServiceCollection ConfigureInvariantServices(IServiceCollection services, IHostingEnvironment env,
+		    IConfigurationRoot configuration)
+	    {
+		    services.AddMvc()
+			    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+		    services
+			    .AddSwaggerGen(c =>
+			    {
+				    c.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
+			    })
+			    ;
+
+		    services.ConfigureSwaggerGen(c =>
+		    {
+			    c.CustomSchemaIds(x => x.FullName);
+		    });
+
+		    services.AddMvcCore()
+			    .AddApiExplorer();
+
+			return services;
+	    }
     }
 }

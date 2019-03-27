@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
-using NICE.Identity.Authorisation.WebAPI.Common;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
@@ -24,7 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
         
         // POST api/users
-		[AuthoriseWithApiKey]
+		//[AuthoriseWithApiKey]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
@@ -55,7 +55,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
 	    // Get api/users
-	    [AuthoriseWithApiKey]
+	   // [AuthoriseWithApiKey]
+	    [Authorize(Policy = "getusers")]
 	    [HttpGet]
 	    [Produces("application/json")]
 		public IActionResult Get()
@@ -76,7 +77,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	    }
 
 	    // Delete api/users
-	    [AuthoriseWithApiKey]
+	    //[AuthoriseWithApiKey]
 	    [HttpDelete]
 	    [Produces("application/json")]
 	    public IActionResult Delete(int userId)
