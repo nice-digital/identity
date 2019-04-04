@@ -12,6 +12,7 @@ using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
+using NICE.Identity.NETFramework.Authorisation;
 using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -66,8 +67,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         {
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+            services.AddHttpClientWithHttpConfiguration<AuthorisationServiceConfiguration>("AuthorisationApi");
 
-	        services.AddAuthorization(); 
+            services.AddAuthorization(); 
 			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); //policies added here.
 
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();

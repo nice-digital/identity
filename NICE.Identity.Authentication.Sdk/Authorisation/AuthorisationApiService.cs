@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using NICE.Identity.Authentication.Sdk.Abstractions;
-using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.External;
+using NICE.Identity.NETFramework.Authorisation;
+
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -17,31 +17,28 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         private const string RoleClaimTypeName = "Role";
 
         private readonly IHttpClientDecorator _httpClient;
-        private readonly Uri _baseUrl;
 
-        public AuthorisationApiService(IOptions<AuthorisationServiceConfiguration> configuration,
-            IHttpClientDecorator httpClient)
+        public AuthorisationApiService(IHttpClientDecorator httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        }
 
-            if (configuration?.Value == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            _baseUrl = new Uri(configuration.Value.BaseUrl);
+        public AuthorisationApiService(IHttpClientFactory client)
+        {
+            var _client = client.CreateClient("Auth0ServiceApiClient");
+            _httpClient = new HttpClientDecorator(_client);
         }
 
         public async Task<IEnumerable<Claim>> GetByUserId(string userId)
         {
             IEnumerable<Claim> claims;
-
-            var uri = new Uri(_baseUrl, userId);
+            
+            var uri = new Uri(_httpClient.BaseUrl, userId);
 
             try
             {
                 var response = await _httpClient.GetStringAsync(uri);
-                claims = JsonConvert.DeserializeObject<Claim[]>(response);
+                claims = JsonConvert.DeserializeObject<Claim[]>(response, new ClaimConverter());
             }
             catch (Exception e)
             {
@@ -53,7 +50,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
         public async Task CreateOrUpdate(string userId, Claim role)
         {
-            var uri = new Uri(_baseUrl, userId);
+            var uri = new Uri(_httpClient.BaseUrl, userId);
 
             try
             {
@@ -71,13 +68,13 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         {
             IEnumerable<Claim> claims;
 
-            var uri = new Uri(_baseUrl, string.Format(Constants.AuthorisationURLs.GetClaims, userId));
+            var uri = new Uri(_httpClient.BaseUrl, string.Format(Constants.AuthorisationURLs.GetClaims, userId));
 
             try
             {
 
 				var response = await _httpClient.GetStringAsync(uri);
-                claims = JsonConvert.DeserializeObject<Claim[]>(response);
+                claims = JsonConvert.DeserializeObject<Claim[]>(response, new ClaimConverter());
             }
             catch (Exception e)
             {

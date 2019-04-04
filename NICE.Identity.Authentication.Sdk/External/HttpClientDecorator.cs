@@ -7,6 +7,7 @@ namespace NICE.Identity.Authentication.Sdk.External
     internal sealed class HttpClientDecorator : IHttpClientDecorator
     {
         private readonly HttpClient _httpClient;
+        public Uri BaseUrl => _httpClient.BaseAddress;
 
         public HttpClientDecorator(HttpClient httpClient)
         {

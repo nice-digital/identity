@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
@@ -14,7 +11,6 @@ using NICE.Identity.Authentication.Sdk.External;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using Xunit;
-using Claim = System.Security.Claims.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {
@@ -27,7 +23,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 
         public AuthorisationApiServiceTests()
         {
-            var config = new AuthorisationServiceConfiguration()
+            var config = new AuthorisationServiceConfiguration
             {
                 BaseUrl = BaseUrl
             };
@@ -36,8 +32,9 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
             configOptionsMock.Setup(x => x.Value).Returns(config);
 
             _httpClientMock = new Mock<IHttpClientDecorator>();
+            _httpClientMock.Setup(x => x.BaseUrl).Returns(new Uri(config.BaseUrl));
             
-            _sut = new AuthorisationApiService(configOptionsMock.Object, _httpClientMock.Object);
+            _sut = new AuthorisationApiService(_httpClientMock.Object);
         }
 
         [Fact]
@@ -50,8 +47,8 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 
             var userRoles = new[]
             {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Administrator),
-                new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+                new Claim("Role", PolicyTypes.Administrator),
+                new Claim("FirstName", "User")
             };
 
             var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
@@ -74,8 +71,8 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 
             var userRoles = new[]
             {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Editor),
-                new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+                new Claim("Role", PolicyTypes.Editor),
+                new Claim("FirstName", "User")
             };
 
             var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);

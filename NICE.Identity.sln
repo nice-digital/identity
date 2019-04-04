@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth0Hooks", "Auth0Hooks", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{F799E16E-96DF-4385-BC0D-885533D9E437}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.NETFramework.Authorisation", "NICE.Identity.NETFramework.Authorisation\NICE.Identity.NETFramework.Authorisation.csproj", "{43F18937-65B5-4942-BBDB-06EFF86DD319}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,10 @@ Global
 		{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43F18937-65B5-4942-BBDB-06EFF86DD319}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

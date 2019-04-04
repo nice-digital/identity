@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.NETFramework.Authorisation;
 
 namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {

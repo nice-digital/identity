@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.NETFramework.Authorisation;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {

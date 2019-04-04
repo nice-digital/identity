@@ -8,7 +8,6 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using Xunit;
-using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {

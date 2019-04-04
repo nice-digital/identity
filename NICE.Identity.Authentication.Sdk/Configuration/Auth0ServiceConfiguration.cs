@@ -10,7 +10,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	public class Auth0ServiceConfiguration : IAuth0Configuration, IHttpConfiguration
 	{
 		public string Token => null;
-
 		public string Domain { get; set; }
 		public string Host => $"https://{Domain}/";
 		public string Password{ get; set; }

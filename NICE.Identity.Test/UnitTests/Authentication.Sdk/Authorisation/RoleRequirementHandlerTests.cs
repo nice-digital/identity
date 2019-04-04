@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Moq;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.NETFramework.Authorisation;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using Xunit;
