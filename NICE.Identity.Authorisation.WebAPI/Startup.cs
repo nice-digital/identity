@@ -94,6 +94,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 					{
 						{"Bearer", Enumerable.Empty<string>()},
 					});
+					c.EnableAnnotations();
 				});
 
 			services.ConfigureSwaggerGen(c =>
