@@ -57,7 +57,6 @@ namespace NICE.Identity.TestClient.NETFramework
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
 
-
             var authConfiguration = container.Resolve<AuthConfiguration>();
             var redisConfig = container.Resolve<RedisConfiguration>();
 
