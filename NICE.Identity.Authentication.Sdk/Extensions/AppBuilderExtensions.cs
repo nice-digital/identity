@@ -17,7 +17,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddAuthentication(this IAppBuilder app, string clientName, AuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
+		public static void AddAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
             // Enable Kentor Cookie Saver middleware
             app.UseKentorOwinCookieSaver();
@@ -40,13 +40,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			{
 				AuthenticationType = "Auth0",
 
-				Authority = $"https://{authConfiguration.Domain}",
+				Authority = $"https://{authConfiguration.TenantDomain}",
 
-				ClientId = authConfiguration.ClientId,
-				ClientSecret = authConfiguration.ClientSecret,
+				ClientId = authConfiguration.WebSettings.ClientId,
+				ClientSecret = authConfiguration.WebSettings.ClientSecret,
 
-				RedirectUri = authConfiguration.RedirectUri,
-				PostLogoutRedirectUri = authConfiguration.PostLogoutRedirectUri,
+				RedirectUri = authConfiguration.WebSettings.RedirectUri,
+				PostLogoutRedirectUri = authConfiguration.WebSettings.PostLogoutRedirectUri,
 
 				ResponseType = OpenIdConnectResponseType.CodeIdTokenToken,
 				Scope = "openid profile",
@@ -70,11 +70,11 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 					{
 						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication)
 						{
-							notification.ProtocolMessage.SetParameter("audience", authConfiguration.ApiIdentifier);
+							notification.ProtocolMessage.SetParameter("audience", authConfiguration.MachineToMachineSettings.ApiIdentifier);
 						}
 						else if(notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
 						{
-							var logoutUri = $"https://{authConfiguration.Domain}/v2/logout?client_id={authConfiguration.ClientId}";
+							var logoutUri = $"https://{authConfiguration.TenantDomain}/v2/logout?client_id={authConfiguration.WebSettings.ClientId}";
 
 							var postLogoutUri = notification.ProtocolMessage.PostLogoutRedirectUri;
 							if (!string.IsNullOrEmpty(postLogoutUri))

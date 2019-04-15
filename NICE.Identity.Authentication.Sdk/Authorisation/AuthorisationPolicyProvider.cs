@@ -9,13 +9,12 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 	public class AuthorisationPolicyProvider : DefaultAuthorizationPolicyProvider
 	{
 		private readonly AuthorizationOptions _options;
-		private readonly IAuth0Configuration _configuration;
+		//private readonly IAuth0Configuration _configuration;
 		private string _domain;
-		public AuthorisationPolicyProvider(IOptions<AuthorizationOptions> options, IOptions<AuthConfiguration> configuration) : base(options)
+		public AuthorisationPolicyProvider(IOptions<AuthorizationOptions> options, string domain) : base(options)
 		{
 			_options = options.Value;
-			_configuration = configuration.Value;
-			_domain = $"https://{_configuration.Domain}/";
+			_domain = $"https://{domain}/";
 		}
 
 		public override async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)

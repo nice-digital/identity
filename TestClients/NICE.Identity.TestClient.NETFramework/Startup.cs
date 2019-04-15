@@ -20,23 +20,23 @@ namespace NICE.Identity.TestClient.NETFramework
 			var secretsPath = Path.Combine(appDataPath, @"Microsoft\UserSecrets\b69bc28e-14c9-4c24-bd25-232e24a55745\secrets.json");
 			var secretsFile = JObject.Parse(File.ReadAllText(secretsPath));
 
-			var authConfiguration = new AuthConfiguration
-			{
-				Domain = secretsFile.SelectToken("Auth0")["Domain"].ToString(),
-				ClientId = secretsFile.SelectToken("Auth0")["ClientId"].ToString(),
-				ClientSecret = secretsFile.SelectToken("Auth0")["ClientSecret"].ToString(),
-				RedirectUri = secretsFile.SelectToken("Auth0")["RedirectUri"].ToString(),
-				PostLogoutRedirectUri = secretsFile.SelectToken("Auth0")["PostLogoutRedirectUri"].ToString(),
-				ApiIdentifier = secretsFile.SelectToken("Auth0")["ApiIdentifier"].ToString()
-            };
+			var authConfiguration = new AuthConfiguration(
+				tenantDomain: secretsFile.SelectToken("AuthConfiguration")["Domain"].ToString(),
+				clientId: secretsFile.SelectToken("AuthConfiguration")["ClientId"].ToString(),
+				clientSecret: secretsFile.SelectToken("AuthConfiguration")["ClientSecret"].ToString(),
+				redirectUri: secretsFile.SelectToken("AuthConfiguration")["RedirectUri"].ToString(),
+				postLogoutRedirectUri: secretsFile.SelectToken("AuthConfiguration")["PostLogoutRedirectUri"].ToString(),
+				apiIdentifier: secretsFile.SelectToken("AuthConfiguration")["ApiIdentifier"].ToString()
+				);
 
 			var redisConfig = new RedisConfiguration
 			{
 				IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
-				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString())
+				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString()),
+				Enabled = bool.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Enabled"].ToString())
 			};
 
-			app.AddAuthentication("DefaultApp", authConfiguration, redisConfig);
+			app.AddAuthentication(authConfiguration, redisConfig);
 			
 		}
 	}

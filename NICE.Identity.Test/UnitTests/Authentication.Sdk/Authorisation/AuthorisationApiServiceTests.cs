@@ -44,13 +44,13 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         public async Task ReturnsTrueWhenUserHasAtLeastOneMatchingRole()
         {
             //Arrange
-            string[] requiredRoles = { PolicyTypes.Administrator, PolicyTypes.Editor };
+            string[] requiredRoles = { Policies.Web.Administrator, Policies.Web.Editor };
             string userId = "auth0|user1234";
             string url = $"{BaseUrl}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
             var userRoles = new[]
             {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Administrator),
+                new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Administrator),
                 new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
             };
 
@@ -68,13 +68,13 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         public async Task ReturnsFalseWhenUserHasNoMatchingRole()
         {
             //Arrange
-            string[] requiredRoles = { PolicyTypes.Administrator, "SomeRole1" };
+            string[] requiredRoles = { Policies.Web.Administrator, "SomeRole1" };
             string userId = "auth0|user1234";
             string url = $"{BaseUrl}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
             var userRoles = new[]
             {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Editor),
+                new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Editor),
                 new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
             };
 

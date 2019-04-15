@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
@@ -26,7 +27,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// POST api/users
 		//[AuthoriseWithApiKey]
-	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdmin)]
 		[HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
@@ -80,7 +81,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// Delete api/users
 		//[AuthoriseWithApiKey]
-	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdmin)]
 		[HttpDelete]
 	    [Produces("application/json")]
 	    public IActionResult Delete(int userId)

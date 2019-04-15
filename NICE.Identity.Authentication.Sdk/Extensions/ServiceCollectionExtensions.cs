@@ -27,37 +27,40 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
 		    var serviceProvider = services.BuildServiceProvider();
             var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
-            var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
 
-            services.AddDataProtection()
-                    .SetApplicationName(clientName)
-                    .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
+            if (redisConfiguration.Enabled)
+            {
+	            var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
 
-            services.AddSession(options =>
-		    {
-			    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-			    options.Cookie.Name = $"{clientName}.Session";
-			    options.Cookie.HttpOnly = true;
-			    options.IdleTimeout = TimeSpan.FromMinutes(10);
-            });
+	            services.AddDataProtection()
+		            .SetApplicationName(clientName)
+		            .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
+
+	            services.AddSession(options =>
+	            {
+		            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+		            options.Cookie.Name = $"{clientName}.Session";
+		            options.Cookie.HttpOnly = true;
+		            options.IdleTimeout = TimeSpan.FromMinutes(10);
+	            });
+            }
 
             return services;
 	    }
 
 	    public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
-                                                              IConfiguration configuration,
-                                                              string authorisationServiceConfigurationPath)
+		    IAuthConfiguration authConfiguration)
         {
-            services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
-            services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
-	        services.Configure<AuthConfiguration>(configuration.GetSection("Auth0"));
-			services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
-            services.AddScoped<IAuthenticationService, Auth0Service>();
-            services.AddScoped<IAuth0Configuration, AuthConfiguration>();
-            services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
+   //         services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
+   //         services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
+	  //      services.Configure<AuthConfiguration>(configuration.GetSection("Auth0"));
+			//services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
+   //         services.AddScoped<IAuthenticationService, Auth0Service>();
+   //         services.AddScoped<IAuth0Configuration, AuthConfiguration>();
+            //services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
 
             InstallAuthorisation(services);
-            InstallAuthenticationService(services, configuration);
+            InstallAuthenticationService(services, authConfiguration);
 
             return services;
         }
@@ -73,9 +76,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
-        private static void InstallAuthenticationService(IServiceCollection services, IConfiguration configuration)
+        private static void InstallAuthenticationService(IServiceCollection services, IAuthConfiguration authConfiguration)
         {
-	        string domain = $"https://{configuration["Auth0:Domain"]}/";
+	        string domain = $"https://{authConfiguration.TenantDomain}/";
 
 			services.AddScoped<IAuthenticationService, Auth0Service>();
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
@@ -89,15 +92,15 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			.AddJwtBearer(options =>
 			{
 				options.Authority = domain;
-				options.Audience = configuration["Auth0:ApiIdentifier"];
+				options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
 			}).AddOpenIdConnect("Auth0", options => 
 			{
 				// Set the authority to your Auth0 domain
-				options.Authority = $"https://{configuration["Auth0:Domain"]}";
+				options.Authority = $"https://{domain}";
 
 				// Configure the Auth0 Client ID and Client Secret
-				options.ClientId = configuration["Auth0:ClientId"];
-				options.ClientSecret = configuration["Auth0:ClientSecret"];
+				options.ClientId = authConfiguration.WebSettings.ClientId;
+				options.ClientSecret = authConfiguration.WebSettings.ClientSecret;
 
 				// Set response type to code
 				options.ResponseType = "code";
@@ -125,7 +128,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 					// handle the logout redirection 
 					OnRedirectToIdentityProviderForSignOut = (context) =>
 					{
-						var logoutUri = $"https://{configuration["Auth0:Domain"]}/v2/logout?client_id={configuration["Auth0:ClientId"]}";
+						var logoutUri = $"https://{domain}/v2/logout?client_id={authConfiguration.WebSettings.ClientId}";
 
 						var postLogoutUri = context.Properties.RedirectUri;
 						if (!string.IsNullOrEmpty(postLogoutUri))
@@ -154,22 +157,22 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	        return sp.GetService<IOptions<T>>().Value;
         }
 
-        public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
-	        where T : class, IHttpConfiguration, new()
-        {
-	        if (services == null)
-		        throw new ArgumentNullException(nameof(services));
-	        if (name == null)
-		        throw new ArgumentNullException(nameof(name));
+        //public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
+	       // where T : class, IHttpConfiguration, new()
+        //{
+	       // if (services == null)
+		      //  throw new ArgumentNullException(nameof(services));
+	       // if (name == null)
+		      //  throw new ArgumentNullException(nameof(name));
 
-	        IHttpConfiguration options = services.GetConfiguration<T>();
+	       // IHttpConfiguration options = services.GetConfiguration<T>();
 
-	        services.AddHttpClient(name, client =>
-	                               {
-		                               client.BaseAddress = new Uri(options.Host);
-		                               client.Timeout = TimeSpan.FromMinutes(1);
-		                               client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
-	                               }).AddTransientHttpErrorPolicy(options.CircuitBreaker);
-        }
+	       // services.AddHttpClient(name, client =>
+	       //                        {
+		      //                         client.BaseAddress = new Uri(options.Host);
+		      //                         client.Timeout = TimeSpan.FromMinutes(1);
+		      //                         client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
+	       //                        }).AddTransientHttpErrorPolicy(options.CircuitBreaker);
+        //}
     }
 }

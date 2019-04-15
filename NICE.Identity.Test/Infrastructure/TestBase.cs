@@ -34,37 +34,38 @@ namespace NICE.Identity.Test.Infrastructure
 
 		private static (TestServer testServer, HttpClient httpClient) InitialiseServerAndClient(IdentityContext identityContext)
 		{
-			Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory = env =>
-				new ConfigurationBuilder()
-					.SetBasePath(env.ContentRootPath)
-					.AddEnvironmentVariables()
-					.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-					//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
-					.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
+			//Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory = env =>
+			//	new ConfigurationBuilder()
+			//		.SetBasePath(env.ContentRootPath)
+			//		.AddEnvironmentVariables()
+			//		.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+			//		//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
+			//		.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
 
 
-			var startup = new Startup("TestApp", configurationFactory, ConfigureVariantServices);
+			//var startup = new Startup("TestApp", configurationFactory, ConfigureVariantServices);
 
 			var builder = new WebHostBuilder()
 				.UseContentRoot("../../../../NICE.Identity")
 				.ConfigureServices(services =>
 				{
-					services.AddSingleton<IStartup>(startup);
+					//services.AddSingleton<IStartup>(startup);
 					services.TryAddTransient<IdentityContext>(provider => identityContext);
 				})
 				.Configure(app =>
 				{
 					app.UseStaticFiles();
 				})
-				.UseEnvironment("Production");
+				.UseEnvironment("Production")
+				.UseStartup<Startup>();
 			var server = new TestServer(builder);
 			return (testServer: server, httpClient: server.CreateClient());
 		}
 
-		private static IServiceCollection ConfigureVariantServices(IServiceCollection services, IConfigurationRoot configurationRoot)
-		{
-			return services;
-		}
+		//private static IServiceCollection ConfigureVariantServices(IServiceCollection services, IConfigurationRoot configurationRoot)
+		//{
+		//	return services;
+		//}
 
 		protected HttpClient GetClient(IdentityContext identityContext = null)
 		{

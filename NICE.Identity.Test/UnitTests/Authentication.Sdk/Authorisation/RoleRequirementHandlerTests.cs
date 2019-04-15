@@ -30,7 +30,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         public void RequirementMarkedAsSucceededWhenUserHasRole()
         {
             //Arrange
-            const string roleName = PolicyTypes.Administrator;
+            const string roleName = Policies.Web.Administrator;
             const string userId = "auth0|user1234";
 
             var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
@@ -61,7 +61,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         public void RequirementNotMarkedAsSucceededWhenUserDoesNotHaveRole()
         {
             //Arrange
-            const string roleName = PolicyTypes.Administrator;
+            const string roleName = Policies.Web.Administrator;
             const string userId = "auth0|user1234";
 
             var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()

@@ -1,10 +1,10 @@
-﻿{
+{
   "iisSettings": {
-    "windowsAuthentication": false, 
-    "anonymousAuthentication": true, 
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50841",
-      "sslPort": 44301
+      "applicationUrl": "http://local-identity.nice.org.uk",
+      "sslPort": 44300
     }
   },
   "profiles": {
@@ -18,10 +18,10 @@
     "NICE.Identity.TestClient.NETCore": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:44301;http://localhost:3000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:44301;http://localhost:3000"
     }
   }
 }
