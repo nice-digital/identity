@@ -36,9 +36,14 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			string ClientSecret,
 			string RedirectUri,
 			string PostLogoutRedirectUri
-			) WebSettings { get; }
+			) 
+			WebSettings { get; }
 		
-		public (string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
+		public (
+			string ApiIdentifier, 
+			string GrantType
+			) 
+			MachineToMachineSettings { get; }
 	}
 	
 }

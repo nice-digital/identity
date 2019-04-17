@@ -59,18 +59,19 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
    //         services.AddScoped<IAuth0Configuration, AuthConfiguration>();
             //services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
 
-            InstallAuthorisation(services);
+            InstallAuthorisation(services, authConfiguration);
             InstallAuthenticationService(services, authConfiguration);
 
             return services;
         }
 
-        private static void InstallAuthorisation(IServiceCollection services)
-        {
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
-            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+	    private static void InstallAuthorisation(IServiceCollection services, IAuthConfiguration authConfiguration)
+	    {
+		    services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+		    services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+		    services.AddScoped<IAuthConfiguration>(authConfig => authConfiguration);
 
-	        services.AddAuthorization();
+			services.AddAuthorization();
 
 			//services.AddSingleton<Func<string, IAuthorizationPolicyProvider>>((provider) =>
 			//{
