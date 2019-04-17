@@ -51,7 +51,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	    public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
 		    IAuthConfiguration authConfiguration)
         {
-   //         services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
+//   services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
    //         services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
 	  //      services.Configure<AuthConfiguration>(configuration.GetSection("Auth0"));
 			//services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
@@ -90,7 +90,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         private static void InstallAuthenticationService(IServiceCollection services, IAuthConfiguration authConfiguration)
         {
-	        string domain = $"https://{authConfiguration.TenantDomain}/";
+	        string domain = authConfiguration.TenantDomain;
 
 			services.AddScoped<IAuthenticationService, Auth0Service>();
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
