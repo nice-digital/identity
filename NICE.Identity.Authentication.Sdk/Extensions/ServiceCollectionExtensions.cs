@@ -70,8 +70,19 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddScoped<IAuthorisationService, AuthorisationApiService>();
 
-	        services.AddAuthorization(); 
-			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); //policies added here.
+	        services.AddAuthorization();
+
+			//services.AddSingleton<Func<string, IAuthorizationPolicyProvider>>((provider) =>
+			//{
+			// return new Func<string, IAuthorizationPolicyProvider>(
+			//  (connectionString) => new NestedService(connectionString)
+			// );
+			//});
+
+			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); //(policyProvider =>
+			//{
+//				return new AuthorisationPolicyProvider(domain);
+	//		}); //policies added here.
 
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }

@@ -6,12 +6,19 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
+	public class AuthorisationPolicyProviderWrapper
+	{
+
+
+		public AuthorisationPolicyProvider AuthorisationPolicyProvider { get; set; }
+	}
+
 	public class AuthorisationPolicyProvider : DefaultAuthorizationPolicyProvider
 	{
 		private readonly AuthorizationOptions _options;
 		//private readonly IAuth0Configuration _configuration;
 		private string _domain;
-		public AuthorisationPolicyProvider(IOptions<AuthorizationOptions> options, string domain) : base(options)
+		public AuthorisationPolicyProvider(IOptions<AuthorizationOptions> options, string domain = "todo:look this up from config") : base(options)
 		{
 			_options = options.Value;
 			_domain = $"https://{domain}/";
