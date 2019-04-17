@@ -26,7 +26,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             _jobsService = jobsService ?? throw new ArgumentNullException(nameof(jobsService));
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [AllowAnonymous]
         [HttpPost]
         [SwaggerOperation(
             Summary = "Send a 'verify email address' email",
