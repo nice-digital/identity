@@ -13,20 +13,20 @@
 
 //		public string Domain { get; set; }
 //		public string Host => $"https://{Domain}/";
-//		public string Password{ get; set; }
-//		public string UserName{ get; set; }
-//		public int HandledEventsAllowedBeforeBreaking{ get; set; }
-//		public int DurationOfBreakInMinutes{ get; set; }
+//		public string Password { get; set; }
+//		public string UserName { get; set; }
+//		public int HandledEventsAllowedBeforeBreaking { get; set; }
+//		public int DurationOfBreakInMinutes { get; set; }
 
 //		public Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> CircuitBreaker => builder => builder.CircuitBreakerAsync(
-//			HandledEventsAllowedBeforeBreaking,
-//			TimeSpan.FromMinutes(DurationOfBreakInMinutes));
+//			2,
+//			TimeSpan.FromMinutes(2));
 
 //		public AuthenticationHeaderValue AuthenticationHeaderValue => null;
 
 //		public string ClientId { get; set; }
 //		public string GrantType { get; set; }
 //		public string ClientSecret { get; set; }
-//		public string ApiIdentifier{ get; set; }
+//		public string ApiIdentifier { get; set; }
 //	}
 //}

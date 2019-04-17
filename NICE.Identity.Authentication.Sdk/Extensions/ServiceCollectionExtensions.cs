@@ -69,7 +69,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	    {
 		    services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
 		    services.AddScoped<IAuthorisationService, AuthorisationApiService>();
-		    services.AddScoped<IAuthConfiguration>(authConfig => authConfiguration);
+		    services.AddSingleton<IAuthConfiguration>(authConfig => authConfiguration);
 
 			services.AddAuthorization();
 
@@ -163,28 +163,28 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			});
         }
 
-        public static T GetConfiguration<T>(this IServiceCollection collection) where T : class, new()
-        {
-	        var sp = collection.BuildServiceProvider();
-	        return sp.GetService<IOptions<T>>().Value;
-        }
-
-        //public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
-	       // where T : class, IHttpConfiguration, new()
+        //public static T GetConfiguration<T>(this IServiceCollection collection) where T : class, new()
         //{
-	       // if (services == null)
-		      //  throw new ArgumentNullException(nameof(services));
-	       // if (name == null)
-		      //  throw new ArgumentNullException(nameof(name));
-
-	       // IHttpConfiguration options = services.GetConfiguration<T>();
-
-	       // services.AddHttpClient(name, client =>
-	       //                        {
-		      //                         client.BaseAddress = new Uri(options.Host);
-		      //                         client.Timeout = TimeSpan.FromMinutes(1);
-		      //                         client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
-	       //                        }).AddTransientHttpErrorPolicy(options.CircuitBreaker);
+	       // var sp = collection.BuildServiceProvider();
+	       // return sp.GetService<IOptions<T>>().Value;
         //}
-    }
+
+		//public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
+		//	where T : class, IHttpConfiguration, new()
+		//{
+		//	if (services == null)
+		//		throw new ArgumentNullException(nameof(services));
+		//	if (name == null)
+		//		throw new ArgumentNullException(nameof(name));
+
+		//	IHttpConfiguration options = services.GetConfiguration<T>();
+
+		//	services.AddHttpClient(name, client =>
+		//						   {
+		//							   client.BaseAddress = new Uri("https://dev-nice-identity.eu.auth0.com");
+		//							   client.Timeout = TimeSpan.FromMinutes(1);
+		//							   client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
+		//						   }).AddTransientHttpErrorPolicy(options.CircuitBreaker);
+		//}
+	}
 }
