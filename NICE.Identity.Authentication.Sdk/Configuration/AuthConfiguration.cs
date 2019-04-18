@@ -5,7 +5,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	public interface IAuthConfiguration
 	{
 		string TenantDomain { get; }
-		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; }
+		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
 		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
 	}
 
@@ -15,7 +15,12 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	public class AuthConfiguration : IAuthConfiguration
 	{
 		private const string GrantTypeForMachineToMachine = "client_credentials";
-		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
+
+        public AuthConfiguration()
+        {
+        }
+
+        public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
 			TenantDomain = section["Domain"];
@@ -38,7 +43,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			string PostLogoutRedirectUri,
             string AuthorisationServiceUri
 			) 
-			WebSettings { get; }
+			WebSettings { get; set; }
 		
 		public (
 			string ApiIdentifier, 
