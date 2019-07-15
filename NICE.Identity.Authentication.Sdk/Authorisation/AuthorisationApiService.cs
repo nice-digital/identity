@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.External;
 
@@ -17,19 +18,21 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         private const string RoleClaimTypeName = "Role";
 
         private readonly IHttpClientDecorator _httpClient;
+        private readonly IAuthConfiguration _authConfiguration;
         private readonly Uri _baseUrl;
 
-        public AuthorisationApiService(IOptions<AuthorisationServiceConfiguration> configuration,
+        public AuthorisationApiService(IAuthConfiguration authConfiguration,
             IHttpClientDecorator httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _authConfiguration = authConfiguration;
 
-            if (configuration?.Value == null)
+            if (_authConfiguration?.WebSettings.AuthorisationServiceUri == null)
             {
-                throw new ArgumentNullException(nameof(configuration));
+                throw new ArgumentNullException(nameof(_authConfiguration));
             }
 
-            _baseUrl = new Uri(configuration.Value.BaseUrl);
+            _baseUrl = new Uri(_authConfiguration.WebSettings.AuthorisationServiceUri);
         }
 
         public async Task<IEnumerable<Claim>> GetByUserId(string userId)

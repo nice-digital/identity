@@ -5,7 +5,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	public interface IAuthConfiguration
 	{
 		string TenantDomain { get; }
-		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri ) WebSettings { get; }
+		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
 		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
 	}
 
@@ -15,17 +15,22 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	public class AuthConfiguration : IAuthConfiguration
 	{
 		private const string GrantTypeForMachineToMachine = "client_credentials";
-		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
+
+        public AuthConfiguration()
+        {
+        }
+
+        public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
 			TenantDomain = section["Domain"];
-			WebSettings = (section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"]);
+			WebSettings = (section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"]);
 			MachineToMachineSettings = (section["ApiIdentifier"], GrantTypeForMachineToMachine);
 		}
-		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string grantType = GrantTypeForMachineToMachine)
+		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = GrantTypeForMachineToMachine)
 		{
 			TenantDomain = tenantDomain;
-			WebSettings = (clientId, clientSecret, redirectUri, postLogoutRedirectUri);
+			WebSettings = (clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri);
 			MachineToMachineSettings = (apiIdentifier, GrantTypeForMachineToMachine);
 		}
 
@@ -35,9 +40,10 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			string ClientId, 
 			string ClientSecret,
 			string RedirectUri,
-			string PostLogoutRedirectUri
+			string PostLogoutRedirectUri,
+            string AuthorisationServiceUri
 			) 
-			WebSettings { get; }
+			WebSettings { get; set; }
 		
 		public (
 			string ApiIdentifier, 
