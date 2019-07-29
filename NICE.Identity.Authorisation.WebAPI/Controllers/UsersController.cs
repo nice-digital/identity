@@ -26,7 +26,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// POST api/users
 		//[AuthoriseWithApiKey]
-	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "administration")]
+	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //, Policy = "administration")]
 		[HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateUser user)
         {
