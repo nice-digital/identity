@@ -7,6 +7,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		string TenantDomain { get; }
 		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
 		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
+		string GrantTypeForMachineToMachine { get; }
 	}
 
 	/// <summary>
@@ -14,12 +15,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	/// </summary>
 	public class AuthConfiguration : IAuthConfiguration
 	{
-		private const string GrantTypeForMachineToMachine = "client_credentials";
-
-        public AuthConfiguration()
-        {
-        }
-
         public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
@@ -27,11 +22,11 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			WebSettings = (section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"]);
 			MachineToMachineSettings = (section["ApiIdentifier"], GrantTypeForMachineToMachine);
 		}
-		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = GrantTypeForMachineToMachine)
+		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = null)
 		{
 			TenantDomain = tenantDomain;
 			WebSettings = (clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri);
-			MachineToMachineSettings = (apiIdentifier, GrantTypeForMachineToMachine);
+			MachineToMachineSettings = (apiIdentifier, grantType ?? GrantTypeForMachineToMachine);
 		}
 
 		public string TenantDomain { get; }
@@ -50,6 +45,8 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			string GrantType
 			) 
 			MachineToMachineSettings { get; }
+
+		public string GrantTypeForMachineToMachine => "client_credentials";
 	}
 	
 }

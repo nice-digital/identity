@@ -12,6 +12,7 @@ using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
+//using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -105,6 +106,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			{
 				options.Authority = domain;
 				options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
+				options.RequireHttpsMetadata = false; //TODO: this should be for dev only.
 			}).AddOpenIdConnect("Auth0", options => 
 			{
 				// Set the authority to your Auth0 domain
