@@ -34,6 +34,7 @@ namespace NICE.Identity.TestClient.NETFramework
 			{
 				IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
 				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString())
+                Password = secretsFile.SelectToken("RedisServiceConfiguration")["Password"].ToString()
 			};
 
 			app.AddAuthentication("DefaultApp", authConfiguration, redisConfig);

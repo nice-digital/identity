@@ -6,6 +6,10 @@
 
         public int Port { get; set; }
 
-        public string ConnectionString => $"{IpConfig}:{Port}";
+
+        public string Password { get; set; }
+
+        public string ConnectionString => $"{IpConfig}:{Port},password={Password}";
+
     }
 }
