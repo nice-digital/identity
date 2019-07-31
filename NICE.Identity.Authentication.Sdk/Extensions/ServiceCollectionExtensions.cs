@@ -12,7 +12,6 @@ using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
-//using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -52,14 +51,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	    public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
 		    IAuthConfiguration authConfiguration)
         {
-//   services.Configure<AuthorisationServiceConfiguration>(configuration.GetSection(authorisationServiceConfigurationPath));
-   //         services.Configure<Auth0ServiceConfiguration>(configuration.GetSection("Auth0"));
-	  //      services.Configure<AuthConfiguration>(configuration.GetSection("Auth0"));
-			//services.AddSingleton<IHttpConfiguration, Auth0ServiceConfiguration>();
-   //         services.AddScoped<IAuthenticationService, Auth0Service>();
-   //         services.AddScoped<IAuth0Configuration, AuthConfiguration>();
-            //services.AddHttpClientWithHttpConfiguration<Auth0ServiceConfiguration>("Auth0ServiceApiClient");
-
             InstallAuthorisation(services, authConfiguration);
             InstallAuthenticationService(services, authConfiguration);
 
@@ -74,17 +65,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 			services.AddAuthorization();
 
-			//services.AddSingleton<Func<string, IAuthorizationPolicyProvider>>((provider) =>
-			//{
-			// return new Func<string, IAuthorizationPolicyProvider>(
-			//  (connectionString) => new NestedService(connectionString)
-			// );
-			//});
-
-			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); //(policyProvider =>
-			//{
-//				return new AuthorisationPolicyProvider(domain);
-	//		}); //policies added here.
+			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); 
 
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
@@ -164,29 +145,5 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 				};
 			});
         }
-
-        //public static T GetConfiguration<T>(this IServiceCollection collection) where T : class, new()
-        //{
-	       // var sp = collection.BuildServiceProvider();
-	       // return sp.GetService<IOptions<T>>().Value;
-        //}
-
-		//public static void AddHttpClientWithHttpConfiguration<T>(this IServiceCollection services, string name)
-		//	where T : class, IHttpConfiguration, new()
-		//{
-		//	if (services == null)
-		//		throw new ArgumentNullException(nameof(services));
-		//	if (name == null)
-		//		throw new ArgumentNullException(nameof(name));
-
-		//	IHttpConfiguration options = services.GetConfiguration<T>();
-
-		//	services.AddHttpClient(name, client =>
-		//						   {
-		//							   client.BaseAddress = new Uri("https://dev-nice-identity.eu.auth0.com");
-		//							   client.Timeout = TimeSpan.FromMinutes(1);
-		//							   client.DefaultRequestHeaders.Authorization = options.AuthenticationHeaderValue;
-		//						   }).AddTransientHttpErrorPolicy(options.CircuitBreaker);
-		//}
-	}
+    }
 }

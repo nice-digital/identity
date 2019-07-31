@@ -10,7 +10,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		string TenantDomain { get; }
 		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
 		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
-		//string GrantTypeForMachineToMachine { get; }
 		StringContent GetTokenRequest { get; }
 	}
 
