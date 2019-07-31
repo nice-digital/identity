@@ -33,7 +33,7 @@ namespace NICE.Identity.TestClient.NETFramework
 			var redisConfig = new RedisConfiguration
 			{
 				IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
-				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString())
+				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString()),
                 Password = secretsFile.SelectToken("RedisServiceConfiguration")["Password"].ToString()
 			};
 
