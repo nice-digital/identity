@@ -7,6 +7,6 @@ namespace NICE.Identity.Authentication.Sdk.Abstractions
 	{
 	    Task Login(HttpContext context, string returnUrl = "/");
 	    Task Logout(HttpContext context, string returnUrl = "/");
-		Task<JwtToken> GetToken();
+		//Task<JwtToken> GetToken();
 	}
 }

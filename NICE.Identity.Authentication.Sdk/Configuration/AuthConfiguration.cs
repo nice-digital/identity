@@ -1,13 +1,65 @@
-﻿namespace NICE.Identity.Authentication.Sdk.Configuration
+﻿using System.Net.Http;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+
+namespace NICE.Identity.Authentication.Sdk.Configuration
 {
-	public class AuthConfiguration : IAuth0Configuration
+	public interface IAuthConfiguration
 	{
-		public string Domain { get; set; }
-		public string ClientId { get; set; }
-		public string GrantType { get; set; }
-		public string ClientSecret { get; set; }
-		public string ApiIdentifier { get; set; }
-		public string RedirectUri { get; set; }
-		public string PostLogoutRedirectUri { get; set; }
+		string TenantDomain { get; }
+		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
+		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
+		StringContent GetTokenRequest { get; }
 	}
+
+	/// <summary>
+	/// This is the master class for auth configuration. don't put any anywhere else.
+	/// </summary>
+	public class AuthConfiguration : IAuthConfiguration
+	{
+        public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
+		{
+			var section = configuration.GetSection(appSettingsSectionName);
+			TenantDomain = section["Domain"];
+			WebSettings = (section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"]);
+			MachineToMachineSettings = (section["ApiIdentifier"], GrantTypeForMachineToMachine);
+		}
+		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = null)
+		{
+			TenantDomain = tenantDomain;
+			WebSettings = (clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri);
+			MachineToMachineSettings = (apiIdentifier, grantType ?? GrantTypeForMachineToMachine);
+		}
+
+		public string TenantDomain { get; }
+
+		public (
+			string ClientId, 
+			string ClientSecret,
+			string RedirectUri,
+			string PostLogoutRedirectUri,
+            string AuthorisationServiceUri
+			) 
+			WebSettings { get; set; }
+		
+		public (
+			string ApiIdentifier, 
+			string GrantType
+			) 
+			MachineToMachineSettings { get; }
+
+		private const string GrantTypeForMachineToMachine = "client_credentials";
+
+		public StringContent GetTokenRequest => new StringContent(JsonConvert.SerializeObject(new
+			{
+				grant_type = GrantTypeForMachineToMachine,
+				client_id = WebSettings.ClientId,
+				client_secret = WebSettings.ClientSecret,
+				audience = MachineToMachineSettings.ApiIdentifier
+			}),
+		  Encoding.UTF8,
+		  "application/json");
+	}
+
 }

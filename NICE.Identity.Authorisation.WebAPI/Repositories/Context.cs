@@ -21,7 +21,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public void AddOrUpdateUser(User newUserOrUserToUpdate)
         {
-	        var foundUserWithMatchingEmail = Users.FirstOrDefault(u => u.EmailAddress.Equals(newUserOrUserToUpdate.EmailAddress));
+	        var foundUserWithMatchingEmail = Users.FirstOrDefault(u => u.EmailAddress.Equals(newUserOrUserToUpdate.EmailAddress, StringComparison.OrdinalIgnoreCase));
 	        if (foundUserWithMatchingEmail  == null) //new user
 	        {
 		        Users.Add(newUserOrUserToUpdate);

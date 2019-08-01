@@ -7,5 +7,7 @@
         public int Port { get; set; }
 
         public string ConnectionString => $"{IpConfig}:{Port}";
+
+		public bool Enabled { get; set; }
     }
 }

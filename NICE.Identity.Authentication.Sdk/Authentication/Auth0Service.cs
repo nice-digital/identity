@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,20 +9,20 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Configuration;
+using NICE.Identity.Authentication.Sdk.External;
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {
 	public class Auth0Service : Abstractions.IAuthenticationService
 	{
-	    private const string AuthenticationScheme = "Auth0";
+		private readonly IAuthConfiguration _authConfiguration;
+		private const string AuthenticationScheme = "Auth0";
 		private readonly HttpClient _client;
-		private readonly IAuth0Configuration _auth0Configuraton;
 
-
-		public Auth0Service(IHttpClientFactory client, IAuth0Configuration auth0Configration)
+		public Auth0Service(IHttpClientFactory client, IAuthConfiguration authConfiguration)
 		{
+			_authConfiguration = authConfiguration;
 			_client = client.CreateClient("Auth0ServiceApiClient");
-			_auth0Configuraton = auth0Configration;
 		}
 		public async Task Login(HttpContext context, string returnUrl = "/")
 		{
@@ -41,25 +42,27 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 			await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 		}
 
-		public async Task<JwtToken> GetToken()
-		{
-			var request = new
-			{
-				grant_type = _auth0Configuraton.GrantType,
-				client_id = _auth0Configuraton.ClientId,
-				client_secret = _auth0Configuraton.ClientSecret,
-				audience = _auth0Configuraton.ApiIdentifier
-			};
+		//public async Task<JwtToken> GetToken()
+		//{
+		//	var request = new
+		//	{
+		//		grant_type = _authConfiguration.GrantTypeForMachineToMachine,
+		//		client_id = _authConfiguration.WebSettings.ClientId,
+		//		client_secret = _authConfiguration.WebSettings.ClientSecret,
+		//		audience = _authConfiguration.MachineToMachineSettings.ApiIdentifier,
+		//		//redirect_uri = _authConfiguration.WebSettings.PostLogoutRedirectUri,
+		//	};
+		//	_client.BaseAddress = new Uri("todo");
 
-			var httpResponseMessageresponse = await _client.PostAsync("oauth/token", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-			if (httpResponseMessageresponse.StatusCode != HttpStatusCode.OK)
-			{
-				throw new HttpRequestException("An Error Occured");
-			}
+		//	var httpResponseMessageResponse = await _client.PostAsync("oauth/token", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+		//	if (httpResponseMessageResponse.StatusCode != HttpStatusCode.OK)
+		//	{
+		//		throw new HttpRequestException("An Error Occured");
+		//	}
 
-			var token = await httpResponseMessageresponse.Content.ReadAsAsync<JwtToken>();
+		//	var token = await httpResponseMessageResponse.Content.ReadAsAsync<JwtToken>();
 
-			return token;
-		}
+		//	return token;
+		//}
 	}
 }

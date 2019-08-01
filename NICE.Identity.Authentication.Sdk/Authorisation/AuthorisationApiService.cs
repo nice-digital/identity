@@ -1,38 +1,43 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.Authentication.Sdk.Configuration;
+using NICE.Identity.Authentication.Sdk.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using NICE.Identity.Authentication.Sdk.Abstractions;
-using NICE.Identity.Authentication.Sdk.Domain;
+using Microsoft.IdentityModel.Tokens;
 using NICE.Identity.Authentication.Sdk.External;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
-    public class AuthorisationApiService : IAuthorisationService
+	public class AuthorisationApiService : IAuthorisationService
     {
         private const string RoleClaimTypeName = "Role";
 
         private readonly IHttpClientDecorator _httpClient;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthConfiguration _authConfiguration;
         private readonly Uri _baseUrl;
 
-        public AuthorisationApiService(IOptions<AuthorisationServiceConfiguration> configuration,
-            IHttpClientDecorator httpClient)
-        {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+		public AuthorisationApiService(IAuthConfiguration authConfiguration, IAuthenticationService authenticationService, IHttpClientDecorator httpClient)
+		{
+			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+			_authenticationService = authenticationService;
+            _authConfiguration = authConfiguration;
 
-            if (configuration?.Value == null)
+            if (_authConfiguration?.WebSettings.AuthorisationServiceUri == null)
             {
-                throw new ArgumentNullException(nameof(configuration));
+                throw new ArgumentNullException(nameof(_authConfiguration));
             }
 
-            _baseUrl = new Uri(configuration.Value.BaseUrl);
+            _baseUrl = new Uri(_authConfiguration.WebSettings.AuthorisationServiceUri);
         }
 
-        public async Task<IEnumerable<Claim>> GetByUserId(string userId)
+		public async Task<IEnumerable<Claim>> GetByUserId(string userId)
         {
             IEnumerable<Claim> claims;
 
@@ -40,7 +45,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
             try
             {
-                var response = await _httpClient.GetStringAsync(uri);
+				var response = await _httpClient.GetStringAsync(uri);
                 claims = JsonConvert.DeserializeObject<Claim[]>(response);
             }
             catch (Exception e)
@@ -75,7 +80,9 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
             try
             {
-
+	            //var token = await _authenticationService.GetToken();
+	            //_httpClient.AddBearerToken(token); //TODO: potentially move this?
+				
 				var response = await _httpClient.GetStringAsync(uri);
                 claims = JsonConvert.DeserializeObject<Claim[]>(response);
             }

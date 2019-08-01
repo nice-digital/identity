@@ -1,91 +1,85 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk;
-using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.Authentication.Sdk.External;
+using NICE.Identity.Authentication.Sdk.Configuration;
+//using NICE.Identity.Authentication.Sdk.External;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
+using System;
+using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.External;
 using Xunit;
-using Claim = System.Security.Claims.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {
-    public class AuthorisationApiServiceTests : TestBase
-    {
-        private const string BaseUrl = "https://someurl.com";
+	public class AuthorisationApiServiceTests : TestBase
+	{
+		private const string AuthorisationServiceUri = "https://someurl.com";
 
-        private readonly Mock<IHttpClientDecorator> _httpClientMock;
-        private readonly AuthorisationApiService _sut;
+		private readonly Mock<IHttpClientDecorator> _httpClientMock;
+		private readonly AuthorisationApiService _sut;
 
-        public AuthorisationApiServiceTests()
-        {
-            var config = new AuthorisationServiceConfiguration()
-            {
-                BaseUrl = BaseUrl
-            };
+		public AuthorisationApiServiceTests()
+		{
+			var config = new AuthConfiguration("", "", "", "", "", "", AuthorisationServiceUri);
 
-            var configOptionsMock = new Mock<IOptions<AuthorisationServiceConfiguration>>();
-            configOptionsMock.Setup(x => x.Value).Returns(config);
+			var configOptionsMock = new Mock<IAuthConfiguration>();
+			configOptionsMock
+				.Setup(x => x.WebSettings)
+				.Returns(config.WebSettings);
 
-            _httpClientMock = new Mock<IHttpClientDecorator>();
-            
-            _sut = new AuthorisationApiService(configOptionsMock.Object, _httpClientMock.Object);
-        }
+			_httpClientMock = new Mock<IHttpClientDecorator>();
 
-        [Fact]
-        public async Task ReturnsTrueWhenUserHasAtLeastOneMatchingRole()
-        {
-            //Arrange
-            string[] requiredRoles = { PolicyTypes.Administrator, PolicyTypes.Editor };
-            string userId = "auth0|user1234";
-            string url = $"{BaseUrl}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
+			_sut = new AuthorisationApiService(configOptionsMock.Object, null, _httpClientMock.Object);
+		}
 
-            var userRoles = new[]
-            {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Administrator),
-                new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
-            };
+		[Fact]
+		public async Task ReturnsTrueWhenUserHasAtLeastOneMatchingRole()
+		{
+			//Arrange
+			string[] requiredRoles = { Policies.Web.Administrator, Policies.Web.Editor };
+			string userId = "auth0|user1234";
+			string url = $"{AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
-            var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
-            _httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
-            
-            //Act
-            var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+			var userRoles = new[]
+			{
+				new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Administrator),
+				new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+			};
 
-            //Assert
-            result.ShouldBeTrue();
-        }
+			var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
+			_httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
 
-        [Fact]
-        public async Task ReturnsFalseWhenUserHasNoMatchingRole()
-        {
-            //Arrange
-            string[] requiredRoles = { PolicyTypes.Administrator, "SomeRole1" };
-            string userId = "auth0|user1234";
-            string url = $"{BaseUrl}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
+			//Act
+			var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
 
-            var userRoles = new[]
-            {
-                new Identity.Authentication.Sdk.Domain.Claim("Role", PolicyTypes.Editor),
-                new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
-            };
+			//Assert
+			result.ShouldBeTrue();
+		}
 
-            var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
-            _httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
+		[Fact]
+		public async Task ReturnsFalseWhenUserHasNoMatchingRole()
+		{
+			//Arrange
+			string[] requiredRoles = { Policies.Web.Administrator, "SomeRole1" };
+			string userId = "auth0|user1234";
+			string url = $"{AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
-            //Act
-            var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+			var userRoles = new[]
+			{
+				new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Editor),
+				new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+			};
 
-            //Assert
-            result.ShouldBeFalse();
-        }
-    }
+			var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
+			_httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
+
+			//Act
+			var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+
+			//Assert
+			result.ShouldBeFalse();
+		}
+	}
 }

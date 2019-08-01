@@ -13,6 +13,7 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 			return View();
 		}
 
+		[Authorize]
 		public IActionResult About()
 		{
 			ViewData["Message"] = "Your application description page.";
@@ -20,7 +21,7 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 			return View();
 		}
 
-		[Authorize(Policy = PolicyTypes.Editor)]
+		[Authorize(Policy = Policies.Web.Editor)]
 		public IActionResult Contact()
 		{
 			ViewData["Message"] = "Your contact page.";
@@ -29,7 +30,7 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 		}
 
 		//[Authorize(Roles = "Administrator,EditorSpecial")]
-		//[Authorize(Policy = PolicyTypes.Administrator)]
+		[Authorize(Policy = Policies.Web.Administrator)]
 		public IActionResult Privacy()
 		{
 			return View();
