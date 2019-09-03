@@ -43,7 +43,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 try
                 {
                     var sendVerificationEmail = await managementApiClient.Jobs
-                        .SendVerificationEmailAsync(new VerifyEmailJobRequest {UserId = authenticationProviderUserId});
+                        .SendVerificationEmailAsync(new VerifyEmailJobRequest {
+                            UserId = authenticationProviderUserId
+                        });
 
                     return sendVerificationEmail;
                 }

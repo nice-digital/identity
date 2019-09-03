@@ -12,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
         public static ManagementAPIConfig ManagementAPI { get; private set; }
         public static void Configure(IServiceCollection services, IConfiguration configuration)
          {
-             services.Configure<ManagementAPIConfig>(configuration.GetSection("Auth0Management"));
+             services.Configure<ManagementAPIConfig>(configuration.GetSection("Auth0ManagementApiConfiguration"));
              var sp = services.BuildServiceProvider();
              ManagementAPI = sp.GetService<IOptions<ManagementAPIConfig>>().Value;
          }
