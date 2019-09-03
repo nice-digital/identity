@@ -31,9 +31,7 @@
             <div class="navbar-collapse collapse">
 	            <ul class="nav navbar-nav">
 		            <li><a asp-area="" asp-controller="Home" asp-action="Index">Home (unsecured)</a></li>
-		            <li><a asp-area="" asp-controller="Home" asp-action="About">About (authorize attribute)</a></li>
-		            <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact (requires editor permission)</a></li>
-		            <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy (requires administrator permission)</a></li>
+		            <li><a asp-area="" asp-controller="Home" asp-action="UserProfile">User Profile (authenticated)</a></li>
 	            </ul>
 	            <ul class="nav navbar-nav navbar-right">
 		            @if (User.Identity.IsAuthenticated)

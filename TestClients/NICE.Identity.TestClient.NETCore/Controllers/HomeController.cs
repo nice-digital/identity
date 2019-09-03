@@ -14,25 +14,10 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 		}
 
 		[Authorize]
-		public IActionResult About()
+		public IActionResult UserProfile()
 		{
 			ViewData["Message"] = "Your application description page.";
 
-			return View();
-		}
-
-		[Authorize(Policy = Policies.Web.Editor)]
-		public IActionResult Contact()
-		{
-			ViewData["Message"] = "Your contact page.";
-
-			return View();
-		}
-
-		//[Authorize(Roles = "Administrator,EditorSpecial")]
-		[Authorize(Policy = Policies.Web.Administrator)]
-		public IActionResult Privacy()
-		{
 			return View();
 		}
 

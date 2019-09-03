@@ -21,7 +21,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://local-identity.nice.org.uk"
+      "applicationUrl": "https://local-identity.nice.org.uk:44300"
     }
   }
 }
