@@ -46,7 +46,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-			services.AddAuthenticationSdk(new AuthConfiguration(Configuration, "AuthConfiguration"));
+			services.AddAuthenticationSdk(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
 			services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
 
 			services.AddSwaggerGen(c =>	
