@@ -85,7 +85,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			}).AddCookie()
 			.AddJwtBearer(options =>
 			{
-				options.Authority = domain;
+				options.Authority = $"https://{domain}";
 				options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
 				options.RequireHttpsMetadata = false; //TODO: this should be for dev only.
 			}).AddOpenIdConnect("Auth0", options => 
