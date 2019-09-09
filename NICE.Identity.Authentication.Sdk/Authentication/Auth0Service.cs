@@ -41,28 +41,5 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 
 			await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 		}
-
-		//public async Task<JwtToken> GetToken()
-		//{
-		//	var request = new
-		//	{
-		//		grant_type = _authConfiguration.GrantTypeForMachineToMachine,
-		//		client_id = _authConfiguration.WebSettings.ClientId,
-		//		client_secret = _authConfiguration.WebSettings.ClientSecret,
-		//		audience = _authConfiguration.MachineToMachineSettings.ApiIdentifier,
-		//		//redirect_uri = _authConfiguration.WebSettings.PostLogoutRedirectUri,
-		//	};
-		//	_client.BaseAddress = new Uri("todo");
-
-		//	var httpResponseMessageResponse = await _client.PostAsync("oauth/token", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-		//	if (httpResponseMessageResponse.StatusCode != HttpStatusCode.OK)
-		//	{
-		//		throw new HttpRequestException("An Error Occured");
-		//	}
-
-		//	var token = await httpResponseMessageResponse.Content.ReadAsAsync<JwtToken>();
-
-		//	return token;
-		//}
-	}
+    }
 }

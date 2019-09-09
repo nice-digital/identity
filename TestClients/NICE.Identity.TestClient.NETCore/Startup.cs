@@ -1,12 +1,10 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 
@@ -28,7 +26,7 @@ namespace NICE.Identity.TestClient.NetCore
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-			services.AddAuthenticationSdk(new AuthConfiguration(Configuration, "AuthConfiguration"));
+			services.AddAuthentication(new AuthConfiguration(Configuration, "WebAppConfiguration"));
 			services.AddRedisCacheSDK(Configuration, "RedisServiceConfiguration", "todo:somestringforredis");
 		}
 
@@ -42,7 +40,6 @@ namespace NICE.Identity.TestClient.NetCore
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
 

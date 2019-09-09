@@ -1,11 +1,14 @@
 ﻿@{
     ViewData["Title"] = "User Profile";
 }
-    <p>
-        <ul>
-            @foreach (var claim in User.Claims)
+<h2>User Profile</h2>
+<p>This page can only be accessed if the user is authenticated.</p>
+<h3>User Claims</h3>
+<p>
+    <ul>
+        @foreach (var claim in User.Claims)
         {
             <li>@claim.Type - @claim.Value</li>
         }
-        </ul>
-    </p>
+    </ul>
+</p>

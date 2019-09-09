@@ -48,48 +48,57 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             return services;
 	    }
 
-	    public static IServiceCollection AddAuthenticationSdk(this IServiceCollection services,
+	    public static IServiceCollection AddAuthentication(this IServiceCollection services,
 		    IAuthConfiguration authConfiguration)
         {
-            InstallAuthorisation(services, authConfiguration);
             InstallAuthenticationService(services, authConfiguration);
-
+            return services;
+        }
+        
+        public static IServiceCollection AddAuthorisation(this IServiceCollection services,
+            IAuthConfiguration authConfiguration)
+        {
+            InstallAuthorisation(services, authConfiguration);
             return services;
         }
 
-	    private static void InstallAuthorisation(IServiceCollection services, IAuthConfiguration authConfiguration)
-	    {
-		    services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
-		    services.AddScoped<IAuthorisationService, AuthorisationApiService>();
-		    services.AddSingleton<IAuthConfiguration>(authConfig => authConfiguration);
+        private static void InstallAuthorisation(IServiceCollection services, IAuthConfiguration authConfiguration)
+        {
+            // TODO: refactor HttpClientDecorator an rename authConfiguration
+            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+            services.AddSingleton<IAuthConfiguration>(authConfig => authConfiguration);
 
-			services.AddAuthorization();
+            services.AddAuthorization();
 
-			services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); 
+            services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>(); 
 
-			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+            services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
 
         private static void InstallAuthenticationService(IServiceCollection services, IAuthConfiguration authConfiguration)
         {
-	        string domain = authConfiguration.TenantDomain;
+            string domain = authConfiguration.TenantDomain;
 
-			services.AddScoped<IAuthenticationService, Auth0Service>();
+            // TODO: refactor HttpClientDecorator an rename authConfiguration
+            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
+            services.AddSingleton<IAuthConfiguration>(authConfig => authConfiguration);
+            
+            services.AddScoped<IAuthenticationService, Auth0Service>();
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
             // Add authentication services
             services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-			}).AddCookie()
-			.AddJwtBearer(options =>
-			{
-				options.Authority = $"https://{domain}";
-				options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
-				options.RequireHttpsMetadata = false; //TODO: this should be for dev only.
-			}).AddOpenIdConnect("Auth0", options => 
-			{
+				options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
+            .AddCookie()
+//			.AddJwtBearer(options => {
+//				options.Authority = $"https://{domain}";
+//				options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
+//				options.RequireHttpsMetadata = false; //TODO: this should be for dev only.
+//			})
+            .AddOpenIdConnect("Auth0", options => {
 				// Set the authority to your Auth0 domain
 				options.Authority = $"https://{domain}";
 
