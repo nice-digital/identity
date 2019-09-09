@@ -17,7 +17,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
+		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
             // Enable Kentor Cookie Saver middleware
             app.UseKentorOwinCookieSaver();

@@ -13,6 +13,7 @@ using System;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
+using Microsoft.IdentityModel.Logging;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -41,11 +42,12 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.TryAddSingleton<ISeriLogger, SeriLogger>();
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<IJobsService, JobsService>();
 
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-			services.AddAuthenticationSdk(new AuthConfiguration(Configuration, "AuthConfiguration"));
+			services.AddAuthentication(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
+            services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
 			services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
 
 			services.AddSwaggerGen(c =>	
@@ -57,7 +59,9 @@ namespace NICE.Identity.Authorisation.WebAPI
 			{	
 				c.CustomSchemaIds(x => x.FullName);	
 			});
-		}
+
+            IdentityModelEventSource.ShowPII = true;
+        }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)

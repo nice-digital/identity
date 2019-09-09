@@ -20,49 +20,32 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">NICE.Identity.TestClient.NETCore</a>
             </div>
             <div class="navbar-collapse collapse">
-	            <ul class="nav navbar-nav">
-		            <li><a asp-area="" asp-controller="Home" asp-action="Index">Home (unsecured)</a></li>
-		            <li><a asp-area="" asp-controller="Home" asp-action="About">About (authorize attribute)</a></li>
-		            <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact (requires editor permission)</a></li>
-		            <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy (requires administrator permission)</a></li>
-	            </ul>
-	            <ul class="nav navbar-nav navbar-right">
-		            @if (User.Identity.IsAuthenticated)
-		            {
-			            <li>@*<a  asp-controller="Account" asp-action="Logout">Logout</a>*@
-			            
-			        <a href="/account/logout">Logout</a>    
-					</li>
-		            }
-		            else
-		            {
-						<li>
-							<a href="/account/login">Login</a>
-
-							@*<a asp-controller="Account" asp-action="Login">Login</a>*@
-						</li>
-		            }
-	            </ul>
+                <ul class="nav navbar-nav">
+                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home (unsecured)</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="UserProfile">User Profile (authenticated)</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li><a  asp-controller="Account" asp-action="Logout">Logout</a></li>
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="Login">Login</a></li>
+                    }
+                </ul>
             </div>
         </div>
     </nav>
-
-    <partial name="_CookieConsentPartial" />
 
     <div class="container body-content">
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2019 - NICE.Identity.TestClient.NETCore</p>
+            <p>NICE.Identity.TestClient.NETCore</p>
         </footer>
     </div>
 

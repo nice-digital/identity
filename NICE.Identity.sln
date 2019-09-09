@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2016
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
 EndProject
@@ -16,13 +16,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authorisation.WebAPI", "NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj", "{B90B1505-E44F-40E7-BDE6-882A2F1E653A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authentication.Sdk", "NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj", "{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth0Hooks", "Auth0Hooks", "{5A982A7F-78E5-405C-BAFE-86E3D9F9616A}"
-	ProjectSection(SolutionItems) = preProject
-		PostUserRegistration.js = PostUserRegistration.js
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{F799E16E-96DF-4385-BC0D-885533D9E437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
