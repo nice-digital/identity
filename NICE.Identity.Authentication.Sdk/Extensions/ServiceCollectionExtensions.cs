@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
@@ -72,6 +73,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 // Configure the scope
                 options.Scope.Clear();
                 options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "name"
+                };
                 // Set the callback path, so Auth0 will call back to http://URI/signin-auth0
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
                 options.CallbackPath = new PathString("/signin-auth0");
