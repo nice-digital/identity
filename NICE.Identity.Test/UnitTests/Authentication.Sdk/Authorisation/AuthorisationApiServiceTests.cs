@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
-//using NICE.Identity.Authentication.Sdk.External;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
@@ -31,7 +30,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 
 			_httpClientMock = new Mock<IHttpClientDecorator>();
 
-			_sut = new AuthorisationApiService(configOptionsMock.Object, null, _httpClientMock.Object);
+			_sut = new AuthorisationApiService(configOptionsMock.Object, _httpClientMock.Object);
 		}
 
 		[Fact]

@@ -1,4 +1,4 @@
-﻿namespace NICE.Identity.Authentication.Sdk.Redis
+﻿namespace NICE.Identity.Authentication.Sdk.SessionStore
 {
     internal class RedisAuthenticationTicket
     {

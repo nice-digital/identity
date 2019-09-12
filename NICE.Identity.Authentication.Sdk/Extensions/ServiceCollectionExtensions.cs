@@ -1,54 +1,55 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NICE.Identity.Authentication.Sdk.Abstractions;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
+using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
-	public static class ServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
-	    public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
-	                                                          IConfiguration configuration,
-	                                                          string redisCacheServiceConfigurationPath,
-	                                                          string clientName)
-	    {
-			services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
-		    var serviceProvider = services.BuildServiceProvider();
+        public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
+                                                              IConfiguration configuration,
+                                                              string redisCacheServiceConfigurationPath,
+                                                              string clientName)
+        {
+            services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
+            var serviceProvider = services.BuildServiceProvider();
             var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
 
             if (redisConfiguration.Enabled)
             {
-	            var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
+                var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
 
-	            services.AddDataProtection()
-		            .SetApplicationName(clientName)
-		            .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
+                services.AddDataProtection()
+                    .SetApplicationName(clientName)
+                    .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
 
-	            services.AddSession(options =>
-	            {
-		            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-		            options.Cookie.Name = $"{clientName}.Session";
-		            options.Cookie.HttpOnly = true;
-		            options.IdleTimeout = TimeSpan.FromMinutes(10);
-	            });
+                services.AddSession(options =>
+                {
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.Name = $"{clientName}.Session";
+                    options.Cookie.HttpOnly = true;
+                    options.IdleTimeout = TimeSpan.FromMinutes(10);
+                });
             }
 
             return services;
-	    }
+        }
 
         public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration)
         {
@@ -117,10 +118,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration)
         {
-            // TODO: refactor HttpClientDecorator an rename authConfiguration
+            // TODO: refactor HttpClientDecorator and rename authConfiguration
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
-            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
-            services.AddSingleton(authConfig => authConfiguration);
+            services.TryAddSingleton(authConfig => authConfiguration);
 
             services.AddAuthentication()
                 .AddJwtBearer(options =>
@@ -128,9 +128,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.Authority = $"https://{authConfiguration.TenantDomain}";
                     options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
                 });
-            services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
-            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+            services.AddAuthorization();
+
+            services.AddScoped<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
+            services.AddScoped<IAuthorisationService, AuthorisationApiService>();
+
             services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+            services.AddScoped<IAuthorizationHandler, ScopeRequirementHandler>();
         }
     }
 }

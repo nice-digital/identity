@@ -16,10 +16,16 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 		[Authorize]
 		public IActionResult UserProfile()
 		{
-			ViewData["Message"] = "Your application description page.";
-
 			return View();
 		}
+        
+        [Authorize(Policy = Policies.Web.Editor)]
+        public IActionResult UserProfileScoped()
+        {
+            ViewData["Message"] = "Your application description page.";
+
+            return View();
+        }
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()

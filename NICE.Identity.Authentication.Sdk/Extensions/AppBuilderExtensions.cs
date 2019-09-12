@@ -10,7 +10,7 @@ using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.OpenIdConnect;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.Redis;
+using NICE.Identity.Authentication.Sdk.SessionStore;
 using Owin;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
@@ -27,7 +27,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             var options = new CookieAuthenticationOptions
             {
 	            AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
-	            SessionStore = new NiceRedisSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+	            SessionStore = new RedisOwinSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
 	            CookieHttpOnly = true,
 	            CookieSecure = CookieSecureOption.Always,
 	            LoginPath = new PathString("/Account/Login")
