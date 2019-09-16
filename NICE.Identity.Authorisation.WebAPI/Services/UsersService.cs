@@ -16,6 +16,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		void CreateOrUpdateUser(CreateUser user);
 	    List<UserInList> GetUsers();
 	    void DeleteUser(int userId);
+        User GetUser(int userId);
     }
 
 	public class UsersService : IUsersService
@@ -55,7 +56,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		    _context.DeleteUser(userId);
 	    }
 
-	    private DataModels.User MapUserToDomainModel(CreateUser user)
+        public User GetUser(int userId)
+        {
+            return _context.Users.Where((user => user.UserId == userId)).FirstOrDefault();
+        }
+
+        private DataModels.User MapUserToDomainModel(CreateUser user)
         {           
             var userEntity = new User
             {

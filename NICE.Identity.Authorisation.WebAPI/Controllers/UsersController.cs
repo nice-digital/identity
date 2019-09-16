@@ -78,6 +78,27 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			    return StatusCode(500, error);
 		    }
 	    }
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]
+        [Route("/api/Users/{userId}")]
+        [Produces("application/json")]
+        public IActionResult Get(int userId)
+        {
+            try
+            {
+                return Ok(_usersService.GetUser(userId));
+            }
+            catch (Exception e)
+            {
+                var error = new ErrorDetail()
+                {
+                    ErrorMessage = e.Message
+                };
+
+                return StatusCode(500, error);
+            }
+        }
 
 		// Delete api/users
 		//[AuthoriseWithApiKey]

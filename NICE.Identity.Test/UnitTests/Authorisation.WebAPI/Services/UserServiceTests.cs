@@ -82,5 +82,24 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 			//Assert
 		    context.Users.Single().Auth0UserId.ShouldBe(auth0UserId);
 	    }
+
+        [Fact]
+        public void Get_single_user_from_userId()
+        {
+            //Arrange
+            const string newUserEmailAddress = "new@user.com";
+            const string auth0UserId = "some value";
+            var context = GetContext();
+            var user = context.Users.Add(new User { EmailAddress = newUserEmailAddress, Auth0UserId = auth0UserId });
+            context.SaveChanges();
+            var userService = new UsersService(context, _logger.Object);
+
+            //Act
+            var actual = userService.GetUser(user.Entity.UserId);
+
+            //Assert
+            actual.EmailAddress.ShouldBe(newUserEmailAddress);
+            actual.Auth0UserId.ShouldBe(auth0UserId);
+        }
 	}
 }
