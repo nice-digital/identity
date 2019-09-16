@@ -4,7 +4,7 @@ using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NICE.Identity.Authentication.Sdk.Abstractions;
+using NICE.Identity.Authentication.Sdk.Authentication;
 
 namespace NICE.Identity.TestClient.NetCore.Controllers
 {

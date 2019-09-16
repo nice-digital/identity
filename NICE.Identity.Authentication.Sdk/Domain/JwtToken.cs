@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace NICE.Identity.Authentication.Sdk.Abstractions
+namespace NICE.Identity.Authentication.Sdk.Domain
 {
 	public class JwtToken
 	{

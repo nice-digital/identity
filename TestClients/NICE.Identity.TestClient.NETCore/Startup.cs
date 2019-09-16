@@ -26,9 +26,9 @@ namespace NICE.Identity.TestClient.NetCore
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-			services.AddAuthentication(new AuthConfiguration(Configuration, "WebAppConfiguration"));
-			services.AddRedisCacheSDK(Configuration, "RedisServiceConfiguration", "todo:somestringforredis");
-		}
+            var authConfiguration = new AuthConfiguration(Configuration, "WebAppConfiguration");
+			services.AddAuthentication(authConfiguration);
+        }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)

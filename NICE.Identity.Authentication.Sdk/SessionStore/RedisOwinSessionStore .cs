@@ -9,15 +9,15 @@ using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core;
 using StackExchange.Redis.Extensions.Newtonsoft;
 
-namespace NICE.Identity.Authentication.Sdk.Redis
+namespace NICE.Identity.Authentication.Sdk.SessionStore
 {
-    public class NiceRedisSessionStore : IAuthenticationSessionStore
+    public class RedisOwinSessionStore : IAuthenticationSessionStore
     {
         private readonly ICacheClient _cacheClient;
         private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         private TicketDataFormat _formatter;
 
-        public NiceRedisSessionStore(TicketDataFormat formatter, RedisConfiguration redisConfiguration)
+        public RedisOwinSessionStore(TicketDataFormat formatter, RedisConfiguration redisConfiguration)
         {
             var serializer = new NewtonsoftSerializer(jsonSetting);
             var mux = ConnectionMultiplexer.Connect(new ConfigurationOptions

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using NICE.Identity.Authentication.Sdk.Abstractions;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -27,6 +26,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
             var userId = context.User.Claims.Single(x => x.Type.Equals(UserIdClaimType)).Value;
 
+            // TODO: Add claims to user either on login or when calling the claims endpoint for the first time.
             var userIsAuthorised = _authorisationService.UserSatisfiesAtLeastOneRole(userId, new[] {requirement.Role}).Result;
 
             if (userIsAuthorised)

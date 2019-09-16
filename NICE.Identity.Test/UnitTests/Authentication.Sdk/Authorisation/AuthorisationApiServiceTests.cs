@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
-//using NICE.Identity.Authentication.Sdk.External;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
@@ -16,22 +15,20 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 	public class AuthorisationApiServiceTests : TestBase
 	{
 		private const string AuthorisationServiceUri = "https://someurl.com";
+        private const string TenantDomain = "https://someurl.com";
 
 		private readonly Mock<IHttpClientDecorator> _httpClientMock;
 		private readonly AuthorisationApiService _sut;
 
 		public AuthorisationApiServiceTests()
 		{
-			var config = new AuthConfiguration("", "", "", "", "", "", AuthorisationServiceUri);
+			var config = new AuthConfiguration(TenantDomain, "", "", "", "", "", AuthorisationServiceUri);
 
 			var configOptionsMock = new Mock<IAuthConfiguration>();
-			configOptionsMock
-				.Setup(x => x.WebSettings)
-				.Returns(config.WebSettings);
-
-			_httpClientMock = new Mock<IHttpClientDecorator>();
-
-			_sut = new AuthorisationApiService(configOptionsMock.Object, null, _httpClientMock.Object);
+            configOptionsMock.Setup(x => x.WebSettings).Returns(config.WebSettings);
+            configOptionsMock.Setup(x => x.TenantDomain).Returns(config.TenantDomain);
+            _httpClientMock = new Mock<IHttpClientDecorator>();
+            _sut = new AuthorisationApiService(configOptionsMock.Object, _httpClientMock.Object);
 		}
 
 		[Fact]

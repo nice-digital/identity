@@ -2,11 +2,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
-namespace NICE.Identity.Authentication.Sdk.Authentication
+namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
-    public class HasScopeHandler : AuthorizationHandler<HasScopeRequirement>
+    public class ScopeRequirementHandler : AuthorizationHandler<ScopeRequirement>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, HasScopeRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopeRequirement requirement)
         {
             // If user does not have the scope claim, get out of here
             if (!context.User.HasClaim(c => c.Type == "scope" && c.Issuer == requirement.Issuer))

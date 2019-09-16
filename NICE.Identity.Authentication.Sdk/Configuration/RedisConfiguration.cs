@@ -3,11 +3,8 @@
     public class RedisConfiguration
     {
         public string IpConfig { get; set; }
-
         public int Port { get; set; }
-
         public string ConnectionString => $"{IpConfig}:{Port}";
-
-		public bool Enabled { get; set; }
+        public bool Enabled { get; set; }
     }
 }

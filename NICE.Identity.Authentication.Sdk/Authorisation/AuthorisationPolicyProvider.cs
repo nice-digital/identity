@@ -27,7 +27,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				if (policyName.Contains(":"))
 				{
 					policy = new AuthorizationPolicyBuilder()
-						.AddRequirements(new HasScopeRequirement(policyName, _domain))
+						.AddRequirements(new ScopeRequirement(policyName, _domain))
 						.Build();
 				}
 				else
