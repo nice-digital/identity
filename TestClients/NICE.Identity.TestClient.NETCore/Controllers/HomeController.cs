@@ -24,7 +24,7 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
         {
             ViewData["Message"] = "Your application description page.";
 
-            return View();
+            return RedirectToAction("Index");
         }
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
