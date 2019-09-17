@@ -118,5 +118,26 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var deletedUser = userService.GetUser(createdUser.UserId);
             deletedUser.ShouldBe(null);
         }
+        
+        [Fact]
+        public void Update_user_that_already_exists()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object);
+            var user = new CreateUser(){ Email = "existing.user@email.com", FirstName = "Joe"};
+            var createdUser = userService.CreateUser(user);
+
+            //Act
+            var userToUpdate = context.Users.Find(createdUser.UserId);
+            userToUpdate.FirstName = "John";
+            var updatedUser = userService.UpdateUser(userToUpdate);
+
+            //Assert
+            var users = context.Users.ToList();
+            users.Count.ShouldBe(1);
+            
+            updatedUser.FirstName.ShouldBe(userToUpdate.FirstName);
+        }
     }
 }

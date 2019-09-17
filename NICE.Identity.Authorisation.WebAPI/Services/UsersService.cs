@@ -14,7 +14,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public interface IUsersService
     {
         UserInList CreateUser(CreateUser user);
-        UserInList UpdateUser(CreateUser user);
+        //TODO: Refactor view models 
+        // CreateUser and UserInList should be one
+        // View Models should be passed in and returned by the users service
+        // Model mapping should happen in users service methods
+        UserInList UpdateUser(User user);
         List<UserInList> GetUsers();
         void DeleteUser(int userId);
         UserInList GetUser(int userId);
@@ -45,12 +49,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
         
-        public UserInList UpdateUser(CreateUser user)
+        public UserInList UpdateUser(User user)
         {
             try
             {
-                var userEntity = MapUserToDomainModel(user);
-                return new UserInList(_context.UpdateUser(userEntity));
+                return new UserInList(_context.UpdateUser(user));
             }
             catch (Exception e)
             {
