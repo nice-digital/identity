@@ -11,7 +11,7 @@ using Xunit;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
-	public class UserServiceTests : TestBase
+    public class UserServiceTests : TestBase
     {
 	    private readonly Mock<ILogger<UsersService>> _logger;
 
@@ -24,31 +24,29 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 		public void Create_user_where_user_does_not_already_exist()
 		{
 			//Arrange
-			var otherUserEmailAddress = "another@user.com";
-			var newUserEmailAddress = "new@user.com";
-
+			const string existingUserEmail = "existing.user@email.com";
+			const string newUserEmail = "new.user@email.com";
 			var context = GetContext();
-			context.Users.Add(new User {EmailAddress = otherUserEmailAddress });
+            var userService = new UsersService(context, _logger.Object);
+			context.Users.Add(new User {EmailAddress = existingUserEmail });
 			context.SaveChanges();
 
-			var userService = new UsersService(context, _logger.Object);
-			var userToInsert = new CreateUser{ Email = newUserEmailAddress };
-
-			//Act
-			userService.CreateOrUpdateUser(userToInsert);
+            //Act
+            var userToInsert = new CreateUser{ Email = newUserEmail };
+			userService.CreateUser(userToInsert);
 
 			//Assert
 			var allUsers = context.Users.ToList();
 			allUsers.Count.ShouldBe(2);
-			allUsers.Count(user => user.EmailAddress == otherUserEmailAddress).ShouldBe(1);
-			allUsers.Count( user => user.EmailAddress == newUserEmailAddress).ShouldBe(1);
+			allUsers.Count(user => user.EmailAddress == existingUserEmail).ShouldBe(1);
+			allUsers.Count( user => user.EmailAddress == newUserEmail).ShouldBe(1);
 		}
 
 	    [Fact]
 		public void Create_user_where_user_already_exists()
 	    {
 		    //Arrange
-		    var newUserEmailAddress = "new@user.com";
+		    var newUserEmailAddress = "new.user.@email.com";
 
 		    var context = GetContext();
 		    context.Users.Add(new User { EmailAddress = newUserEmailAddress, Auth0UserId = "not empty"});
@@ -58,7 +56,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 		    var userToInsert = new CreateUser { Email = newUserEmailAddress };
 
 		    //Act + Assert
-		    Assert.Throws<Exception>(() => userService.CreateOrUpdateUser(userToInsert));
+		    Assert.Throws<Exception>(() => userService.CreateUser(userToInsert));
 		    context.Users.Count().ShouldBe(1);
 	    }
 
@@ -77,7 +75,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 		    var userToInsert = new CreateUser { Email = newUserEmailAddress, Auth0UserId = auth0UserId };
 
 			//Act 
-		    userService.CreateOrUpdateUser(userToInsert);
+		    userService.CreateUser(userToInsert);
 
 			//Assert
 		    context.Users.Single().Auth0UserId.ShouldBe(auth0UserId);
@@ -87,19 +85,38 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         public void Get_single_user_from_userId()
         {
             //Arrange
-            const string newUserEmailAddress = "new@user.com";
-            const string auth0UserId = "some value";
+            const string email = "singleuser@example.com";
+            const string auth0UserId = "user|toget";
             var context = GetContext();
-            var user = context.Users.Add(new User { EmailAddress = newUserEmailAddress, Auth0UserId = auth0UserId });
-            context.SaveChanges();
             var userService = new UsersService(context, _logger.Object);
+            var user = new CreateUser { Auth0UserId = auth0UserId, Email = email };
+            var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
-            var actual = userService.GetUser(user.Entity.UserId);
+            var actual = userService.GetUser(createdUserId);
 
             //Assert
-            actual.EmailAddress.ShouldBe(newUserEmailAddress);
+            actual.Email.ShouldBe(email);
             actual.Auth0UserId.ShouldBe(auth0UserId);
         }
-	}
+
+        [Fact]
+        public void Delete_single_user_with_userId()
+        {
+            //Arrange
+            const string newUserEmailAddress = "usertodelete@example.com";
+            const string auth0UserId = "user|todelete";
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object);
+            var user = new CreateUser { Auth0UserId = auth0UserId, Email = newUserEmailAddress };
+            var createdUser = userService.CreateUser(user);
+
+            //Act
+            userService.DeleteUser(createdUser.UserId);
+
+            //Assert
+            var deletedUser = userService.GetUser(createdUser.UserId);
+            deletedUser.ShouldBe(null);
+        }
+    }
 }

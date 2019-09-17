@@ -13,10 +13,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IUsersService
     {
-		void CreateOrUpdateUser(CreateUser user);
-	    List<UserInList> GetUsers();
-	    void DeleteUser(int userId);
-        User GetUser(int userId);
+        UserInList CreateUser(CreateUser user);
+        UserInList UpdateUser(CreateUser user);
+        List<UserInList> GetUsers();
+        void DeleteUser(int userId);
+        UserInList GetUser(int userId);
     }
 
 	public class UsersService : IUsersService
@@ -30,35 +31,49 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
-        public void CreateOrUpdateUser(CreateUser user)
+        public UserInList CreateUser(CreateUser user)
         {
             try
             {
-				var userEntity = MapUserToDomainModel(user);
-
-                _context.AddOrUpdateUser(userEntity);
+                var userEntity = MapUserToDomainModel(user);
+                return new UserInList(_context.AddUser(userEntity));
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to add user - exception: '{e.Message}' userId: '{user.Auth0UserId}'");
-
+                _logger.LogError($"Failed to add user {user.Auth0UserId} - exception: {e.Message}");
+                throw new Exception($"Failed to add user {user.Auth0UserId} - exception: {e.Message}");
+            }
+        }
+        
+        public UserInList UpdateUser(CreateUser user)
+        {
+            try
+            {
+                var userEntity = MapUserToDomainModel(user);
+                return new UserInList(_context.UpdateUser(userEntity));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to add user - " +
+                                 $"exception: '{e.Message}' userId: '{user.Auth0UserId}'");
                 throw new Exception("Failed to add user");
             }
         }
 
-	    public List<UserInList> GetUsers()
-	    {
-		    return _context.Users.Select(user => new UserInList(user)).ToList();
-	    }
-
-	    public void DeleteUser(int userId)
-	    {
-		    _context.DeleteUser(userId);
-	    }
-
-        public User GetUser(int userId)
+        public List<UserInList> GetUsers()
         {
-            return _context.Users.Where((user => user.UserId == userId)).FirstOrDefault();
+            return _context.Users.Select(user => new UserInList(user)).ToList();
+        }
+
+        public void DeleteUser(int userId) 
+        {
+            _context.DeleteUser(userId);
+        }
+
+        public UserInList GetUser(int userId)
+        {
+            var user = _context.Users.Where((u => u.UserId == userId)).FirstOrDefault();
+            return user != null ? new UserInList(user) : null;
         }
 
         private DataModels.User MapUserToDomainModel(CreateUser user)
@@ -69,11 +84,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 //TODO: AllowContactMe = user.AllowContactMe,
                 Auth0UserId = user.Auth0UserId,
                 FirstName = user.FirstName,
-				LastName = user.LastName,
+                LastName = user.LastName,
                 InitialRegistrationDate = DateTime.UtcNow,
                 EmailAddress = user.Email,
-				IsLockedOut = false,
-				HasVerifiedEmailAddress = false
+                IsLockedOut = false,
+                HasVerifiedEmailAddress = false
             };
             if (user.AcceptedTerms)
             {
