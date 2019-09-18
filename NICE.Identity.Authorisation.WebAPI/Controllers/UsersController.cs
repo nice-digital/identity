@@ -24,38 +24,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
         }
-
-		// POST api/users
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-		[HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreateUser user)
-        {
-            if (!ModelState.IsValid)
-            {
-	            var serializableModelState = new SerializableError(ModelState);
-	            var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-	            _logger.LogError($"Invalid Model State at UsersController.Put for user id: {user.Auth0UserId}", modelStateJson);
-
-				return BadRequest("Request failed validation");
-            }
-
-            try
-            {
-                _usersService.CreateUser(user);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                var error = new ErrorDetail()
-                {
-                    ErrorMessage = e.Message
-                };
-
-                return StatusCode(500, error);
-            }
-        }
-
 		// Get api/users
 		// [AuthoriseWithApiKey]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -87,6 +55,37 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             try
             {
                 return Ok(_usersService.GetUser(userId));
+            }
+            catch (Exception e)
+            {
+                var error = new ErrorDetail()
+                {
+                    ErrorMessage = e.Message
+                };
+
+                return StatusCode(500, error);
+            }
+        }
+
+        // POST api/users
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] CreateUser user)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid Model State at UsersController.Put for user id: {user.Auth0UserId}", modelStateJson);
+
+                return BadRequest("Request failed validation");
+            }
+
+            try
+            {
+                _usersService.CreateUser(user);
+
+                return Ok();
             }
             catch (Exception e)
             {

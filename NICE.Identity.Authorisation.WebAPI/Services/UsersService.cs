@@ -1,27 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
-using NICE.Identity.Authorisation.WebAPI.APIModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
+using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IUsersService
     {
-        UserInList CreateUser(CreateUser user);
-        //TODO: Refactor view models 
-        // CreateUser and UserInList should be one
-        // View Models should be passed in and returned by the users service
-        // Model mapping should happen in users service methods
-        UserInList UpdateUser(User user);
-        List<UserInList> GetUsers();
-        void DeleteUser(int userId);
-        UserInList GetUser(int userId);
+        User CreateUser(User user);
+        User UpdateUser(User user);
+        List<User> GetUsers();
+        int DeleteUser(int userId);
+        User GetUser(int userId);
     }
 
 	public class UsersService : IUsersService
@@ -35,12 +28,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	    }
 
-        public UserInList CreateUser(CreateUser user)
+        public User CreateUser(User user)
         {
             try
             {
                 var userEntity = MapUserToDomainModel(user);
-                return new UserInList(_context.AddUser(userEntity));
+                return new User(_context.AddUser(userEntity));
             }
             catch (Exception e)
             {
@@ -49,11 +42,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
         
-        public UserInList UpdateUser(User user)
+        public User UpdateUser(User user)
         {
             try
             {
-                return new UserInList(_context.UpdateUser(user));
+                var userEntity = MapUserToDomainModel(user);
+                return new User(_context.UpdateUser(userEntity));
             }
             catch (Exception e)
             {
@@ -63,35 +57,38 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<UserInList> GetUsers()
+        public List<User> GetUsers()
         {
-            return _context.Users.Select(user => new UserInList(user)).ToList();
+            return _context.Users.Select(user => new User(user)).ToList();
         }
 
-        public void DeleteUser(int userId) 
+        public int DeleteUser(int userId) 
         {
-            _context.DeleteUser(userId);
+            return _context.DeleteUser(userId);
         }
 
-        public UserInList GetUser(int userId)
+        public User GetUser(int userId)
         {
             var user = _context.Users.Where((u => u.UserId == userId)).FirstOrDefault();
-            return user != null ? new UserInList(user) : null;
+            return user != null ? new User(user) : null;
         }
 
-        private DataModels.User MapUserToDomainModel(CreateUser user)
+        private DataModels.User MapUserToDomainModel(ApiModels.User user)
         {           
-            var userEntity = new User
+            var userEntity = new DataModels.User
             {
                 //AcceptedTerms = user.AcceptedTerms,
-                //TODO: AllowContactMe = user.AllowContactMe,
+                UserId = user.UserId,
                 Auth0UserId = user.Auth0UserId,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                InitialRegistrationDate = DateTime.UtcNow,
-                EmailAddress = user.Email,
-                IsLockedOut = false,
-                HasVerifiedEmailAddress = false
+                AllowContactMe = user.AllowContactMe,
+                InitialRegistrationDate = user.InitialRegistrationDate,
+                LastLoggedInDate = user.LastLoggedInDate,
+                HasVerifiedEmailAddress = user.HasVerifiedEmailAddress,
+                EmailAddress = user.EmailAddress,
+                IsLockedOut = user.IsLockedOut,
+                IsStaffMember = user.IsStaffMember,
             };
             if (user.AcceptedTerms)
             {

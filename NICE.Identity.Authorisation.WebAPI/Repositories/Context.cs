@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -56,11 +55,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         /// deletes a user without querying the database for it first unnecessarily.
         /// </summary>
         /// <param name="userId"></param>
-        public void DeleteUser(int userId)
+        public int DeleteUser(int userId)
         {
             var user = Users.Find(userId);
             Users.RemoveRange(user);
-            SaveChanges();
+            return SaveChanges();
         }
 
         #endregion
