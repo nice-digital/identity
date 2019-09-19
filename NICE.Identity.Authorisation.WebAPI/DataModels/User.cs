@@ -50,5 +50,20 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         {
             return (UserAcceptedTermsVersions ?? new List<UserAcceptedTermsVersion>()).ToList().OrderByDescending(x => x.TermsVersionId).FirstOrDefault();
         }
+
+        public void UpdateFromApiModel(ApiModels.User user)
+        {
+            UserId = user.UserId;
+            Auth0UserId = user.Auth0UserId;
+            FirstName = user.FirstName;
+            LastName = user.LastName;
+            AllowContactMe = user.AllowContactMe;
+            InitialRegistrationDate = user.InitialRegistrationDate;
+            LastLoggedInDate = user.LastLoggedInDate;
+            HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
+            EmailAddress = user.EmailAddress;
+            IsLockedOut = user.IsLockedOut;
+            IsStaffMember = user.IsStaffMember;
+        }
     }
 }

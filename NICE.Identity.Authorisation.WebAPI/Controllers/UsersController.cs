@@ -2,13 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using NICE.Identity.Authentication.Sdk.Authorisation;
-using CreateUser = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.CreateUser;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -70,7 +69,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         // POST api/users
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreateUser user)
+        public async Task<ActionResult> Post([FromBody] User user)
         {
             if (!ModelState.IsValid)
             {

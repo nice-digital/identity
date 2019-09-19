@@ -18,7 +18,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return !result.Any() ? null : result.Single();
         }
 
-        public User AddUser(User user)
+        public User GetUser(int userId)
+        {
+            var result = Users.Where(users => users.UserId.Equals(userId))
+                .Include(users => users.UserRoles)
+                .ThenInclude(userRoles => userRoles.Role).ToList();
+
+            return !result.Any() ? null : result.Single();
+        }
+
+        public User CreateUser(User user)
         {
             // find by email address as this should be unique
             var foundUser = Users.FirstOrDefault(
@@ -37,29 +46,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             if (string.IsNullOrEmpty(foundUser.Auth0UserId))
             {
                 foundUser.Auth0UserId = user.Auth0UserId;
-                UpdateUser(foundUser);
                 SaveChanges();
                 return foundUser;
             }
             return null;
-        }
-
-        public User UpdateUser(User user)
-        {
-            Users.Update(user);
-            SaveChanges();
-            return user;
-        }
-
-        /// <summary>
-        /// deletes a user without querying the database for it first unnecessarily.
-        /// </summary>
-        /// <param name="userId"></param>
-        public int DeleteUser(int userId)
-        {
-            var user = Users.Find(userId);
-            Users.RemoveRange(user);
-            return SaveChanges();
         }
 
         #endregion

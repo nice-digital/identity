@@ -4,6 +4,10 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
 	public class User
 	{
+        public User()
+        {
+        }
+
         public User(int userId, string auth0UserId, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms)
         {
             UserId = userId;
@@ -35,11 +39,11 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsStaffMember = user.IsStaffMember;
         }
 
-        public int UserId { get; }
-		public string Auth0UserId { get; }
-		public string FirstName { get; }
-		public string LastName { get; }
-		public string EmailAddress { get; }
+        public int UserId { get; set; }
+		public string Auth0UserId { get; set; }
+		public string FirstName { get; set; }
+		public string LastName { get; set; }
+		public string EmailAddress { get; set; }
 		public bool AllowContactMe { get; set; }
 		public bool HasVerifiedEmailAddress { get; set; }
 		public bool IsLockedOut { get; set; }
