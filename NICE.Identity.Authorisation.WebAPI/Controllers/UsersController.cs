@@ -32,7 +32,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        // TODO: Conflict/409 if user already exists 
+        // TODO: Conflict/409 if user already exists instead of 500
         [HttpPost("")]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -57,7 +57,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ErrorDetail() { ErrorMessage = e.Message });
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message});
             }
         }
 
@@ -100,7 +100,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 {
                     return Ok(user);
                 }
-                return NotFound();
+                return NotFound(new ProblemDetails {Status = 404, Title = "User not found"});
             }
             catch (Exception e)
             {
@@ -108,6 +108,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
         }
 
+        // TODO: custom model validation, checking incoming properties
         /// <summary>
         /// update user with id - full update
         /// </summary>

@@ -48,8 +48,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to add user {user.Auth0UserId} - exception: {e.Message}");
-                throw new Exception($"Failed to add user {user.Auth0UserId} - exception: {e.Message}");
+                _logger.LogError($"Failed to create user {user.Auth0UserId} - exception: {e.Message}");
+                throw new Exception($"Failed to create user {user.Auth0UserId} - exception: {e.Message}");
             }
         }
 
