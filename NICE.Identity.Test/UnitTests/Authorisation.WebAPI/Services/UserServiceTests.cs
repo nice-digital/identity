@@ -111,11 +111,30 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Act
             var userToUpdate = userService.GetUser(createdUserId);
             userToUpdate.FirstName = "John";
-            var updatedUser = userService.UpdateUser(userToUpdate);
+            var updatedUser = userService.UpdateUser(createdUserId, userToUpdate);
 
             //Assert
             context.Users.ToList().Count.ShouldBe(1);
-            updatedUser.ShouldBe(1);
+            updatedUser.FirstName.ShouldBe("John");
+        }
+
+        [Fact]
+        public void Update_user_that_does_not_exist()
+        {
+            //Arrange
+            const int nonExistingUserId = 987;
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object);
+            var userToUpdate = new ApiModels.User()
+            {
+                UserId = nonExistingUserId, 
+                EmailAddress = "random.user@email.com", 
+                FirstName = "Joe"
+            };
+
+            //Act + Assert
+            Assert.Throws<Exception>(() => userService.UpdateUser(nonExistingUserId, userToUpdate));
+            context.Users.Count().ShouldBe(0);
         }
 
         [Fact]

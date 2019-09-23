@@ -12,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         User CreateUser(User user);
         User GetUser(int userId);
         List<User> GetUsers();
-        int UpdateUser(User user);
+        User UpdateUser(int userId, User user);
         int DeleteUser(int userId);
     }
 
@@ -64,21 +64,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return _context.Users.Select(user => new User(user)).ToList();
         }
 
-        public int UpdateUser(User user)
+        public User UpdateUser(int userId, User user)
         {
             try
             {
-                var userToUpdate = _context.GetUser(user.UserId);
+                var userToUpdate = _context.GetUser(userId);
                 if (userToUpdate == null)
-                    return 0;
+                    throw new Exception($"User not found {userId.ToString()}");
 
                 userToUpdate.UpdateFromApiModel(user);
-                return _context.SaveChanges();
+                _context.SaveChanges();
+                return new User(userToUpdate);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to update user {user.UserId.ToString()} - exception: {e.Message}");
-                throw new Exception($"Failed to update user {user.UserId.ToString()} - exception: {e.Message}");
+                _logger.LogError($"Failed to update user {userId.ToString()} - exception: {e.Message}");
+                throw new Exception($"Failed to update user {userId.ToString()} - exception: {e.Message}");
             }
         }
 

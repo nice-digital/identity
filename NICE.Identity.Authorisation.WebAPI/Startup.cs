@@ -55,9 +55,9 @@ namespace NICE.Identity.Authorisation.WebAPI
 				c.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
 			});	
 
-			services.ConfigureSwaggerGen(c =>	
-			{	
-				c.CustomSchemaIds(x => x.FullName);	
+			services.ConfigureSwaggerGen(c =>
+			{
+				c.CustomSchemaIds(x => x.FullName);
 			});
 
             IdentityModelEventSource.ShowPII = true;

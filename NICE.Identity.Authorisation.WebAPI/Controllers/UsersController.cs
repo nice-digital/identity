@@ -5,119 +5,167 @@ using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     public class UsersController : ControllerBase
     {
-	    private readonly ILogger<UsersController> _logger;
-	    private readonly IUsersService _usersService;
+        private readonly ILogger<UsersController> _logger;
+        private readonly IUsersService _usersService;
 
         public UsersController(IUsersService usersService, ILogger<UsersController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	        _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
+            _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
         }
-		// Get api/users
-		// [AuthoriseWithApiKey]
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-		[HttpGet]
-	    [Produces("application/json")]
-		public IActionResult Get()
-	    {
-		    try
-		    {
-			    return Ok(_usersService.GetUsers());
-		    }
-		    catch (Exception e)
-		    {
-			    var error = new ErrorDetail()
-			    {
-				    ErrorMessage = e.Message
-			    };
 
-			    return StatusCode(500, error);
-		    }
-	    }
-        
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpGet]
-        [Route("/api/Users/{userId}")]
+        /// <summary>
+        /// create user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        // TODO: Conflict/409 if user already exists 
+        [HttpPost("")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult Get(int userId)
-        {
-            try
-            {
-                return Ok(_usersService.GetUser(userId));
-            }
-            catch (Exception e)
-            {
-                var error = new ErrorDetail()
-                {
-                    ErrorMessage = e.Message
-                };
-
-                return StatusCode(500, error);
-            }
-        }
-
-        // POST api/users
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] User user)
+        public IActionResult CreateUser([FromBody] User user)
         {
             if (!ModelState.IsValid)
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid Model State at UsersController.Put for user id: {user.Auth0UserId}", modelStateJson);
-
-                return BadRequest("Request failed validation");
+                _logger.LogError($"Invalid model for create user", modelStateJson);
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create user"});
             }
 
             try
             {
-                _usersService.CreateUser(user);
+                var createdUser = _usersService.CreateUser(user);
+                return Created($"/api/[controller]/{createdUser.UserId.ToString()}",createdUser);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ErrorDetail() { ErrorMessage = e.Message });
+            }
+        }
 
+        /// <summary>
+        /// get list of all users
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("")]
+        [ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetUsers()
+        {
+            try
+            {
+                return Ok(_usersService.GetUsers());
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+
+        /// <summary>
+        /// get user with id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        [HttpGet("{userId}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetUser(int userId)
+        {
+            try
+            {
+                var user = _usersService.GetUser(userId);
+                if (user != null)
+                {
+                    return Ok(user);
+                }
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+
+        /// <summary>
+        /// update user with id - full update
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [HttpPut("{userId}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult UpdateUser([FromRoute] int userId, [FromBody] User user)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid model for update user {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update user"});
+            }
+
+            if (userId != user.UserId)
+            {
+                return BadRequest(new ProblemDetails {Status = 400, Title = "UserId does not match"});
+            }
+
+            try
+            {
+                return Ok(_usersService.UpdateUser(userId, user));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+
+        /// <summary>
+        /// delete user with id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        //TODO: Tidy up return for delete user
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult DeleteUser(int userId)
+        {
+            try
+            {
+                _usersService.DeleteUser(userId);
                 return Ok();
             }
             catch (Exception e)
             {
-                var error = new ErrorDetail()
-                {
-                    ErrorMessage = e.Message
-                };
-
-                return StatusCode(500, error);
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
-
-		// Delete api/users
-		//[AuthoriseWithApiKey]
-	    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-		[HttpDelete]
-	    [Produces("application/json")]
-	    public IActionResult Delete(int userId)
-	    {
-		    try
-		    {
-			    _usersService.DeleteUser(userId);
-				return Ok();
-		    }
-		    catch (Exception e)
-		    {
-			    var error = new ErrorDetail()
-			    {
-				    ErrorMessage = e.Message
-			    };
-
-			    return StatusCode(500, error);
-		    }
-	    }
-	}
+    }
 }
