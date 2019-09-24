@@ -50,6 +50,8 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
 			services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
 
+            services.AddRouting(options => options.LowercaseUrls = true);
+
 			services.AddSwaggerGen(c =>	
 			{
 				c.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
