@@ -20,11 +20,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         private readonly IdentityContext _context;
         private readonly ILogger<UsersService> _logger;
+        private readonly IProviderManagementService _providerManagementService;
 
-        public UsersService(IdentityContext context, ILogger<UsersService> logger)
+        public UsersService(IdentityContext context, ILogger<UsersService> logger, IProviderManagementService providerManagementService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _providerManagementService = providerManagementService ?? throw new ArgumentNullException(nameof(providerManagementService));
         }
 
         public User CreateUser(User user)
@@ -64,6 +66,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return _context.Users.Select(user => new User(user)).ToList();
         }
 
+        // TODO: update user in identity provider if needed
         public User UpdateUser(int userId, User user)
         {
             try
@@ -92,6 +95,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     return 0;
 
                 _context.Users.RemoveRange(userToDelete);
+                _providerManagementService.DeleteUser(userToDelete.Auth0UserId);
+
                 return _context.SaveChanges();
             }
             catch (Exception e)

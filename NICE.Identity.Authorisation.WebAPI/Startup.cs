@@ -43,6 +43,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IJobsService, JobsService>();
+            services.AddTransient<IProviderManagementService, Auth0ManagementService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

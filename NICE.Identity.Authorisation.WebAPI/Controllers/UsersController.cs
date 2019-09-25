@@ -151,7 +151,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        //TODO: Tidy up return for delete user
+        // TODO: Tidy up return for delete user
         [HttpDelete("{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

@@ -14,10 +14,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
     public class UserServiceTests : TestBase
     {
         private readonly Mock<ILogger<UsersService>> _logger;
+        private readonly Mock<IProviderManagementService> _providerManagementService;
 
         public UserServiceTests()
         {
             _logger = new Mock<ILogger<UsersService>>();
+            _providerManagementService = new Mock<IProviderManagementService>();
         }
 
         [Fact]
@@ -27,7 +29,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string existingUserEmail = "existing.user@email.com";
             const string newUserEmail = "new.user@email.com";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             context.Users.Add(new DataModels.User {EmailAddress = existingUserEmail });
             context.SaveChanges();
 
@@ -51,7 +53,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.Users.Add(new DataModels.User { EmailAddress = newUserEmailAddress, Auth0UserId = "not empty"});
             context.SaveChanges();
 
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var userToInsert = new ApiModels.User { EmailAddress = newUserEmailAddress };
 
             //Act + Assert
@@ -70,7 +72,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.Users.Add(new DataModels.User { EmailAddress = userEmailAddress, Auth0UserId = null });
             context.SaveChanges();
 
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var userToInsert = new ApiModels.User { EmailAddress = userEmailAddress, Auth0UserId = auth0UserId };
 
             //Act 
@@ -87,7 +89,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string email = "singleuser@example.com";
             const string auth0UserId = "user|toget";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var user = new ApiModels.User { Auth0UserId = auth0UserId, EmailAddress = email };
             var createdUserId = userService.CreateUser(user).UserId;
 
@@ -104,7 +106,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var user = new ApiModels.User(){ EmailAddress = "existing.user@email.com", FirstName = "Joe"};
             var createdUserId = userService.CreateUser(user).UserId;
 
@@ -124,7 +126,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             const int nonExistingUserId = 987;
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var userToUpdate = new ApiModels.User()
             {
                 UserId = nonExistingUserId, 
@@ -144,7 +146,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string newUserEmailAddress = "usertodelete@example.com";
             const string auth0UserId = "user|todelete";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var user = new ApiModels.User { Auth0UserId = auth0UserId, EmailAddress = newUserEmailAddress };
             var createdUser = userService.CreateUser(user);
 
