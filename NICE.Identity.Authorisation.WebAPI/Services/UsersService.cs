@@ -35,7 +35,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             {
                 var userToCreate = new DataModels.User();
                 userToCreate.UpdateFromApiModel(user);
-                if (user.AcceptedTerms)
+                if (user.AcceptedTerms == true)
                 {
                     var currentTerms = _context.GetLatestTermsVersion();
                     if (currentTerms != null)
@@ -76,13 +76,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     throw new Exception($"User not found {userId.ToString()}");
 
                 userToUpdate.UpdateFromApiModel(user);
+                _providerManagementService.UpdateUser(userToUpdate.Auth0UserId, userToUpdate);
+
                 _context.SaveChanges();
                 return new User(userToUpdate);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to update user {userId.ToString()} - exception: {e.Message}");
-                throw new Exception($"Failed to update user {userId.ToString()} - exception: {e.Message}");
+                _logger.LogError($"Failed to update user {userId.ToString()} - exception: {e.InnerException.Message}");
+                throw new Exception($"Failed to update user {userId.ToString()} - exception: {e.InnerException.Message}");
             }
         }
 

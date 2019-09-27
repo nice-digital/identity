@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -53,7 +51,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             try
             {
                 var createdUser = _usersService.CreateUser(user);
-                return Created($"/api/[controller]/{createdUser.UserId.ToString()}",createdUser);
+                return Created($"/user/{createdUser.UserId.ToString()}",createdUser);
             }
             catch (Exception e)
             {
@@ -110,11 +108,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
         // TODO: custom model validation, checking incoming properties
         /// <summary>
-        /// update user with id - full update
+        /// update user with id
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="user"></param>
         /// <returns></returns>
+        [HttpPatch("{userId}")]
         [HttpPut("{userId}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
