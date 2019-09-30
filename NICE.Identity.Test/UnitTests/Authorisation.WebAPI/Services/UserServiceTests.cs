@@ -135,7 +135,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             };
 
             //Act + Assert
-            Assert.Throws<Exception>(() => userService.UpdateUser(nonExistingUserId, userToUpdate));
+            Assert.Throws<NullReferenceException>(() => userService.UpdateUser(nonExistingUserId, userToUpdate));
             context.Users.Count().ShouldBe(0);
         }
 
