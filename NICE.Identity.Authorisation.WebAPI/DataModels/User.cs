@@ -64,6 +64,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             EmailAddress = user?.EmailAddress ?? EmailAddress;
             IsLockedOut = user?.IsLockedOut ?? IsLockedOut;
             IsStaffMember = user?.IsStaffMember ?? IsStaffMember;
+            IsMigrated = user?.IsMigrated ?? IsMigrated;
         }
     }
 }
