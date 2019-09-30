@@ -43,6 +43,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IJobsService, JobsService>();
+            services.AddTransient<IProviderManagementService, Auth0ManagementService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -50,14 +51,16 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
 			services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
 
+            services.AddRouting(options => options.LowercaseUrls = true);
+
 			services.AddSwaggerGen(c =>	
 			{
 				c.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
 			});	
 
-			services.ConfigureSwaggerGen(c =>	
-			{	
-				c.CustomSchemaIds(x => x.FullName);	
+			services.ConfigureSwaggerGen(c =>
+			{
+				c.CustomSchemaIds(x => x.FullName);
 			});
 
             IdentityModelEventSource.ShowPII = true;

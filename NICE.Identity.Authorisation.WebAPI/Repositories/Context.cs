@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -19,33 +18,39 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return !result.Any() ? null : result.Single();
         }
 
-        public void AddOrUpdateUser(User newUserOrUserToUpdate)
+        public User GetUser(int userId)
         {
-	        var foundUserWithMatchingEmail = Users.FirstOrDefault(u => u.EmailAddress.Equals(newUserOrUserToUpdate.EmailAddress, StringComparison.OrdinalIgnoreCase));
-	        if (foundUserWithMatchingEmail  == null) //new user
-	        {
-		        Users.Add(newUserOrUserToUpdate);
-	        }
-	        else if (string.IsNullOrEmpty(foundUserWithMatchingEmail.Auth0UserId)) //existing user, just update the auth0 user id. this happens when the user logs in for the first time with AD, if that user has been imported.
-			{
-		        foundUserWithMatchingEmail.Auth0UserId = newUserOrUserToUpdate.Auth0UserId;
-	        }
-	        else
-	        {
-		        throw new Exception("Attempt to create or update an existing user");
-	        }
-	        SaveChanges();
+            var result = Users.Where(users => users.UserId.Equals(userId))
+                .Include(users => users.UserRoles)
+                .ThenInclude(userRoles => userRoles.Role).ToList();
+
+            return !result.Any() ? null : result.Single();
         }
 
-		/// <summary>
-		/// deletes a user without querying the database for it first unnecessarily.
-		/// </summary>
-		/// <param name="userId"></param>
-	    public void DeleteUser(int userId)
-	    {
-			Users.RemoveRange(new List<User> { new User { UserId = userId } });
-		    SaveChanges();
-		}
+        public User CreateUser(User user)
+        {
+            // find by email address as this should be unique
+            var foundUser = Users.FirstOrDefault(
+                u => u.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase));
+
+            // existing user, just update the auth0 user id.
+            // this happens when the user logs in for the first time with AD,
+            // if that user has been imported.
+            if (foundUser == null)
+            {
+                //new user
+                Users.Add(user);
+                SaveChanges();
+                return user;
+            }
+            if (string.IsNullOrEmpty(foundUser.Auth0UserId))
+            {
+                foundUser.Auth0UserId = user.Auth0UserId;
+                SaveChanges();
+                return foundUser;
+            }
+            return null;
+        }
 
         #endregion
 

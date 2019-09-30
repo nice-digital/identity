@@ -80,7 +80,8 @@ namespace NICE.Identity.Test.Infrastructure
 			var databaseName = "TestIdentityDB" + Guid.NewGuid();
 			var dbOptions = new DbContextOptionsBuilder<IdentityContext>()
 				.UseInMemoryDatabase(databaseName)
-				.Options;
+                .EnableSensitiveDataLogging()
+                .Options;
 			return new IdentityContext(dbOptions);
 		}
 	}
