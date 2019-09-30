@@ -55,7 +55,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message});
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = e.InnerException.Message});
             }
         }
 
