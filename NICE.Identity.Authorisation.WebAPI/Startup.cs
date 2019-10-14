@@ -10,6 +10,7 @@ using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using System.Linq;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
@@ -24,6 +25,8 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 		//todo: delete 
 		private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
+        
+        readonly string CorsPolicyName = "IdentityCorsPolicy";
 
 		public Startup(IConfiguration configuration)
 		{
@@ -64,6 +67,18 @@ namespace NICE.Identity.Authorisation.WebAPI
 			});
 
             IdentityModelEventSource.ShowPII = true;
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsPolicyName,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                    });
+            });
         }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,6 +126,8 @@ namespace NICE.Identity.Authorisation.WebAPI
 			{
 				startupLogger.LogError($"EF Migrations Error: {ex}");
 			}
-		}
+
+            app.UseCors(CorsPolicyName);
+        }
 	}
 }
