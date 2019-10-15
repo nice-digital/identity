@@ -57,7 +57,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             {
                 var error = new ErrorDetail()
                 {
-                    ErrorMessage = e.Message
+                    ErrorMessage = e.ToString()
                 };
 
                 return StatusCode(500, error);
