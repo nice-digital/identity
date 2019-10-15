@@ -109,6 +109,8 @@ namespace NICE.Identity.Authorisation.WebAPI
 				c.RoutePrefix = string.Empty; //this makes the route of the website use swagger
 			});
 
+			app.UseCors(CorsPolicyName); //moving cors to before usemvc
+
 			app.UseMvc(routes =>
 			{
 				routes.MapRoute(
@@ -126,8 +128,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 			{
 				startupLogger.LogError($"EF Migrations Error: {ex}");
 			}
-
-            app.UseCors(CorsPolicyName);
         }
 	}
 }
