@@ -52,14 +52,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message);
-                    throw new Exception("Error when calling the Management API.", e);
+                    throw new Exception("Error when calling the Management API. for user id: " + authenticationProviderUserId, e); //todo: remove the user id
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                throw new Exception("Error when calling the Authentication API.", e);
-            }
+                throw new Exception("Error when calling the Authentication API. for user id: " + authenticationProviderUserId, e); //todo: remove the user id
+			}
             
         }
     }
