@@ -27,6 +27,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public async Task<Job> VerificationEmail(string authenticationProviderUserId)
         {
+			if (string.IsNullOrWhiteSpace(authenticationProviderUserId))
+				throw new ArgumentNullException(nameof(authenticationProviderUserId));
+
             var client = new AuthenticationApiClient(new Uri($"https://{AppSettings.ManagementAPI.Domain}/"));
             var managementApiTokenRequest = new ClientCredentialsTokenRequest
             {
@@ -52,15 +55,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message);
-                    throw new Exception("Error when calling the Management API. for user id: " + authenticationProviderUserId, e); //todo: remove the user id
+                    throw new Exception("Error when calling the Management API.", e); 
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                throw new Exception("Error when calling the Authentication API. for user id: " + authenticationProviderUserId, e); //todo: remove the user id
+                throw new Exception("Error when calling the Authentication API.", e);
 			}
-            
         }
     }
 }
