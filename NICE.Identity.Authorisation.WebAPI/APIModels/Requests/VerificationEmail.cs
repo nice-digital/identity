@@ -1,7 +1,10 @@
+using Newtonsoft.Json;
+
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Requests
 {
     public class VerificationEmail
     {
-        public string UserId { get; set; }
+	    [JsonProperty("user_id")]
+		public string UserId { get; set; }
     }
 }
