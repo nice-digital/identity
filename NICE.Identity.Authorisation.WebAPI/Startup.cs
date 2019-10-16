@@ -73,10 +73,13 @@ namespace NICE.Identity.Authorisation.WebAPI
                 options.AddPolicy(CorsPolicyName,
                     builder =>
                     {
-                        builder.AllowAnyOrigin()
+                        builder
+	                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+	                        .WithOrigins("https://*.nice.org.uk")
                             .AllowAnyHeader()
                             .AllowAnyMethod()
-                            .AllowCredentials();
+                            .AllowCredentials()
+	                        .Build();
                     });
             });
         }
