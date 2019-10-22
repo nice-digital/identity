@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,16 @@ namespace NICE.Identity.TestClient.NetCore
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             var authConfiguration = new AuthConfiguration(Configuration, "WebAppConfiguration");
-			services.AddAuthentication(authConfiguration);
+            services.AddAuthentication(authConfiguration);
+            
+            // HttpClient with certificate validation returning true
+            // All requests will bypass certificate validation enabling 
+            // requests to APIs running locally without valid certificates
+            services.AddHttpClient("HttpClient").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
+            });
         }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
