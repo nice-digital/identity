@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Api Data";
+}
+@model List<NICE.Identity.TestClient.NetCore.Models.UserViewModel>
+<h2>API Data</h2>
+<p>This page will display data from an API.</p>
+<ul>
+@foreach (var user in Model)
+{
+    <h3>User @user.UserId.ToString()</h3>
+    <p>Auth0UserId : @user.Auth0UserId</p>
+    <p>FirstName: @user.FirstName</p>
+    <p>LastName: @user.LastName</p>
+    <p>Email: @user.EmailAddress</p>
+}
+</ul>

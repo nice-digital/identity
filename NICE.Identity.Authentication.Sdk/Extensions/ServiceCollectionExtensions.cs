@@ -76,6 +76,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
+                // Enables Refresh Tokens
+                options.Scope.Add("offline_access");
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = "name"
@@ -92,6 +94,17 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     OnTokenValidated = (context) =>
                     {
                         return Task.CompletedTask;
+                    },
+                    OnRedirectToIdentityProvider = context =>
+                    {
+                        // Set audience if ApiIdentifier is present.
+                        // This will add an access token that will enable api calls.
+                        if (!string.IsNullOrEmpty(authConfiguration.MachineToMachineSettings.ApiIdentifier))
+                        {
+                            context.ProtocolMessage.SetParameter("audience", 
+                                authConfiguration.MachineToMachineSettings.ApiIdentifier);
+                        }
+                        return Task.FromResult(0);
                     },
                     // handle the logout redirection 
                     OnRedirectToIdentityProviderForSignOut = (context) =>
