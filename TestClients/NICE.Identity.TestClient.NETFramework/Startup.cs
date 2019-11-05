@@ -37,7 +37,7 @@ namespace NICE.Identity.TestClient.NETFramework
 				Enabled = bool.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Enabled"].ToString())
 			};
 
-			app.AddAuthentication(authConfiguration, redisConfig);
+			app.AddOwinAuthentication(authConfiguration, redisConfig);
 			
 		}
 	}
