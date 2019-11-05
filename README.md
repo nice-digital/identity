@@ -33,8 +33,8 @@
     - [ESLint](https://eslint.org/) for JavaScript linting
 - [SASS](https://sass-lang.com/) as a CSS pre-processor
 - [WebdriverIO](http://webdriver.io/) for automated functional testing
-- [NICE Design System](https://nhsevidence.github.io/nice-design-system/) for NICE styling front-end
-    - [NICE Icons](https://github.com/nhsevidence/nice-icons) for icon webfont
+- [NICE Design System](https://github.com/nice-digital/nice-design-system/) for NICE styling front-end
+    - [NICE Icons](https://github.com/nice-digital/nice-icons) for icon webfont
 - [Webpack](https://webpack.js.org/) bundling and minification.
 - [Babel](https://babeljs.io/) for javascript transpilation
 
