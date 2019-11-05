@@ -46,7 +46,7 @@ namespace NICE.Identity.Test.Infrastructure
 			//var startup = new Startup("TestApp", configurationFactory, ConfigureVariantServices);
 
 			var builder = new WebHostBuilder()
-				.UseContentRoot("../../../../NICE.Identity")
+				//.UseContentRoot("../../../../NICE.Identity")
 				.ConfigureServices(services =>
 				{
 					//services.AddSingleton<IStartup>(startup);
