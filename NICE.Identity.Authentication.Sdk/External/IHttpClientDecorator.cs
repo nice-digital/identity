@@ -11,6 +11,6 @@ namespace NICE.Identity.Authentication.Sdk.External
 		Task<HttpResponseMessage> GetAsync(Uri requestUri);
 		Task<HttpResponseMessage> PutAsync(Uri requestUri, HttpContent content);
         Task<JwtToken> GetBearerToken(Uri requestUri, StringContent content);
-		void AddBearerToken(JwtToken token);
+		void AddBearerToken(string accessToken);
     }
 }

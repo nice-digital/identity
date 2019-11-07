@@ -54,9 +54,9 @@ namespace NICE.Identity.Authentication.Sdk.External
             var token = await httpResponseMessageResponse.Content.ReadAsAsync<JwtToken>();
             return token;
         }
-        public void AddBearerToken(JwtToken token)
+        public void AddBearerToken(string accessToken)
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }
 }

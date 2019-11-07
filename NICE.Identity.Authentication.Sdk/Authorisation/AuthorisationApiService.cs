@@ -81,11 +81,11 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         public async Task<bool> UserSatisfiesAtLeastOneRoleForAGivenHost(string userId, IEnumerable<string> roles, string host)
         {
             IEnumerable<Claim> claims;
-            bool userHasRole = false;
+            var userHasRole = false;
 			var uri = new Uri(_baseUrl, string.Format(Constants.AuthorisationURLs.GetClaims, userId));
 
-			var token = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
-			_httpClient.AddBearerToken(new JwtToken { AccessToken = token, ExpiresIn = DefaultTokenExpirationInSeconds, TokenType = _authConfiguration.GrantTypeForMachineToMachine });
+			var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+			_httpClient.AddBearerToken(accessToken);
 
 			try
 			{
@@ -101,7 +101,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
                 }
                 else
                 {
-	                throw new Exception($"Error calling authorisation service. Response status: {responseMessage.StatusCode}");
+	                throw new Exception($"Error calling authorisation service. Response status: {(int)responseMessage.StatusCode}");
                 }
             }
             catch (Exception e)
