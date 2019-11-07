@@ -45,6 +45,9 @@
 
     <div class="container body-content">
         @RenderBody()
+        <p>
+			<a href="@Url.Action("Login", "Account", new { returnUrl = "/home/userprofile"})">Here's a link that logs you in and then redirects you to the user profile page.</a>
+        </p>
         <hr />
         <footer>
             <p>NICE.Identity.TestClient.NETCore</p>
