@@ -10,6 +10,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
         Task CreateOrUpdate(string userId, Claim role);
 
-        Task<bool> UserSatisfiesAtLeastOneRole(string userId, IEnumerable<string> roles);
+        Task<bool> UserSatisfiesAtLeastOneRoleForAGivenHost(string userId, IEnumerable<string> roles, string host);
     }
 }

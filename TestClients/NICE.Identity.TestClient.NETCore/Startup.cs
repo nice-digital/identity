@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,11 +30,12 @@ namespace NICE.Identity.TestClient.NetCore
 
             var authConfiguration = new AuthConfiguration(Configuration, "WebAppConfiguration");
             services.AddAuthentication(authConfiguration);
-            
-            // HttpClient with certificate validation returning true
-            // All requests will bypass certificate validation enabling 
-            // requests to APIs running locally without valid certificates
-            services.AddHttpClient("HttpClient").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
+
+			// HttpClient with certificate validation returning true
+			// All requests will bypass certificate validation enabling 
+			// requests to APIs running locally without valid certificates
+			services.AddHttpClient("HttpClient").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 ClientCertificateOptions = ClientCertificateOption.Manual,
                 ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true

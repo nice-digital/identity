@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.TestClient.NetCore.Models;
 
 namespace NICE.Identity.TestClient.NetCore.Controllers
@@ -66,7 +67,15 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
             return View("Error");
         }
 
-        [Authorize]
+        [Authorize(Policy = Policies.Web.Editor)]
+        public IActionResult EditorAction()
+        {
+	        ViewData["Message"] = $"This action only available to someone with the role: {Policies.Web.Editor}";
+
+	        return View("Index");
+        }
+
+		[Authorize]
         public IActionResult UserProfileScoped()
         {
             ViewData["Message"] = "Your application description page.";

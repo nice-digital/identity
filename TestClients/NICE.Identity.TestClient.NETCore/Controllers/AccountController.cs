@@ -29,5 +29,11 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 		{
 			await _niceAuthenticationService.Logout(_httpContextAccessor.HttpContext, returnUrl);
 		}
+
+		[Route("/callback")]
+		public ActionResult CallBack(string returnUrl = "/")
+		{
+			return Redirect(returnUrl);
+		}
 	}
 }

@@ -50,15 +50,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 		    }
 
-		    claims.Add(new Claim(ClaimType.FirstName, user.FirstName));
+		    claims.Add(new Claim(ClaimType.FirstName, user.FirstName, ClaimConstants.IdAMIssuer));
 		    
 			foreach (var userRole in user.UserRoles)
 			{
-				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name));
+				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name, userRole.Role.Website.Host));
 			}
 
             var latv = user.LatestAcceptedTermsVersion();
-            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString()));
+            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), ClaimConstants.IdAMIssuer));
 
             return claims;
 		}

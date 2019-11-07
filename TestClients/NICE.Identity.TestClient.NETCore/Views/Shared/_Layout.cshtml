@@ -26,7 +26,8 @@
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home (unsecured)</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="UserProfile">User Profile (authenticated)</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="ApiData">API Data (authenticated)</a></li>
+	                <li><a asp-area="" asp-controller="Home" asp-action="ApiData">API Data (authenticated)</a></li>
+	                <li><a asp-area="" asp-controller="Home" asp-action="EditorAction">Editor Action (Editor role required)</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     @if (User.Identity.IsAuthenticated)

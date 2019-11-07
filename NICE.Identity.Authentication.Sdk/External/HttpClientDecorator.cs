@@ -18,9 +18,25 @@ namespace NICE.Identity.Authentication.Sdk.External
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
+		/// <summary>
+		/// this method throws a HttpRequestException if there's any problem like 404, 500.
+		/// that's fine, except the status code is only then in the message so you'd have to parse a string to get the status code.
+		/// </summary>
+		/// <param name="requestUri"></param>
+		/// <returns></returns>
         public async Task<string> GetStringAsync(Uri requestUri)
         {
-            return await _httpClient.GetStringAsync(requestUri);
+	        return await _httpClient.GetStringAsync(requestUri);
+        }
+
+		/// <summary>
+		/// this method returns a httpresponsemessage, which contains a status code.
+		/// </summary>
+		/// <param name="requestUri"></param>
+		/// <returns></returns>
+        public async Task<HttpResponseMessage> GetAsync(Uri requestUri)
+        {
+	        return await _httpClient.GetAsync(requestUri);
         }
 
         public async Task<HttpResponseMessage> PutAsync(Uri requestUri, HttpContent content)

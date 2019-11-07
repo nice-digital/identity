@@ -1,7 +1,4 @@
-﻿using System.Net.Http;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk.Configuration
 {
@@ -10,7 +7,8 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		string TenantDomain { get; }
 		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
 		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
-		StringContent GetTokenRequest { get; }
+		//StringContent GetTokenRequest { get; }
+		string GrantTypeForMachineToMachine { get; }
 	}
 
 	/// <summary>
@@ -49,17 +47,17 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			) 
 			MachineToMachineSettings { get; }
 
-		private const string GrantTypeForMachineToMachine = "client_credentials";
+		//public StringContent GetTokenRequest => new StringContent(JsonConvert.SerializeObject(new
+		//	{
+		//		grant_type = GrantTypeForMachineToMachine,
+		//		client_id = WebSettings.ClientId,
+		//		client_secret = WebSettings.ClientSecret,
+		//		audience = MachineToMachineSettings.ApiIdentifier
+		//	}),
+		//  Encoding.UTF8,
+		//  "application/json");
 
-		public StringContent GetTokenRequest => new StringContent(JsonConvert.SerializeObject(new
-			{
-				grant_type = GrantTypeForMachineToMachine,
-				client_id = WebSettings.ClientId,
-				client_secret = WebSettings.ClientSecret,
-				audience = MachineToMachineSettings.ApiIdentifier
-			}),
-		  Encoding.UTF8,
-		  "application/json");
+		public string GrantTypeForMachineToMachine => "client_credentials";
 	}
 
 }

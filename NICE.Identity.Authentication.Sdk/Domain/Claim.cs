@@ -6,10 +6,13 @@
 
         public string Type { get; set; }
 
-        public Claim(string type, string value)
+        public string Issuer { get; set; }
+
+		public Claim(string type, string value, string issuer)
         {
             Type = type;
             Value = value;
+            Issuer = issuer;
         }
     }
 }

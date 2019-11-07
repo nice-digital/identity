@@ -29,19 +29,20 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         [Fact]
         public void RequirementMarkedAsSucceededWhenUserHasRole()
         {
-            //Arrange
-            const string roleName = Policies.Web.Administrator;
+			//Arrange
+			var host = "www.nice.org.uk";
+			const string roleName = Policies.Web.Administrator;
             const string userId = "auth0|user1234";
 
             var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
             {
                 new ClaimsIdentity(new List<Claim>()
                 {
-                    new Claim(UserIdClaimType, userId)
+                    new Claim(UserIdClaimType, userId, host)
                 })
             });
 
-            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRole(userId, new[] {roleName}))
+            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRoleForAGivenHost(userId, new[] {roleName}, host))
                             .Returns(Task.FromResult(true));
 
             var roleRequirement = new RoleRequirement(roleName);
@@ -60,19 +61,20 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         [Fact]
         public void RequirementNotMarkedAsSucceededWhenUserDoesNotHaveRole()
         {
-            //Arrange
-            const string roleName = Policies.Web.Administrator;
+			//Arrange
+			var host = "www.nice.org.uk";
+			const string roleName = Policies.Web.Administrator;
             const string userId = "auth0|user1234";
 
             var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
             {
                 new ClaimsIdentity(new List<Claim>()
                 {
-                    new Claim(UserIdClaimType, userId)
+                    new Claim(UserIdClaimType, userId, host)
                 })
             });
 
-            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRole(userId, new[] { roleName }))
+            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRoleForAGivenHost(userId, new[] { roleName }, host))
                 .Returns(Task.FromResult(false));
 
             var roleRequirement = new RoleRequirement(roleName);

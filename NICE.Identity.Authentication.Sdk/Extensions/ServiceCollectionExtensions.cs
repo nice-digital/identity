@@ -125,6 +125,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                        context.HandleResponse();
                        return Task.CompletedTask;
                     }
+                    //,OnRemoteFailure = (context) =>
+					//{
+					//	context.Response.Redirect("/"); 
+					//	context.HandleResponse();
+					//	return Task.FromResult(0);
+					//}
                 };
             });
         }

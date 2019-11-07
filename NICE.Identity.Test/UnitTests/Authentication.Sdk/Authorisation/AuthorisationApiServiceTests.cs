@@ -7,6 +7,7 @@ using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk.External;
 using Xunit;
 
@@ -18,6 +19,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         private const string TenantDomain = "https://someurl.com";
 
 		private readonly Mock<IHttpClientDecorator> _httpClientMock;
+		private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
 		private readonly AuthorisationApiService _sut;
 
 		public AuthorisationApiServiceTests()
@@ -28,7 +30,8 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
             configOptionsMock.Setup(x => x.WebSettings).Returns(config.WebSettings);
             configOptionsMock.Setup(x => x.TenantDomain).Returns(config.TenantDomain);
             _httpClientMock = new Mock<IHttpClientDecorator>();
-            _sut = new AuthorisationApiService(configOptionsMock.Object, _httpClientMock.Object);
+            _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+			_sut = new AuthorisationApiService(configOptionsMock.Object, _httpClientMock.Object, _httpContextAccessorMock.Object);
 		}
 
 		[Fact]
@@ -36,20 +39,21 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 		{
 			//Arrange
 			string[] requiredRoles = { Policies.Web.Administrator, Policies.Web.Editor };
+			var host = "www.nice.org.uk";
 			string userId = "auth0|user1234";
 			string url = $"{AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
 			var userRoles = new[]
 			{
-				new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Administrator),
-				new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+				new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Administrator, host),
+				new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User", host)
 			};
 
 			var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
 			_httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
 
 			//Act
-			var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+			var result = await _sut.UserSatisfiesAtLeastOneRoleForAGivenHost(userId, requiredRoles, host);
 
 			//Assert
 			result.ShouldBeTrue();
@@ -60,20 +64,21 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 		{
 			//Arrange
 			string[] requiredRoles = { Policies.Web.Administrator, "SomeRole1" };
+			var host = "www.nice.org.uk";
 			string userId = "auth0|user1234";
 			string url = $"{AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}";
 
 			var userRoles = new[]
 			{
-				new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Editor),
-				new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User")
+				new Identity.Authentication.Sdk.Domain.Claim("Role", Policies.Web.Editor, host),
+				new Identity.Authentication.Sdk.Domain.Claim("FirstName", "User", host)
 			};
 
 			var authorisationApiResponse = JsonConvert.SerializeObject(userRoles);
 			_httpClientMock.Setup(x => x.GetStringAsync(new Uri(url))).Returns(Task.FromResult(authorisationApiResponse));
 
 			//Act
-			var result = await _sut.UserSatisfiesAtLeastOneRole(userId, requiredRoles);
+			var result = await _sut.UserSatisfiesAtLeastOneRoleForAGivenHost(userId, requiredRoles, host);
 
 			//Assert
 			result.ShouldBeFalse();
