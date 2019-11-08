@@ -22,7 +22,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthConfiguration _authConfiguration;
         private readonly Uri _baseUrl;
-        private const int DefaultTokenExpirationInSeconds = 86400; //86400 is 24 hours in seconds
 
         public AuthorisationApiService(IAuthConfiguration authConfiguration, IHttpClientDecorator httpClient, IHttpContextAccessor httpContextAccessor)
         {
