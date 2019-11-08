@@ -174,7 +174,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.AddAuthorization();
 
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
-            services.AddSingleton<IAuthorisationService, AuthorisationApiService>();
 
             services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, ScopeRequirementHandler>();
