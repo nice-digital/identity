@@ -30,7 +30,7 @@ namespace NICE.Identity.TestClient.NetCore
 
             var authConfiguration = new AuthConfiguration(Configuration, "WebAppConfiguration");
             services.AddAuthentication(authConfiguration);
-            services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
+            services.AddAuthorisation(new AuthConfiguration(Configuration, "WebAppConfiguration"));
 
 			// HttpClient with certificate validation returning true
 			// All requests will bypass certificate validation enabling 
