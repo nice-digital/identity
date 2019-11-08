@@ -10,7 +10,9 @@ using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
@@ -46,6 +48,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IJobsService, JobsService>();
+            services.AddTransient<IWebsitesService, WebsitesService>();
             services.AddTransient<IProviderManagementService, Auth0ManagementService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -56,10 +59,13 @@ namespace NICE.Identity.Authorisation.WebAPI
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
-			services.AddSwaggerGen(c =>	
-			{
-				c.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
-			});	
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc(ApiVersion, new Info { Title = ApiTitle, Version = ApiVersion });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
+            });
 
 			services.ConfigureSwaggerGen(c =>
 			{
