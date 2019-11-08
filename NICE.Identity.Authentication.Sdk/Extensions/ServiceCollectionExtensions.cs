@@ -120,8 +120,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 								context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd));
 							}
 						}
-						//return Task.CompletedTask;
-					},
+                    },
                     OnRedirectToIdentityProvider = context =>
                     {
                         // Set audience if ApiIdentifier is present.
