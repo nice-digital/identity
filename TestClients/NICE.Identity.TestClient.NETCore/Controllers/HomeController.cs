@@ -17,14 +17,16 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
     public class HomeController : Controller
     {
         private readonly string _apiIdentifier;
-        private readonly string _authDomain;
+        private readonly string _authorisationServiceUri;
+		private readonly string _authDomain;
         private readonly IHttpClientFactory _clientFactory;
 
         public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             _clientFactory = clientFactory;
             _apiIdentifier = configuration.GetSection("WebAppConfiguration").GetSection("ApiIdentifier").Value;
-            _authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
+            _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
+			_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
         }
 
         public IActionResult Index()
@@ -51,7 +53,7 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 
             var request = new HttpRequestMessage()
             {
-                RequestUri = new Uri($"{_apiIdentifier}/users"),
+                RequestUri = new Uri($"{_authorisationServiceUri}/api/users") , // new Uri($"{_apiIdentifier}/users"), //, //new Uri($"{_apiIdentifier}/users"), 
                 Method = HttpMethod.Get,
                 Headers = {Authorization = new AuthenticationHeaderValue("Bearer", accessToken)}
             };

@@ -1,23 +1,22 @@
 ﻿using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.External;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
     public class AuthorisationApiService : IAuthorisationService
     {
-        private const string RoleClaimTypeName = "Role";
-
         private readonly IHttpClientDecorator _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthConfiguration _authConfiguration;
@@ -110,7 +109,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
             foreach (var role in roles)
             {
-                userHasRole = claims.Any(x => x.Type == RoleClaimTypeName &&
+                userHasRole = claims.Any(x => x.Type == ClaimTypes.Role &&
                                               string.Equals(x.Issuer, host, StringComparison.OrdinalIgnoreCase) &&
                                               x.Value == role
                 );

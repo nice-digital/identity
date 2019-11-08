@@ -109,7 +109,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						if (responseMessage.IsSuccessStatusCode)
 						{
 							var allClaims = JsonConvert.DeserializeObject<Claim[]>(await responseMessage.Content.ReadAsStringAsync());
-							var rolesToAdd = allClaims.Where(claim => claim.Type == "Role" && //TODO: use  ClaimTypes.Role
+							var rolesToAdd = allClaims.Where(claim => claim.Type == ClaimTypes.Role &&
 																   claim.Issuer.Equals(
 																	   context.HttpContext.Request.Host.Host,
 																	   StringComparison.OrdinalIgnoreCase))

@@ -3,11 +3,9 @@ using Newtonsoft.Json.Converters;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Responses
 {
-	public enum ClaimType
+	public static class ClaimTypesIdAM
 	{
-		Role,
-		FirstName,
-        TermsAndConditions
+		public const string TermsAndConditions = "TermsAndConditions";
 	}
 
 	public static class ClaimConstants {
@@ -20,17 +18,15 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Responses
 
 	public class Claim
     {
-	    public Claim(ClaimType type, string value, string issuer)
+	    public Claim(string type, string value, string issuer)
 	    {
 		    Type = type;
 		    Value = value;
 		    Issuer = issuer;
 	    }
 
-	    [JsonConverter(typeof(StringEnumConverter))] 
-	    public ClaimType Type { get; set; }
+	    public string Type { get; set; }
         public string Value { get; set; }
 		public string Issuer { get; set; }
-
 	}
 }

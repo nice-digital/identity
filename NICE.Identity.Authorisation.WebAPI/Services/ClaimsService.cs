@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
@@ -50,15 +51,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 		    }
 
-		    claims.Add(new Claim(ClaimType.FirstName, user.FirstName, ClaimConstants.IdAMIssuer));
-		    
+		    claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName, ClaimConstants.IdAMIssuer));
+		    claims.Add(new Claim(ClaimTypes.Surname, user.LastName, ClaimConstants.IdAMIssuer));
+
 			foreach (var userRole in user.UserRoles)
 			{
-				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name, userRole.Role.Website.Host));
+				claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name, userRole.Role.Website.Host));
 			}
 
             var latv = user.LatestAcceptedTermsVersion();
-            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), ClaimConstants.IdAMIssuer));
+            if (latv != null) claims.Add(new Claim(ClaimTypesIdAM.TermsAndConditions, latv.TermsVersionId.ToString(), ClaimConstants.IdAMIssuer));
 
             return claims;
 		}

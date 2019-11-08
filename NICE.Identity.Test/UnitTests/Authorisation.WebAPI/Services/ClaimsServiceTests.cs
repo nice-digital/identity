@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
@@ -37,7 +38,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var claims = _sut.GetClaims("some auth0 userid");
 
             //Assert
-            claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
+            claims.Single(claim => claim.Type.Equals(ClaimTypes.GivenName)).Value.ShouldBe("Steve");
+            claims.Single(claim => claim.Type.Equals(ClaimTypes.Surname)).Value.ShouldBe("Zissou");
         }
 
         [Fact]
@@ -62,7 +64,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var claims = _sut.GetClaims("some auth0 userid");
 
             //Assert
-            claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
-        }
+            claims.Single(claim => claim.Type.Equals(ClaimTypes.GivenName)).Value.ShouldBe("Steve");
+            claims.Single(claim => claim.Type.Equals(ClaimTypes.Surname)).Value.ShouldBe("Zissou");
+		}
     }
 }

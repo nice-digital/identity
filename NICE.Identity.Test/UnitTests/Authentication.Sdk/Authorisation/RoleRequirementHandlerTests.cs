@@ -1,29 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Xunit;
 using Claim = System.Security.Claims.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {
-    public class RoleRequirementHandlerTests : TestBase
+	public class RoleRequirementHandlerTests : TestBase
     {
         private const string UserIdClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
         private readonly Mock<IAuthorisationService> _authServiceMock;
-        private readonly RoleRequirementHandlerDecorator _sut;
+        private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
+		private readonly RoleRequirementHandlerDecorator _sut;
 
         public RoleRequirementHandlerTests()
         {
             _authServiceMock = new Mock<IAuthorisationService>();
+            _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
-            _sut = new RoleRequirementHandlerDecorator(_authServiceMock.Object);
+			_sut = new RoleRequirementHandlerDecorator(_authServiceMock.Object, _httpContextAccessorMock.Object);
         }
 
         [Fact]
