@@ -102,20 +102,18 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						var accessToken = context.TokenEndpointResponse.AccessToken;
 						var userId = context.SecurityToken.Subject;
 						var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}");
-
 						var client = httpClient ?? new HttpClient();
+
 						client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-						var responseMessage = await client.GetAsync(uri);
+						var responseMessage = await client.GetAsync(uri); //call the api to get all the claims for the current user
 						if (responseMessage.IsSuccessStatusCode)
 						{
 							var allClaims = JsonConvert.DeserializeObject<Claim[]>(await responseMessage.Content.ReadAsStringAsync());
-							var rolesToAdd = allClaims.Where(claim => claim.Type == ClaimTypes.Role &&
-																   claim.Issuer.Equals(
-																	   context.HttpContext.Request.Host.Host,
-																	   StringComparison.OrdinalIgnoreCase))
-													.ToList();
+							var rolesToAdd = allClaims.Where(claim => claim.Type.Equals(ClaimTypes.Role) &&
+																      claim.Issuer.Equals(context.HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)).ToList();
 							if (rolesToAdd.Any())
 							{
+								//add all the roles for the current user, using the current website (host), to the User.Claims array.
 								var claimsToAdd = rolesToAdd.Select(role => new System.Security.Claims.Claim(role.Type, role.Value, null, role.Issuer));
 								context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd));
 							}

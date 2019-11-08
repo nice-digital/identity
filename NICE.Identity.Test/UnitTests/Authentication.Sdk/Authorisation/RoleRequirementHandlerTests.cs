@@ -25,7 +25,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
             _authServiceMock = new Mock<IAuthorisationService>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
-			_sut = new RoleRequirementHandlerDecorator(_authServiceMock.Object, _httpContextAccessorMock.Object);
+			_sut = new RoleRequirementHandlerDecorator();
         }
 
         [Fact]

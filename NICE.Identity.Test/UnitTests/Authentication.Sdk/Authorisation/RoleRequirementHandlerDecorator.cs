@@ -7,11 +7,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {
     public class RoleRequirementHandlerDecorator : RoleRequirementHandler
     {
-        public RoleRequirementHandlerDecorator(IAuthorisationService authorisationService, IHttpContextAccessor httpContextAccessor) : base(authorisationService, httpContextAccessor)
-        {
-        }
-
-        public Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
+	    public Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
         {
             return base.HandleRequirementAsync(context, requirement);
         }
