@@ -1,9 +1,10 @@
 ﻿namespace NICE.Identity.Authentication.Sdk.Domain
 {
-    public class Claim
+	public class Claim
     {
         public string Value { get; set; }
 
+		//todo: make type a ClaimType, not a string.
         public string Type { get; set; }
 
         public string Issuer { get; set; }

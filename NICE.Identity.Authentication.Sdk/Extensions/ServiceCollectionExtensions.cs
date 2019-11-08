@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -10,11 +14,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Authentication;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
+using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -51,7 +57,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             return services;
         }
 
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration)
+        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddSingleton(authConfig => authConfiguration);
@@ -91,10 +97,31 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 options.SaveTokens = true;
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnTokenValidated = (context) =>
+                    OnTokenValidated = async (context) =>
                     {
-                        return Task.CompletedTask;
-                    },
+						var accessToken = context.TokenEndpointResponse.AccessToken;
+						var userId = context.SecurityToken.Subject;
+						var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}");
+
+						var client = httpClient ?? new HttpClient();
+						client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+						var responseMessage = await client.GetAsync(uri);
+						if (responseMessage.IsSuccessStatusCode)
+						{
+							var allClaims = JsonConvert.DeserializeObject<Claim[]>(await responseMessage.Content.ReadAsStringAsync());
+							var rolesToAdd = allClaims.Where(claim => claim.Type == "Role" && //TODO: use  ClaimTypes.Role
+																   claim.Issuer.Equals(
+																	   context.HttpContext.Request.Host.Host,
+																	   StringComparison.OrdinalIgnoreCase))
+													.ToList();
+							if (rolesToAdd.Any())
+							{
+								var claimsToAdd = rolesToAdd.Select(role => new System.Security.Claims.Claim(role.Type, role.Value, null, role.Issuer));
+								context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd));
+							}
+						}
+						//return Task.CompletedTask;
+					},
                     OnRedirectToIdentityProvider = context =>
                     {
                         // Set audience if ApiIdentifier is present.
@@ -124,7 +151,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                        context.Response.Redirect(logoutUri);
                        context.HandleResponse();
                        return Task.CompletedTask;
-                    }
+                    },
                     //,OnRemoteFailure = (context) =>
 					//{
 					//	context.Response.Redirect("/"); 
