@@ -1,11 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -15,18 +8,26 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using NICE.Identity.Authentication.Sdk.Authentication;
+using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
+using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
-    public static class ServiceCollectionExtensions
+	public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
                                                               IConfiguration configuration,
@@ -61,10 +62,11 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         {
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddSingleton(authConfig => authConfiguration);
-            services.AddScoped<IAuthenticationService, Auth0Service>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IAPIService, APIService>();
 
-            // Add authentication services
-            services.AddAuthentication(options => {
+			// Add authentication services
+			services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
@@ -101,7 +103,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     {
 						var accessToken = context.TokenEndpointResponse.AccessToken;
 						var userId = context.SecurityToken.Subject;
-						var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{string.Format(Constants.AuthorisationURLs.GetClaims, userId)}");
+						var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{Constants.AuthorisationURLs.GetClaims}{userId}");
 						var client = httpClient ?? new HttpClient();
 
 						client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -109,14 +111,20 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						if (responseMessage.IsSuccessStatusCode)
 						{
 							var allClaims = JsonConvert.DeserializeObject<Claim[]>(await responseMessage.Content.ReadAsStringAsync());
-							var rolesToAdd = allClaims.Where(claim => claim.Type.Equals(ClaimTypes.Role) &&
-																      claim.Issuer.Equals(context.HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)).ToList();
-							if (rolesToAdd.Any())
+							//add in all the claims from retrieved from the api, excluding roles where the host doesn't match the current.
+							var claimsToAdd = allClaims.Where(claim => (!claim.Type.Equals(ClaimType.Role)) ||
+							                                           (claim.Type.Equals(ClaimType.Role) &&
+																	    claim.Issuer.Equals(context.HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)))
+														.Select(claim => new System.Security.Claims.Claim(claim.Type, claim.Value, null, claim.Issuer)).ToList();
+							
+							if (claimsToAdd.Any())
 							{
-								//add all the roles for the current user, using the current website (host), to the User.Claims array.
-								var claimsToAdd = rolesToAdd.Select(role => new System.Security.Claims.Claim(role.Type, role.Value, null, role.Issuer));
 								context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd));
 							}
+						}
+						else
+						{
+							throw new Exception("Error trying to set claims when signing in."); 
 						}
                     },
                     OnRedirectToIdentityProvider = context =>

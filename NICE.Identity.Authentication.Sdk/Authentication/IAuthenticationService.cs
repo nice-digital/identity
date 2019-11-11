@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {

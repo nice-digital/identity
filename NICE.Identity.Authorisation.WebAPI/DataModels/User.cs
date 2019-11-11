@@ -46,7 +46,9 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public ICollection<TermsVersion> UserCreatedTermsVersions { get; set; }
         public ICollection<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
 
-        public UserAcceptedTermsVersion LatestAcceptedTermsVersion()
+        public string DisplayName => $"{FirstName} {LastName}".Trim();
+
+		public UserAcceptedTermsVersion LatestAcceptedTermsVersion()
         {
             return (UserAcceptedTermsVersions ?? new List<UserAcceptedTermsVersion>()).ToList().OrderByDescending(x => x.TermsVersionId).FirstOrDefault();
         }

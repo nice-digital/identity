@@ -5,9 +5,11 @@ using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -59,61 +61,103 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// get list of all users
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("")]
-        [ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        public IActionResult GetUsers()
-        {
-            try
-            {
-                return Ok(_usersService.GetUsers());
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
-            }
-        }
+		/// <summary>
+		/// get list of all users
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet("")]
+		[ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult GetUsers()
+		{
+			try
+			{
+				return Ok(_usersService.GetUsers());
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
 
-        /// <summary>
-        /// get user with id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        [HttpGet("{userId}")]
-        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        public IActionResult GetUser(int userId)
-        {
-            try
-            {
-                var user = _usersService.GetUser(userId);
-                if (user != null)
-                {
-                    return Ok(user);
-                }
-                return NotFound(new ProblemDetails {Status = 404, Title = "User not found"});
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
-            }
-        }
+		/// <summary>
+		/// get user with id
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <returns></returns>
+		[HttpGet("{userId:int}")]
+		[ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult GetUser(int userId)
+		{
+			try
+			{
+				var user = _usersService.GetUser(userId);
+				if (user != null)
+				{
+					return Ok(user);
+				}
+				return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
 
-        // TODO: custom model validation, checking incoming properties
-        /// <summary>
-        /// update user with id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        [HttpPatch("{userId}")]
+		/// <summary>
+		/// get list of all users given in the auth0UserIds parameter
+		/// </summary>
+		/// <param name="nameIdentifiers">this is the auth0UserId aka the "Name identifier"</param>
+		/// <returns></returns>
+		[HttpPost("findusers")]
+		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult FindUsers([FromBody] IEnumerable<string> nameIdentifiers)
+        {
+			try
+			{
+				return Ok(_usersService.FindUsers(nameIdentifiers.Distinct()));
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
+
+		/// <summary>
+		/// returns a dictionary of all the users supplied along with a list of their available roles.
+		/// </summary>
+		/// <param name="nameIdentifiers">this is the auth0UserId aka the "Name identifier"</param>
+		/// <returns></returns>
+		[HttpPost("findroles/{host}")]
+		[ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult FindRoles([FromBody] IEnumerable<string> nameIdentifiers, string host)
+		{
+			try
+			{
+				return Ok(_usersService.FindRoles(nameIdentifiers.Distinct(), host));
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
+
+		// TODO: custom model validation, checking incoming properties
+		/// <summary>
+		/// update user with id
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="user"></param>
+		/// <returns></returns>
+		[HttpPatch("{userId}")]
         [HttpPut("{userId}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

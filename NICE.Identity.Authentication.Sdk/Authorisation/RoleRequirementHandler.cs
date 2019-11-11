@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -15,7 +16,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return Task.CompletedTask;
 	        }
 
-	        if (context.User.Claims.Any(claim =>    claim.Type.Equals(ClaimTypes.Role) &&
+	        if (context.User.Claims.Any(claim =>    claim.Type.Equals(ClaimType.Role) &&
 													claim.Value.Equals(requirement.Role, StringComparison.OrdinalIgnoreCase)))
 	        {
 		        context.Succeed(requirement);

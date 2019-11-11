@@ -54,5 +54,5 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         public bool? IsStaffMember { get; set; }
         public bool? AcceptedTerms { get; set; }
         public bool? IsMigrated { get; set; }
-    }
+	}
 }

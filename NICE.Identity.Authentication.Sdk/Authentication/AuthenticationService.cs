@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-using NICE.Identity.Authentication.Sdk.Configuration;
+using System.Threading.Tasks;
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {
-    public class Auth0Service : IAuthenticationService
+	public class AuthenticationService : IAuthenticationService
     {
         private const string AuthenticationScheme = "Auth0";
 

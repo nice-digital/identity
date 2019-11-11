@@ -1,19 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
-using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
+using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
+using System.Linq;
 using Xunit;
-using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
-    public class ClaimsServiceTests : TestBase
+	public class ClaimsServiceTests : TestBase
     {
         private readonly Mock<ILogger<ClaimsService>> _logger;
         private IdentityContext _identityContext;
@@ -38,8 +35,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var claims = _sut.GetClaims("some auth0 userid");
 
             //Assert
-            claims.Single(claim => claim.Type.Equals(ClaimTypes.GivenName)).Value.ShouldBe("Steve");
-            claims.Single(claim => claim.Type.Equals(ClaimTypes.Surname)).Value.ShouldBe("Zissou");
+            claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
+            claims.Single(claim => claim.Type.Equals(ClaimType.LastName)).Value.ShouldBe("Zissou");
         }
 
         [Fact]
@@ -64,8 +61,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var claims = _sut.GetClaims("some auth0 userid");
 
             //Assert
-            claims.Single(claim => claim.Type.Equals(ClaimTypes.GivenName)).Value.ShouldBe("Steve");
-            claims.Single(claim => claim.Type.Equals(ClaimTypes.Surname)).Value.ShouldBe("Zissou");
+            claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
+            claims.Single(claim => claim.Type.Equals(ClaimType.LastName)).Value.ShouldBe("Zissou");
 		}
     }
 }

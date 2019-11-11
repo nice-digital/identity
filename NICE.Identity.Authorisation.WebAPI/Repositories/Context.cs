@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -11,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public User GetUser(string authenticationProviderUserId)
         {
-            var result = Users.Where(users => users.Auth0UserId.Equals(authenticationProviderUserId))
+            var result = Users.Where(users => users.Auth0UserId.Equals(authenticationProviderUserId, StringComparison.OrdinalIgnoreCase))
                 .Include(users => users.UserRoles)
                 .ThenInclude(userRoles => userRoles.Role)
                 .ThenInclude(website => website.Website)
@@ -29,7 +30,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return !result.Any() ? null : result.Single();
         }
 
-        public User CreateUser(User user)
+        public List<User> GetUsers(IEnumerable<string> authenticationProviderUserIds)
+        {
+	        return Users.Where(users => authenticationProviderUserIds.Contains(users.Auth0UserId, StringComparer.OrdinalIgnoreCase))
+		        .Include(users => users.UserRoles)
+		        .ThenInclude(userRoles => userRoles.Role)
+		        .ThenInclude(website => website.Website)
+		        .ToList();
+        }
+
+		public User CreateUser(User user)
         {
             // find by email address as this should be unique
             var foundUser = Users.FirstOrDefault(

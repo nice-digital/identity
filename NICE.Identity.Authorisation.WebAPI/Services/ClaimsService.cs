@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Responses.Claim;
@@ -51,16 +52,23 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 		    }
 
-		    claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName, ClaimConstants.IdAMIssuer));
-		    claims.Add(new Claim(ClaimTypes.Surname, user.LastName, ClaimConstants.IdAMIssuer));
+			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), Issuers.IdAM));
+			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, Issuers.IdAM));
+			claims.Add(new Claim(ClaimType.FirstName, user.FirstName, Issuers.IdAM));
+		    claims.Add(new Claim(ClaimType.LastName, user.LastName, Issuers.IdAM));
+			claims.Add(new Claim(ClaimType.EmailAddress, user.EmailAddress, Issuers.IdAM));
+		    if (user.IsStaffMember.HasValue && user.IsStaffMember.Value)
+		    {
+			    claims.Add(new Claim(ClaimType.IsStaff, true.ToString(), Issuers.IdAM));
+		    }
 
-			foreach (var userRole in user.UserRoles)
+		    foreach (var userRole in user.UserRoles)
 			{
-				claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name, userRole.Role.Website.Host));
+				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name, userRole.Role.Website.Host));
 			}
 
             var latv = user.LatestAcceptedTermsVersion();
-            if (latv != null) claims.Add(new Claim(ClaimTypesIdAM.TermsAndConditions, latv.TermsVersionId.ToString(), ClaimConstants.IdAMIssuer));
+            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), Issuers.IdAM));
 
             return claims;
 		}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 
@@ -12,7 +13,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         User CreateUser(User user);
         User GetUser(int userId);
         List<User> GetUsers();
-        User UpdateUser(int userId, User user);
+        List<UserDetails> FindUsers(IEnumerable<string> auth0UserIds);
+        Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host);
+		User UpdateUser(int userId, User user);
         int DeleteUser(int userId);
     }
 
@@ -66,8 +69,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return _context.Users.Select(user => new User(user)).ToList();
         }
 
-        // TODO: update user in identity provider if needed
-        public User UpdateUser(int userId, User user)
+        public List<UserDetails> FindUsers(IEnumerable<string> auth0UserIds)
+        {
+			return _context.Users.Where(user => auth0UserIds.Contains(user.Auth0UserId)).Select(user => new UserDetails(user.Auth0UserId, user.DisplayName, user.EmailAddress)).ToList();
+		}
+
+        public Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host)
+        {
+	        var users = _context.GetUsers(auth0UserIds);
+	        return users.ToDictionary(user => user.Auth0UserId, 
+						user => user.UserRoles
+							.Where(userRole => userRole.Role.Website.Host.Equals(host, StringComparison.OrdinalIgnoreCase))
+							.Select(role => role.Role.Name));
+        }
+
+		// TODO: update user in identity provider if needed
+		public User UpdateUser(int userId, User user)
         {
             try
             {
