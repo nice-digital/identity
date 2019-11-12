@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://localhost",
+      "applicationUrl": "http://localhost",
       "sslPort": 44300
     }
   },
@@ -22,7 +22,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://dev-identityapi.nice.org.uk"
+      "applicationUrl": "https://localhost"
     }
   }
 }

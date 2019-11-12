@@ -59,7 +59,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 
 
 		/// <summary>
-		/// TODO: remove duplicated code.
+		/// TODO: refactor
 		/// </summary>
 		/// <param name="nameIdentifiers"></param>
 		/// <param name="host"></param>

@@ -29,6 +29,11 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			return claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimType.LastName && c.Issuer.Equals(Issuers.IdAM))?.Value;
 		}
 
+		public static string EmailAddress(this ClaimsPrincipal claimsPrincipal)
+		{
+			return claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimType.EmailAddress && c.Issuer.Equals(Issuers.IdAM))?.Value;
+		}
+
 		public static string DisplayName(this ClaimsPrincipal claimsPrincipal)
 		{
 			return ($"{FirstName(claimsPrincipal)} {LastName(claimsPrincipal)}").Trim();
