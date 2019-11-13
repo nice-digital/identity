@@ -70,7 +70,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
-            .AddCookie()
+            .AddCookie(options => options.Cookie.Name = Cookie.Name)
             .AddOpenIdConnect("Auth0", options => {
                 // Set the authority to your Auth0 domain
                 options.Authority = $"https://{authConfiguration.TenantDomain}";
@@ -92,7 +92,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 };
                 // Set the callback path, so Auth0 will call back to http://URI/signin-auth0
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
-                options.CallbackPath = new PathString("/signin-auth0");
+                options.CallbackPath = new PathString(authConfiguration.WebSettings.CallBackPath ?? "/signin-auth0");
                 // Configure the Claims Issuer to be Auth0
                 options.ClaimsIssuer = "Auth0";
                 // Saves tokens to the AuthenticationProperties
