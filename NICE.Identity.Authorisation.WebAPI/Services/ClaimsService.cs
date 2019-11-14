@@ -52,14 +52,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 		    }
 
-			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), Issuers.IdAM));
-			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, Issuers.IdAM));
-			claims.Add(new Claim(ClaimType.FirstName, user.FirstName, Issuers.IdAM));
-		    claims.Add(new Claim(ClaimType.LastName, user.LastName, Issuers.IdAM));
-			claims.Add(new Claim(ClaimType.EmailAddress, user.EmailAddress, Issuers.IdAM));
+			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), AuthenticationConstants.IdAMIssuer));
+			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, AuthenticationConstants.IdAMIssuer));
+			claims.Add(new Claim(ClaimType.FirstName, user.FirstName, AuthenticationConstants.IdAMIssuer));
+		    claims.Add(new Claim(ClaimType.LastName, user.LastName, AuthenticationConstants.IdAMIssuer));
+			claims.Add(new Claim(ClaimType.EmailAddress, user.EmailAddress, AuthenticationConstants.IdAMIssuer));
 		    if (user.IsStaffMember.HasValue && user.IsStaffMember.Value)
 		    {
-			    claims.Add(new Claim(ClaimType.IsStaff, true.ToString(), Issuers.IdAM));
+			    claims.Add(new Claim(ClaimType.IsStaff, true.ToString(), AuthenticationConstants.IdAMIssuer));
 		    }
 
 		    foreach (var userRole in user.UserRoles)
@@ -68,7 +68,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 
             var latv = user.LatestAcceptedTermsVersion();
-            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), Issuers.IdAM));
+            if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), AuthenticationConstants.IdAMIssuer));
 
             return claims;
 		}

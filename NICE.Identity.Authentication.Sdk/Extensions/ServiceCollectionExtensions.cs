@@ -70,8 +70,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
-            .AddCookie(options => options.Cookie.Name = Cookie.Name)
-            .AddOpenIdConnect("Auth0", options => {
+            .AddCookie(options => options.Cookie.Name = AuthenticationConstants.CookieName)
+            .AddOpenIdConnect(AuthenticationConstants.AuthenticationScheme, options => {
                 // Set the authority to your Auth0 domain
                 options.Authority = $"https://{authConfiguration.TenantDomain}";
                 // Configure the Auth0 Client ID and Client Secret
