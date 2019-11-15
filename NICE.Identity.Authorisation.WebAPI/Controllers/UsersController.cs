@@ -174,11 +174,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update user"});
             }
 
-            if (userId != user.UserId)
-            {
-                return BadRequest(new ProblemDetails {Status = 400, Title = "UserId does not match"});
-            }
-
             try
             {
                 return Ok(_usersService.UpdateUser(userId, user));

@@ -55,7 +55,6 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         public void UpdateFromApiModel(ApiModels.User user)
         {
-            UserId = user?.UserId ?? UserId;
             Auth0UserId = user?.Auth0UserId ?? Auth0UserId;
             FirstName = user?.FirstName ?? FirstName;
             LastName = user?.LastName ?? LastName;
