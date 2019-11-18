@@ -56,6 +56,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.FirstName, user.FirstName, AuthenticationConstants.IdAMIssuer));
 		    claims.Add(new Claim(ClaimType.LastName, user.LastName, AuthenticationConstants.IdAMIssuer));
+		    claims.Add(new Claim(ClaimType.DisplayName, $"{user.FirstName} {user.LastName}".Trim(), AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.EmailAddress, user.EmailAddress, AuthenticationConstants.IdAMIssuer));
 		    if (user.IsStaffMember.HasValue && user.IsStaffMember.Value)
 		    {

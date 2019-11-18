@@ -36,7 +36,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 		public static string DisplayName(this ClaimsPrincipal claimsPrincipal)
 		{
-			return ($"{FirstName(claimsPrincipal)} {LastName(claimsPrincipal)}").Trim();
+			return claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimType.DisplayName && c.Issuer.Equals(AuthenticationConstants.IdAMIssuer))?.Value;
 		}
 		
 		public static bool IsStaff(this ClaimsPrincipal claimsPrincipal)

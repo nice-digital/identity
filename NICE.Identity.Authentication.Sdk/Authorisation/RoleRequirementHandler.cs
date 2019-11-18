@@ -11,7 +11,8 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
         {
-	        if (!context.User.Identity.IsAuthenticated)
+	        //System.Diagnostics.Debugger.Launch();
+			if (!context.User.Identity.IsAuthenticated)
 	        {
 				return Task.CompletedTask;
 	        }

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -37,6 +38,9 @@ namespace NICE.Identity.Authentication.Sdk.API
 		/// <returns></returns>
 		public async Task<IEnumerable<UserDetails>> FindUsers(IEnumerable<string> nameIdentifiers, HttpClient httpClient = null)
 		{
+			if (!nameIdentifiers.Any())
+				return new List<UserDetails>();
+
 			var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 			if (string.IsNullOrEmpty(accessToken))
 				throw new Exception("Access token not found");
@@ -67,6 +71,9 @@ namespace NICE.Identity.Authentication.Sdk.API
 		/// <returns></returns>
 		public async Task<Dictionary<string, IEnumerable<string>>> FindRoles(IEnumerable<string> nameIdentifiers, string host, HttpClient httpClient = null)
 		{
+			if (!nameIdentifiers.Any())
+				return new Dictionary<string, IEnumerable<string>>();
+
 			var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 			if (string.IsNullOrEmpty(accessToken))
 				throw new Exception("Access token not found");
