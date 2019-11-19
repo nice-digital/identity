@@ -63,7 +63,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddSingleton(authConfig => authConfiguration);
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IAPIService, APIService>();
+            services.TryAddScoped<IAPIService, APIService>();
 
 			// Add authentication services
 			services.AddAuthentication(options => {

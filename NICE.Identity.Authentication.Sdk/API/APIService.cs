@@ -31,7 +31,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 		}
 
 		/// <summary>
-		/// not sure about this living here yet. might need moving somewhere.
+		/// Find users
 		/// </summary>
 		/// <param name="nameIdentifiers"></param>
 		/// <param name="httpClient"></param>
@@ -63,7 +63,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 
 
 		/// <summary>
-		/// TODO: refactor
+		/// Find Roles
 		/// </summary>
 		/// <param name="nameIdentifiers"></param>
 		/// <param name="host"></param>
