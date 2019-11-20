@@ -124,7 +124,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						}
 						else
 						{
-							throw new Exception("Error trying to set claims when signing in."); 
+							throw new Exception($"Error {(int)responseMessage.StatusCode} trying to set claims when signing in to uri: {uri} using access token: {accessToken}"); //TODO: remove access token from error message.
 						}
                     },
                     OnRedirectToIdentityProvider = context =>
