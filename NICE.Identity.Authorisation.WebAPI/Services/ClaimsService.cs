@@ -53,11 +53,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		    }
 
 			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), AuthenticationConstants.IdAMIssuer));
-
-			
 			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.IsMigrated, user.IsMigrated.HasValue ? user.IsMigrated.ToString() : false.ToString(), AuthenticationConstants.IdAMIssuer));
-			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.FirstName, user.FirstName, AuthenticationConstants.IdAMIssuer));
 		    claims.Add(new Claim(ClaimType.LastName, user.LastName, AuthenticationConstants.IdAMIssuer));
 		    claims.Add(new Claim(ClaimType.DisplayName, $"{user.FirstName} {user.LastName}".Trim(), AuthenticationConstants.IdAMIssuer));

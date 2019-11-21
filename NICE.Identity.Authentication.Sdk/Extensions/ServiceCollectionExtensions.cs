@@ -167,7 +167,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             });
         }
 
-        public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration)
+        public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
             // TODO: refactor HttpClientDecorator and rename authConfiguration
             services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
@@ -179,7 +179,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.Authority = $"https://{authConfiguration.TenantDomain}";
                     options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
                 });
-            services.AddAuthorization();
+            services.AddAuthorization(authorizationOptions);
 
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 
