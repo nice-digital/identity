@@ -39,12 +39,33 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			return claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimType.DisplayName && c.Issuer.Equals(AuthenticationConstants.IdAMIssuer))?.Value;
 		}
 		
+		/// <summary>
+		/// the isstaff property is only determined by whether they've signed in via AD.
+		/// staff may also sign in via other means (password or google) and this property won't be set correctly for them.
+		/// </summary>
+		/// <param name="claimsPrincipal"></param>
+		/// <returns></returns>
 		public static bool IsStaff(this ClaimsPrincipal claimsPrincipal)
 		{
 			var isStaffClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimType.IsStaff && c.Issuer.Equals(AuthenticationConstants.IdAMIssuer))?.Value;
 			if (isStaffClaim != null && bool.TryParse(isStaffClaim, out var isStaff))
 			{
 				return isStaff;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// This property determines whether the user account has been migrated from nice accounts.
+		/// </summary>
+		/// <param name="claimsPrincipal"></param>
+		/// <returns></returns>
+		public static bool IsMigrated(this ClaimsPrincipal claimsPrincipal)
+		{
+			var isMigratedClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimType.IsMigrated && c.Issuer.Equals(AuthenticationConstants.IdAMIssuer))?.Value;
+			if (isMigratedClaim != null && bool.TryParse(isMigratedClaim, out var isMigrated))
+			{
+				return isMigrated;
 			}
 			return false;
 		}
