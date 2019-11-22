@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using NICE.Identity.Authentication.Sdk.Domain;
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -11,14 +10,15 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
         {
-	        //System.Diagnostics.Debugger.Launch();
 			if (!context.User.Identity.IsAuthenticated)
 	        {
 				return Task.CompletedTask;
 	        }
 
-	        if (context.User.Claims.Any(claim =>    claim.Type.Equals(ClaimType.Role) &&
-													claim.Value.Equals(requirement.Role, StringComparison.OrdinalIgnoreCase)))
+			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim());
+
+			if (context.User.Claims.Any(claim =>    claim.Type.Equals(ClaimType.Role) &&
+	                                                rolesRequired.Contains(claim.Value, StringComparer.OrdinalIgnoreCase)))
 	        {
 		        context.Succeed(requirement);
 			}

@@ -179,7 +179,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.Authority = $"https://{authConfiguration.TenantDomain}";
                     options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
                 });
-            services.AddAuthorization(authorizationOptions);
+
+            Action<AuthorizationOptions> defaultOptions = options => { };
+			services.AddAuthorization(authorizationOptions ?? defaultOptions);
 
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 
