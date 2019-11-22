@@ -21,7 +21,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	    }
 
 		// GET api/claims/someuserid
-		//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //TODO: restore
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] 
 	    [HttpGet("{authenticationProviderUserId}")]
 	    public async Task<ActionResult<IEnumerable<ApiModels.Responses.Claim[]>>> Get(string authenticationProviderUserId)
 	    {
