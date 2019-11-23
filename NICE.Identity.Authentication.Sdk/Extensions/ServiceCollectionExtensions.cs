@@ -136,7 +136,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                             context.ProtocolMessage.SetParameter("audience", 
                                 authConfiguration.MachineToMachineSettings.ApiIdentifier);
                         }
-                        return Task.FromResult(0);
+						if (context.Properties.Items.ContainsKey("goToRegisterPage"))
+                        {
+	                        context.ProtocolMessage.SetParameter("register", 
+		                        context.Properties.Items["goToRegisterPage"]);
+						}
+
+						return Task.FromResult(0);
                     },
                     // handle the logout redirection 
                     OnRedirectToIdentityProviderForSignOut = (context) =>
