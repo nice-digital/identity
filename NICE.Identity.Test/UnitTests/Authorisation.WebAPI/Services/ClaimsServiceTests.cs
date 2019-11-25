@@ -14,15 +14,17 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
     {
         private readonly Mock<ILogger<ClaimsService>> _logger;
         private IdentityContext _identityContext;
+        private readonly IUsersService _usersService;
 
-        private ClaimsService _sut;
+		private ClaimsService _sut;
 
         public ClaimsServiceTests()
         {
             _logger = new Mock<ILogger<ClaimsService>>();
-            _identityContext = GetContext();
+            _usersService = new MockUserService();
+			_identityContext = GetContext();
 
-            _sut = new ClaimsService(_identityContext, _logger.Object);
+            _sut = new ClaimsService(_identityContext, _logger.Object, _usersService);
         }
 
         [Fact]

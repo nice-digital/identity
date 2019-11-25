@@ -227,7 +227,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	        try
 	        {
 		        var createdUsers = _usersService.ImportUsers(usersToImport);
-		        return Ok(createdUsers);
+		        return Ok(createdUsers.Select(user => new User(user)));
 	        }
 	        catch (Exception e)
 	        {

@@ -57,11 +57,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             }
             if (string.IsNullOrEmpty(foundUser.Auth0UserId))
             {
-                foundUser.Auth0UserId = user.Auth0UserId;
-                SaveChanges();
-                return foundUser;
+	            foundUser.Auth0UserId = user.Auth0UserId;
+	            SaveChanges();
             }
-            return null;
+            return foundUser;
         }
 
         #endregion
@@ -79,6 +78,39 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return TermsVersions.OrderByDescending(x => x.TermsVersionId).FirstOrDefault();
         }
 
-        #endregion
-    }
+		#endregion
+
+		#region Roles 
+
+		public Role GetRole(string websiteHost, string roleName)
+		{
+			return Roles.FirstOrDefault(r =>
+				r.Website.Host.Equals(websiteHost, StringComparison.OrdinalIgnoreCase) &&
+				r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+		}
+
+
+		public int AddUsersToRole(IEnumerable<User> users, Role roleToAdd)
+		{
+			var userRolesAdded = 0;
+			foreach (var user in users)
+			{
+				if (!user.UserRoles.Any(r => r.RoleId == roleToAdd.RoleId))
+				{
+					UserRoles.Add(new UserRole {RoleId = roleToAdd.RoleId, UserId = user.UserId});
+					userRolesAdded++;
+				}
+			}
+
+			if (userRolesAdded > 0)
+			{
+				SaveChanges();
+			}
+
+			return userRolesAdded;
+		}
+
+		#endregion
+
+	}
 }

@@ -18,7 +18,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host);
 		User UpdateUser(int userId, User user);
 		int DeleteUser(int userId);
-		IEnumerable<User> ImportUsers(IEnumerable<ImportUser> usersToImport);
+		IEnumerable<DataModels.User> ImportUsers(IEnumerable<ImportUser> usersToImport);
 	}
 
 	public class UsersService : IUsersService
@@ -132,31 +132,20 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 		}
 
-		public IEnumerable<User> ImportUsers(IEnumerable<ImportUser> usersToImport)
+		public IEnumerable<DataModels.User> ImportUsers(IEnumerable<ImportUser> usersToImport)
 		{
+			var userIds = new List<string>();
 			foreach (var userToImport in usersToImport)
 			{
 				if (userToImport.UserId.Equals(Guid.Empty) || string.IsNullOrEmpty(userToImport.FirstName) ||
 				    string.IsNullOrEmpty(userToImport.LastName))
 				{
-					_logger.LogError($"Not importing user with details: user id:{userToImport.UserId} firstname: {userToImport.FirstName} lastname: {userToImport.LastName} displayname: {userToImport.DisplayName}");
+					_logger.LogError($"Not importing user with details: user id:{userToImport.UserId} firstname: {userToImport.FirstName} lastname: {userToImport.LastName}");
 					continue;
 				}
-
-				var user = new DataModels.User()
-				{
-					Auth0UserId = userToImport.NameIdentifier,
-					FirstName = userToImport.FirstName,
-					LastName = userToImport.LastName,
-					EmailAddress = userToImport.EmailAddress,
-					AllowContactMe = false,
-					IsMigrated = true,
-					HasVerifiedEmailAddress = true, 
-					IsLockedOut = false,
-					IsStaffMember = userToImport.EmailAddress.Contains("@nice.org.uk", StringComparison.OrdinalIgnoreCase)
-				};
-				yield return new User(_context.CreateUser(user));
+				userIds.Add(_context.CreateUser(userToImport.AsUser).Auth0UserId);
 			}
+			return _context.GetUsers(userIds);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -15,17 +16,20 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	{
 		List<Claim> GetClaims(string authenticationProviderUserId);
 		Task AddToUser(Role role);
+		int ImportUserRoles(IEnumerable<ImportUser> usersToImport, string websiteHost, string roleName);
 	}
 
 	public class ClaimsService : IClaimsService
 	{
 		private readonly IdentityContext _context;
 	    private readonly ILogger<ClaimsService> _logger;
+	    private readonly IUsersService _usersService;
 
-	    public ClaimsService(IdentityContext context, ILogger<ClaimsService> logger)
+	    public ClaimsService(IdentityContext context, ILogger<ClaimsService> logger, IUsersService usersService)
 	    {
 	        _context = context ?? throw new ArgumentNullException(nameof(context));
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	        _usersService = usersService;
 	    }
 
 	    public List<Claim> GetClaims(string authenticationProviderUserId)
@@ -78,6 +82,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		public Task AddToUser(Role role)
 		{
 			throw new NotImplementedException();
+		}
+
+		public int ImportUserRoles(IEnumerable<ImportUser> usersToImport, string websiteHost, string roleName)
+		{
+			var importedUsers = _usersService.ImportUsers(usersToImport);
+			var role = _context.GetRole(websiteHost, roleName);
+
+			if (role == null)
+			{
+				throw new Exception($"Unknown role: {roleName} website host: {websiteHost}");
+			}
+			return _context.AddUsersToRole(importedUsers, role);
 		}
 	}
 }
