@@ -9,8 +9,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.Claim;
-using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -49,43 +47,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	        }
 	    }
 
-        // PUT api/claims
-        [HttpPut("{userId}")]
-	    public async Task<ActionResult> Put(int userId, [FromBody] Claim claim)
-	    {
-	        //var role = MapClaimToRole(claim);
-
-	        //try
-	        //{
-	        //    await _claimsService.AddToUser(role);
-         //   }
-	        //catch (Exception e)
-	        //{
-	        //    // TODO: Implement Logging and custom exception types
-
-	        //    var error = new ErrorDetail()
-	        //    {
-         //           ErrorMessage = e.Message
-	        //    };
-
-	        //    return StatusCode(503, error);
-	        //}
-
-	        return Ok();
-	    }
-
-		//private Role MapClaimToRole(Claim claim)
-		//{
-		//    var role = new Role()
-		//    {
-		//        Id = claim.RoleId,
-		//        Name = claim.RoleName
-		//    };
-
-		//    return role;
-		//}
-
-		[HttpPost("import/{websiteHost}/{roleName}")]
+	    [HttpPost("import/{websiteHost}/{roleName}")]
 		[ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
