@@ -11,5 +11,8 @@
 		public static readonly string IdAMIssuer = "IdAMIssuer";
 
 		public static readonly string CookieName = "IdAM";
+
+
+		public static readonly string NameIdentifierDefaultPrefix = "auth0|";
 	}
 }

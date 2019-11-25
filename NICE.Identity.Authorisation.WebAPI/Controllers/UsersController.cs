@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
+using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -206,5 +207,32 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
-    }
+
+        [HttpPost("import")]
+        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult ImportUsers([FromBody] IEnumerable<ImportUser> usersToImport)
+        {
+	        if (!ModelState.IsValid)
+	        {
+		        var serializableModelState = new SerializableError(ModelState);
+		        var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+		        _logger.LogError($"Invalid model for create user", modelStateJson);
+		        return BadRequest(new ProblemDetails { Status = 400, Title = "Invalid model for create user" });
+	        }
+
+	        try
+	        {
+		        var createdUsers = _usersService.ImportUsers(usersToImport);
+		        return Ok(createdUsers);
+	        }
+	        catch (Exception e)
+	        {
+		        return StatusCode(500, new ProblemDetails { Status = 500, Title = e.Message, Detail = e.InnerException?.Message });
+	        }
+        }
+	}
 }
