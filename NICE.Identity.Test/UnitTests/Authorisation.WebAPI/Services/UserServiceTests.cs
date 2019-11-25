@@ -57,7 +57,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var userToInsert = new ApiModels.User { EmailAddress = newUserEmailAddress };
 
             //Act + Assert
-            Assert.Throws<Exception>(() => userService.CreateUser(userToInsert));
+            userService.CreateUser(userToInsert);
             context.Users.Count().ShouldBe(1);
         }
 
