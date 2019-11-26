@@ -50,6 +50,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             // if that user has been imported.
             if (foundUser == null)
             {
+				user.InitialRegistrationDate = DateTime.UtcNow;
                 //new user
                 Users.Add(user);
                 SaveChanges();
@@ -62,6 +63,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             }
             return foundUser;
         }
+
+		public void UpdateUserLastLoggedInDate(User user)
+		{
+			user.LastLoggedInDate = DateTime.UtcNow;
+			Users.Update(user);
+			SaveChanges();
+		}
 
         #endregion
 

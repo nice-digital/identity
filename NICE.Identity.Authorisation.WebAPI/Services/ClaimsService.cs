@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using NICE.Identity.Authentication.Sdk.Domain;
-using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Responses.Claim;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
@@ -55,6 +52,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 return null;
 		    }
+			_context.UpdateUserLastLoggedInDate(user); //currently this method is only ever called when logging in, and populating the cookie with claims. if that changes, so should this.
 
 			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, AuthenticationConstants.IdAMIssuer));
