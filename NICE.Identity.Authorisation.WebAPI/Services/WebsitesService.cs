@@ -56,7 +56,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public Website UpdateWebsite(int websiteId, Website website)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                var websiteToUpdate = _context.Websites.Find(websiteId);
+                if (websiteToUpdate == null)
+                    throw new Exception($"Website not found {websiteId.ToString()}");
+
+                Console.Write(websiteToUpdate.WebsiteId);
+                websiteToUpdate.UpdateFromApiModel(website);
+                _context.SaveChanges();
+                return new Website(websiteToUpdate);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to update website {websiteId.ToString()} - exception: {e.InnerException.Message}");
+                throw new Exception($"Failed to update website {websiteId.ToString()} - exception: {e.InnerException.Message}");
+            }
         }
 
         public int DeleteWebsite(int websiteId)

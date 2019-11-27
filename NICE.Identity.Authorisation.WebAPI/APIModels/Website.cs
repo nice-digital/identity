@@ -25,9 +25,9 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             Host = website.Host;
         }
 
-        public int WebsiteId { get; set; }
-        public int ServiceId { get; set; }
-        public int EnvironmentId { get; set; }
+        public int? WebsiteId { get; set; }
+        public int? ServiceId { get; set; }
+        public int? EnvironmentId { get; set; }
         public string Host { get; set; }
     }
 }

@@ -104,5 +104,37 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
+
+        /// <summary>
+        /// update website with id
+        /// </summary>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        [HttpPatch("{websiteId}", Name = "UpdateWebsitePartial")]
+        [HttpPut("{websiteId}", Name = "UpdateWebsite")]
+        [ProducesResponseType(typeof(Website), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult UpdateUser([FromRoute] int websiteId, [FromBody] Website website)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid model for update website {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update website"});
+            }
+
+            try
+            {
+                return Ok(_websitesService.UpdateWebsite(websiteId, website));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
     }
 }
