@@ -136,5 +136,26 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
+        /// <summary>
+        /// delete website with id
+        /// </summary>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        [HttpDelete("{websiteId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult DeleteUser(int websiteId)
+        {
+            try
+            {
+                _websitesService.DeleteWebsite(websiteId);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
     }
 }

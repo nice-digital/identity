@@ -76,7 +76,19 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public int DeleteWebsite(int websiteId)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                var websiteToDelete = _context.Websites.Find(websiteId);
+                if (websiteToDelete == null)
+                    return 0;
+                _context.Websites.RemoveRange(websiteToDelete);
+                return _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete website {websiteId.ToString()} - exception: {e.Message}");
+                throw new Exception($"Failed to delete website {websiteId.ToString()} - exception: {e.Message}");
+            }
         }
     }
 }
