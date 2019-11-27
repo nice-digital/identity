@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -54,6 +55,53 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             catch (Exception e)
             {
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message, Detail = e.InnerException?.Message});
+            }
+        }
+
+        /// <summary>
+        /// get list of all websites
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("")]
+        [ProducesResponseType(typeof(List<Website>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetWebsites()
+        {
+            try
+            {
+                return Ok(_websitesService.GetWebsites());
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+
+        /// <summary>
+        /// get website with id
+        /// </summary>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        [HttpGet("{websiteId}")]
+        [ProducesResponseType(typeof(Website), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetWebsite(int websiteId)
+        {
+            try
+            {
+                var website = _websitesService.GetWebsite(websiteId);
+                if (website != null)
+                {
+                    return Ok(website);
+                }
+                return NotFound(new ProblemDetails {Status = 404, Title = "Website not found"});
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
@@ -42,14 +43,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public Website GetWebsite(int websiteId)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public List<Website> GetWebsites()
         {
-            throw new System.NotImplementedException();
+            return _context.Websites.Select(website => new Website(website)).ToList();
+        }
+
+        public Website GetWebsite(int websiteId)
+        {
+            var website = _context.Websites.Where((w => w.WebsiteId == websiteId)).FirstOrDefault();
+            return website != null ? new Website(website) : null;
         }
 
         public Website UpdateWebsite(int websiteId, Website website)
