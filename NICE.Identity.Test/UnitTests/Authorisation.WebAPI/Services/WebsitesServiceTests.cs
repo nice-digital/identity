@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using Moq;
 using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
@@ -26,7 +27,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var websitesService = new WebsitesService(context, _logger.Object);
 
             //Act
-            websitesService.CreateWebsite(new ApiModels.Website()
+            var createdWebsite = websitesService.CreateWebsite(new ApiModels.Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
@@ -35,8 +36,183 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             var websites = context.Websites.ToList();
-            websites.First().Host.ShouldBe("test-host.nice.org.uk");
             websites.Count.ShouldBe(1);
+            websites.First().Host.ShouldBe("test-host.nice.org.uk");
+            createdWebsite.Host.ShouldBe("test-host.nice.org.uk");
+        }
+
+        [Fact]
+        public void Get_websites()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 1,
+                Host = "test1-host.nice.org.uk"
+            });
+            websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 1,
+                Host = "test2-host.nice.org.uk"
+            });
+
+            //Act
+            var websites = websitesService.GetWebsites();
+
+            //Assert
+            websites.Count.ShouldBe(2);
+            websites[0].Host.ShouldBe("test1-host.nice.org.uk");
+            websites[1].Host.ShouldBe("test2-host.nice.org.uk");
+        }
+        
+        [Fact]
+        public void Get_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            var createdWebsiteId = websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 2,
+                Host = "test-host.nice.org.uk"
+            }).WebsiteId.GetValueOrDefault();
+
+            //Act
+            var website = websitesService.GetWebsite(createdWebsiteId);
+
+            //Assert
+            website.ServiceId.ShouldBe(1);
+            website.EnvironmentId.ShouldBe(2);
+            website.Host.ShouldBe("test-host.nice.org.uk");
+        }
+        
+        [Fact]
+        public void Get_website_that_does_not_exist()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+
+            //Act
+            var website = websitesService.GetWebsite(9999);
+
+            //Assert
+            website.ShouldBeNull();
+        }
+
+        [Fact]
+        public void Update_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            var createdWebsiteId = websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 1,
+                Host = "test-host.nice.org.uk"
+            }).WebsiteId.GetValueOrDefault();
+
+            //Act
+            var updatedWebsite = websitesService.UpdateWebsite(createdWebsiteId, new ApiModels.Website()
+            {
+                ServiceId = 2,
+                EnvironmentId = 2,
+                Host = "updated-host.nice.org.uk"
+            });
+            var website = websitesService.GetWebsite(updatedWebsite.WebsiteId.GetValueOrDefault());
+
+            //Assert
+            updatedWebsite.ServiceId.ShouldBe(2);
+            updatedWebsite.EnvironmentId.ShouldBe(2);
+            updatedWebsite.Host.ShouldBe("updated-host.nice.org.uk");
+            website.Host.ShouldBe("updated-host.nice.org.uk");
+        }
+
+        [Fact]
+        public void Update_website_partial()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            var createdWebsiteId = websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 1,
+                Host = "test-host.nice.org.uk"
+            }).WebsiteId.GetValueOrDefault();
+
+            //Act
+            var partiallyUpdatedWebsite = websitesService.UpdateWebsite(createdWebsiteId, new ApiModels.Website()
+            {
+                Host = "updated-host.nice.org.uk"
+            });
+            var website = websitesService.GetWebsite(partiallyUpdatedWebsite.WebsiteId.GetValueOrDefault());
+
+            //Assert
+            partiallyUpdatedWebsite.ServiceId.ShouldBe(1);
+            partiallyUpdatedWebsite.EnvironmentId.ShouldBe(1);
+            partiallyUpdatedWebsite.Host.ShouldBe("updated-host.nice.org.uk");
+            website.Host.ShouldBe("updated-host.nice.org.uk");
+        }
+        
+        [Fact]
+        public void Update_website_that_does_not_exist()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            var websiteToUpdate = new ApiModels.Website() {Host = "updated-host.nice.org.uk"};
+
+            //Act + Assert
+            Assert.Throws<NullReferenceException>(() => websitesService.UpdateWebsite(9999, websiteToUpdate));
+            context.Users.Count().ShouldBe(0);
+        }
+        
+        [Fact]
+        public void Delete_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            var createdWebsite = websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 1,
+                Host = "test1-host.nice.org.uk"
+            });
+            websitesService.CreateWebsite(new ApiModels.Website()
+            {
+                ServiceId = 2,
+                EnvironmentId = 2,
+                Host = "test2-host.nice.org.uk"
+            });
+
+            //Act
+            var deletedWebsiteResponse = websitesService.DeleteWebsite(createdWebsite.WebsiteId.GetValueOrDefault());
+
+            //Assert
+            deletedWebsiteResponse.ShouldBe(1);
+            context.Websites.Count().ShouldBe(1);
+        }
+
+        [Fact]
+        public void Delete_website_that_does_not_exist()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+
+            //Act
+            var deletedWebsiteResponse = websitesService.DeleteWebsite(9999);
+
+            //Assert
+            deletedWebsiteResponse.ShouldBe(0);
         }
     }
 }
