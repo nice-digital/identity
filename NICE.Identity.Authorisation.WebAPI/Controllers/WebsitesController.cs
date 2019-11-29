@@ -43,7 +43,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid model for create user", modelStateJson);
+                _logger.LogError($"Invalid model for create website", modelStateJson);
                 return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create website"});
             }
 
@@ -117,7 +117,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateUser([FromRoute] int websiteId, [FromBody] Website website)
+        public IActionResult UpdateWebsite([FromRoute] int websiteId, [FromBody] Website website)
         {
             if (!ModelState.IsValid)
             {
@@ -145,7 +145,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteUser(int websiteId)
+        public IActionResult DeleteWebsite(int websiteId)
         {
             try
             {
