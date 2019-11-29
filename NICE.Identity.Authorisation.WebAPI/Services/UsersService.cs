@@ -18,7 +18,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host);
 		User UpdateUser(int userId, User user);
 		int DeleteUser(int userId);
-		IEnumerable<DataModels.User> ImportUsers(IEnumerable<ImportUser> usersToImport);
+		void ImportUsers(IList<ImportUser> usersToImport);
 	}
 
 	public class UsersService : IUsersService
@@ -132,20 +132,59 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 		}
 
-		public IEnumerable<DataModels.User> ImportUsers(IEnumerable<ImportUser> usersToImport)
+		public void ImportUsers(IList<ImportUser> usersToImport)
 		{
-			var userIds = new List<string>();
+			if (!usersToImport.Any())
+				return;
+			
 			foreach (var userToImport in usersToImport)
 			{
+				//first ignore any users with invalid (empty guid) ids, or without firstname or last names (these are all just test data). 
 				if (userToImport.UserId.Equals(Guid.Empty) || string.IsNullOrEmpty(userToImport.FirstName) ||
 				    string.IsNullOrEmpty(userToImport.LastName))
 				{
 					_logger.LogError($"Not importing user with details: user id:{userToImport.UserId} firstname: {userToImport.FirstName} lastname: {userToImport.LastName}");
 					continue;
 				}
-				userIds.Add(_context.CreateUser(userToImport.AsUser).Auth0UserId);
+
+				//create the user
+				var insertedUser = _context.CreateUser(userToImport.AsUser);
+
+				//now to insert the roles
+				if (userToImport.Roles != null && userToImport.Roles.Any())
+				{
+					var lookedUpRoles = new List<Role>(); //this contains a list of lookedup roles, so the database doesn't get hit too often unnecessarily
+					foreach (var importRole in userToImport.Roles)
+					{
+						if (!importRole.RoleId.HasValue)
+						{
+							//first try to find role in the lookup
+							var foundRole = lookedUpRoles.FirstOrDefault(r =>
+								r.Name.Equals(importRole.RoleName, StringComparison.OrdinalIgnoreCase) &&
+								r.Website.Host.Equals(importRole.WebsiteHost, StringComparison.OrdinalIgnoreCase));
+
+							if (foundRole == null)
+							{
+								//failing that, hit the database for the role.
+								foundRole = _context.GetRole(importRole.WebsiteHost, importRole.RoleName);
+								if (foundRole != null) 
+									lookedUpRoles.Add(foundRole); //add to the lookup if found
+							}
+
+							if (foundRole != null)
+							{
+								importRole.RoleId = foundRole.RoleId;
+							}
+							else
+							{
+								_logger.LogWarning($"Could not find role: {importRole.RoleName} for website: {importRole.WebsiteHost}");
+								continue;
+							}
+						}
+						_context.AddUsersToRole(new List<DataModels.User> { insertedUser }, importRole.RoleId.Value);
+					}
+				}
 			}
-			return _context.GetUsers(userIds);
 		}
 	}
 }

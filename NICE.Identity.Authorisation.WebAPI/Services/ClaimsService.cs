@@ -3,7 +3,6 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Responses.Claim;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
@@ -12,8 +11,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public interface IClaimsService
 	{
 		List<Claim> GetClaims(string authenticationProviderUserId);
-		Task AddToUser(Role role);
-		int ImportUserRoles(IEnumerable<ImportUser> usersToImport, string websiteHost, string roleName);
 	}
 
 	public class ClaimsService : IClaimsService
@@ -75,23 +72,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), AuthenticationConstants.IdAMIssuer));
 
             return claims;
-		}
-
-		public Task AddToUser(Role role)
-		{
-			throw new NotImplementedException();
-		}
-
-		public int ImportUserRoles(IEnumerable<ImportUser> usersToImport, string websiteHost, string roleName)
-		{
-			var importedUsers = _usersService.ImportUsers(usersToImport);
-			var role = _context.GetRole(websiteHost, roleName);
-
-			if (role == null)
-			{
-				throw new Exception($"Unknown role: {roleName} website host: {websiteHost}");
-			}
-			return _context.AddUsersToRole(importedUsers, role);
 		}
 	}
 }

@@ -44,19 +44,19 @@ namespace NICE.Identity.Authentication.Sdk.External
             return await _httpClient.PutAsync(requestUri, content);
         }
 
-        public async Task<JwtToken> GetBearerToken(Uri requestUri, StringContent content)
-        {
-            var httpResponseMessageResponse = await _httpClient.PostAsync(requestUri, content);
-            if (httpResponseMessageResponse.StatusCode != HttpStatusCode.OK)
-            {
-                throw new HttpRequestException("An Error Occured");
-            }
-            var token = await httpResponseMessageResponse.Content.ReadAsAsync<JwtToken>();
-            return token;
-        }
-        public void AddBearerToken(string accessToken)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        }
+        //public async Task<JwtToken> GetBearerToken(Uri requestUri, StringContent content)
+        //{
+        //    var httpResponseMessageResponse = await _httpClient.PostAsync(requestUri, content);
+        //    if (httpResponseMessageResponse.StatusCode != HttpStatusCode.OK)
+        //    {
+        //        throw new HttpRequestException("An Error Occured");
+        //    }
+        //    var token = await httpResponseMessageResponse.Content.ReadAsAsync<JwtToken>();
+        //    return token;
+        //}
+        //public void AddBearerToken(string accessToken)
+        //{
+        //    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        //}
     }
 }

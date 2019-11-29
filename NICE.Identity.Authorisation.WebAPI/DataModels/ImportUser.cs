@@ -1,8 +1,21 @@
 ﻿using NICE.Identity.Authentication.Sdk.Domain;
 using System;
+using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
+	public class ImportRole
+	{
+		/// <summary>
+		/// the role id doesn't need to be supplied in the json. it is expected to be looked up using the rolename and website host.
+		/// if it is supplied though, it's used.
+		/// </summary>
+		public int? RoleId { get; set; }
+
+		public string RoleName { get; set; }
+		public string WebsiteHost { get; set; }
+	}
+
 	public class ImportUser
 	{
 		public Guid UserId { get; set; }
@@ -10,6 +23,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 		public string LastName { get; set; }
 		public string EmailAddress { get; set; }
 
+		public IList<ImportRole> Roles { get; set; }
 
 		public string NameIdentifier =>
 			$"{AuthenticationConstants.NameIdentifierDefaultPrefix}{UserId.ToString().ToLower()}";

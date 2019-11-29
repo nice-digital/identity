@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 
@@ -37,6 +38,27 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ThenInclude(userRoles => userRoles.Role)
 		        .ThenInclude(website => website.Website)
 		        .ToList();
+        }
+
+        public Dictionary<int, string> GetWebsiteIds(IEnumerable<string> websiteHost)
+        {
+	        var distinctWebsiteHosts = websiteHost.Distinct();
+	        var websites = Websites.Where(website => distinctWebsiteHosts.Contains(website.Host, StringComparer.OrdinalIgnoreCase)).ToList();
+	        return websites.ToDictionary(key => key.WebsiteId, value => value.Host);
+        }
+
+        public IEnumerable<(int roleId, string roleName, int websiteId)> GetRoleIds(IList<(string roleName, int websiteId)> roleNamesAndWebsiteIds)
+        {
+	        var websiteIds = roleNamesAndWebsiteIds.Select(x => x.websiteId).Distinct();
+	        var roles = Roles.Where(role => websiteIds.Contains(role.WebsiteId)).ToList();
+
+	        return roleNamesAndWebsiteIds.Select(x =>
+	        {
+		        return (
+			        roles.First(role => role.Name.Equals(x.roleName, StringComparison.OrdinalIgnoreCase) && role.WebsiteId.Equals(x.websiteId)).RoleId, 
+			        x.roleName, 
+			        x.websiteId);
+	        });
         }
 
 		public User CreateUser(User user)
@@ -98,14 +120,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		}
 
 
-		public int AddUsersToRole(IEnumerable<User> users, Role roleToAdd)
+		public int AddUsersToRole(IEnumerable<User> users, int roleId)
 		{
 			var userRolesAdded = 0;
 			foreach (var user in users)
 			{
-				if (!user.UserRoles.Any(r => r.RoleId == roleToAdd.RoleId))
+				if (!user.UserRoles.Any(r => r.RoleId == roleId))
 				{
-					UserRoles.Add(new UserRole {RoleId = roleToAdd.RoleId, UserId = user.UserId});
+					UserRoles.Add(new UserRole {RoleId = roleId, UserId = user.UserId});
 					userRolesAdded++;
 				}
 			}

@@ -209,12 +209,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         [HttpPost("import")]
-        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult ImportUsers([FromBody] IEnumerable<ImportUser> usersToImport)
+        public IActionResult ImportUsers([FromBody] IList<ImportUser> usersToImport)
         {
 	        if (!ModelState.IsValid)
 	        {
@@ -226,8 +226,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 	        try
 	        {
-		        var createdUsers = _usersService.ImportUsers(usersToImport);
-		        return Ok(createdUsers.Select(user => new User(user)));
+		        _usersService.ImportUsers(usersToImport);
+		        return Ok();
 	        }
 	        catch (Exception e)
 	        {

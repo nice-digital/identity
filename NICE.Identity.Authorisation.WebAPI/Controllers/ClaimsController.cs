@@ -46,36 +46,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	            return StatusCode(503, e.Message);
 	        }
 	    }
-
-	    [HttpPost("import/{websiteHost}/{roleName}")]
-		[ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		[Consumes("application/json")]
-		[Produces("application/json")]
-		public IActionResult ImportUserRoles([FromBody] IEnumerable<ImportUser> usersToImport, string websiteHost, string roleName)
-		{
-			if (!ModelState.IsValid)
-			{
-				var serializableModelState = new SerializableError(ModelState);
-				var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-				_logger.LogError($"Invalid model for create user", modelStateJson);
-				return BadRequest(new ProblemDetails { Status = 400, Title = "Invalid model for create user" });
-			}
-			if (string.IsNullOrEmpty(websiteHost))
-				return BadRequest(new ProblemDetails { Status = 400, Title = "Invalid website host supplied" });
-			if (string.IsNullOrEmpty(roleName))
-				return BadRequest(new ProblemDetails { Status = 400, Title = "Invalid role name supplied" });
-
-			try
-			{
-				_claimsService.ImportUserRoles(usersToImport, websiteHost, roleName);
-				return Ok();
-			}
-			catch (Exception e)
-			{
-				return StatusCode(500, new ProblemDetails { Status = 500, Title = e.Message, Detail = e.InnerException?.Message });
-			}
-		}
 	}
 }
