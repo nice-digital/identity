@@ -18,6 +18,7 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 using Microsoft.IdentityModel.Logging;
+using NICE.Identity.Authorisation.WebAPI.Environments;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -52,6 +53,7 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddTransient<IJobsService, JobsService>();
             services.AddTransient<IWebsitesService, WebsitesService>();
             services.AddTransient<IServicesService, ServicesService>();
+            services.AddTransient<IEnvironmentsService, EnvironmentsService>();
             services.AddTransient<IProviderManagementService, Auth0ManagementService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

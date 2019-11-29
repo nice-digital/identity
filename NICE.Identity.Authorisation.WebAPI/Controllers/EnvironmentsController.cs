@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NICE.Identity.Authorisation.WebAPI.ApiModels;
-using NICE.Identity.Authorisation.WebAPI.Services;
+using NICE.Identity.Authorisation.WebAPI.Environments;
+using Environment = NICE.Identity.Authorisation.WebAPI.ApiModels.Environment;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -15,43 +15,43 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
-    public class ServicesController : ControllerBase
+    public class EnvironmentsController : ControllerBase
     {
-        private readonly ILogger<ServicesController> _logger;
-        private readonly IServicesService _servicesService;
+        private readonly ILogger<EnvironmentsController> _logger;
+        private readonly IEnvironmentsService _environmentsService;
         
-        public ServicesController(IServicesService servicesService, ILogger<ServicesController> logger)
+        public EnvironmentsController(IEnvironmentsService environmentsService, ILogger<EnvironmentsController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _servicesService = servicesService ?? throw new ArgumentNullException(nameof(servicesService));
+            _environmentsService = environmentsService ?? throw new ArgumentNullException(nameof(environmentsService));
         }
         
         /// <summary>
-        /// create service
+        /// create environment
         /// </summary>
-        /// <param name="service"></param>
+        /// <param name="environment"></param>
         /// <returns></returns>
         [HttpPost("")]
-        [ProducesResponseType(typeof(Service), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Environment), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult CreateService(Service service)
+        public IActionResult CreateEnvironment(Environment environment)
         {
             if (!ModelState.IsValid)
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid model for create service", modelStateJson);
-                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create service"});
+                _logger.LogError($"Invalid model for create environment", modelStateJson);
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create environment"});
             }
 
             try
             {
-                var createdService = _servicesService.CreateService(service);
-                return Created($"/service/{createdService.ServiceId.ToString()}", createdService);
+                var createdEnvironment = _environmentsService.CreateEnvironment(environment);
+                return Created($"/environment/{createdEnvironment.EnvironmentId.ToString()}", createdEnvironment);
             }
             catch (Exception e)
             {
@@ -60,18 +60,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// get list of all services
+        /// get list of all environments
         /// </summary>
         /// <returns></returns>
         [HttpGet("")]
-        [ProducesResponseType(typeof(List<Service>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<Environment>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetServices()
+        public IActionResult GetEnvironments()
         {
             try
             {
-                return Ok(_servicesService.GetServices());
+                return Ok(_environmentsService.GetEnvironments());
             }
             catch (Exception e)
             {
@@ -80,25 +80,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// get service with id
+        /// get environment with id
         /// </summary>
-        /// <param name="serviceId"></param>
+        /// <param name="environmentId"></param>
         /// <returns></returns>
-        [HttpGet("{serviceId}")]
-        [ProducesResponseType(typeof(Service), StatusCodes.Status200OK)]
+        [HttpGet("{environmentId}")]
+        [ProducesResponseType(typeof(Environment), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetService(int serviceId)
+        public IActionResult GetEnvironment(int environmentId)
         {
             try
             {
-                var service = _servicesService.GetService(serviceId);
-                if (service != null)
+                var environment = _environmentsService.GetEnvironment(environmentId);
+                if (environment != null)
                 {
-                    return Ok(service);
+                    return Ok(environment);
                 }
-                return NotFound(new ProblemDetails {Status = 404, Title = "Service not found"});
+                return NotFound(new ProblemDetails {Status = 404, Title = "Environment not found"});
             }
             catch (Exception e)
             {
@@ -107,31 +107,31 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// update service with id
+        /// update environment with id
         /// </summary>
-        /// <param name="serviceId"></param>
-        /// <param name="service"></param>
+        /// <param name="environmentId"></param>
+        /// <param name="environment"></param>
         /// <returns></returns>
-        [HttpPatch("{serviceId}", Name = "UpdateServicePartial")]
-        [HttpPut("{serviceId}", Name = "UpdateService")]
-        [ProducesResponseType(typeof(Service), StatusCodes.Status200OK)]
+        [HttpPatch("{environmentId}", Name = "UpdateEnvironmentPartial")]
+        [HttpPut("{environmentId}", Name = "UpdateEnvironment")]
+        [ProducesResponseType(typeof(Environment), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateService(int serviceId, Service service)
+        public IActionResult UpdateEnvironment(int environmentId, Environment environment)
         {
             if (!ModelState.IsValid)
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid model for update service {modelStateJson}");
-                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update service"});
+                _logger.LogError($"Invalid model for update environment {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update environment"});
             }
 
             try
             {
-                return Ok(_servicesService.UpdateService(serviceId, service));
+                return Ok(_environmentsService.UpdateEnvironment(environmentId, environment));
             }
             catch (Exception e)
             {
@@ -139,19 +139,19 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
         }
         /// <summary>
-        /// delete service with id
+        /// delete environment with id
         /// </summary>
-        /// <param name="serviceId"></param>
+        /// <param name="environmentId"></param>
         /// <returns></returns>
-        [HttpDelete("{serviceId}")]
+        [HttpDelete("{environmentId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteService(int serviceId)
+        public IActionResult DeleteEnvironment(int environmentId)
         {
             try
             {
-                _servicesService.DeleteService(serviceId);
+                _environmentsService.DeleteEnvironment(environmentId);
                 return Ok();
             }
             catch (Exception e)

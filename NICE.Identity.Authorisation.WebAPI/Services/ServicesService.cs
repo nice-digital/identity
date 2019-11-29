@@ -39,7 +39,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             catch (Exception e)
             {
                 _logger.LogError($"Failed to create service {service.Name} - exception: {e.Message}");
-                throw new Exception($"Failed to create user {service.Name} - exception: {e.Message}");
+                throw new Exception($"Failed to create service {service.Name} - exception: {e.Message}");
             }
         }
 
@@ -85,8 +85,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to delete website {serviceId.ToString()} - exception: {e.Message}");
-                throw new Exception($"Failed to delete website {serviceId.ToString()} - exception: {e.Message}");
+                _logger.LogError($"Failed to delete service {serviceId.ToString()} - exception: {e.Message}");
+                throw new Exception($"Failed to delete service {serviceId.ToString()} - exception: {e.Message}");
             }
         }
     }
