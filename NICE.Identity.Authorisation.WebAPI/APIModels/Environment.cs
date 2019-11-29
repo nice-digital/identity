@@ -3,9 +3,12 @@ using Newtonsoft.Json;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
-    public partial class Environment
+    public class Environment
     {
-        public Environment(int environmentId, string name, int order = 0) : this ()
+        public Environment()
+        {
+        }
+        public Environment(int environmentId, string name, int order = 0)
         {
             EnvironmentId = environmentId;
             Name = name;
