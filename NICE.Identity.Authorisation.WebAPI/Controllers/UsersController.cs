@@ -113,8 +113,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <param name="userId"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        [HttpPatch("{userId}")]
-        [HttpPut("{userId}")]
+        [HttpPatch("{userId}", Name = "UpdateUserPartial")]
+        [HttpPut("{userId}", Name = "UpdateUser")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
