@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
@@ -27,7 +27,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var websitesService = new WebsitesService(context, _logger.Object);
 
             //Act
-            var createdWebsite = websitesService.CreateWebsite(new ApiModels.Website()
+            var createdWebsite = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
@@ -47,13 +47,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
-            websitesService.CreateWebsite(new ApiModels.Website()
+            websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
                 Host = "test1-host.nice.org.uk"
             });
-            websitesService.CreateWebsite(new ApiModels.Website()
+            websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
@@ -75,7 +75,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
-            var createdWebsiteId = websitesService.CreateWebsite(new ApiModels.Website()
+            var createdWebsiteId = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 2,
@@ -111,7 +111,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
-            var createdWebsiteId = websitesService.CreateWebsite(new ApiModels.Website()
+            var createdWebsiteId = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
@@ -119,7 +119,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             }).WebsiteId.GetValueOrDefault();
 
             //Act
-            var updatedWebsite = websitesService.UpdateWebsite(createdWebsiteId, new ApiModels.Website()
+            var updatedWebsite = websitesService.UpdateWebsite(createdWebsiteId, new Website()
             {
                 ServiceId = 2,
                 EnvironmentId = 2,
@@ -140,7 +140,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
-            var createdWebsiteId = websitesService.CreateWebsite(new ApiModels.Website()
+            var createdWebsiteId = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
@@ -148,7 +148,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             }).WebsiteId.GetValueOrDefault();
 
             //Act
-            var partiallyUpdatedWebsite = websitesService.UpdateWebsite(createdWebsiteId, new ApiModels.Website()
+            var partiallyUpdatedWebsite = websitesService.UpdateWebsite(createdWebsiteId, new Website()
             {
                 Host = "updated-host.nice.org.uk"
             });
@@ -167,11 +167,11 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
-            var websiteToUpdate = new ApiModels.Website() {Host = "updated-host.nice.org.uk"};
+            var websiteToUpdate = new Website() {Host = "updated-host.nice.org.uk"};
 
             //Act + Assert
             Assert.Throws<NullReferenceException>(() => websitesService.UpdateWebsite(9999, websiteToUpdate));
-            context.Users.Count().ShouldBe(0);
+            context.Websites.Count().ShouldBe(0);
         }
         
         [Fact]
@@ -180,13 +180,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
-            var createdWebsite = websitesService.CreateWebsite(new ApiModels.Website()
+            var createdWebsite = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
                 Host = "test1-host.nice.org.uk"
             });
-            websitesService.CreateWebsite(new ApiModels.Website()
+            websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 2,
                 EnvironmentId = 2,

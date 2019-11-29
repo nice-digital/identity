@@ -62,7 +62,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 if (websiteToUpdate == null)
                     throw new Exception($"Website not found {websiteId.ToString()}");
 
-                Console.Write(websiteToUpdate.WebsiteId);
                 websiteToUpdate.UpdateFromApiModel(website);
                 _context.SaveChanges();
                 return new Website(websiteToUpdate);
