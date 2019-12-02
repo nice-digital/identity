@@ -14,8 +14,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		User CreateUser(User user);
 		User GetUser(int userId);
 		List<User> GetUsers();
-		List<UserDetails> FindUsers(IEnumerable<string> auth0UserIds);
-		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host);
+		List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
+		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
 		User UpdateUser(int userId, User user);
 		int DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
@@ -57,8 +57,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to create user {user.Auth0UserId} - exception: {e.Message}");
-				throw new Exception($"Failed to create user {user.Auth0UserId} - exception: {e.Message}");
+				_logger.LogError($"Failed to create user {user.NameIdentifier} - exception: {e.Message}");
+				throw new Exception($"Failed to create user {user.NameIdentifier} - exception: {e.Message}");
 			}
 		}
 
@@ -73,16 +73,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return _context.Users.Select(user => new User(user)).ToList();
 		}
 
-		public List<UserDetails> FindUsers(IEnumerable<string> auth0UserIds)
+		public List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
 		{
-			return _context.Users.Where(user => auth0UserIds.Contains(user.Auth0UserId)).Select(user =>
-				new UserDetails(user.Auth0UserId, user.DisplayName, user.EmailAddress)).ToList();
+			return _context.Users.Where(user => nameIdentifiers.Contains(user.NameIdentifier)).Select(user =>
+				new UserDetails(user.NameIdentifier, user.DisplayName, user.EmailAddress)).ToList();
 		}
 
-		public Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host)
+		public Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host)
 		{
-			var users = _context.GetUsers(auth0UserIds);
-			return users.ToDictionary(user => user.Auth0UserId,
+			var users = _context.GetUsers(nameIdentifiers);
+			return users.ToDictionary(user => user.NameIdentifier,
 				user => user.UserRoles
 					.Where(userRole => userRole.Role.Website.Host.Equals(host, StringComparison.OrdinalIgnoreCase))
 					.Select(role => role.Role.Name));
@@ -98,7 +98,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					throw new Exception($"User not found {userId.ToString()}");
 
 				userToUpdate.UpdateFromApiModel(user);
-				_providerManagementService.UpdateUser(userToUpdate.Auth0UserId, userToUpdate);
+				_providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
 
 				_context.SaveChanges();
 				return new User(userToUpdate);
@@ -120,7 +120,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
 
 				_context.Users.RemoveRange(userToDelete);
-				_providerManagementService.DeleteUser(userToDelete.Auth0UserId);
+				_providerManagementService.DeleteUser(userToDelete.NameIdentifier);
 
 				return _context.SaveChanges();
 			}

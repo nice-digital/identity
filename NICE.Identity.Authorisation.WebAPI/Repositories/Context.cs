@@ -13,7 +13,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public User GetUser(string authenticationProviderUserId)
         {
-            var result = Users.Where(users => users.Auth0UserId.Equals(authenticationProviderUserId, StringComparison.OrdinalIgnoreCase))
+            var result = Users.Where(users => users.NameIdentifier.Equals(authenticationProviderUserId, StringComparison.OrdinalIgnoreCase))
                 .Include(users => users.UserRoles)
                 .ThenInclude(userRoles => userRoles.Role)
                 .ThenInclude(website => website.Website)
@@ -33,7 +33,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public List<User> GetUsers(IEnumerable<string> authenticationProviderUserIds)
         {
-	        return Users.Where(users => authenticationProviderUserIds.Contains(users.Auth0UserId, StringComparer.OrdinalIgnoreCase))
+	        return Users.Where(users => authenticationProviderUserIds.Contains(users.NameIdentifier, StringComparer.OrdinalIgnoreCase))
 		        .Include(users => users.UserRoles)
 		        .ThenInclude(userRoles => userRoles.Role)
 		        .ThenInclude(website => website.Website)
@@ -78,9 +78,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 SaveChanges();
                 return user;
             }
-            if (string.IsNullOrEmpty(foundUser.Auth0UserId))
+            if (string.IsNullOrEmpty(foundUser.NameIdentifier))
             {
-	            foundUser.Auth0UserId = user.Auth0UserId;
+	            foundUser.NameIdentifier = user.NameIdentifier;
 	            SaveChanges();
             }
             return foundUser;

@@ -26,12 +26,12 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		public List<UserDetails> FindUsers(IEnumerable<string> auth0UserIds)
+		public List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> auth0UserIds, string host)
+		public Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host)
 		{
 			throw new NotImplementedException();
 		}

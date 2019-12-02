@@ -8,10 +8,10 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public User(int userId, string auth0UserId, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider)
         {
             UserId = userId;
-            Auth0UserId = auth0UserId;
+            NameIdentifier = nameIdentifier;
             FirstName = firstName;
             LastName = lastName;
             AllowContactMe = allowContactMe;
@@ -29,7 +29,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         public User(DataModels.User user)
         {
             UserId = user.UserId;
-            Auth0UserId = user.Auth0UserId;
+            NameIdentifier = user.NameIdentifier;
             FirstName = user.FirstName;
             LastName = user.LastName;
             AllowContactMe = user.AllowContactMe; 
@@ -44,7 +44,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 		}
 
         public int UserId { get; set; }
-		public string Auth0UserId { get; set; }
+		public string NameIdentifier { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string EmailAddress { get; set; }

@@ -52,7 +52,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			_context.UpdateUserLastLoggedInDate(user); //currently this method is only ever called when logging in, and populating the cookie with claims. if that changes, so should this.
 
 			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), AuthenticationConstants.IdAMIssuer));
-			claims.Add(new Claim(ClaimType.NameIdentifier, user.Auth0UserId, AuthenticationConstants.IdAMIssuer));
+			claims.Add(new Claim(ClaimType.NameIdentifier, user.NameIdentifier, AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.IsMigrated, user.IsMigrated.ToString(), AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.FirstName, user.FirstName, AuthenticationConstants.IdAMIssuer));
 		    claims.Add(new Claim(ClaimType.LastName, user.LastName, AuthenticationConstants.IdAMIssuer));

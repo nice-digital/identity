@@ -8,7 +8,7 @@
 		public static readonly string IdAMId = "http://identity.nice.org.uk/claims/user-id";
 
 		/// <summary>
-		/// this name identifier is the Auth0UserId in the database, it's the id to be used by authenticating clients.
+		/// this name identifier was the Auth0UserId in the database, it's the id to be used by authenticating clients.
 		/// </summary>
 		public static readonly string NameIdentifier = "http://identity.nice.org.uk/claims/name-identifier";
 

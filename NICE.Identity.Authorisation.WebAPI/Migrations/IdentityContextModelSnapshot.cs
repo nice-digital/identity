@@ -152,11 +152,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 
                     b.Property<bool>("AllowContactMe");
 
-                    b.Property<string>("Auth0UserId")
-                        .IsRequired()
-                        .HasColumnName("Auth0UserID")
-                        .HasMaxLength(100);
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(320);
@@ -179,6 +174,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<DateTime?>("LastLoggedInDate");
 
                     b.Property<string>("LastName")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("NameIdentifier")
+                        .IsRequired()
+                        .HasColumnName("NameIdentifier")
                         .HasMaxLength(100);
 
                     b.HasKey("UserId");

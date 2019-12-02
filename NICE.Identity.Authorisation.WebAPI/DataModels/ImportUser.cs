@@ -30,7 +30,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
 		public User AsUser => new DataModels.User()
 			{
-				Auth0UserId = NameIdentifier,
+				NameIdentifier = NameIdentifier,
 				FirstName = FirstName,
 				LastName = LastName,
 				EmailAddress = EmailAddress,

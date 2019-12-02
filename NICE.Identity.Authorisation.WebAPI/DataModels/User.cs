@@ -13,7 +13,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         public User(ApiModels.User user)
         {
-	        Auth0UserId = user.Auth0UserId;
+	        NameIdentifier = user.NameIdentifier;
 	        FirstName = user.FirstName;
 	        LastName = user.LastName;
 	        AllowContactMe = user.AllowContactMe;
@@ -27,10 +27,10 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 	        IsInAuthenticationProvider = user.IsInAuthenticationProvider;
         }
 
-        public User(int userId, string auth0UserId, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider)
         {
             UserId = userId;
-            Auth0UserId = auth0UserId;
+            NameIdentifier = nameIdentifier;
             FirstName = firstName;
             LastName = lastName;
             AllowContactMe = allowContactMe;
@@ -46,7 +46,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         }
 
         public int UserId { get; set; }
-        public string Auth0UserId { get; set; }
+        public string NameIdentifier { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool AllowContactMe { get; set; }
@@ -72,7 +72,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         public void UpdateFromApiModel(ApiModels.User user)
         {
-			Auth0UserId = user.Auth0UserId;
+			NameIdentifier = user.NameIdentifier;
 			FirstName = user.FirstName;
 			LastName = user.LastName;
 			AllowContactMe = user.AllowContactMe;

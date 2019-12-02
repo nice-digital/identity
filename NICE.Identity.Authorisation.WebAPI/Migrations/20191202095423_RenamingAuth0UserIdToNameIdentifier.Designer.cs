@@ -10,8 +10,8 @@ using NICE.Identity.Authorisation.WebAPI.Repositories;
 namespace NICE.Identity.Authorisation.WebAPI.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20191121110630_SeedConsultationsData")]
-    partial class SeedConsultationsData
+    [Migration("20191202095423_RenamingAuth0UserIdToNameIdentifier")]
+    partial class RenamingAuth0UserIdToNameIdentifier
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -84,6 +84,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnName("RoleID")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Description");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100);
@@ -150,12 +152,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnName("UserID")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<bool?>("AllowContactMe");
-
-                    b.Property<string>("NameIdentifier")
-                        .IsRequired()
-                        .HasColumnName("NameIdentifier")
-                        .HasMaxLength(100);
+                    b.Property<bool>("AllowContactMe");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
@@ -164,19 +161,26 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<string>("FirstName")
                         .HasMaxLength(100);
 
-                    b.Property<bool?>("HasVerifiedEmailAddress");
+                    b.Property<bool>("HasVerifiedEmailAddress");
 
                     b.Property<DateTime?>("InitialRegistrationDate");
 
-                    b.Property<bool?>("IsLockedOut");
+                    b.Property<bool>("IsInAuthenticationProvider");
 
-                    b.Property<bool?>("IsMigrated");
+                    b.Property<bool>("IsLockedOut");
 
-                    b.Property<bool?>("IsStaffMember");
+                    b.Property<bool>("IsMigrated");
+
+                    b.Property<bool>("IsStaffMember");
 
                     b.Property<DateTime?>("LastLoggedInDate");
 
                     b.Property<string>("LastName")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("NameIdentifier")
+                        .IsRequired()
+                        .HasColumnName("NameIdentifier")
                         .HasMaxLength(100);
 
                     b.HasKey("UserId");

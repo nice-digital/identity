@@ -111,9 +111,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		}
 
 		/// <summary>
-		/// get list of all users given in the auth0UserIds parameter
+		/// get list of all users given in the nameIdentifiers parameter
 		/// </summary>
-		/// <param name="nameIdentifiers">this is the auth0UserId aka the "Name identifier"</param>
+		/// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
 		/// <returns></returns>
 		[HttpPost("findusers")]
 		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
