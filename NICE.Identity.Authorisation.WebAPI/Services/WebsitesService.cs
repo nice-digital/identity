@@ -50,18 +50,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public List<Website> GetWebsites()
         {
-            return _context.Websites
-                .Include(w => w.Environment)
-                .Select(website => new Website(website))
-                .ToList();
+            return _context.GetWebsites().ConvertAll(website => new Website(website));
         }
 
         public Website GetWebsite(int websiteId)
         {
-            var website = _context.Websites
-                .Include(w => w.Environment)
-                .Where((w => w.WebsiteId == websiteId))
-                .FirstOrDefault();
+            var website = _context.GetWebsite(websiteId);
             return website != null ? new Website(website) : null;
         }
 
@@ -75,11 +69,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 websiteToUpdate.UpdateFromApiModel(website);
                 _context.SaveChanges();
-                var returnWebsite = _context.Websites
-                    .Include(w => w.Environment)
-                    .Where((w => w.WebsiteId == websiteId))
-                    .FirstOrDefault();
-                return new Website(returnWebsite);
+                return new Website(_context.GetWebsite(websiteId));
             }
             catch (Exception e)
             {
