@@ -97,6 +97,28 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
+        public void Get_service_with_website_and_environment()
+        {
+            //Arrange
+            var context = GetContext();
+            var serviceService = new ServicesService(context, _logger.Object);
+            var createdServiceId = serviceService.CreateService(new ApiModels.Service()
+            {
+                Name = "Service 1"
+            }).ServiceId.GetValueOrDefault();
+            TestData.AddEnvironment(ref context, 1, "Dev");
+            TestData.AddWebsite(ref context, 1, createdServiceId, 1, "test.example.org.uk");
+
+            //Act
+            var service = serviceService.GetService(createdServiceId);
+
+            //Assert
+            service.Name.ShouldBe("Service 1");
+            service.Websites.First().WebsiteId.ShouldBe(1);
+            service.Websites.First().Environment.EnvironmentId.ShouldBe(1);
+        }
+
+        [Fact]
         public void Update_service()
         {
             //Arrange

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
@@ -45,13 +46,21 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public Service GetService(int serviceId)
         {
-            var service = _context.Services.Where((s => s.ServiceId == serviceId)).FirstOrDefault();
+            var service = _context.Services
+                .Include(s => s.Websites)
+                .ThenInclude(w => w.Environment)
+                .Where((s => s.ServiceId == serviceId))
+                .FirstOrDefault();
             return service != null ? new Service(service) : null;
         }
 
         public List<Service> GetServices()
         {
-            return _context.Services.Select(service => new Service(service)).ToList();
+            return _context.Services
+                .Include(s => s.Websites)
+                .ThenInclude(w => w.Environment)
+                .Select(service => new Service(service))
+                .ToList();
         }
 
         public Service UpdateService(int serviceId, Service service)

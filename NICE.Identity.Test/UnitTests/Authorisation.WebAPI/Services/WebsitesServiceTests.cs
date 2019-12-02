@@ -25,6 +25,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service");
+            TestData.AddEnvironment(ref context, 1, "Dev");
 
             //Act
             var createdWebsite = websitesService.CreateWebsite(new Website()
@@ -47,6 +49,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service");
+            TestData.AddEnvironment(ref context, 1, "Dev");
+            TestData.AddEnvironment(ref context, 2, "Test");
             websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
@@ -56,7 +61,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
-                EnvironmentId = 1,
+                EnvironmentId = 2,
                 Host = "test2-host.nice.org.uk"
             });
 
@@ -75,10 +80,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service");
+            TestData.AddEnvironment(ref context, 1, "Dev");
             var createdWebsiteId = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
-                EnvironmentId = 2,
+                EnvironmentId = 1,
                 Host = "test-host.nice.org.uk"
             }).WebsiteId.GetValueOrDefault();
 
@@ -87,7 +94,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             website.ServiceId.ShouldBe(1);
-            website.EnvironmentId.ShouldBe(2);
+            website.EnvironmentId.ShouldBe(1);
             website.Host.ShouldBe("test-host.nice.org.uk");
         }
         
@@ -111,6 +118,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service1");
+            TestData.AddService(ref context, 2, "Test Service2");
+            TestData.AddEnvironment(ref context, 1, "Dev");
+            TestData.AddEnvironment(ref context, 2, "Test");
             var createdWebsiteId = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
@@ -140,6 +151,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service1");
+            TestData.AddEnvironment(ref context, 1, "Dev");
             var createdWebsiteId = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
@@ -180,12 +193,16 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service1");
+            TestData.AddEnvironment(ref context, 1, "Dev");
             var createdWebsite = websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 1,
                 EnvironmentId = 1,
                 Host = "test1-host.nice.org.uk"
             });
+            TestData.AddService(ref context, 2, "Test Service2");
+            TestData.AddEnvironment(ref context, 2, "Test");
             websitesService.CreateWebsite(new Website()
             {
                 ServiceId = 2,

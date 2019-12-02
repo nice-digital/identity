@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -9,12 +10,13 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
         
-        public Website(int websiteId, int serviceId, int environmentId, string host)
+        public Website(int websiteId, int serviceId, int environmentId, string host, Environment environment)
         {
             WebsiteId = websiteId;
             ServiceId = serviceId;
             EnvironmentId = environmentId;
             Host = host;
+            Environment = environment;
         }
         
         public Website(DataModels.Website website)
@@ -23,11 +25,13 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             ServiceId = website.ServiceId;
             EnvironmentId = website.EnvironmentId;
             Host = website.Host;
+            Environment = website.Environment != null ? new Environment(website.Environment) : null;
         }
 
         public int? WebsiteId { get; set; }
         public int? ServiceId { get; set; }
         public int? EnvironmentId { get; set; }
         public string Host { get; set; }
+        public Environment Environment { get; set; }
     }
 }

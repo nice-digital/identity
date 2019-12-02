@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
@@ -34,7 +35,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 websiteToCreate.UpdateFromApiModel(website);
                 var createdWebsite = _context.Websites.Add(websiteToCreate);
                 _context.SaveChanges();
-                return new Website(createdWebsite.Entity);
+                var returnWebsite = _context.Websites
+                    .Include(w => w.Environment)
+                    .Where((w => w.WebsiteId == createdWebsite.Entity.WebsiteId))
+                    .FirstOrDefault();
+                return new Website(returnWebsite);
             }
             catch (Exception e)
             {
@@ -45,12 +50,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public List<Website> GetWebsites()
         {
-            return _context.Websites.Select(website => new Website(website)).ToList();
+            return _context.Websites
+                .Include(w => w.Environment)
+                .Select(website => new Website(website))
+                .ToList();
         }
 
         public Website GetWebsite(int websiteId)
         {
-            var website = _context.Websites.Where((w => w.WebsiteId == websiteId)).FirstOrDefault();
+            var website = _context.Websites
+                .Include(w => w.Environment)
+                .Where((w => w.WebsiteId == websiteId))
+                .FirstOrDefault();
             return website != null ? new Website(website) : null;
         }
 
@@ -64,7 +75,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 websiteToUpdate.UpdateFromApiModel(website);
                 _context.SaveChanges();
-                return new Website(websiteToUpdate);
+                var returnWebsite = _context.Websites
+                    .Include(w => w.Environment)
+                    .Where((w => w.WebsiteId == websiteId))
+                    .FirstOrDefault();
+                return new Website(returnWebsite);
             }
             catch (Exception e)
             {
