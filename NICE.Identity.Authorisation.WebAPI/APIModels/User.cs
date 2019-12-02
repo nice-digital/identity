@@ -31,7 +31,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             Auth0UserId = user.Auth0UserId;
             FirstName = user.FirstName;
             LastName = user.LastName;
-            AllowContactMe = user.AllowContactMe ?? false;
+            AllowContactMe = user.AllowContactMe; 
             InitialRegistrationDate = user.InitialRegistrationDate;
             LastLoggedInDate = user.LastLoggedInDate;
             HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
@@ -47,12 +47,12 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 		public string LastName { get; set; }
 		public string EmailAddress { get; set; }
 		public bool AllowContactMe { get; set; }
-		public bool? HasVerifiedEmailAddress { get; set; }
-		public bool? IsLockedOut { get; set; }
+		public bool HasVerifiedEmailAddress { get; set; }
+		public bool IsLockedOut { get; set; }
 		public DateTime? InitialRegistrationDate { get; set; }
         public DateTime? LastLoggedInDate { get; set; }
-        public bool? IsStaffMember { get; set; }
-        public bool? AcceptedTerms { get; set; }
-        public bool? IsMigrated { get; set; }
+        public bool IsStaffMember { get; set; }
+        public bool AcceptedTerms { get; set; }
+        public bool IsMigrated { get; set; }
 	}
 }

@@ -46,7 +46,7 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		public IEnumerable<Authorisation.WebAPI.DataModels.User> ImportUsers(IEnumerable<ImportUser> usersToImport)
+		public void ImportUsers(IList<ImportUser> usersToImport)
 		{
 			throw new NotImplementedException();
 		}

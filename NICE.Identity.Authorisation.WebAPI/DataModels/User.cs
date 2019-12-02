@@ -11,13 +11,27 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             UserRoles = new HashSet<UserRole>();
         }
 
+        public User(ApiModels.User user)
+        {
+	        Auth0UserId = user.Auth0UserId;
+	        FirstName = user.FirstName;
+	        LastName = user.LastName;
+	        AllowContactMe = user.AllowContactMe;
+	        InitialRegistrationDate = user.InitialRegistrationDate;
+	        LastLoggedInDate = user.LastLoggedInDate;
+	        HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
+	        EmailAddress = user.EmailAddress;
+	        IsLockedOut = user.IsLockedOut;
+	        IsStaffMember = user.IsStaffMember;
+	        IsMigrated = user.IsMigrated;
+		}
+
         public User(int userId, string auth0UserId, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated)
         {
             UserId = userId;
             Auth0UserId = auth0UserId;
             FirstName = firstName;
             LastName = lastName;
-            //AcceptedTerms = acceptedTerms;
             AllowContactMe = allowContactMe;
             InitialRegistrationDate = initialRegistrationDate;
             LastLoggedInDate = lastLoggedInDate;
@@ -33,14 +47,14 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public string Auth0UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public bool? AllowContactMe { get; set; }
+        public bool AllowContactMe { get; set; }
         public DateTime? InitialRegistrationDate { get; set; }
         public DateTime? LastLoggedInDate { get; set; }
-        public bool? HasVerifiedEmailAddress { get; set; }
+        public bool HasVerifiedEmailAddress { get; set; }
         public string EmailAddress { get; set; }
-        public bool? IsLockedOut { get; set; }
-        public bool? IsStaffMember { get; set; }
-        public bool? IsMigrated { get; set; }
+        public bool IsLockedOut { get; set; }
+        public bool IsStaffMember { get; set; }
+        public bool IsMigrated { get; set; }
 
         public ICollection<UserRole> UserRoles { get; set; }
         public ICollection<TermsVersion> UserCreatedTermsVersions { get; set; }
@@ -55,17 +69,17 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         public void UpdateFromApiModel(ApiModels.User user)
         {
-            Auth0UserId = user?.Auth0UserId ?? Auth0UserId;
-            FirstName = user?.FirstName ?? FirstName;
-            LastName = user?.LastName ?? LastName;
-            AllowContactMe = user?.AllowContactMe ?? AllowContactMe;
-            InitialRegistrationDate = user?.InitialRegistrationDate ?? InitialRegistrationDate;
-            LastLoggedInDate = user?.LastLoggedInDate ?? LastLoggedInDate;
-            HasVerifiedEmailAddress = user?.HasVerifiedEmailAddress ?? HasVerifiedEmailAddress;
-            EmailAddress = user?.EmailAddress ?? EmailAddress;
-            IsLockedOut = user?.IsLockedOut ?? IsLockedOut;
-            IsStaffMember = user?.IsStaffMember ?? IsStaffMember;
-            IsMigrated = user?.IsMigrated ?? IsMigrated;
-        }
+			Auth0UserId = user.Auth0UserId;
+			FirstName = user.FirstName;
+			LastName = user.LastName;
+			AllowContactMe = user.AllowContactMe;
+			InitialRegistrationDate = user.InitialRegistrationDate ?? InitialRegistrationDate;
+			LastLoggedInDate = user.LastLoggedInDate ?? LastLoggedInDate;
+			HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
+			EmailAddress = user.EmailAddress;
+			IsLockedOut = user.IsLockedOut;
+			IsStaffMember = user.IsStaffMember;
+			IsMigrated = user.IsMigrated;
+		}
     }
 }
