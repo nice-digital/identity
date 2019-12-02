@@ -12,7 +12,6 @@ using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
-using NICE.Identity.Authentication.Sdk.External;
 using StackExchange.Redis;
 using System;
 using System.Linq;
@@ -60,7 +59,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddSingleton(authConfig => authConfiguration);
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.TryAddScoped<IAPIService, APIService>();
@@ -170,7 +168,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
             // TODO: refactor HttpClientDecorator and rename authConfiguration
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.TryAddSingleton(authConfig => authConfiguration);
 
             services.AddAuthentication()

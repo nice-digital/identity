@@ -16,15 +16,15 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 	        NameIdentifier = user.NameIdentifier;
 	        FirstName = user.FirstName;
 	        LastName = user.LastName;
-	        AllowContactMe = user.AllowContactMe;
+	        AllowContactMe = user.AllowContactMe.HasValue && user.AllowContactMe.Value;
 	        InitialRegistrationDate = user.InitialRegistrationDate;
 	        LastLoggedInDate = user.LastLoggedInDate;
-	        HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
+	        HasVerifiedEmailAddress = user.HasVerifiedEmailAddress.HasValue && user.HasVerifiedEmailAddress.Value;
 	        EmailAddress = user.EmailAddress;
-	        IsLockedOut = user.IsLockedOut;
-	        IsStaffMember = user.IsStaffMember;
-	        IsMigrated = user.IsMigrated;
-	        IsInAuthenticationProvider = user.IsInAuthenticationProvider;
+	        IsLockedOut = user.IsLockedOut.HasValue && user.IsLockedOut.Value;
+	        IsStaffMember = user.IsStaffMember.HasValue && user.IsStaffMember.Value;
+	        IsMigrated = user.IsMigrated.HasValue && user.IsMigrated.Value;
+	        IsInAuthenticationProvider = user.IsInAuthenticationProvider.HasValue && user.IsInAuthenticationProvider.Value;
         }
 
         public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider)
@@ -70,20 +70,25 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             return (UserAcceptedTermsVersions ?? new List<UserAcceptedTermsVersion>()).ToList().OrderByDescending(x => x.TermsVersionId).FirstOrDefault();
         }
 
+		/// <summary>
+		/// This method is only called by the UpdateUser action. the API model user coming in is only partially set by the front-end, as each component just hits the updateuser
+		/// endpoint with it's own data, not with a complete user object.
+		/// </summary>
+		/// <param name="user"></param>
         public void UpdateFromApiModel(ApiModels.User user)
         {
-			NameIdentifier = user.NameIdentifier;
-			FirstName = user.FirstName;
-			LastName = user.LastName;
-			AllowContactMe = user.AllowContactMe;
+			NameIdentifier = user.NameIdentifier ?? NameIdentifier;
+			FirstName = user.FirstName ?? FirstName;
+			LastName = user.LastName ?? LastName;
+			AllowContactMe = user.AllowContactMe ?? AllowContactMe;
 			InitialRegistrationDate = user.InitialRegistrationDate ?? InitialRegistrationDate;
 			LastLoggedInDate = user.LastLoggedInDate ?? LastLoggedInDate;
-			HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
-			EmailAddress = user.EmailAddress;
-			IsLockedOut = user.IsLockedOut;
-			IsStaffMember = user.IsStaffMember;
-			IsMigrated = user.IsMigrated;
-			IsInAuthenticationProvider = user.IsInAuthenticationProvider;
+			HasVerifiedEmailAddress = user.HasVerifiedEmailAddress ?? HasVerifiedEmailAddress;
+			EmailAddress = user.EmailAddress ?? EmailAddress;
+			IsLockedOut = user.IsLockedOut ?? IsLockedOut;
+			IsStaffMember = user.IsStaffMember ?? IsStaffMember;
+			IsMigrated = user.IsMigrated ?? IsMigrated;
+			IsInAuthenticationProvider = user.IsInAuthenticationProvider ?? IsInAuthenticationProvider;
         }
     }
 }

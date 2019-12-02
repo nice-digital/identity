@@ -43,19 +43,19 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsInAuthenticationProvider = user.IsInAuthenticationProvider;
 		}
 
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 		public string NameIdentifier { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string EmailAddress { get; set; }
-		public bool AllowContactMe { get; set; }
-		public bool HasVerifiedEmailAddress { get; set; }
-		public bool IsLockedOut { get; set; }
+		public bool? AllowContactMe { get; set; }
+		public bool? HasVerifiedEmailAddress { get; set; }
+		public bool? IsLockedOut { get; set; }
 		public DateTime? InitialRegistrationDate { get; set; }
         public DateTime? LastLoggedInDate { get; set; }
-        public bool IsStaffMember { get; set; }
-        public bool AcceptedTerms { get; set; }
-        public bool IsMigrated { get; set; }
-        public bool IsInAuthenticationProvider { get; set; }
+		public bool? IsStaffMember { get; set; }
+		public bool? AcceptedTerms { get; set; }
+		public bool? IsMigrated { get; set; }
+		public bool? IsInAuthenticationProvider { get; set; }
 	}
 }

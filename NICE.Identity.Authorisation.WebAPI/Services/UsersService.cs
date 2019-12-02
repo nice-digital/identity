@@ -41,6 +41,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			try
 			{
 				var userToCreate = new DataModels.User(user);
+
 				if (user.AcceptedTerms == true)
 				{
 					var currentTerms = _context.GetLatestTermsVersion();

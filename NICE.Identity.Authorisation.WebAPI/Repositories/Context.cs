@@ -40,27 +40,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ToList();
         }
 
-        public Dictionary<int, string> GetWebsiteIds(IEnumerable<string> websiteHost)
-        {
-	        var distinctWebsiteHosts = websiteHost.Distinct();
-	        var websites = Websites.Where(website => distinctWebsiteHosts.Contains(website.Host, StringComparer.OrdinalIgnoreCase)).ToList();
-	        return websites.ToDictionary(key => key.WebsiteId, value => value.Host);
-        }
-
-        public IEnumerable<(int roleId, string roleName, int websiteId)> GetRoleIds(IList<(string roleName, int websiteId)> roleNamesAndWebsiteIds)
-        {
-	        var websiteIds = roleNamesAndWebsiteIds.Select(x => x.websiteId).Distinct();
-	        var roles = Roles.Where(role => websiteIds.Contains(role.WebsiteId)).ToList();
-
-	        return roleNamesAndWebsiteIds.Select(x =>
-	        {
-		        return (
-			        roles.First(role => role.Name.Equals(x.roleName, StringComparison.OrdinalIgnoreCase) && role.WebsiteId.Equals(x.websiteId)).RoleId, 
-			        x.roleName, 
-			        x.websiteId);
-	        });
-        }
-
 		public User CreateUser(User user)
         {
             // find by email address as this should be unique
