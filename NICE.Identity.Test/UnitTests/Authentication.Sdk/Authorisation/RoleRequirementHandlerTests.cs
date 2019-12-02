@@ -1,90 +1,114 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NICE.Identity.Authentication.Sdk.Authorisation;
-using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Domain;
 using Xunit;
 using Claim = System.Security.Claims.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 {
-    public class RoleRequirementHandlerTests : TestBase
-    {
-        private const string UserIdClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+	public class RoleRequirementHandlerTests : TestBase
+	{
+		private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
+		private readonly RoleRequirementHandlerDecorator _sut;
 
-        private readonly Mock<IAuthorisationService> _authServiceMock;
-        private readonly RoleRequirementHandlerDecorator _sut;
+		public RoleRequirementHandlerTests()
+		{
+			_httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
-        public RoleRequirementHandlerTests()
-        {
-            _authServiceMock = new Mock<IAuthorisationService>();
+			_sut = new RoleRequirementHandlerDecorator();
+		}
 
-            _sut = new RoleRequirementHandlerDecorator(_authServiceMock.Object);
-        }
+		[Fact]
+		public void RequirementMarkedAsSucceededWhenUserHasRole()
+		{
+			//Arrange
+			var host = "www.nice.org.uk";
+			const string roleName = Policies.Web.Administrator;
 
-        [Fact]
-        public void RequirementMarkedAsSucceededWhenUserHasRole()
-        {
-            //Arrange
-            const string roleName = Policies.Web.Administrator;
-            const string userId = "auth0|user1234";
+			var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
+			{
+				new ClaimsIdentity(new List<Claim>()
+				{
+					new Claim(ClaimType.NameIdentifier, "auth0|user1234", host),
+					new Claim(ClaimType.Role, "another role", host),
+					new Claim(ClaimType.Role, roleName, host),
+					new Claim(ClaimType.Role, "yet another role", host)
+				}, authenticationType: "IdAM")
+			});
+			
 
-            var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
-            {
-                new ClaimsIdentity(new List<Claim>()
-                {
-                    new Claim(UserIdClaimType, userId)
-                })
-            });
+			var roleRequirement = new RoleRequirement(roleName);
 
-            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRole(userId, new[] {roleName}))
-                            .Returns(Task.FromResult(true));
+			AuthorizationHandlerContext authContext = new AuthorizationHandlerContext(
+				new[] { roleRequirement }, claimsPrincipal, null);
 
-            var roleRequirement = new RoleRequirement(roleName);
+			//Act
+			_sut.HandleRequirementAsync(authContext, roleRequirement);
 
-            AuthorizationHandlerContext authContext = new AuthorizationHandlerContext(
-                new[] {roleRequirement}, claimsPrincipal, null);
+			//Assert
+			authContext.HasSucceeded.ShouldBeTrue();
+			authContext.HasFailed.ShouldBeFalse();
+		}
 
-            //Act
-            _sut.HandleRequirementAsync(authContext, roleRequirement);
+		[Fact]
+		public void RequirementNotMarkedAsSucceededWhenUserDoesNotHaveRole()
+		{
+			//Arrange
+			var host = "www.nice.org.uk";
+			const string roleName = Policies.Web.Administrator;
+			
+			var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
+			{
+				new ClaimsIdentity(new List<Claim>()
+				{
+					new Claim(ClaimTypes.NameIdentifier, "auth0|user1234", host)
+				}, authenticationType: "IdAM")
+			});
 
-            //Assert
-            authContext.HasSucceeded.ShouldBeTrue();
-            authContext.HasFailed.ShouldBeFalse();
-        }
+			var roleRequirement = new RoleRequirement(roleName);
 
-        [Fact]
-        public void RequirementNotMarkedAsSucceededWhenUserDoesNotHaveRole()
-        {
-            //Arrange
-            const string roleName = Policies.Web.Administrator;
-            const string userId = "auth0|user1234";
+			AuthorizationHandlerContext authContext = new AuthorizationHandlerContext(
+				new[] { roleRequirement }, claimsPrincipal, null);
 
-            var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
-            {
-                new ClaimsIdentity(new List<Claim>()
-                {
-                    new Claim(UserIdClaimType, userId)
-                })
-            });
+			//Act
+			_sut.HandleRequirementAsync(authContext, roleRequirement);
 
-            _authServiceMock.Setup(x => x.UserSatisfiesAtLeastOneRole(userId, new[] { roleName }))
-                .Returns(Task.FromResult(false));
+			//Assert
+			authContext.HasSucceeded.ShouldBeFalse();
+		}
 
-            var roleRequirement = new RoleRequirement(roleName);
+		[Fact]
+		public void RequirementNotMarkedAsSucceededWhenUserIsNotAuthenticated()
+		{
+			//Arrange
+			var host = "www.nice.org.uk";
+			const string roleName = Policies.Web.Administrator;
+			
+			var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
+			{
+				new ClaimsIdentity(new List<Claim>()
+				{
+					new Claim(ClaimTypes.NameIdentifier, "auth0|user1234", host)
+				}) //not setting authenticationType results in this user not being authenticated.
+			});
 
-            AuthorizationHandlerContext authContext = new AuthorizationHandlerContext(
-                new[] { roleRequirement }, claimsPrincipal, null);
+			var roleRequirement = new RoleRequirement(roleName);
 
-            //Act
-            _sut.HandleRequirementAsync(authContext, roleRequirement);
+			AuthorizationHandlerContext authContext = new AuthorizationHandlerContext(
+				new[] { roleRequirement }, claimsPrincipal, null);
 
-            //Assert
-            authContext.HasSucceeded.ShouldBeFalse();
-        }
-    }
+			//Act
+			_sut.HandleRequirementAsync(authContext, roleRequirement);
+
+			//Assert
+			authContext.HasSucceeded.ShouldBeFalse();
+		}
+	}
 }

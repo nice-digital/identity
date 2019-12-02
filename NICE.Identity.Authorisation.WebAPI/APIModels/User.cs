@@ -8,10 +8,10 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public User(int userId, string auth0UserId, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider)
         {
             UserId = userId;
-            Auth0UserId = auth0UserId;
+            NameIdentifier = nameIdentifier;
             FirstName = firstName;
             LastName = lastName;
             AllowContactMe = allowContactMe;
@@ -23,15 +23,16 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsStaffMember = isStaffMember;
             AcceptedTerms = acceptedTerms;
             IsMigrated = isMigrated;
+            IsInAuthenticationProvider = isInAuthenticationProvider;
         }
 
         public User(DataModels.User user)
         {
             UserId = user.UserId;
-            Auth0UserId = user.Auth0UserId;
+            NameIdentifier = user.NameIdentifier;
             FirstName = user.FirstName;
             LastName = user.LastName;
-            AllowContactMe = user.AllowContactMe;
+            AllowContactMe = user.AllowContactMe; 
             InitialRegistrationDate = user.InitialRegistrationDate;
             LastLoggedInDate = user.LastLoggedInDate;
             HasVerifiedEmailAddress = user.HasVerifiedEmailAddress;
@@ -39,10 +40,11 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsLockedOut = user.IsLockedOut;
             IsStaffMember = user.IsStaffMember;
             IsMigrated = user.IsMigrated;
-        }
+            IsInAuthenticationProvider = user.IsInAuthenticationProvider;
+		}
 
-        public int UserId { get; set; }
-		public string Auth0UserId { get; set; }
+        public int? UserId { get; set; }
+		public string NameIdentifier { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string EmailAddress { get; set; }
@@ -51,8 +53,9 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 		public bool? IsLockedOut { get; set; }
 		public DateTime? InitialRegistrationDate { get; set; }
         public DateTime? LastLoggedInDate { get; set; }
-        public bool? IsStaffMember { get; set; }
-        public bool? AcceptedTerms { get; set; }
-        public bool? IsMigrated { get; set; }
-    }
+		public bool? IsStaffMember { get; set; }
+		public bool? AcceptedTerms { get; set; }
+		public bool? IsMigrated { get; set; }
+		public bool? IsInAuthenticationProvider { get; set; }
+	}
 }

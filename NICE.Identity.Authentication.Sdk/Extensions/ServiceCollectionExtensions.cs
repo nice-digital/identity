@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -10,17 +7,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NICE.Identity.Authentication.Sdk.Authentication;
+using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.External;
+using NICE.Identity.Authentication.Sdk.Domain;
 using StackExchange.Redis;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
+using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
-    public static class ServiceCollectionExtensions
+	public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
                                                               IConfiguration configuration,
@@ -51,19 +57,19 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             return services;
         }
 
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration)
+        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.AddSingleton(authConfig => authConfiguration);
-            services.AddScoped<IAuthenticationService, Auth0Service>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.TryAddScoped<IAPIService, APIService>();
 
-            // Add authentication services
-            services.AddAuthentication(options => {
+			// Add authentication services
+			services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
-            .AddCookie()
-            .AddOpenIdConnect("Auth0", options => {
+            .AddCookie(options => options.Cookie.Name = AuthenticationConstants.CookieName)
+            .AddOpenIdConnect(AuthenticationConstants.AuthenticationScheme, options => {
                 // Set the authority to your Auth0 domain
                 options.Authority = $"https://{authConfiguration.TenantDomain}";
                 // Configure the Auth0 Client ID and Client Secret
@@ -84,16 +90,40 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 };
                 // Set the callback path, so Auth0 will call back to http://URI/signin-auth0
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
-                options.CallbackPath = new PathString("/signin-auth0");
+                options.CallbackPath = new PathString(authConfiguration.WebSettings.CallBackPath ?? "/signin-auth0");
                 // Configure the Claims Issuer to be Auth0
                 options.ClaimsIssuer = "Auth0";
                 // Saves tokens to the AuthenticationProperties
                 options.SaveTokens = true;
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnTokenValidated = (context) =>
+                    OnTokenValidated = async (context) =>
                     {
-                        return Task.CompletedTask;
+						var accessToken = context.TokenEndpointResponse.AccessToken;
+						var userId = context.SecurityToken.Subject;
+						var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{Constants.AuthorisationURLs.GetClaims}{userId}");
+						var client = httpClient ?? new HttpClient();
+
+						client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+						var responseMessage = await client.GetAsync(uri); //call the api to get all the claims for the current user
+						if (responseMessage.IsSuccessStatusCode)
+						{
+							var allClaims = JsonConvert.DeserializeObject<Claim[]>(await responseMessage.Content.ReadAsStringAsync());
+							//add in all the claims from retrieved from the api, excluding roles where the host doesn't match the current.
+							var claimsToAdd = allClaims.Where(claim => (!claim.Type.Equals(ClaimType.Role)) ||
+							                                           (claim.Type.Equals(ClaimType.Role) &&
+																	    claim.Issuer.Equals(context.HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)))
+														.Select(claim => new System.Security.Claims.Claim(claim.Type, claim.Value, null, claim.Issuer)).ToList();
+							
+							if (claimsToAdd.Any())
+							{
+								context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd));
+							}
+						}
+						else
+						{
+							throw new Exception($"Error {(int)responseMessage.StatusCode} trying to set claims when signing in to uri: {uri} using access token: {accessToken}"); //TODO: remove access token from error message.
+						}
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
@@ -104,7 +134,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                             context.ProtocolMessage.SetParameter("audience", 
                                 authConfiguration.MachineToMachineSettings.ApiIdentifier);
                         }
-                        return Task.FromResult(0);
+						if (context.Properties.Items.ContainsKey("goToRegisterPage"))
+                        {
+	                        context.ProtocolMessage.SetParameter("register", 
+		                        context.Properties.Items["goToRegisterPage"]);
+						}
+
+						return Task.FromResult(0);
                     },
                     // handle the logout redirection 
                     OnRedirectToIdentityProviderForSignOut = (context) =>
@@ -129,10 +165,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             });
         }
 
-        public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration)
+        public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
             // TODO: refactor HttpClientDecorator and rename authConfiguration
-            services.AddHttpClient<IHttpClientDecorator, HttpClientDecorator>();
             services.TryAddSingleton(authConfig => authConfiguration);
 
             services.AddAuthentication()
@@ -141,10 +176,11 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.Authority = $"https://{authConfiguration.TenantDomain}";
                     options.Audience = authConfiguration.MachineToMachineSettings.ApiIdentifier;
                 });
-            services.AddAuthorization();
+
+            Action<AuthorizationOptions> defaultOptions = options => { };
+			services.AddAuthorization(authorizationOptions ?? defaultOptions);
 
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
-            services.AddSingleton<IAuthorisationService, AuthorisationApiService>();
 
             services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, ScopeRequirementHandler>();

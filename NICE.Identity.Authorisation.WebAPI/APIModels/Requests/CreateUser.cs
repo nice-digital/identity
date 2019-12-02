@@ -7,11 +7,10 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Requests
     public class CreateUser
     {
 		/// <summary>
-		/// this is the auth0userid
+		/// previously known as the auth0userid
 		/// </summary>
         [Required]
-		[JsonProperty("UserId")]
-        public string Auth0UserId { get; set; }
+        public string NameIdentifier { get; set; }
 
         [Required]
 		[StringLength(100)]

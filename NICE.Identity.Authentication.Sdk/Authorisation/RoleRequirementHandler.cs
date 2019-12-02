@@ -1,40 +1,29 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using NICE.Identity.Authentication.Sdk.Domain;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
-    public class RoleRequirementHandler : AuthorizationHandler<RoleRequirement>
+	public class RoleRequirementHandler : AuthorizationHandler<RoleRequirement>
     {
-        private const string UserIdClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-
-        private readonly IAuthorisationService _authorisationService;
-
-        public RoleRequirementHandler(IAuthorisationService authorisationService)
-        {
-            _authorisationService = authorisationService ?? throw new ArgumentNullException(nameof(authorisationService));
-        }
-
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleRequirement requirement)
         {
-            if (!context.User.HasClaim(x => x.Type.Equals(UserIdClaimType)) ||
-                context.User.Claims.Single(x => x.Type.Equals(UserIdClaimType)).Value == null)
-            {
-                return Task.CompletedTask;
-            }
+			if (!context.User.Identity.IsAuthenticated)
+	        {
+				return Task.CompletedTask;
+	        }
 
-            var userId = context.User.Claims.Single(x => x.Type.Equals(UserIdClaimType)).Value;
+			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim());
 
-            // TODO: Add claims to user either on login or when calling the claims endpoint for the first time.
-            var userIsAuthorised = _authorisationService.UserSatisfiesAtLeastOneRole(userId, new[] {requirement.Role}).Result;
+			if (context.User.Claims.Any(claim =>    claim.Type.Equals(ClaimType.Role) &&
+	                                                rolesRequired.Contains(claim.Value, StringComparer.OrdinalIgnoreCase)))
+	        {
+		        context.Succeed(requirement);
+			}
 
-            if (userIsAuthorised)
-            {
-                context.Succeed(requirement);
-            }
-
-            return Task.CompletedTask;
+			return Task.CompletedTask;
         }
     }
 }

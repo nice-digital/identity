@@ -60,7 +60,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			services.AddAuthentication(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
             services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
-			services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
+			//services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
 
             services.AddRouting(options => options.LowercaseUrls = true);
 

@@ -26,7 +26,8 @@
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home (unsecured)</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="UserProfile">User Profile (authenticated)</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="ApiData">API Data (authenticated)</a></li>
+	                <li><a asp-area="" asp-controller="Home" asp-action="ApiData">API Data (authenticated)</a></li>
+	                <li><a asp-area="" asp-controller="Home" asp-action="EditorAction">Editor Action (Editor role required)</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     @if (User.Identity.IsAuthenticated)
@@ -44,6 +45,12 @@
 
     <div class="container body-content">
         @RenderBody()
+        <p>
+	        <a href="@Url.Action("Login", "Account", new { returnUrl = "/home/userprofile"})">Here's a link that logs you in and then redirects you to the user profile page.</a>
+        </p>
+        <p>
+	        <a href="@Url.Action("Login", "Account", new { returnUrl = "/home/userprofile", goToRegisterPage = true})">Here's a link that sends you to the register page directly.</a>
+        </p>
         <hr />
         <footer>
             <p>NICE.Identity.TestClient.NETCore</p>

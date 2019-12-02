@@ -40,7 +40,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                 {
                     UserID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Auth0UserID = table.Column<string>(maxLength: 100, nullable: false),
+                    NameIdentifier = table.Column<string>(maxLength: 100, nullable: false),
                     NICEAccountsID = table.Column<Guid>(nullable: true),
                     Title = table.Column<string>(maxLength: 50, nullable: true),
                     FirstName = table.Column<string>(maxLength: 100, nullable: true),

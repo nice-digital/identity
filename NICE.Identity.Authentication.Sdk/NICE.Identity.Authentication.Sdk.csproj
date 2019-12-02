@@ -30,6 +30,7 @@
     <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.0.1" />
     <PackageReference Include="Microsoft.Owin.Security.OAuth" Version="4.0.1" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Owin" Version="1.0.0" />
     <PackageReference Include="Polly" Version="7.1.0" />
     <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="4.0.5" />
