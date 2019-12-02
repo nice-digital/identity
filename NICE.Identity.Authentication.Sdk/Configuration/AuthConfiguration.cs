@@ -1,16 +1,13 @@
-﻿using System.Net.Http;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk.Configuration
 {
 	public interface IAuthConfiguration
 	{
 		string TenantDomain { get; }
-		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri ) WebSettings { get; set; }
+		( string ClientId, string ClientSecret, string RedirectUri, string PostLogoutRedirectUri, string AuthorisationServiceUri, string CallBackPath ) WebSettings { get; set; }
 		(string ApiIdentifier, string GrantType) MachineToMachineSettings { get; }
-		StringContent GetTokenRequest { get; }
+		string GrantTypeForMachineToMachine { get; }
 	}
 
 	/// <summary>
@@ -18,17 +15,17 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	/// </summary>
 	public class AuthConfiguration : IAuthConfiguration
 	{
-        public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
+		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
 			TenantDomain = section["Domain"];
-			WebSettings = (section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"]);
+			WebSettings = (section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"], section["CallBackPath"]);
 			MachineToMachineSettings = (section["ApiIdentifier"], GrantTypeForMachineToMachine);
 		}
-		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = null)
+		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = null, string callBackPath = "/signin-auth0")
 		{
 			TenantDomain = tenantDomain;
-			WebSettings = (clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri);
+			WebSettings = (clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri, callBackPath);
 			MachineToMachineSettings = (apiIdentifier, grantType ?? GrantTypeForMachineToMachine);
 		}
 
@@ -39,7 +36,8 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			string ClientSecret,
 			string RedirectUri,
 			string PostLogoutRedirectUri,
-            string AuthorisationServiceUri
+            string AuthorisationServiceUri,
+			string CallBackPath
 			) 
 			WebSettings { get; set; }
 		
@@ -49,17 +47,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			) 
 			MachineToMachineSettings { get; }
 
-		private const string GrantTypeForMachineToMachine = "client_credentials";
-
-		public StringContent GetTokenRequest => new StringContent(JsonConvert.SerializeObject(new
-			{
-				grant_type = GrantTypeForMachineToMachine,
-				client_id = WebSettings.ClientId,
-				client_secret = WebSettings.ClientSecret,
-				audience = MachineToMachineSettings.ApiIdentifier
-			}),
-		  Encoding.UTF8,
-		  "application/json");
+		public string GrantTypeForMachineToMachine => "client_credentials";
 	}
-
 }

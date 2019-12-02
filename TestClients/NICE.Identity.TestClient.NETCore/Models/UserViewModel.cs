@@ -5,7 +5,7 @@ namespace NICE.Identity.TestClient.NetCore.Models
     public class UserViewModel
     {
         public int UserId { get; set; }
-        public string Auth0UserId { get; set; }
+        public string NameIdentifier { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string EmailAddress { get; set; }

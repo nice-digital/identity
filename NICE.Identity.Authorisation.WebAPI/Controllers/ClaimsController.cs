@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Requests.Claim;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	public class ClaimsController : ControllerBase
 	{
 		private readonly IClaimsService _claimsService;
+		private readonly ILogger<ClaimsController> _logger;
 
-		public ClaimsController(IClaimsService claimsService)
+		public ClaimsController(IClaimsService claimsService, ILogger<ClaimsController> logger)
 	    {
 		    _claimsService = claimsService ?? throw new ArgumentNullException(nameof(claimsService));
-	    }
+		    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		}
 
 		// GET api/claims/someuserid
-		//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //TODO: restore
 	    [HttpGet("{authenticationProviderUserId}")]
 	    public async Task<ActionResult<IEnumerable<ApiModels.Responses.Claim[]>>> Get(string authenticationProviderUserId)
 	    {
@@ -41,41 +46,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	            return StatusCode(503, e.Message);
 	        }
 	    }
-
-        // PUT api/claims
-        [HttpPut("{userId}")]
-	    public async Task<ActionResult> Put(int userId, [FromBody] Claim claim)
-	    {
-	        //var role = MapClaimToRole(claim);
-
-	        //try
-	        //{
-	        //    await _claimsService.AddToUser(role);
-         //   }
-	        //catch (Exception e)
-	        //{
-	        //    // TODO: Implement Logging and custom exception types
-
-	        //    var error = new ErrorDetail()
-	        //    {
-         //           ErrorMessage = e.Message
-	        //    };
-
-	        //    return StatusCode(503, error);
-	        //}
-
-	        return Ok();
-	    }
-
-	    //private Role MapClaimToRole(Claim claim)
-	    //{
-	    //    var role = new Role()
-	    //    {
-	    //        Id = claim.RoleId,
-	    //        Name = claim.RoleName
-	    //    };
-
-	    //    return role;
-	    //}
-    }
+	}
 }

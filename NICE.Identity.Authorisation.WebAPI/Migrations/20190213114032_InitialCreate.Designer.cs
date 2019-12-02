@@ -107,9 +107,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 
                     b.Property<bool>("AllowContactMe");
 
-                    b.Property<string>("Auth0UserId")
+                    b.Property<string>("NameIdentifier")
                         .IsRequired()
-                        .HasColumnName("Auth0UserID")
+                        .HasColumnName("NameIdentifier")
                         .HasMaxLength(100);
 
                     b.Property<string>("DsactiveDirectoryUsername")

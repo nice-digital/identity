@@ -7,6 +7,7 @@ using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
@@ -50,14 +51,14 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var newUserEmailAddress = "new.user.@email.com";
 
             var context = GetContext();
-            context.Users.Add(new DataModels.User { EmailAddress = newUserEmailAddress, Auth0UserId = "not empty"});
+            context.Users.Add(new DataModels.User { EmailAddress = newUserEmailAddress, NameIdentifier = "not empty"});
             context.SaveChanges();
 
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             var userToInsert = new ApiModels.User { EmailAddress = newUserEmailAddress };
 
             //Act + Assert
-            Assert.Throws<Exception>(() => userService.CreateUser(userToInsert));
+            userService.CreateUser(userToInsert);
             context.Users.Count().ShouldBe(1);
         }
 
@@ -66,20 +67,20 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var userEmailAddress = "new@user.com";
-            var auth0UserId = "some value";
+            var nameIdentifier = "some value";
 
             var context = GetContext();
-            context.Users.Add(new DataModels.User { EmailAddress = userEmailAddress, Auth0UserId = null });
+            context.Users.Add(new DataModels.User { EmailAddress = userEmailAddress, NameIdentifier = null });
             context.SaveChanges();
 
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            var userToInsert = new ApiModels.User { EmailAddress = userEmailAddress, Auth0UserId = auth0UserId };
+            var userToInsert = new ApiModels.User { EmailAddress = userEmailAddress, NameIdentifier = nameIdentifier };
 
             //Act 
             userService.CreateUser(userToInsert);
 
             //Assert
-            context.Users.Single().Auth0UserId.ShouldBe(auth0UserId);
+            context.Users.Single().NameIdentifier.ShouldBe(nameIdentifier);
         }
 
         [Fact]
@@ -87,22 +88,22 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             const string email = "singleuser@example.com";
-            const string auth0UserId = "user|toget";
+            const string nameIdentifier = "user|toget";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            var user = new ApiModels.User { Auth0UserId = auth0UserId, EmailAddress = email };
+            var user = new ApiModels.User { NameIdentifier = nameIdentifier, EmailAddress = email };
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
-            var actual = userService.GetUser(createdUserId);
+            var actual = userService.GetUser(createdUserId.Value);
 
             //Assert
             actual.EmailAddress.ShouldBe(email);
-            actual.Auth0UserId.ShouldBe(auth0UserId);
+            actual.NameIdentifier.ShouldBe(nameIdentifier);
         }
 
         [Fact]
-        public void Update_user_that_already_exists()
+        public async Task Update_user_that_already_exists()
         {
             //Arrange
             var context = GetContext();
@@ -111,9 +112,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
-            var userToUpdate = userService.GetUser(createdUserId);
+            var userToUpdate = userService.GetUser(createdUserId.Value);
             userToUpdate.FirstName = "John";
-            var updatedUser = userService.UpdateUser(createdUserId, userToUpdate);
+            var updatedUser = await userService.UpdateUser(createdUserId.Value, userToUpdate);
 
             //Assert
             context.Users.ToList().Count.ShouldBe(1);
@@ -135,7 +136,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             };
 
             //Act + Assert
-            Assert.Throws<NullReferenceException>(() => userService.UpdateUser(nonExistingUserId, userToUpdate));
+            Assert.ThrowsAsync<NullReferenceException>(async () => await userService.UpdateUser(nonExistingUserId, userToUpdate));
             context.Users.Count().ShouldBe(0);
         }
 
@@ -144,17 +145,17 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             const string newUserEmailAddress = "usertodelete@example.com";
-            const string auth0UserId = "user|todelete";
+            const string nameIdentifier = "user|todelete";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            var user = new ApiModels.User { Auth0UserId = auth0UserId, EmailAddress = newUserEmailAddress };
+            var user = new ApiModels.User { NameIdentifier = nameIdentifier, EmailAddress = newUserEmailAddress };
             var createdUser = userService.CreateUser(user);
 
             //Act
-            userService.DeleteUser(createdUser.UserId);
+            userService.DeleteUser(createdUser.UserId.Value);
 
             //Assert
-            var deletedUser = userService.GetUser(createdUser.UserId);
+            var deletedUser = userService.GetUser(createdUser.UserId.Value);
             deletedUser.ShouldBe(null);
         }
     }

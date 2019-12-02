@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 
@@ -11,9 +13,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public User GetUser(string authenticationProviderUserId)
         {
-            var result = Users.Where(users => users.Auth0UserId.Equals(authenticationProviderUserId))
+            var result = Users.Where(users => users.NameIdentifier.Equals(authenticationProviderUserId, StringComparison.OrdinalIgnoreCase))
                 .Include(users => users.UserRoles)
-                .ThenInclude(userRoles => userRoles.Role).ToList();
+                .ThenInclude(userRoles => userRoles.Role)
+                .ThenInclude(website => website.Website)
+                .ToList();
 
             return !result.Any() ? null : result.Single();
         }
@@ -27,7 +31,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return !result.Any() ? null : result.Single();
         }
 
-        public User CreateUser(User user)
+        public List<User> GetUsers(IEnumerable<string> authenticationProviderUserIds)
+        {
+	        return Users.Where(users => authenticationProviderUserIds.Contains(users.NameIdentifier, StringComparer.OrdinalIgnoreCase))
+		        .Include(users => users.UserRoles)
+		        .ThenInclude(userRoles => userRoles.Role)
+		        .ThenInclude(website => website.Website)
+		        .ToList();
+        }
+
+		public User CreateUser(User user)
         {
             // find by email address as this should be unique
             var foundUser = Users.FirstOrDefault(
@@ -38,19 +51,26 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             // if that user has been imported.
             if (foundUser == null)
             {
+				user.InitialRegistrationDate = DateTime.UtcNow;
                 //new user
                 Users.Add(user);
                 SaveChanges();
                 return user;
             }
-            if (string.IsNullOrEmpty(foundUser.Auth0UserId))
+            if (string.IsNullOrEmpty(foundUser.NameIdentifier))
             {
-                foundUser.Auth0UserId = user.Auth0UserId;
-                SaveChanges();
-                return foundUser;
+	            foundUser.NameIdentifier = user.NameIdentifier;
+	            SaveChanges();
             }
-            return null;
+            return foundUser;
         }
+
+		public void UpdateUserLastLoggedInDate(User user)
+		{
+			user.LastLoggedInDate = DateTime.UtcNow;
+			Users.Update(user);
+			SaveChanges();
+		}
 
         #endregion
 
@@ -67,6 +87,39 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             return TermsVersions.OrderByDescending(x => x.TermsVersionId).FirstOrDefault();
         }
 
-        #endregion
-    }
+		#endregion
+
+		#region Roles 
+
+		public Role GetRole(string websiteHost, string roleName)
+		{
+			return Roles.FirstOrDefault(r =>
+				r.Website.Host.Equals(websiteHost, StringComparison.OrdinalIgnoreCase) &&
+				r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+		}
+
+
+		public int AddUsersToRole(IEnumerable<User> users, int roleId)
+		{
+			var userRolesAdded = 0;
+			foreach (var user in users)
+			{
+				if (!user.UserRoles.Any(r => r.RoleId == roleId))
+				{
+					UserRoles.Add(new UserRole {RoleId = roleId, UserId = user.UserId});
+					userRolesAdded++;
+				}
+			}
+
+			if (userRolesAdded > 0)
+			{
+				SaveChanges();
+			}
+
+			return userRolesAdded;
+		}
+
+		#endregion
+
+	}
 }

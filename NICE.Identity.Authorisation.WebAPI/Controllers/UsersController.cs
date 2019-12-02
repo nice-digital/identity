@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
+using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -50,6 +54,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
+	            user.IsInAuthenticationProvider = true; //currently this endpoint is only hit by the authentication provider, so setting here makes sense. 
                 var createdUser = _usersService.CreateUser(user);
                 return Created($"/user/{createdUser.UserId.ToString()}",createdUser);
             }
@@ -59,68 +64,110 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// get list of all users
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("")]
-        [ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        public IActionResult GetUsers()
-        {
-            try
-            {
-                return Ok(_usersService.GetUsers());
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
-            }
-        }
+		/// <summary>
+		/// get list of all users
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet("")]
+		[ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult GetUsers()
+		{
+			try
+			{
+				return Ok(_usersService.GetUsers());
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
 
-        /// <summary>
-        /// get user with id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        [HttpGet("{userId}")]
-        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        public IActionResult GetUser(int userId)
-        {
-            try
-            {
-                var user = _usersService.GetUser(userId);
-                if (user != null)
-                {
-                    return Ok(user);
-                }
-                return NotFound(new ProblemDetails {Status = 404, Title = "User not found"});
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
-            }
-        }
+		/// <summary>
+		/// get user with id
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <returns></returns>
+		[HttpGet("{userId:int}")]
+		[ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult GetUser(int userId)
+		{
+			try
+			{
+				var user = _usersService.GetUser(userId);
+				if (user != null)
+				{
+					return Ok(user);
+				}
+				return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
 
-        // TODO: custom model validation, checking incoming properties
-        /// <summary>
-        /// update user with id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        [HttpPatch("{userId}")]
+		/// <summary>
+		/// get list of all users given in the nameIdentifiers parameter
+		/// </summary>
+		/// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
+		/// <returns></returns>
+		[HttpPost("findusers")]
+		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult FindUsers([FromBody] IEnumerable<string> nameIdentifiers)
+        {
+			try
+			{
+				return Ok(_usersService.FindUsers(nameIdentifiers.Distinct()));
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
+
+		/// <summary>
+		/// returns a dictionary of all the users supplied along with a list of their available roles.
+		/// </summary>
+		/// <param name="nameIdentifiers">this is the auth0UserId aka the "Name identifier"</param>
+		/// <returns></returns>
+		[HttpPost("findroles/{host}")]
+		[ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		public IActionResult FindRoles([FromBody] IEnumerable<string> nameIdentifiers, string host)
+		{
+			try
+			{
+				return Ok(_usersService.FindRoles(nameIdentifiers.Distinct(), host));
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
+
+		// TODO: custom model validation, checking incoming properties
+		/// <summary>
+		/// update user with id
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="user"></param>
+		/// <returns></returns>
+		[HttpPatch("{userId}")]
         [HttpPut("{userId}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateUser([FromRoute] int userId, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser([FromRoute] int userId, [FromBody] User user)
         {
             if (!ModelState.IsValid)
             {
@@ -132,7 +179,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_usersService.UpdateUser(userId, user));
+                return Ok(await _usersService.UpdateUser(userId, user));
             }
             catch (Exception e)
             {
@@ -162,5 +209,32 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
-    }
+
+        [HttpPost("import")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult ImportUsers([FromBody] IList<ImportUser> usersToImport)
+        {
+	        if (!ModelState.IsValid)
+	        {
+		        var serializableModelState = new SerializableError(ModelState);
+		        var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+		        _logger.LogError($"Invalid model for create user", modelStateJson);
+		        return BadRequest(new ProblemDetails { Status = 400, Title = "Invalid model for create user" });
+	        }
+
+	        try
+	        {
+		        _usersService.ImportUsers(usersToImport);
+		        return Ok();
+	        }
+	        catch (Exception e)
+	        {
+		        return StatusCode(500, new ProblemDetails { Status = 500, Title = e.Message, Detail = e.InnerException?.Message });
+	        }
+        }
+	}
 }

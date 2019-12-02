@@ -10,14 +10,14 @@ using NICE.Identity.Authorisation.WebAPI.Repositories;
 namespace NICE.Identity.Authorisation.WebAPI.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20190228120650_IDAM-167-TidyUser-IDAM-170-AcceptedTermsHistory")]
-    partial class IDAM167TidyUserIDAM170AcceptedTermsHistory
+    [Migration("20191202095423_RenamingAuth0UserIdToNameIdentifier")]
+    partial class RenamingAuth0UserIdToNameIdentifier
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -39,13 +39,42 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.ToTable("Environments");
 
                     b.HasData(
-                        new { EnvironmentId = 1, Name = "Local", Order = 0 },
-                        new { EnvironmentId = 2, Name = "Dev", Order = 0 },
-                        new { EnvironmentId = 3, Name = "Test", Order = 0 },
-                        new { EnvironmentId = 4, Name = "Alpha", Order = 0 },
-                        new { EnvironmentId = 5, Name = "Beta", Order = 0 },
-                        new { EnvironmentId = 6, Name = "Live", Order = 0 }
-                    );
+                        new
+                        {
+                            EnvironmentId = 1,
+                            Name = "Local",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 2,
+                            Name = "Dev",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 3,
+                            Name = "Test",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 4,
+                            Name = "Alpha",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 5,
+                            Name = "Beta",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 6,
+                            Name = "Live",
+                            Order = 0
+                        });
                 });
 
             modelBuilder.Entity("NICE.Identity.Authorisation.WebAPI.DataModels.Role", b =>
@@ -54,6 +83,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("RoleID")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Description");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -85,9 +116,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.ToTable("Services");
 
                     b.HasData(
-                        new { ServiceId = 1, Name = "NICE Website" },
-                        new { ServiceId = 2, Name = "EPPI Reviewer v5" }
-                    );
+                        new
+                        {
+                            ServiceId = 1,
+                            Name = "NICE Website"
+                        },
+                        new
+                        {
+                            ServiceId = 2,
+                            Name = "EPPI Reviewer v5"
+                        });
                 });
 
             modelBuilder.Entity("NICE.Identity.Authorisation.WebAPI.DataModels.TermsVersion", b =>
@@ -116,11 +154,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 
                     b.Property<bool>("AllowContactMe");
 
-                    b.Property<string>("NameIdentifier")
-                        .IsRequired()
-                        .HasColumnName("NameIdentifier")
-                        .HasMaxLength(100);
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(320);
@@ -132,6 +165,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 
                     b.Property<DateTime?>("InitialRegistrationDate");
 
+                    b.Property<bool>("IsInAuthenticationProvider");
+
                     b.Property<bool>("IsLockedOut");
 
                     b.Property<bool>("IsMigrated");
@@ -141,6 +176,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<DateTime?>("LastLoggedInDate");
 
                     b.Property<string>("LastName")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("NameIdentifier")
+                        .IsRequired()
+                        .HasColumnName("NameIdentifier")
                         .HasMaxLength(100);
 
                     b.HasKey("UserId");

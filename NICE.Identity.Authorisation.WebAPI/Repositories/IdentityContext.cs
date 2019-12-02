@@ -129,9 +129,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
-                entity.Property(e => e.Auth0UserId)
+                entity.Property(e => e.NameIdentifier)
                     .IsRequired()
-                    .HasColumnName("Auth0UserID")
+                    .HasColumnName("NameIdentifier")
                     .HasMaxLength(100);
 
                 entity.Property(e => e.EmailAddress)
