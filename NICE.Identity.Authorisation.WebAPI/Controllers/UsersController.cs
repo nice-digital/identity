@@ -5,6 +5,7 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -166,7 +167,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateUser([FromRoute] int userId, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser([FromRoute] int userId, [FromBody] User user)
         {
             if (!ModelState.IsValid)
             {
@@ -178,7 +179,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_usersService.UpdateUser(userId, user));
+                return Ok(await _usersService.UpdateUser(userId, user));
             }
             catch (Exception e)
             {

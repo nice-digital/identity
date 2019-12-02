@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -16,7 +17,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		List<User> GetUsers();
 		List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
-		User UpdateUser(int userId, User user);
+		Task<User> UpdateUser(int userId, User user);
 		int DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
 	}
@@ -90,7 +91,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		}
 
 		// TODO: update user in identity provider if needed
-		public User UpdateUser(int userId, User user)
+		public async Task<User> UpdateUser(int userId, User user)
 		{
 			try
 			{
@@ -99,7 +100,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					throw new Exception($"User not found {userId.ToString()}");
 
 				userToUpdate.UpdateFromApiModel(user);
-				_providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+				await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
 
 				_context.SaveChanges();
 				return new User(userToUpdate);
