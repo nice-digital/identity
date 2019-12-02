@@ -7,6 +7,7 @@ using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
@@ -94,7 +95,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
-            var actual = userService.GetUser(createdUserId);
+            var actual = userService.GetUser(createdUserId.Value);
 
             //Assert
             actual.EmailAddress.ShouldBe(email);
@@ -102,7 +103,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Update_user_that_already_exists()
+        public async Task Update_user_that_already_exists()
         {
             //Arrange
             var context = GetContext();
@@ -111,9 +112,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
-            var userToUpdate = userService.GetUser(createdUserId);
+            var userToUpdate = userService.GetUser(createdUserId.Value);
             userToUpdate.FirstName = "John";
-            var updatedUser = userService.UpdateUser(createdUserId, userToUpdate);
+            var updatedUser = await userService.UpdateUser(createdUserId.Value, userToUpdate);
 
             //Assert
             context.Users.ToList().Count.ShouldBe(1);
@@ -135,7 +136,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             };
 
             //Act + Assert
-            Assert.Throws<NullReferenceException>(() => userService.UpdateUser(nonExistingUserId, userToUpdate));
+            Assert.ThrowsAsync<NullReferenceException>(async () => await userService.UpdateUser(nonExistingUserId, userToUpdate));
             context.Users.Count().ShouldBe(0);
         }
 
@@ -151,10 +152,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var createdUser = userService.CreateUser(user);
 
             //Act
-            userService.DeleteUser(createdUser.UserId);
+            userService.DeleteUser(createdUser.UserId.Value);
 
             //Assert
-            var deletedUser = userService.GetUser(createdUser.UserId);
+            var deletedUser = userService.GetUser(createdUser.UserId.Value);
             deletedUser.ShouldBe(null);
         }
     }

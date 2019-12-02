@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
@@ -47,6 +48,11 @@ namespace NICE.Identity.Test.Infrastructure
 		}
 
 		public void ImportUsers(IList<ImportUser> usersToImport)
+		{
+			throw new NotImplementedException();
+		}
+
+		Task<User> IUsersService.UpdateUser(int userId, User user)
 		{
 			throw new NotImplementedException();
 		}
