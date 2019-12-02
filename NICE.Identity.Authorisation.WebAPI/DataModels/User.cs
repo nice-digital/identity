@@ -24,9 +24,10 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 	        IsLockedOut = user.IsLockedOut;
 	        IsStaffMember = user.IsStaffMember;
 	        IsMigrated = user.IsMigrated;
-		}
+	        IsInAuthenticationProvider = user.IsInAuthenticationProvider;
+        }
 
-        public User(int userId, string auth0UserId, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated)
+        public User(int userId, string auth0UserId, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider)
         {
             UserId = userId;
             Auth0UserId = auth0UserId;
@@ -41,6 +42,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             IsStaffMember = isStaffMember;
             UserRoles = new HashSet<UserRole>();
             IsMigrated = isMigrated;
+            IsInAuthenticationProvider = isInAuthenticationProvider;
         }
 
         public int UserId { get; set; }
@@ -55,8 +57,9 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public bool IsLockedOut { get; set; }
         public bool IsStaffMember { get; set; }
         public bool IsMigrated { get; set; }
+        public bool IsInAuthenticationProvider { get; set; }
 
-        public ICollection<UserRole> UserRoles { get; set; }
+		public ICollection<UserRole> UserRoles { get; set; }
         public ICollection<TermsVersion> UserCreatedTermsVersions { get; set; }
         public ICollection<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
 
@@ -80,6 +83,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 			IsLockedOut = user.IsLockedOut;
 			IsStaffMember = user.IsStaffMember;
 			IsMigrated = user.IsMigrated;
-		}
+			IsInAuthenticationProvider = user.IsInAuthenticationProvider;
+        }
     }
 }

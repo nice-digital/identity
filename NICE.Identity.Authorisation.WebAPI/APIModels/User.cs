@@ -8,7 +8,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public User(int userId, string auth0UserId, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated)
+        public User(int userId, string auth0UserId, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider)
         {
             UserId = userId;
             Auth0UserId = auth0UserId;
@@ -23,6 +23,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsStaffMember = isStaffMember;
             AcceptedTerms = acceptedTerms;
             IsMigrated = isMigrated;
+            IsInAuthenticationProvider = isInAuthenticationProvider;
         }
 
         public User(DataModels.User user)
@@ -39,7 +40,8 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsLockedOut = user.IsLockedOut;
             IsStaffMember = user.IsStaffMember;
             IsMigrated = user.IsMigrated;
-        }
+            IsInAuthenticationProvider = user.IsInAuthenticationProvider;
+		}
 
         public int UserId { get; set; }
 		public string Auth0UserId { get; set; }
@@ -54,5 +56,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         public bool IsStaffMember { get; set; }
         public bool AcceptedTerms { get; set; }
         public bool IsMigrated { get; set; }
+        public bool IsInAuthenticationProvider { get; set; }
 	}
 }

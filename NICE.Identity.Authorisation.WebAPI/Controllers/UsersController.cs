@@ -53,6 +53,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
+	            user.IsInAuthenticationProvider = true; //currently this endpoint is only hit by the authentication provider, so setting here makes sense. 
                 var createdUser = _usersService.CreateUser(user);
                 return Created($"/user/{createdUser.UserId.ToString()}",createdUser);
             }

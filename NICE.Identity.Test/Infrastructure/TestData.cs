@@ -24,9 +24,9 @@ namespace NICE.Identity.Test.Infrastructure
 			context.Websites.Add(new Website(websiteId, serviceId, environmentId, host));
 		}
 
-		private static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator")
+		private static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator", string description = "the administrator role is the super user")
 		{
-			context.Roles.Add(new Role(roleId, websiteId, name));
+			context.Roles.Add(new Role(roleId, websiteId, name, description));
 		}
 
 		private static void AddUserRole(ref IdentityContext context, int userRoleId = 1, int roleId = 1, int userId = 1)
@@ -36,7 +36,7 @@ namespace NICE.Identity.Test.Infrastructure
 
 		private static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string auth0UserId = "some auth0 userid")
 		{
-			context.Users.Add(new User(userId, auth0UserId, firstName, lastName, true, true, null, null, true, null, true, true, true));
+			context.Users.Add(new User(userId, auth0UserId, firstName, lastName, true, true, null, null, true, null, true, true, true, true));
 		}
 
         private static void AddTermsVersion(ref IdentityContext context, int creatorId = 1, int version = 1, DateTime? versionDate = null)
