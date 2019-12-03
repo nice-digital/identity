@@ -22,5 +22,10 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public string Name { get; set; }
 
         public ICollection<Website> Websites { get; set; }
+
+        public void UpdateFromApiModel(ApiModels.Service service)
+        {
+            Name = service?.Name ?? Name;
+        }
     }
 }

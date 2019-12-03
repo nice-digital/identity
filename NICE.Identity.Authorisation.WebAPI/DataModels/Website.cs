@@ -29,5 +29,13 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public Environment Environment { get; set; }
         public Service Service { get; set; }
         public ICollection<Role> Roles { get; set; }
+        
+        public void UpdateFromApiModel(ApiModels.Website website)
+        {
+            WebsiteId = website?.WebsiteId ?? WebsiteId;
+            ServiceId = website?.ServiceId ?? ServiceId;
+            EnvironmentId = website?.EnvironmentId ?? EnvironmentId;
+            Host = website?.Host ?? Host;
+        }
     }
 }
