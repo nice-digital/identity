@@ -7,7 +7,16 @@ using NICE.Identity.Authorisation.WebAPI.Repositories;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
-    public class RolesService
+    public interface IRolesService
+    {
+        Role CreateRole(Role role);
+        List<Role> GetRoles();
+        Role GetRole(int roleId);
+        Role UpdateRole(int roleId, Role role);
+        int DeleteRole(int roleId);
+    }
+
+    public class RolesService : IRolesService
     {
         private readonly IdentityContext _context;
         private readonly ILogger<RolesService> _logger;

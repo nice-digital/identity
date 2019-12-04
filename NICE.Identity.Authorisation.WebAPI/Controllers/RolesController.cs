@@ -1,0 +1,163 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.Services;
+
+namespace NICE.Identity.Authorisation.WebAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ApiController]
+    public class RolesController : ControllerBase
+    {
+        private readonly ILogger<RolesController> _logger;
+        private readonly IRolesService _rolesService;
+
+        public RolesController(IRolesService rolesService, ILogger<RolesController> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _rolesService = rolesService ?? throw new ArgumentNullException(nameof(rolesService));
+        }
+        
+        /// <summary>
+        /// create role
+        /// </summary>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        [HttpPost("")]
+        [ProducesResponseType(typeof(Role), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult CreateRole(Role role)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid model for create role", modelStateJson);
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create role"});
+            }
+
+            try
+            {
+                var createdRole = _rolesService.CreateRole(role);
+                return Created($"/role/{createdRole.RoleId.ToString()}", createdRole);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message, Detail = e.InnerException?.Message});
+            }
+        }
+        
+        /// <summary>
+        /// get list of all roles
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("")]
+        [ProducesResponseType(typeof(List<Role>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetRoles()
+        {
+            try
+            {
+                return Ok(_rolesService.GetRoles());
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+        
+        /// <summary>
+        /// get role with id
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
+        [HttpGet("{roleId}")]
+        [ProducesResponseType(typeof(Role), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetRole(int roleId)
+        {
+            try
+            {
+                var role = _rolesService.GetRole(roleId);
+                if (role != null)
+                {
+                    return Ok(role);
+                }
+                return NotFound(new ProblemDetails {Status = 404, Title = "Role not found"});
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+        
+        /// <summary>
+        /// update role with id
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        [HttpPatch("{roleId}", Name = "UpdateRolePartial")]
+        [HttpPut("{roleId}", Name = "UpdateRole")]
+        [ProducesResponseType(typeof(Role), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult UpdateRole(int roleId, Role role)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid model for update role {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update role"});
+            }
+
+            try
+            {
+                return Ok(_rolesService.UpdateRole(roleId, role));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+
+        /// <summary>
+        /// delete role with id
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
+        [HttpDelete("{roleId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult DeleteRole(int roleId)
+        {
+            try
+            {
+                _rolesService.DeleteRole(roleId);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+    }
+}
