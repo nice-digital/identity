@@ -24,7 +24,7 @@ namespace NICE.Identity.Test.Infrastructure
 			context.Websites.Add(new Website(websiteId, serviceId, environmentId, host));
 		}
 
-		private static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator", string description = "the administrator role is the super user")
+        public static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator", string description = "the administrator role is the super user")
 		{
 			context.Roles.Add(new Role(roleId, websiteId, name, description));
 		}
