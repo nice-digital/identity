@@ -10,6 +10,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     public interface IUserRolesService
     {
         UserRole CreateUserRole(UserRole userRole);
+        List<UserRole> GetUserRoles();
+        UserRole GetUserRole(int userRoleId);
+        int DeleteUserRole(int userRoleId);
     }
 
     public class UserRolesService : IUserRolesService
@@ -50,7 +53,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return userRole != null ? new UserRole(userRole) : null;
         }
 
-        public int DeleteRole(int userRoleId)
+        public int DeleteUserRole(int userRoleId)
         {
             try
             {

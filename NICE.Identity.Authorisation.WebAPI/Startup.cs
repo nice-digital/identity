@@ -55,6 +55,7 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddTransient<IServicesService, ServicesService>();
             services.AddTransient<IEnvironmentsService, EnvironmentsService>();
             services.AddTransient<IRolesService, RolesService>();
+            services.AddTransient<IUserRolesService, UserRolesService>();
             services.AddTransient<IProviderManagementService, Auth0ManagementService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

@@ -111,7 +111,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
 
             //Act
-            var deletedUserRoleResponse = userRolesService.DeleteRole(createdUserRole.UserRoleId.GetValueOrDefault());
+            var deletedUserRoleResponse = userRolesService.DeleteUserRole(createdUserRole.UserRoleId.GetValueOrDefault());
 
             //Assert
             deletedUserRoleResponse.ShouldBe(1);
