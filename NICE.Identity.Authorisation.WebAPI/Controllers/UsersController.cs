@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
@@ -141,6 +142,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdmin)]
 		public IActionResult FindRoles([FromBody] IEnumerable<string> nameIdentifiers, string host)
 		{
 			try

@@ -24,18 +24,18 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 			if (policy == null)
 			{
-				if (policyName.Contains(":"))
-				{
-					policy = new AuthorizationPolicyBuilder()
-						.AddRequirements(new ScopeRequirement(policyName, _domain))
-						.Build();
-				}
-				else
-				{
+				//if (policyName.Contains(":"))
+				//{
+				//	policy = new AuthorizationPolicyBuilder()
+				//		.AddRequirements(new ScopeRequirement(policyName, _domain))
+				//		.Build();
+				//}
+				//else
+				//{
 					policy = new AuthorizationPolicyBuilder()
 						.AddRequirements(new RoleRequirement(policyName))
 						.Build();
-				}
+				//}
 
 				// Add policy to the AuthorizationOptions, so we don't have to re-create it each time
 				_options.AddPolicy(policyName, policy);

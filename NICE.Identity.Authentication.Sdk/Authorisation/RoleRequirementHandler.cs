@@ -22,6 +22,12 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 	        {
 		        context.Succeed(requirement);
 			}
+			else
+			{
+				//lookup claims from database
+
+				//add looked up claims to user object
+			}
 
 			return Task.CompletedTask;
         }

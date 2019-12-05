@@ -55,11 +55,19 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
             ViewData["Users.DisplayName"] = firstUser.DisplayName;
             ViewData["Users.EmailAddress"] = firstUser.EmailAddress;
 
+            try
+            {
+	            var roles = await _apiService.FindRoles(new List<string> {currentUsersNameIdentifier},
+		            "dev-identitytestcore.nice.org.uk");
 
-            var roles = await _apiService.FindRoles(new List<string> {currentUsersNameIdentifier}, "dev-identitytestcore.nice.org.uk");
-            ViewData["Roles"] = JsonConvert.SerializeObject(roles);
+	            ViewData["Roles"] = JsonConvert.SerializeObject(roles);
+            }
+            catch (Exception ex)
+            {
+	            ViewData["Roles"] = "error:" + ex.ToString();
+            }
 
-			return View();
+            return View();
         }
 
         [Authorize]
