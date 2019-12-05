@@ -82,18 +82,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// get environment with id
         /// </summary>
-        /// <param name="environmentId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{environmentId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(Environment), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetEnvironment(int environmentId)
+        public IActionResult GetEnvironment(int id)
         {
             try
             {
-                var environment = _environmentsService.GetEnvironment(environmentId);
+                var environment = _environmentsService.GetEnvironment(id);
                 if (environment != null)
                 {
                     return Ok(environment);
@@ -109,17 +109,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// update environment with id
         /// </summary>
-        /// <param name="environmentId"></param>
+        /// <param name="id"></param>
         /// <param name="environment"></param>
         /// <returns></returns>
-        [HttpPatch("{environmentId}", Name = "UpdateEnvironmentPartial")]
-        [HttpPut("{environmentId}", Name = "UpdateEnvironment")]
+        [HttpPatch("{id}", Name = "UpdateEnvironmentPartial")]
+        [HttpPut("{id}", Name = "UpdateEnvironment")]
         [ProducesResponseType(typeof(Environment), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateEnvironment(int environmentId, Environment environment)
+        public IActionResult UpdateEnvironment(int id, Environment environment)
         {
             if (!ModelState.IsValid)
             {
@@ -131,7 +131,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_environmentsService.UpdateEnvironment(environmentId, environment));
+                return Ok(_environmentsService.UpdateEnvironment(id, environment));
             }
             catch (Exception e)
             {
@@ -141,17 +141,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// delete environment with id
         /// </summary>
-        /// <param name="environmentId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{environmentId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteEnvironment(int environmentId)
+        public IActionResult DeleteEnvironment(int id)
         {
             try
             {
-                _environmentsService.DeleteEnvironment(environmentId);
+                _environmentsService.DeleteEnvironment(id);
                 return Ok();
             }
             catch (Exception e)

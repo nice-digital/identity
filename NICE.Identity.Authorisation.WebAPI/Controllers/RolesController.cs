@@ -81,18 +81,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// get role with id
         /// </summary>
-        /// <param name="roleId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{roleId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(Role), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetRole(int roleId)
+        public IActionResult GetRole(int id)
         {
             try
             {
-                var role = _rolesService.GetRole(roleId);
+                var role = _rolesService.GetRole(id);
                 if (role != null)
                 {
                     return Ok(role);
@@ -108,17 +108,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// update role with id
         /// </summary>
-        /// <param name="roleId"></param>
+        /// <param name="id"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        [HttpPatch("{roleId}", Name = "UpdateRolePartial")]
-        [HttpPut("{roleId}", Name = "UpdateRole")]
+        [HttpPatch("{id}", Name = "UpdateRolePartial")]
+        [HttpPut("{id}", Name = "UpdateRole")]
         [ProducesResponseType(typeof(Role), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateRole(int roleId, Role role)
+        public IActionResult UpdateRole(int id, Role role)
         {
             if (!ModelState.IsValid)
             {
@@ -130,7 +130,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_rolesService.UpdateRole(roleId, role));
+                return Ok(_rolesService.UpdateRole(id, role));
             }
             catch (Exception e)
             {
@@ -141,17 +141,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// delete role with id
         /// </summary>
-        /// <param name="roleId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{roleId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteRole(int roleId)
+        public IActionResult DeleteRole(int id)
         {
             try
             {
-                _rolesService.DeleteRole(roleId);
+                _rolesService.DeleteRole(id);
                 return Ok();
             }
             catch (Exception e)

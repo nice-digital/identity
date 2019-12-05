@@ -81,18 +81,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// get user role with id
         /// </summary>
-        /// <param name="userRoleId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{userRoleId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(UserRole), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetUserRole(int userRoleId)
+        public IActionResult GetUserRole(int id)
         {
             try
             {
-                var userRole = _userRolesService.GetUserRole(userRoleId);
+                var userRole = _userRolesService.GetUserRole(id);
                 if (userRole != null)
                 {
                     return Ok(userRole);
@@ -108,17 +108,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// delete user role with id
         /// </summary>
-        /// <param name="roleId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{userRoleId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteUserRole(int userRoleId)
+        public IActionResult DeleteUserRole(int id)
         {
             try
             {
-                _userRolesService.DeleteUserRole(userRoleId);
+                _userRolesService.DeleteUserRole(id);
                 return Ok();
             }
             catch (Exception e)

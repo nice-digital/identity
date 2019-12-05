@@ -81,18 +81,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// get website with id
         /// </summary>
-        /// <param name="websiteId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{websiteId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(Website), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetWebsite(int websiteId)
+        public IActionResult GetWebsite(int id)
         {
             try
             {
-                var website = _websitesService.GetWebsite(websiteId);
+                var website = _websitesService.GetWebsite(id);
                 if (website != null)
                 {
                     return Ok(website);
@@ -108,16 +108,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// update website with id
         /// </summary>
-        /// <param name="websiteId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpPatch("{websiteId}", Name = "UpdateWebsitePartial")]
-        [HttpPut("{websiteId}", Name = "UpdateWebsite")]
+        [HttpPatch("{id}", Name = "UpdateWebsitePartial")]
+        [HttpPut("{id}", Name = "UpdateWebsite")]
         [ProducesResponseType(typeof(Website), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateWebsite([FromRoute] int websiteId, [FromBody] Website website)
+        public IActionResult UpdateWebsite([FromRoute] int id, [FromBody] Website website)
         {
             if (!ModelState.IsValid)
             {
@@ -129,7 +129,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_websitesService.UpdateWebsite(websiteId, website));
+                return Ok(_websitesService.UpdateWebsite(id, website));
             }
             catch (Exception e)
             {
@@ -139,17 +139,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// delete website with id
         /// </summary>
-        /// <param name="websiteId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{websiteId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteWebsite(int websiteId)
+        public IActionResult DeleteWebsite(int id)
         {
             try
             {
-                _websitesService.DeleteWebsite(websiteId);
+                _websitesService.DeleteWebsite(id);
                 return Ok();
             }
             catch (Exception e)
