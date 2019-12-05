@@ -158,5 +158,29 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var deletedUser = userService.GetUser(createdUser.UserId.Value);
             deletedUser.ShouldBe(null);
         }
+        
+        [Fact]
+        public void Get_user_roles_by_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole");
+            TestData.AddUser(ref context, 1);
+            TestData.AddUserRole(ref context);
+            context.SaveChanges();
+
+            //Act
+            var userRolesByWebsite =  userService.GetUserRolesByWebsite(1, 1);
+
+            //Assert
+            userRolesByWebsite.Roles.Count().ShouldBe(1);
+            userRolesByWebsite.Roles.First().Name.ShouldBe("TestRole");
+            userRolesByWebsite.UserId.ShouldBe(1);
+            userRolesByWebsite.WebsiteId.ShouldBe(1);
+        }
     }
 }

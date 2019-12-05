@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
+using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -20,7 +23,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		Task<User> UpdateUser(int userId, User user);
 		int DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
-	}
+        UserRolesByWebsite GetUserRolesByWebsite(int userId, int websiteId);
+    }
 
 	public class UsersService : IUsersService
 	{
@@ -90,7 +94,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					.Select(role => role.Role.Name));
 		}
 
-		// TODO: update user in identity provider if needed
 		public async Task<User> UpdateUser(int userId, User user)
 		{
 			try
@@ -187,5 +190,44 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				}
 			}
 		}
-	}
+
+        public UserRolesByWebsite GetUserRolesByWebsite(int userId, int websiteId)
+        {
+            var user = _context.Users.Where((u => u.UserId == userId)).FirstOrDefault();
+            var website = _context.Websites
+                .Include(w => w.Service)
+                .Include(w => w.Environment)
+                .Where((w => w.WebsiteId == websiteId))
+                .FirstOrDefault();
+            var userRoles = _context.UserRoles.Where((ur => ur.UserId == userId)).ToList();
+
+            if (user == null || website == null)
+                return null;
+
+            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId)
+                .Select(role => new WebsiteRole()
+                {
+                    Id = role.RoleId,
+                    Name = role.Name,
+                    Description = role.Description,
+                    HasRole = userRoles.Exists(userRole => userRole.RoleId == role.RoleId)
+                }).ToList();
+
+            var userRolesByWebsite = new UserRolesByWebsite()
+            {
+                UserId = user.UserId,
+                WebsiteId = website.WebsiteId,
+                ServiceId = website.ServiceId,
+                Website = new ApiModels.Website(website),
+                Service = new ApiModels.Service()
+                {
+                    ServiceId = website.Service.ServiceId,
+                    Name = website.Service.Name
+                },
+                Roles = rolesByWebsite
+            };
+            
+            return userRolesByWebsite;
+        }
+    }
 }

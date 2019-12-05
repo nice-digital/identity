@@ -52,7 +52,12 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		Task<User> IUsersService.UpdateUser(int userId, User user)
+        public UserRolesByWebsite GetUserRolesByWebsite(int userId, int websiteId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<User> IUsersService.UpdateUser(int userId, User user)
 		{
 			throw new NotImplementedException();
 		}

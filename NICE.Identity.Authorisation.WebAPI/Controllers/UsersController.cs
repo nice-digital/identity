@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
@@ -153,6 +154,35 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			}
 		}
 
+        
+        /// <summary>
+        /// gets the user roles for the specified website 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        [HttpGet("{userId:int}/rolesbywebsite/{websiteId:int}")]
+        [ProducesResponseType(typeof(UserRolesByWebsite), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetUserRolesByWebsite(int userId, int websiteId)
+        {
+            try
+            {
+                var userRolesByWebsite = _usersService.GetUserRolesByWebsite(userId, websiteId);
+                if (userRolesByWebsite != null)
+                {
+                    return Ok(userRolesByWebsite);
+                }
+                return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+        
         /// <summary>
         /// update user with id
         /// </summary>
