@@ -28,7 +28,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
 		// GET api/claims/someuserid
 	    [HttpGet("{authenticationProviderUserId}")]
-	    public async Task<ActionResult<IEnumerable<ApiModels.Responses.Claim[]>>> Get(string authenticationProviderUserId)
+	    public async Task<ActionResult<IEnumerable<ApiModels.Claim[]>>> Get(string authenticationProviderUserId)
 	    {
 	        try
 	        {

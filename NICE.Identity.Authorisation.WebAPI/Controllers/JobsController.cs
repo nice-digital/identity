@@ -1,12 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
-using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -55,12 +53,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
             catch (Exception e)
             {
-                var error = new ErrorDetail()
+                return StatusCode(500, new ProblemDetails()
                 {
-                    ErrorMessage = e.ToString()
-                };
-
-                return StatusCode(500, error);
+                    Status = 500, 
+                    Title = e.Message, 
+                    Detail = e.InnerException?.Message
+                });
             }
         }
     }

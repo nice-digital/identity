@@ -1,10 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Responses
+﻿namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
-
-
 	public class Claim
     {
 	    public Claim(string type, string value, string issuer)
