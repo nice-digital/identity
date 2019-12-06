@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
@@ -74,5 +75,23 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		{
 			return claimsPrincipal.Claims.Where(claim => claim.Type.Equals(ClaimType.Role) && claim.Issuer.Equals(host, StringComparison.OrdinalIgnoreCase)).Select(claim => claim.Value);
 		}
+
+		
+		public static bool IsInRole(this HttpContext httpContext, IEnumerable<string> role)
+		{
+			if (!httpContext.User.Identity.IsAuthenticated)
+				return false;
+
+			return httpContext.User.Claims.Any(claim => claim.Type.Equals(ClaimType.Role) &&
+			                                            claim.Issuer.Equals(httpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase) &&
+			                                            role.Contains(claim.Value, StringComparer.OrdinalIgnoreCase));
+
+		}
+
+		public static bool IsInRole(this HttpContext httpContext, string role)
+		{
+			return IsInRole(httpContext, new List<string> { role });
+		}
+
 	}
 }
