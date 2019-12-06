@@ -10,7 +10,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	{
 		/// <summary>
 		/// This name-identifier is the id, for use by authenticating parties.
-		/// It's not IdAMIssuer own internal user id - which is only for use by IdAM
+		/// it's composed of a guid with a prefix
 		/// </summary>
 		/// <param name="claimsPrincipal"></param>
 		/// <returns></returns>

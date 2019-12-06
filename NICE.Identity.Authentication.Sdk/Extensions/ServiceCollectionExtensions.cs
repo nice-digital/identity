@@ -14,10 +14,12 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
@@ -60,9 +62,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddSingleton<IAuthorisationService, AuthorisationService>();
+			services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.TryAddScoped<IAPIService, APIService>();
-
+            services.AddHttpContextAccessor();
+	        services.AddHttpClient();
+            
 			// Add authentication services
 			services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -101,29 +106,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     {
 						var accessToken = context.TokenEndpointResponse.AccessToken;
 						var userId = context.SecurityToken.Subject;
-						var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{Constants.AuthorisationURLs.GetClaims}{userId}");
-						var client = httpClient ?? new HttpClient();
-
-						client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-						var responseMessage = await client.GetAsync(uri); //call the api to get all the claims for the current user
-						if (responseMessage.IsSuccessStatusCode)
-						{
-							var allClaims = JsonConvert.DeserializeObject<Claim[]>(await responseMessage.Content.ReadAsStringAsync());
-							//add in all the claims from retrieved from the api, excluding roles where the host doesn't match the current.
-							var claimsToAdd = allClaims.Where(claim => (!claim.Type.Equals(ClaimType.Role)) ||
-							                                           (claim.Type.Equals(ClaimType.Role) &&
-																	    claim.Issuer.Equals(context.HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)))
-														.Select(claim => new System.Security.Claims.Claim(claim.Type, claim.Value, null, claim.Issuer)).ToList();
-							
-							if (claimsToAdd.Any())
-							{
-								context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd));
-							}
-						}
-						else
-						{
-							throw new Exception($"Error {(int)responseMessage.StatusCode} trying to set claims when signing in to uri: {uri} using access token: {accessToken}"); //TODO: remove access token from error message.
-						}
+						var client = httpClient ?? new HttpClient(); 
+						await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, context.HttpContext.Request.Host.Host, context.Principal, client);
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
@@ -167,7 +151,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
-            // TODO: refactor HttpClientDecorator and rename authConfiguration
             services.TryAddSingleton(authConfig => authConfiguration);
 
             services.AddAuthentication()
@@ -179,10 +162,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
             Action<AuthorizationOptions> defaultOptions = options => { };
 			services.AddAuthorization(authorizationOptions ?? defaultOptions);
-
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
-
-            services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, ScopeRequirementHandler>();
         }
     }
