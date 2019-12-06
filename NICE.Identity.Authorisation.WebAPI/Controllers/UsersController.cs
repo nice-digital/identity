@@ -155,15 +155,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			}
 		}
 
-		// TODO: custom model validation, checking incoming properties
-		/// <summary>
-		/// update user with id
-		/// </summary>
-		/// <param name="userId"></param>
-		/// <param name="user"></param>
-		/// <returns></returns>
-		[HttpPatch("{userId}")]
-        [HttpPut("{userId}")]
+        /// <summary>
+        /// update user with id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [HttpPatch("{userId}", Name = "UpdateUserPartial")]
+        [HttpPut("{userId}", Name = "UpdateUser")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

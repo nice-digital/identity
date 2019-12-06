@@ -21,5 +21,11 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public int Order { get; set; }
 
         public ICollection<Website> Websites { get; set; }
+        
+        public void UpdateFromApiModel(ApiModels.Environment environment)
+        {
+            Name = environment?.Name ?? Name;
+            Order = environment?.Order ?? Order;
+        }
     }
 }

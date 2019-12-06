@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 
@@ -71,6 +70,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 			Users.Update(user);
 			SaveChanges();
 		}
+
+        #endregion
+
+        #region Websites Methods
+        
+        public List<Website> GetWebsites()
+        {
+            return Websites.Include(w => w.Environment).ToList();
+        }
+
+        public Website GetWebsite(int websiteId)
+        {
+            return Websites.Include(w => w.Environment)
+                .Where((w => w.WebsiteId == websiteId))
+                .FirstOrDefault();
+        }
 
         #endregion
 

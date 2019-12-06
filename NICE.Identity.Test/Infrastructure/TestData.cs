@@ -9,17 +9,17 @@ namespace NICE.Identity.Test.Infrastructure
 {
 	public static class TestData
 	{
-		private static void AddService(ref IdentityContext context, int serviceId = 1, string serviceName = "Consultation comments")
+		public static void AddService(ref IdentityContext context, int serviceId = 1, string serviceName = "Consultation comments")
 		{
 			context.Services.Add(new Service(serviceId, serviceName));
 		}
 
-		private static void AddEnvironment(ref IdentityContext context, int environemntId = 1, string environmentName = "beta")
+        public static void AddEnvironment(ref IdentityContext context, int environemntId = 1, string environmentName = "beta")
 		{
 			context.Environments.Add(new Authorisation.WebAPI.DataModels.Environment(environemntId, environmentName));
 		}
 
-		private static void AddWebsite(ref IdentityContext context, int websiteId = 1, int serviceId = 1, int environmentId = 1, string host = "test.nice.org.uk")
+        public static void AddWebsite(ref IdentityContext context, int websiteId = 1, int serviceId = 1, int environmentId = 1, string host = "test.nice.org.uk")
 		{
 			context.Websites.Add(new Website(websiteId, serviceId, environmentId, host));
 		}
