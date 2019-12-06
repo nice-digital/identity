@@ -62,7 +62,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
-            services.AddSingleton<IAuthorisationService, AuthorisationService>();
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.TryAddScoped<IAPIService, APIService>();
             services.AddHttpContextAccessor();
