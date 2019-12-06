@@ -14,7 +14,7 @@
 		/// </summary>
 		public static class API
 	    {
-		    public const string UserAdmin = "User:Administration";
+		    public const string UserAdministration = "User:Administration";
 		}
     }
 }

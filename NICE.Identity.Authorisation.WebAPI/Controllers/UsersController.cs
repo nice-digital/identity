@@ -121,6 +121,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
 		public IActionResult FindUsers([FromBody] IEnumerable<string> nameIdentifiers)
         {
 			try
@@ -142,7 +143,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdmin)]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
 		public IActionResult FindRoles([FromBody] IEnumerable<string> nameIdentifiers, string host)
 		{
 			try
