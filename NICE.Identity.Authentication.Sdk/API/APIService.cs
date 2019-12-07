@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk.API
 {
@@ -24,10 +25,10 @@ namespace NICE.Identity.Authentication.Sdk.API
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly string _authorisationServiceUri;
 
-		public APIService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+		public APIService(IHttpContextAccessor httpContextAccessor, IAuthConfiguration authConfiguration)
 		{
 			_httpContextAccessor = httpContextAccessor;
-			_authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value; //TODO: revisit this.
+			_authorisationServiceUri = authConfiguration.WebSettings.AuthorisationServiceUri;
 		}
 
 		/// <summary>
