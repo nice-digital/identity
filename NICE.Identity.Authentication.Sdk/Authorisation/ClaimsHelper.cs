@@ -30,7 +30,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 				if (claimsToAdd.Any())
 				{
-					claimsPrincipal.AddIdentity(new ClaimsIdentity(claimsToAdd));
+					claimsPrincipal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
 				}
 			}
 			else
