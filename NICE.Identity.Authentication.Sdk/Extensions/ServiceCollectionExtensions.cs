@@ -15,12 +15,14 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
@@ -72,7 +74,58 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
-            .AddCookie(options => options.Cookie.Name = AuthenticationConstants.CookieName)
+            .AddCookie(options =>
+            {
+	            options.Cookie.Name = AuthenticationConstants.CookieName;
+
+				options.Events = new CookieAuthenticationEvents
+				{
+					OnValidatePrincipal = context =>
+					{
+						//check to see if user is authenticated first
+						if (context.Principal.Identity.IsAuthenticated)
+						{
+							//get the users tokens
+							var tokens = context.Properties.GetTokens();
+							var refreshToken = tokens.FirstOrDefault(t => t.Name == "refresh_token");
+							var accessToken = tokens.FirstOrDefault(t => t.Name == "access_token");
+							var exp = tokens.FirstOrDefault(t => t.Name == "expires_at");
+							var expires = DateTime.Parse(exp.Value);
+							//check to see if the token has expired
+							if (expires < DateTime.Now)
+							{
+
+								//todo: use refresh token here.
+
+								//token is expired, let's attempt to renew
+								//var tokenEndpoint = "https://token.endpoint.server";
+								//var tokenClient = new TokenClient(tokenEndpoint, clientId, clientSecret);
+								//var tokenResponse = tokenClient.RequestRefreshTokenAsync(refreshToken.Value).Result;
+								//check for error while renewing - any error will trigger a new login.
+								//if (tokenResponse.IsError)
+								//{
+								//	//reject Principal
+									context.RejectPrincipal();
+								//	return Task.CompletedTask;
+								//}
+								////set new token values
+								//refreshToken.Value = tokenResponse.RefreshToken;
+								//accessToken.Value = tokenResponse.AccessToken;
+								////set new expiration date
+								//var newExpires = DateTime.UtcNow + TimeSpan.FromSeconds(tokenResponse.ExpiresIn);
+								//exp.Value = newExpires.ToString("o", CultureInfo.InvariantCulture);
+								////set tokens in auth properties 
+								//context.Properties.StoreTokens(tokens);
+								////trigger context to renew cookie with new token values
+								//context.ShouldRenew = true;
+								return Task.CompletedTask;
+							}
+						}
+						return Task.CompletedTask;
+					}
+				};
+
+			})
             .AddOpenIdConnect(AuthenticationConstants.AuthenticationScheme, options => {
                 // Set the authority to your Auth0 domain
                 options.Authority = $"https://{authConfiguration.TenantDomain}";
@@ -105,7 +158,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     {
 						var accessToken = context.TokenEndpointResponse.AccessToken;
 						var userId = context.SecurityToken.Subject;
-						var client = httpClient ?? new HttpClient(); 
+						var client = httpClient ?? new HttpClient();
 						await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, context.HttpContext.Request.Host.Host, context.Principal, client);
                     },
                     OnRedirectToIdentityProvider = context =>
