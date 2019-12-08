@@ -43,7 +43,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 		internal class RefreshTokenResponse
 		{
-			public bool Valid => !string.IsNullOrEmpty(AccessToken);
+			public bool Valid => (!string.IsNullOrEmpty(AccessToken) || (ExpiresInSeconds <= 0));
 
 			[JsonProperty(AuthenticationConstants.Tokens.AccessToken)]
 			public string AccessToken { get; set; }
@@ -53,7 +53,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		}
 
 
-		internal static async Task<RefreshTokenResponse> UseRefreshToken(IAuthConfiguration authConfiguration, string refreshToken, HttpClient client)
+		internal static async Task<RefreshTokenResponse> UpdateAccessToken(IAuthConfiguration authConfiguration, string refreshToken, HttpClient client)
 		{
 			var uri = new Uri($"https://{authConfiguration.TenantDomain}/oauth/token");
 
@@ -73,7 +73,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				var responseBody = await responseMessage.Content.ReadAsStringAsync();
 				return JsonConvert.DeserializeObject<RefreshTokenResponse>(responseBody);
 			}
-			else if (responseMessage.StatusCode.Equals(HttpStatusCode.Forbidden)) //refresh code was likely revoked at auth0.
+			else if (responseMessage.StatusCode.Equals(HttpStatusCode.Forbidden)) //refresh code was revoked at auth0.
 			{
 				return new RefreshTokenResponse();  //this returns an empty response message, with Valid set to false.
 			}

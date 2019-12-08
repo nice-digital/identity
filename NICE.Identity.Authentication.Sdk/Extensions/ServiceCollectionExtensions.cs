@@ -81,33 +81,31 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						{
 							//get the users tokens
 							var tokens = context.Properties.GetTokens().ToList();
-
 							var refreshToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.RefreshToken));
 							var accessToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessToken));
 							var accessTokenExpires = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessTokenExpires));
 
-							if (string.IsNullOrEmpty(refreshToken?.Value) || string.IsNullOrEmpty(accessToken?.Value) || string.IsNullOrEmpty(accessTokenExpires?.Value))
-							{
-								context.RejectPrincipal();
+							if (string.IsNullOrEmpty(refreshToken?.Value) || string.IsNullOrEmpty(accessToken?.Value) || string.IsNullOrEmpty(accessTokenExpires?.Value)) //this should never really happen. it's just a safety check.
+							{ 
+								context.RejectPrincipal(); //reject will issue 401. if the client app allows anonymous, then they will simply be logged out. if the route needs authentication then they will be redirected back to the login page
 								return;
 							}
-							var expiryDateUtc = DateTime.Parse(accessTokenExpires.Value);
+							var expiryDateUtc = DateTime.Parse(accessTokenExpires.Value).ToUniversalTime(); //accessTokenExpires.Value contains a time like: "2019-12-08T13:00:43.8211482Z" the Z at the end indicates it's a UTC time. the DateTime.Parse converts it to local time. the ToUniversalTime converts back to UTC.
 							if (expiryDateUtc < DateTime.UtcNow)
 							{
 								//access token in the cookie has expired. There is a refresh token, so attempt to use the refresh token here and get another access token.
 								//this could still be rejected if the refresh token has been revoked at auth0.
-								var refreshTokenResponse = await ClaimsHelper.UseRefreshToken(authConfiguration, refreshToken.Value, localClient);
+								var refreshTokenResponse = await ClaimsHelper.UpdateAccessToken(authConfiguration, refreshToken.Value, localClient);
 								if (!refreshTokenResponse.Valid)
 								{
-									context.RejectPrincipal();
+									context.RejectPrincipal(); //this should only be hit if the user's access has been revoked.
 									return;
 								}
 								accessToken.Value = refreshTokenResponse.AccessToken;
 								var newExpiryDate = DateTime.UtcNow.AddSeconds(refreshTokenResponse.ExpiresInSeconds);
 								accessTokenExpires.Value = newExpiryDate.ToString("o", CultureInfo.InvariantCulture);
 								context.Properties.StoreTokens(tokens);
-								//trigger context to renew cookie with new token values
-								context.ShouldRenew = true;
+								context.ShouldRenew = true; //trigger context to renew cookie with new token values
 							}
 						}
 					}
