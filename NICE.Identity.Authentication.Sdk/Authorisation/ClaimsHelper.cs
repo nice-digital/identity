@@ -2,7 +2,9 @@
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -37,6 +39,45 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 			{
 				throw new Exception($"Error {(int)responseMessage.StatusCode} trying to set claims when signing in to uri: {uri} using access token: {accessToken}"); //TODO: remove access token from error message.
 			}
+		}
+
+		internal class RefreshTokenResponse
+		{
+			public bool Valid => !string.IsNullOrEmpty(AccessToken);
+
+			[JsonProperty(AuthenticationConstants.Tokens.AccessToken)]
+			public string AccessToken { get; set; }
+
+			[JsonProperty(AuthenticationConstants.Tokens.ExpiresIn)]
+			public int ExpiresInSeconds { get; set; }
+		}
+
+
+		internal static async Task<RefreshTokenResponse> UseRefreshToken(IAuthConfiguration authConfiguration, string refreshToken, HttpClient client)
+		{
+			var uri = new Uri($"https://{authConfiguration.TenantDomain}/oauth/token");
+
+			var request = new HttpRequestMessage(HttpMethod.Post, uri)
+			{
+				Content = new FormUrlEncodedContent(new[]
+				{
+					new KeyValuePair<string, string>("grant_type", AuthenticationConstants.Tokens.RefreshToken),
+					new KeyValuePair<string, string>("client_id", authConfiguration.WebSettings.ClientId),
+					new KeyValuePair<string, string>("client_secret", authConfiguration.WebSettings.ClientSecret),
+					new KeyValuePair<string, string>(AuthenticationConstants.Tokens.RefreshToken, refreshToken)
+				})
+			};
+			var responseMessage = await client.SendAsync(request);
+			if (responseMessage.IsSuccessStatusCode)
+			{
+				var responseBody = await responseMessage.Content.ReadAsStringAsync();
+				return JsonConvert.DeserializeObject<RefreshTokenResponse>(responseBody);
+			}
+			else if (responseMessage.StatusCode.Equals(HttpStatusCode.Forbidden)) //refresh code was likely revoked at auth0.
+			{
+				return new RefreshTokenResponse();  //this returns an empty response message, with Valid set to false.
+			}
+			throw new Exception($"Error {(int)responseMessage.StatusCode} trying to use refresh token: {refreshToken}");
 		}
 	}
 }
