@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
 
 namespace NICE.Identity.Authorisation.WebAPI.Migrations
 {
@@ -7,6 +8,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
 	        migrationBuilder.Sql(@"
+				DECLARE @CurrentEnvironmentName nvarchar(50) = '" + AppSettings.EnvironmentConfig.Name + @"'
+
+				DECLARE @CurrentEnvironmentId int;
+				SELECT @CurrentEnvironmentId = EnvironmentId 
+				FROM Environments
+				WHERE [Name] = @CurrentEnvironmentName
+
 				DECLARE	@environmentId_Local int,
 						@environmentId_Dev int,
 						@environmentId_Test int,
@@ -21,153 +29,168 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 				SELECT @environmentId_Beta = EnvironmentId FROM Environments WHERE [Name] = 'Beta'
 				SELECT @environmentId_Live = EnvironmentId FROM Environments WHERE [Name] = 'Live'
 
-				DECLARE @ServiceId_IdentityAPI int
-
-				DECLARE @WebsiteId_IdentityAPILocal int,
-						@WebsiteId_IdentityAPIDev int,
-						@WebsiteId_IdentityAPITest int,
-						@WebsiteId_IdentityAPIAlpha int,
-						@WebsiteId_IdentityAPIBeta int,
-						@WebsiteId_IdentityAPILive int;
+				DECLARE @WebsiteId_IdentityApiLocal int,
+						@WebsiteId_IdentityApiDev int,
+						@WebsiteId_IdentityApiTest int,
+						@WebsiteId_IdentityApiAlpha int,
+						@WebsiteId_IdentityApiBeta int,
+						@WebsiteId_IdentityApiLive int;
 
 				-- FIRST INSERT Service
-
-				SELECT @ServiceId_IdentityAPI = ServiceId FROM [Services] WHERE [Name] = 'Identity API'
-				IF @ServiceId_IdentityAPI IS NULL
+				DECLARE @ServiceId_IdentityApi int
+				SELECT @ServiceId_IdentityApi = ServiceId FROM [Services] WHERE [Name] = 'Identity API'
+				IF @ServiceId_IdentityApi IS NULL
 				BEGIN
 					INSERT INTO [Services] ([Name])
 					VALUES ('Identity API')
 
-					SET @ServiceId_IdentityAPI = SCOPE_IDENTITY()
-				END
-
-				-- NOW INSERT WEBSITES
-
-				SELECT @WebsiteId_IdentityAPILocal = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityAPI AND EnvironmentID = @environmentId_Local 
-				IF (@WebsiteId_IdentityAPILocal  IS NULL)
-				BEGIN
-					INSERT INTO Websites (ServiceID, EnvironmentID, Host)
-					VALUES (@ServiceId_IdentityAPI, @environmentId_Local, 'localhost')
-
-					SET @WebsiteId_IdentityAPILocal = SCOPE_IDENTITY()
-				END
-
-				SELECT @WebsiteId_IdentityAPIDev = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityAPI AND EnvironmentID = @environmentId_Dev 
-				IF (@WebsiteId_IdentityAPIDev  IS NULL)
-				BEGIN
-					INSERT INTO Websites (ServiceID, EnvironmentID, Host)
-					VALUES (@ServiceId_IdentityAPI, @environmentId_Dev, 'dev-identityapi.nice.org.uk')
-
-					SET @WebsiteId_IdentityAPIDev = SCOPE_IDENTITY()
-				END
-
-				SELECT @WebsiteId_IdentityAPITest = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityAPI AND EnvironmentID = @environmentId_Test 
-				IF (@WebsiteId_IdentityAPITest  IS NULL)
-				BEGIN
-					INSERT INTO Websites (ServiceID, EnvironmentID, Host)
-					VALUES (@ServiceId_IdentityAPI, @environmentId_Test, 'test-identityapi.nice.org.uk')
-
-					SET @WebsiteId_IdentityAPITest = SCOPE_IDENTITY()
-				END
-
-				SELECT @WebsiteId_IdentityAPIAlpha = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityAPI AND EnvironmentID = @environmentId_Alpha 
-				IF (@WebsiteId_IdentityAPIAlpha  IS NULL)
-				BEGIN
-					INSERT INTO Websites (ServiceID, EnvironmentID, Host)
-					VALUES (@ServiceId_IdentityAPI, @environmentId_Alpha, 'alpha-identityapi.nice.org.uk')
-
-					SET @WebsiteId_IdentityAPIAlpha = SCOPE_IDENTITY()
-				END
-
-				SELECT @WebsiteId_IdentityAPIBeta = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityAPI AND EnvironmentID = @environmentId_Beta 
-				IF (@WebsiteId_IdentityAPIBeta  IS NULL)
-				BEGIN
-					INSERT INTO Websites (ServiceID, EnvironmentID, Host)
-					VALUES (@ServiceId_IdentityAPI, @environmentId_Beta, 'beta-identityapi.nice.org.uk')
-
-					SET @WebsiteId_IdentityAPIBeta = SCOPE_IDENTITY()
-				END
-
-				SELECT @WebsiteId_IdentityAPILive = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityAPI AND EnvironmentID = @environmentId_Live
-				IF (@WebsiteId_IdentityAPILive  IS NULL)
-				BEGIN
-					INSERT INTO Websites (ServiceID, EnvironmentID, Host)
-					VALUES (@ServiceId_IdentityAPI, @environmentId_Live, 'identityapi.nice.org.uk')
-
-					SET @WebsiteId_IdentityAPILive = SCOPE_IDENTITY()
+					SET @ServiceId_IdentityApi = SCOPE_IDENTITY()
 				END
 
 				--NOW INSERT Roles: 'User:Administration'
-				--for the websites:  @WebsiteId_IdentityAPILocal, @WebsiteId_IdentityAPIDev, @WebsiteId_IdentityAPITest, @WebsiteId_IdentityAPIAlpha, @WebsiteId_IdentityAPIBeta, @WebsiteId_IdentityAPILive
-
+				--for the websites:  @WebsiteId_IdentityApiLocal, @WebsiteId_IdentityApiDev, @WebsiteId_IdentityApiTest, @WebsiteId_IdentityApiAlpha, @WebsiteId_IdentityApiBeta, @WebsiteId_IdentityApiLive
 				DECLARE @RolesToInsert TABLE ([Name] nvarchar(100) NOT NULL, [Description] nvarchar(100))
-				INSERT INTO @RolesToInsert ([Name], [Description]) VALUES ('User:Administration', 'This role is required in order to access other users data in idam')
+				INSERT INTO @RolesToInsert ([Name], [Description]) VALUES ('Administrator', 'This user has full access and unrestricted access.')
 
-				INSERT INTO Roles (WebsiteID, [Name], [Description])
-				SELECT @WebsiteId_IdentityAPILocal, rti.[Name], rti.[Description]
-				FROM @RolesToInsert rti
-				WHERE NOT EXISTS 
-				(
-					SELECT 1
-					FROM Roles r2
-					WHERE r2.[Name] = rti.[Name]
-					AND r2.WebsiteID = @WebsiteId_IdentityAPILocal
-				)
 
-				INSERT INTO Roles (WebsiteID, [Name], [Description])
-				SELECT @WebsiteId_IdentityAPIDev, rti.[Name], rti.[Description]
-				FROM @RolesToInsert rti
-				WHERE NOT EXISTS 
-				(
-					SELECT 1
-					FROM Roles r2
-					WHERE r2.[Name] = rti.[Name]
-					AND r2.WebsiteID = @WebsiteId_IdentityAPIDev
-				)
+				-- NOW INSERT WEBSITES
+				IF (@CurrentEnvironmentId = @environmentId_Local)
+				BEGIN
+					SELECT @WebsiteId_IdentityApiLocal = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityApi AND EnvironmentID = @environmentId_Local 
+					IF (@WebsiteId_IdentityApiLocal  IS NULL)
+					BEGIN
+						INSERT INTO Websites (ServiceID, EnvironmentID, Host)
+						VALUES (@ServiceId_IdentityApi, @environmentId_Local, 'localhost')
 
-				INSERT INTO Roles (WebsiteID, [Name], [Description])
-				SELECT @WebsiteId_IdentityAPITest, rti.[Name], rti.[Description]
-				FROM @RolesToInsert rti
-				WHERE NOT EXISTS 
-				(
-					SELECT 1
-					FROM Roles r2
-					WHERE r2.[Name] = rti.[Name]
-					AND r2.WebsiteID = @WebsiteId_IdentityAPITest
-				)
+						SET @WebsiteId_IdentityApiLocal = SCOPE_IDENTITY()
+					END
 
-				INSERT INTO Roles (WebsiteID, [Name], [Description])
-				SELECT @WebsiteId_IdentityAPIAlpha, rti.[Name], rti.[Description]
-				FROM @RolesToInsert rti
-				WHERE NOT EXISTS 
-				(
-					SELECT 1
-					FROM Roles r2
-					WHERE r2.[Name] = rti.[Name]
-					AND r2.WebsiteID = @WebsiteId_IdentityAPIAlpha
-				)
+					INSERT INTO Roles (WebsiteID, [Name], [Description])
+					SELECT @WebsiteId_IdentityApiLocal, rti.[Name], rti.[Description]
+					FROM @RolesToInsert rti
+					WHERE NOT EXISTS 
+					(
+						SELECT 1
+						FROM Roles r2
+						WHERE r2.[Name] = rti.[Name]
+						AND r2.WebsiteID = @WebsiteId_IdentityApiLocal
+					)
+				END
 
-				INSERT INTO Roles (WebsiteID, [Name], [Description])
-				SELECT @WebsiteId_IdentityAPIBeta, rti.[Name], rti.[Description]
-				FROM @RolesToInsert rti
-				WHERE NOT EXISTS 
-				(
-					SELECT 1
-					FROM Roles r2
-					WHERE r2.[Name] = rti.[Name]
-					AND r2.WebsiteID = @WebsiteId_IdentityAPIBeta
-				)
+				IF (@CurrentEnvironmentId = @environmentId_Dev)
+				BEGIN
+					SELECT @WebsiteId_IdentityApiDev = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityApi AND EnvironmentID = @environmentId_Dev 
+					IF (@WebsiteId_IdentityApiDev  IS NULL)
+					BEGIN
+						INSERT INTO Websites (ServiceID, EnvironmentID, Host)
+						VALUES (@ServiceId_IdentityApi, @environmentId_Dev, 'dev-identityapi.nice.org.uk')
 
-				INSERT INTO Roles (WebsiteID, [Name], [Description])
-				SELECT @WebsiteId_IdentityAPILive, rti.[Name], rti.[Description]
-				FROM @RolesToInsert rti
-				WHERE NOT EXISTS 
-				(
-					SELECT 1
-					FROM Roles r2
-					WHERE r2.[Name] = rti.[Name]
-					AND r2.WebsiteID = @WebsiteId_IdentityAPILive
-				)
+						SET @WebsiteId_IdentityApiDev = SCOPE_IDENTITY()
+					END
+
+					INSERT INTO Roles (WebsiteID, [Name], [Description])
+					SELECT @WebsiteId_IdentityApiDev, rti.[Name], rti.[Description]
+					FROM @RolesToInsert rti
+					WHERE NOT EXISTS 
+					(
+						SELECT 1
+						FROM Roles r2
+						WHERE r2.[Name] = rti.[Name]
+						AND r2.WebsiteID = @WebsiteId_IdentityApiDev
+					)
+				END
+
+				IF (@CurrentEnvironmentId = @environmentId_Test)
+				BEGIN
+					SELECT @WebsiteId_IdentityApiTest = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityApi AND EnvironmentID = @environmentId_Test 
+					IF (@WebsiteId_IdentityApiTest  IS NULL)
+					BEGIN
+						INSERT INTO Websites (ServiceID, EnvironmentID, Host)
+						VALUES (@ServiceId_IdentityApi, @environmentId_Test, 'test-identityapi.nice.org.uk')
+
+						SET @WebsiteId_IdentityApiTest = SCOPE_IDENTITY()
+					END
+
+					INSERT INTO Roles (WebsiteID, [Name], [Description])
+					SELECT @WebsiteId_IdentityApiTest, rti.[Name], rti.[Description]
+					FROM @RolesToInsert rti
+					WHERE NOT EXISTS 
+					(
+						SELECT 1
+						FROM Roles r2
+						WHERE r2.[Name] = rti.[Name]
+						AND r2.WebsiteID = @WebsiteId_IdentityApiTest
+					)
+				END
+
+				IF (@CurrentEnvironmentId = @environmentId_Alpha)
+				BEGIN
+					SELECT @WebsiteId_IdentityApiAlpha = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityApi AND EnvironmentID = @environmentId_Alpha 
+					IF (@WebsiteId_IdentityApiAlpha  IS NULL)
+					BEGIN
+						INSERT INTO Websites (ServiceID, EnvironmentID, Host)
+						VALUES (@ServiceId_IdentityApi, @environmentId_Alpha, 'alpha-identityapi.nice.org.uk')
+
+						SET @WebsiteId_IdentityApiAlpha = SCOPE_IDENTITY()
+					END
+						
+					INSERT INTO Roles (WebsiteID, [Name], [Description])
+					SELECT @WebsiteId_IdentityApiAlpha, rti.[Name], rti.[Description]
+					FROM @RolesToInsert rti
+					WHERE NOT EXISTS 
+					(
+						SELECT 1
+						FROM Roles r2
+						WHERE r2.[Name] = rti.[Name]
+						AND r2.WebsiteID = @WebsiteId_IdentityApiAlpha
+					)
+				END
+
+				IF (@CurrentEnvironmentId = @environmentId_Beta)
+				BEGIN
+					SELECT @WebsiteId_IdentityApiBeta = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityApi AND EnvironmentID = @environmentId_Beta 
+					IF (@WebsiteId_IdentityApiBeta  IS NULL)
+					BEGIN
+						INSERT INTO Websites (ServiceID, EnvironmentID, Host)
+						VALUES (@ServiceId_IdentityApi, @environmentId_Beta, 'beta-identityapi.nice.org.uk')
+
+						SET @WebsiteId_IdentityApiBeta = SCOPE_IDENTITY()
+					END
+
+					INSERT INTO Roles (WebsiteID, [Name], [Description])
+					SELECT @WebsiteId_IdentityApiBeta, rti.[Name], rti.[Description]
+					FROM @RolesToInsert rti
+					WHERE NOT EXISTS 
+					(
+						SELECT 1
+						FROM Roles r2
+						WHERE r2.[Name] = rti.[Name]
+						AND r2.WebsiteID = @WebsiteId_IdentityApiBeta
+					)
+				END
+
+				IF (@CurrentEnvironmentId = @environmentId_Live)
+				BEGIN
+					SELECT @WebsiteId_IdentityApiLive = WebsiteId FROM Websites WHERE ServiceID = @ServiceId_IdentityApi AND EnvironmentID = @environmentId_Live
+					IF (@WebsiteId_IdentityApiLive  IS NULL)
+					BEGIN
+						INSERT INTO Websites (ServiceID, EnvironmentID, Host)
+						VALUES (@ServiceId_IdentityApi, @environmentId_Live, 'identityapi.nice.org.uk')
+
+						SET @WebsiteId_IdentityApiLive = SCOPE_IDENTITY()
+					END
+
+					INSERT INTO Roles (WebsiteID, [Name], [Description])
+					SELECT @WebsiteId_IdentityApiLive, rti.[Name], rti.[Description]
+					FROM @RolesToInsert rti
+					WHERE NOT EXISTS 
+					(
+						SELECT 1
+						FROM Roles r2
+						WHERE r2.[Name] = rti.[Name]
+						AND r2.WebsiteID = @WebsiteId_IdentityApiLive
+					)
+				END
 			");
         }
 
