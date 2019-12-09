@@ -154,35 +154,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			}
 		}
 
-        
-        /// <summary>
-        /// gets the user roles for the specified website 
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="websiteId"></param>
-        /// <returns></returns>
-        [HttpGet("{userId:int}/rolesbywebsite/{websiteId:int}")]
-        [ProducesResponseType(typeof(UserRolesByWebsite), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        public IActionResult GetUserRolesByWebsite(int userId, int websiteId)
-        {
-            try
-            {
-                var userRolesByWebsite = _usersService.GetUserRolesByWebsite(userId, websiteId);
-                if (userRolesByWebsite != null)
-                {
-                    return Ok(userRolesByWebsite);
-                }
-                return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
-            }
-        }
-        
         /// <summary>
         /// update user with id
         /// </summary>
@@ -265,5 +236,139 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		        return StatusCode(500, new ProblemDetails { Status = 500, Title = e.Message, Detail = e.InnerException?.Message });
 	        }
         }
-	}
+
+        /// <summary>
+        /// gets the user roles for the specified user and website
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        [HttpGet("{userId:int}/rolesbywebsite/{websiteId:int}")]
+        [ProducesResponseType(typeof(UserRolesByWebsite), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetRolesForUserByWebsite(int userId, int websiteId)
+        {
+            try
+            {
+                var userRolesByWebsite = _usersService.GetRolesForUserByWebsite(userId, websiteId);
+                if (userRolesByWebsite != null)
+                {
+                    return Ok(userRolesByWebsite);
+                }
+                return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        
+        
+        /// <summary>
+        /// updates the user roles for the specified user and website
+        /// </summary>
+        /// <description>
+        /// updates the user roles for the specified user and website.
+        /// if the user has the role and HasRole is false remove the role
+        /// if the user does not have the role and and HasRole is true add the role
+        /// </description>
+        /// <param name="userId"></param>
+        /// <param name="websiteId"></param>
+        /// <param name="userRolesByWebsite"></param>
+        /// <returns></returns>
+        [HttpPut("{userId:int}/rolesbywebsite/{websiteId:int}", Name = "UpdateRolesForUserByWebsite")]
+        [HttpPatch("{userId:int}/rolesbywebsite/{websiteId:int}", Name = "UpdateRolesForUserByWebsitePartial")]
+        [ProducesResponseType(typeof(UserRolesByWebsite), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
+            [FromBody] UserRolesByWebsite userRolesByWebsite)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid model for update user {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update user"});
+            }
+
+            try
+            {
+                return Ok(_usersService.UpdateRolesForUserByWebsite(userId, websiteId, userRolesByWebsite));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+        
+        /// <summary>
+        /// gets the user roles for the specified user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        [HttpGet("{userId:int}/roles")]
+        [ProducesResponseType(typeof(List<ApiModels.UserRole>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public IActionResult GetRolesForUser(int userId)
+        {
+            try
+            {
+                var userRoles = _usersService.GetRolesForUser(userId);
+                if (userRoles != null)
+                {
+                    return Ok(userRoles);
+                }
+                return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// updates the user roles for the specified user
+        /// </summary>
+        /// <description>
+        /// updates the user roles for the specified user.
+        /// if the user has the role it updates it.
+        /// if the user does not have the role it adds it
+        /// </description>
+        /// <param name="userId"></param>
+        /// <param name="userRoles"></param>
+        /// <returns></returns>
+        [HttpPut("{userId:int}/roles", Name = "UpdateRolesForUser")]
+        [ProducesResponseType(typeof(List<ApiModels.UserRole>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public IActionResult UpdateRolesForUser([FromRoute] int userId, [FromBody] List<ApiModels.UserRole> userRoles)
+        {
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
+                _logger.LogError($"Invalid model for update user {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update user"});
+            }
+
+            try
+            {
+                return Ok(_usersService.UpdateRolesForUser(userId, userRoles));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+    }
 }

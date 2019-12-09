@@ -6,6 +6,7 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -160,7 +161,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
         
         [Fact]
-        public void Get_user_roles_by_website()
+        public void Get_roles_for_user_by_website()
         {
             //Arrange
             var context = GetContext();
@@ -174,13 +175,65 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.SaveChanges();
 
             //Act
-            var userRolesByWebsite =  userService.GetUserRolesByWebsite(1, 1);
+            var userRolesByWebsite =  userService.GetRolesForUserByWebsite(1, 1);
 
             //Assert
             userRolesByWebsite.Roles.Count().ShouldBe(1);
             userRolesByWebsite.Roles.First().Name.ShouldBe("TestRole");
             userRolesByWebsite.UserId.ShouldBe(1);
             userRolesByWebsite.WebsiteId.ShouldBe(1);
+        }
+
+        [Fact]
+        public void Update_roles_for_user_by_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole1");
+            TestData.AddRole(ref context, 2, 1, "TestRole2");
+            TestData.AddRole(ref context, 3, 1, "TestRole3");
+            TestData.AddUser(ref context, 1);
+            context.UserRoles.Add(new DataModels.UserRole() {UserId = 1, RoleId = 1});
+            context.UserRoles.Add(new DataModels.UserRole() {UserId = 1, RoleId = 2});
+            context.SaveChanges();
+
+            //Act
+            userService.UpdateRolesForUserByWebsite(
+                1,1, new ApiModels.UserRolesByWebsite()
+                {
+                    UserId = 1,
+                    WebsiteId = 1,
+                    Roles = new List<ApiModels.UserRoleDetailed>()
+                    {
+                        new ApiModels.UserRoleDetailed()
+                        {
+                            Id = 1,
+                            HasRole = true
+                        },
+                        new ApiModels.UserRoleDetailed()
+                        {
+                            Id = 2,
+                            HasRole = false
+                        },
+                        new ApiModels.UserRoleDetailed()
+                        {
+                            Id = 3,
+                            HasRole = true
+                        }
+                    }
+                });
+
+            //Assert
+            var userRolesByWebsite =  userService.GetRolesForUserByWebsite(1, 1);
+            userRolesByWebsite.UserId.ShouldBe(1);
+            userRolesByWebsite.WebsiteId.ShouldBe(1);
+            userRolesByWebsite.Roles.Find(r => r.Id == 1).HasRole.ShouldBe(true);
+            userRolesByWebsite.Roles.Find(r => r.Id == 2).HasRole.ShouldBe(false);
+            userRolesByWebsite.Roles.Find(r => r.Id == 3).HasRole.ShouldBe(true);
         }
     }
 }

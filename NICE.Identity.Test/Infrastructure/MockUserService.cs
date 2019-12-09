@@ -7,6 +7,7 @@ using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
+using UserRole = NICE.Identity.Authorisation.WebAPI.ApiModels.UserRole;
 
 namespace NICE.Identity.Test.Infrastructure
 {
@@ -52,7 +53,22 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-        public UserRolesByWebsite GetUserRolesByWebsite(int userId, int websiteId)
+        public UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<UserRole> GetRolesForUser(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
         {
             throw new NotImplementedException();
         }

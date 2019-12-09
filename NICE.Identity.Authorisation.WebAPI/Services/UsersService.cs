@@ -10,6 +10,7 @@ using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
+using UserRole = NICE.Identity.Authorisation.WebAPI.ApiModels.UserRole;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
@@ -23,7 +24,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		Task<User> UpdateUser(int userId, User user);
 		int DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
-        UserRolesByWebsite GetUserRolesByWebsite(int userId, int websiteId);
+        UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
+        UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
+        List<UserRole> GetRolesForUser(int userId);
+        List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
+
     }
 
 	public class UsersService : IUsersService
@@ -191,7 +196,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 		}
 
-        public UserRolesByWebsite GetUserRolesByWebsite(int userId, int websiteId)
+        public UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId)
         {
             var user = _context.Users.Where((u => u.UserId == userId)).FirstOrDefault();
             var website = _context.Websites
@@ -199,13 +204,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 .Include(w => w.Environment)
                 .Where((w => w.WebsiteId == websiteId))
                 .FirstOrDefault();
-            var userRoles = _context.UserRoles.Where((ur => ur.UserId == userId)).ToList();
 
             if (user == null || website == null)
                 return null;
 
+            var userRoles = _context.UserRoles.Where((ur => ur.UserId == userId)).ToList();
             var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId)
-                .Select(role => new WebsiteRole()
+                .Select(role => new UserRoleDetailed()
                 {
                     Id = role.RoleId,
                     Name = role.Name,
@@ -226,8 +231,124 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 },
                 Roles = rolesByWebsite
             };
-            
             return userRolesByWebsite;
+        }
+
+        public UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null)
+            {
+                _logger.LogError($"Failed to update user {userId.ToString()} role for " +
+                                 $"website {websiteId.ToString()} - user not found");
+                throw new Exception($"Failed to update user {userId.ToString()} role for " +
+                                    $"website {websiteId.ToString()} - user not found");
+            }
+
+            var website = _context.Websites
+                .Include(ws => ws.Service)
+                .Include(ws => ws.Environment)
+                .FirstOrDefault(ws => ws.WebsiteId == websiteId);
+            if (website == null)
+            {
+                _logger.LogError($"Failed to update user {userId.ToString()} role for " +
+                                 $"website {websiteId.ToString()} - website not found");
+                throw new Exception($"Failed to update user {userId.ToString()} role for " +
+                                    $"website {websiteId.ToString()} - website not found");
+            }
+
+            if (userRolesByWebsite.Roles == null)
+            {
+                _logger.LogError($"Failed to update user {userId.ToString()} role for " +
+                                 $"website {websiteId.ToString()} - no user roles to update");
+                throw new Exception($"Failed to update user {userId.ToString()} role for " +
+                                    $"website {websiteId.ToString()} - no user roles to update");
+            }
+
+            var rolesForWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId).Select(r=>r.RoleId).ToList();
+            userRolesByWebsite.Roles.ForEach(r =>
+            {
+                if (rolesForWebsite.Contains(r.Id)) return;
+                _logger.LogError($"Failed to update user {userId.ToString()} role for " +
+                                 $"website {websiteId.ToString()} - role {r.Id.ToString()} is not related to " +
+                                 $"website {websiteId.ToString()}");
+                throw new Exception($"Failed to update user {userId.ToString()} role for " +
+                                    $"website {websiteId.ToString()} - role {r.Id.ToString()} is not related to " +
+                                    $"website {websiteId.ToString()}");
+            });
+
+            try
+            {
+                userRolesByWebsite.Roles.ForEach(updatedRole =>
+                {
+                    var userRole = _context.UserRoles.FirstOrDefault(ur => ur.UserId == userId && ur.RoleId == updatedRole.Id);
+                    // if the user has the role and HasRole is false remove the role
+                    // if the user does not have the role and and HasRole is true add the role
+                    if (userRole != null && updatedRole.HasRole == false)
+                    {
+                        _context.UserRoles.Remove(userRole);
+                    }else if(userRole == null && updatedRole.HasRole)
+                    {
+                        var userRoleToCreate = new DataModels.UserRole
+                        {
+                            UserId = userId, 
+                            RoleId = updatedRole.Id
+                        };
+                        _context.UserRoles.Add(userRoleToCreate);
+                    }
+                });
+                _context.SaveChanges();
+
+                return GetRolesForUserByWebsite(userId,websiteId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to update user role {userId.ToString()} for " +
+                                 $"website {websiteId.ToString()} - exception: {e.Message}");
+                throw new Exception(
+                    $"Failed to update user role {userId.ToString()} for " +
+                    $"website {websiteId.ToString()}- exception: {e.Message}");
+            }
+        }
+
+        public List<UserRole> GetRolesForUser(int userId)
+        {
+            var userRoles = _context.UserRoles
+                .Where((ur => ur.UserId == userId))
+                .Select(ur => new UserRole(ur))
+                .ToList();
+            return userRoles;
+        }
+
+        public List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
+        {
+            try
+            {
+                var userRoles = _context.UserRoles.Where(ur => ur.UserId == userId).ToList();
+                userRolesToUpdate.ForEach(updatedRole =>
+                {
+                    // if the user role exists update it. if not add it.
+                    var userRole = userRoles.Find(ur => ur.UserRoleId == updatedRole.UserRoleId);
+                    if (userRole != null)
+                    {
+                        userRole.UpdateFromApiModel(updatedRole);
+                    }
+                    else
+                    {
+                        var userRoleToCreate = new DataModels.UserRole();
+                        userRoleToCreate.UpdateFromApiModel(updatedRole);
+                        _context.UserRoles.Add(userRoleToCreate);
+                    }
+                });
+                _context.SaveChanges();
+                return userRoles.Select(ur => new UserRole(ur)).ToList();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to update user role {userId.ToString()} - exception: {e.InnerException.Message}");
+                throw new Exception(
+                    $"Failed to update user role {userId.ToString()} - exception: {e.InnerException.Message}");
+            }
         }
     }
 }
