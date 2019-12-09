@@ -16,7 +16,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
 	public class JobsController : ControllerBase
     {
         private readonly ILogger<JobsController> _logger;
