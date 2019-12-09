@@ -7,7 +7,7 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 {
     public interface IAuthenticationService
     {
-        Task Login(HttpContext context, string returnUrl, bool goToRegisterPage);
+        Task Login(HttpContext context, string returnUrl, bool goToRegisterPage = false);
         Task Logout(HttpContext context, string returnUrl);
     }
 }

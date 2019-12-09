@@ -2,17 +2,29 @@
 {
 	public static class AuthenticationConstants
 	{
-		public static readonly string AuthenticationScheme = "Auth0";
+		public const string AuthenticationScheme = "Auth0";
 
 		/// <summary>
 		/// This issuer string is used for claims like the user's name, which is owned by IdAMIssuer.
 		/// Other issuers are typically going to be the website host for roles.
 		/// </summary>
-		public static readonly string IdAMIssuer = "IdAMIssuer";
+		public const string IdAMIssuer = "IdAMIssuer";
 
-		public static readonly string CookieName = "IdAM";
+		public const string CookieName = "IdAM";
 
 
-		public static readonly string NameIdentifierDefaultPrefix = "auth0|";
+		public const string NameIdentifierDefaultPrefix = "auth0|";
+
+		public static class Tokens
+		{
+			public const string IdToken = "id_token";
+			public const string AccessToken = "access_token";
+			public const string AccessTokenExpires = "expires_at";
+			public const string TokenType = "token_type";
+			public const string RefreshToken = "refresh_token";
+
+			public const string ExpiresIn = "expires_in"; //this token is used in the refresh token response
+		}
+
 	}
 }

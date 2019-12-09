@@ -6,6 +6,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+
 			//The following script inserts a "Consultation Comments" service (if it doesn't exist)
 			//then it inserts a website for that service for each of the environments - local, dev, test, alpha, beta and live. (if they don't exist)
 			//then it inserts the roles 'Administrator', 'CommentAdminTeam', 'CHTETeam', 'CfGTeam', 'HSCTeam' for each of those websites (if they don't exist)

@@ -38,7 +38,8 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 				IsMigrated = true,
 				HasVerifiedEmailAddress = true,
 				IsLockedOut = false,
-				IsStaffMember = EmailAddress.Contains("@nice.org.uk", StringComparison.OrdinalIgnoreCase)
-			};
+				IsStaffMember = EmailAddress.Contains("@nice.org.uk", StringComparison.OrdinalIgnoreCase),
+				IsInAuthenticationProvider = false
+		};
 	}
 }
