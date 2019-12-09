@@ -10,11 +10,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 	        migrationBuilder.Sql(@"
 				DECLARE @CurrentEnvironmentName nvarchar(50) = '" + AppSettings.EnvironmentConfig.Name + @"'
 
-				DELETE FROM UserRoles
-				DELETE FROM Roles
-				DELETE FROM Websites
-				DELETE FROM [Services]
-
 				DECLARE @CurrentEnvironmentId int;
 				SELECT @CurrentEnvironmentId = EnvironmentId 
 				FROM Environments
