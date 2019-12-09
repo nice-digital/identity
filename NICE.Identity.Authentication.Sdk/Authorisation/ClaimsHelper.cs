@@ -43,7 +43,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 		internal class RefreshTokenResponse
 		{
-			public bool Valid => (!string.IsNullOrEmpty(AccessToken) || (ExpiresInSeconds <= 0));
+			public bool Valid => (!string.IsNullOrEmpty(AccessToken) || (ExpiresInSeconds > 0));
 
 			[JsonProperty(AuthenticationConstants.Tokens.AccessToken)]
 			public string AccessToken { get; set; }

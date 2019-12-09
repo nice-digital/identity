@@ -50,7 +50,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
 				--NOW INSERT Roles: 'User:Administration'
 				--for the websites:  @WebsiteId_IdentityApiLocal, @WebsiteId_IdentityApiDev, @WebsiteId_IdentityApiTest, @WebsiteId_IdentityApiAlpha, @WebsiteId_IdentityApiBeta, @WebsiteId_IdentityApiLive
 				DECLARE @RolesToInsert TABLE ([Name] nvarchar(100) NOT NULL, [Description] nvarchar(100))
-				INSERT INTO @RolesToInsert ([Name], [Description]) VALUES ('Administrator', 'This user has full access and unrestricted access.')
+				INSERT INTO @RolesToInsert ([Name], [Description]) VALUES ('User:Administration', 'This role is required in order to access other users data in idam')
 
 
 				-- NOW INSERT WEBSITES

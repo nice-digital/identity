@@ -31,6 +31,13 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return;
 	        }
 
+			var grantTypeClaim = context.User.Claims.FirstOrDefault(claim => claim.Type.Equals("gty"));
+			if (grantTypeClaim != null && grantTypeClaim.Value.Equals("client-credentials"))
+			{
+				context.Succeed(requirement);
+				return;
+			}
+
 			//if the user doesn't have any idam claims, then add them. this will happen during M2M auth.
 			if (!context.User.Claims.Any(claim => claim.Type.Equals(ClaimType.IdAMId)))
 			{

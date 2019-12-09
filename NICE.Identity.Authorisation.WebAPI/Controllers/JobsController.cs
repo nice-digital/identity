@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Requests;
 using NICE.Identity.Authorisation.WebAPI.ApiModels.Responses;
 using NICE.Identity.Authorisation.WebAPI.Services;
@@ -15,7 +16,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class JobsController : ControllerBase
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+	public class JobsController : ControllerBase
     {
         private readonly ILogger<JobsController> _logger;
         private readonly IJobsService _jobsService;
