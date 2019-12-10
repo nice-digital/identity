@@ -142,7 +142,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Delete_single_user_with_userId()
+        public async Task Delete_single_user_with_userId()
         {
             //Arrange
             const string newUserEmailAddress = "usertodelete@example.com";
@@ -153,11 +153,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var createdUser = userService.CreateUser(user);
 
             //Act
-            userService.DeleteUser(createdUser.UserId.Value);
+            var deleteReturn = await userService.DeleteUser(createdUser.UserId.Value);
 
             //Assert
             var deletedUser = userService.GetUser(createdUser.UserId.Value);
             deletedUser.ShouldBe(null);
+            deleteReturn.ShouldBe(1);
         }
         
         [Fact]

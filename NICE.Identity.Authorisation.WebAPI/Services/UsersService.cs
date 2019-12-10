@@ -22,7 +22,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
 		Task<User> UpdateUser(int userId, User user);
-		int DeleteUser(int userId);
+        Task<int> DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
         UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
         UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
@@ -121,7 +121,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 		}
 
-		public int DeleteUser(int userId)
+		public async Task<int> DeleteUser(int userId)
 		{
 			try
 			{
@@ -130,7 +130,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
 
 				_context.Users.RemoveRange(userToDelete);
-				_providerManagementService.DeleteUser(userToDelete.NameIdentifier);
+                await _providerManagementService.DeleteUser(userToDelete.NameIdentifier);
 
 				return _context.SaveChanges();
 			}

@@ -43,7 +43,7 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		public int DeleteUser(int userId)
+		public Task<int> DeleteUser(int userId)
 		{
 			throw new NotImplementedException();
 		}
