@@ -104,6 +104,28 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
+        public void Get_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            
+            var user1 = new ApiModels.User { NameIdentifier = "auth|user1", EmailAddress = "user1@example.com" };
+            var user2 = new ApiModels.User { NameIdentifier = "auth|user2", EmailAddress = "user2@example.com" };
+            var createdUser1 = userService.CreateUser(user1);
+            var createdUser2 = userService.CreateUser(user2);
+
+            //Act
+            var users = userService.GetUsers();
+
+            //Assert
+            context.Users.Count().ShouldBe(2);
+            users.Count().ShouldBe(2);
+            users.First(u => u.UserId == createdUser1.UserId).NameIdentifier.ShouldBe("auth|user1");
+            users.First(u => u.UserId == createdUser2.UserId).NameIdentifier.ShouldBe("auth|user2");
+        }
+        
+        [Fact]
         public async Task Update_user_that_already_exists()
         {
             //Arrange
@@ -235,6 +257,58 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             userRolesByWebsite.Roles.Find(r => r.Id == 1).HasRole.ShouldBe(true);
             userRolesByWebsite.Roles.Find(r => r.Id == 2).HasRole.ShouldBe(false);
             userRolesByWebsite.Roles.Find(r => r.Id == 3).HasRole.ShouldBe(true);
+        }
+
+        [Fact]
+        public void Get_roles_for_user()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole1");
+            TestData.AddRole(ref context, 2, 1, "TestRole2");
+            TestData.AddUser(ref context, 1);
+            TestData.AddUserRole(ref context, 1, 1, 1);
+            TestData.AddUserRole(ref context, 2, 2, 1);
+            context.SaveChanges();
+
+            //Act
+            var userRoles =  userService.GetRolesForUser(1);
+
+            //Assert
+            userRoles.Count().ShouldBe(2);
+            userRoles.First(r=>r.UserRoleId == 1).RoleId.ShouldBe(1);
+            userRoles.First(r=>r.UserRoleId == 2).RoleId.ShouldBe(2);
+        }
+        
+        [Fact]
+        public void Update_roles_for_user()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole1");
+            TestData.AddRole(ref context, 2, 1, "TestRole2");
+            TestData.AddUser(ref context, 1);
+            context.SaveChanges();
+
+            //Act
+            var userRoles =  userService.UpdateRolesForUser(1, new List<ApiModels.UserRole>()
+            {
+                new ApiModels.UserRole(){UserId = 1, RoleId = 1},
+                new ApiModels.UserRole(){UserId = 1, RoleId = 2}
+            });
+
+            //Assert
+            userRoles.Count().ShouldBe(2);
+            userRoles.First(r=>r.UserRoleId == 1).RoleId.ShouldBe(1);
+            userRoles.First(r=>r.UserRoleId == 2).RoleId.ShouldBe(2);
         }
     }
 }

@@ -341,7 +341,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     }
                 });
                 _context.SaveChanges();
-                return userRoles.Select(ur => new UserRole(ur)).ToList();
+                return _context.UserRoles
+                    .Where(ur => ur.UserId == userId)
+                    .Select(ur => new UserRole(ur)).ToList();
             }
             catch (Exception e)
             {
