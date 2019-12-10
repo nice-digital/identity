@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using NICE.Identity.Authentication.Sdk.Domain;
 using Xunit;
 using Claim = System.Security.Claims.Claim;
 
@@ -22,7 +21,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 		{
 			_httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
-			_sut = new RoleRequirementHandlerDecorator();
+			_sut = new RoleRequirementHandlerDecorator(_httpContextAccessorMock.Object, null, null);
 		}
 
 		[Fact]
@@ -37,6 +36,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 				new ClaimsIdentity(new List<Claim>()
 				{
 					new Claim(ClaimType.NameIdentifier, "auth0|user1234", host),
+					new Claim(ClaimType.IdAMId, "1", host),
 					new Claim(ClaimType.Role, "another role", host),
 					new Claim(ClaimType.Role, roleName, host),
 					new Claim(ClaimType.Role, "yet another role", host)

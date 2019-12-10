@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [ApiController]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+	[ApiController]
     public class WebsitesController: ControllerBase
     {
         private readonly ILogger<WebsitesController> _logger;

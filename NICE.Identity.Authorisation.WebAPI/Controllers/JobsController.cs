@@ -13,7 +13,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class JobsController : ControllerBase
+	public class JobsController : ControllerBase
     {
         private readonly ILogger<JobsController> _logger;
         private readonly IJobsService _jobsService;

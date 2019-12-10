@@ -10,11 +10,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
         // (i.e. to stop us having to pass IOptions<SomeConfig> through the stack)
 
         public static ManagementAPIConfig ManagementAPI { get; private set; }
-        public static void Configure(IServiceCollection services, IConfiguration configuration)
+        public static EnvironmentConfig EnvironmentConfig { get; private set; }
+
+		public static void Configure(IServiceCollection services, IConfiguration configuration)
          {
              services.Configure<ManagementAPIConfig>(configuration.GetSection("Auth0ManagementApiConfiguration"));
+             services.Configure<EnvironmentConfig>(configuration.GetSection("Environment"));
+			
              var sp = services.BuildServiceProvider();
+
              ManagementAPI = sp.GetService<IOptions<ManagementAPIConfig>>().Value;
-         }
+             EnvironmentConfig = sp.GetService<IOptions<EnvironmentConfig>>().Value;
+		}
     }
 }

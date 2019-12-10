@@ -10,12 +10,11 @@
 	    }
 
 		/// <summary>
-		/// By convention (and because AuthorisationPolicyProvider requires it)
-		/// API policy names (scopes) have a colon in them. 
+		/// By convention API policy names (scopes) have a colon in them. 
 		/// </summary>
 		public static class API
 	    {
-		    public const string UserAdmin = "user:admin";
+		    public const string UserAdministration = "User:Administration";
 		}
     }
 }

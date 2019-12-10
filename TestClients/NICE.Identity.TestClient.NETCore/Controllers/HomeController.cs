@@ -49,17 +49,32 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
             ViewData["RefreshToken"] = await HttpContext.GetTokenAsync("refresh_token");
 
             var currentUsersNameIdentifier = User.NameIdentifier();
-            var users = await _apiService.FindUsers(new List<string> { currentUsersNameIdentifier });
-            var firstUser = users.First();
-            ViewData["Users.NameIdentifier"] = firstUser.NameIdentifier;
-            ViewData["Users.DisplayName"] = firstUser.DisplayName;
-            ViewData["Users.EmailAddress"] = firstUser.EmailAddress;
+            try
+            {
+	            var users = await _apiService.FindUsers(new List<string> {currentUsersNameIdentifier});
+	            var firstUser = users.First();
+	            ViewData["Users.NameIdentifier"] = firstUser.NameIdentifier;
+	            ViewData["Users.DisplayName"] = firstUser.DisplayName;
+	            ViewData["Users.EmailAddress"] = firstUser.EmailAddress;
+            }
+            catch (Exception ex)
+            {
+	            ViewData["Users.NameIdentifier"] = "error:" + ex.ToString();
+            }
 
+			try
+            {
+	            var roles = await _apiService.FindRoles(new List<string> {currentUsersNameIdentifier},
+		            "dev-identitytestcore.nice.org.uk");
 
-            var roles = await _apiService.FindRoles(new List<string> {currentUsersNameIdentifier}, "dev-identitytestcore.nice.org.uk");
-            ViewData["Roles"] = JsonConvert.SerializeObject(roles);
+	            ViewData["Roles"] = JsonConvert.SerializeObject(roles);
+            }
+            catch (Exception ex)
+            {
+	            ViewData["Roles"] = "error:" + ex.ToString();
+            }
 
-			return View();
+            return View();
         }
 
         [Authorize]
