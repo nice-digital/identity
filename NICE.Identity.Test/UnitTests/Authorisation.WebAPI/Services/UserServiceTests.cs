@@ -33,10 +33,11 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             context.Users.Add(new DataModels.User {EmailAddress = existingUserEmail });
+            context.TermsVersions.Add(new DataModels.TermsVersion() { TermsVersionId = 1, VersionDate = DateTime.Now});
             context.SaveChanges();
 
             //Act
-            userService.CreateUser(new ApiModels.User{EmailAddress = newUserEmail});
+            userService.CreateUser(new ApiModels.User{EmailAddress = newUserEmail, AcceptedTerms = true});
 
             //Assert
             var allUsers = context.Users.ToList();
@@ -307,8 +308,98 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             userRoles.Count().ShouldBe(2);
-            userRoles.First(r=>r.UserRoleId == 1).RoleId.ShouldBe(1);
-            userRoles.First(r=>r.UserRoleId == 2).RoleId.ShouldBe(2);
+            userRoles.Find(r => r.UserRoleId == 1).RoleId.ShouldBe(1);
+            userRoles.Find(r => r.UserRoleId == 2).RoleId.ShouldBe(2);
+        }
+
+        [Fact]
+        public void Find_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Dev"});
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 2, Name = "Test"});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
+            context.Websites.Add(new DataModels.Website()
+            {
+                WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "dev.nice.org.uk"
+            });
+            context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole1"});
+            context.Roles.Add(new DataModels.Role() {RoleId = 2, WebsiteId = 1, Name = "TestRole2"});
+            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1"});
+            context.Users.Add(new DataModels.User(){UserId = 2, NameIdentifier = "auth|user2"});
+            context.SaveChanges();
+
+            //Act
+            var users = userService.FindUsers(new []{"auth|user1","auth|user2"});
+
+            //Assert
+            users.Count().ShouldBe(2);
+            users[0].NameIdentifier.ShouldBe("auth|user1");
+            users[1].NameIdentifier.ShouldBe("auth|user2");
+        }
+
+        [Fact]
+        public void Find_roles()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test"});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
+            context.Websites.Add(new DataModels.Website()
+            {
+                WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"
+            });
+            context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole"});
+            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1"});
+            context.UserRoles.Add(new DataModels.UserRole() { UserRoleId = 1, RoleId = 1, UserId = 1});
+            context.SaveChanges();
+
+            //Act
+            var users = userService.FindRoles(new []{"auth|user1","auth|user2"}, "test.nice.org.uk");
+
+            //Assert
+            users["auth|user1"].First().ShouldBe("TestRole");
+        }
+        
+        [Fact]
+        public void Import_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test"});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
+            context.Websites.Add(new DataModels.Website()
+            {
+                WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"
+            });
+            context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole1"});
+            context.SaveChanges();
+
+            //Act
+            userService.ImportUsers(new List<DataModels.ImportUser>()
+            {
+                new DataModels.ImportUser()
+                {
+                    UserId = Guid.NewGuid(),
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    EmailAddress = "FirstName.LastName@nice.org.uk",
+                    Roles = new List<DataModels.ImportRole>()
+                    {
+                        new DataModels.ImportRole(){RoleName = "TestRole1", WebsiteHost = "test.nice.org.uk"},
+                    }
+                },
+            });
+
+            //Assert
+            context.Users.Count().ShouldBe(1);
+            var user = context.Users.First();
+            user.FirstName.ShouldBe("FirstName");
+            context.UserRoles.First(ur => ur.User.UserId == user.UserId).Role.Name.ShouldBe("TestRole1");
         }
     }
 }
