@@ -25,64 +25,42 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Create_user_where_user_does_not_already_exist()
+        public void Create_user_where_user_email_exists_but_name_identifier_is_different_creates_new_user_record() //i.e. duplicate emails are valid.
         {
             //Arrange
             const string existingUserEmail = "existing.user@email.com";
-            const string newUserEmail = "new.user@email.com";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            context.Users.Add(new DataModels.User {EmailAddress = existingUserEmail });
-            context.TermsVersions.Add(new DataModels.TermsVersion() { TermsVersionId = 1, VersionDate = DateTime.Now});
+            context.Users.Add(new DataModels.User {NameIdentifier = "some name identifier", EmailAddress = existingUserEmail });
             context.SaveChanges();
 
             //Act
-            userService.CreateUser(new ApiModels.User{EmailAddress = newUserEmail, AcceptedTerms = true});
+            userService.CreateUser(new ApiModels.User{NameIdentifier = "another name identifier", EmailAddress = existingUserEmail});
 
             //Assert
             var allUsers = context.Users.ToList();
             allUsers.Count.ShouldBe(2);
-            allUsers.Count(user => user.EmailAddress == existingUserEmail).ShouldBe(1);
-            allUsers.Count( user => user.EmailAddress == newUserEmail).ShouldBe(1);
+            var usersWithSameEmail = allUsers.Where(user => user.EmailAddress == existingUserEmail);
+            usersWithSameEmail.Count().ShouldBe(2);
+            usersWithSameEmail.Select(u => u.NameIdentifier).Distinct().Count().ShouldBe(2);
         }
 
         [Fact]
         public void Create_user_where_user_already_exists()
         {
             //Arrange
-            var newUserEmailAddress = "new.user.@email.com";
+            var nameIdentifier = Guid.NewGuid().ToString();
 
             var context = GetContext();
-            context.Users.Add(new DataModels.User { EmailAddress = newUserEmailAddress, NameIdentifier = "not empty"});
+            context.Users.Add(new DataModels.User { NameIdentifier = nameIdentifier });
             context.SaveChanges();
 
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            var userToInsert = new ApiModels.User { EmailAddress = newUserEmailAddress };
+            var userToInsert = new ApiModels.User { NameIdentifier = nameIdentifier };
 
             //Act + Assert
             userService.CreateUser(userToInsert);
             context.Users.Count().ShouldBe(1);
-        }
-
-        [Fact]
-        public void Create_user_where_user_already_exists_to_update_authentication_provider_id()
-        {
-            //Arrange
-            var userEmailAddress = "new@user.com";
-            var nameIdentifier = "some value";
-
-            var context = GetContext();
-            context.Users.Add(new DataModels.User { EmailAddress = userEmailAddress, NameIdentifier = null });
-            context.SaveChanges();
-
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            var userToInsert = new ApiModels.User { EmailAddress = userEmailAddress, NameIdentifier = nameIdentifier };
-
-            //Act 
-            userService.CreateUser(userToInsert);
-
-            //Assert
-            context.Users.Single().NameIdentifier.ShouldBe(nameIdentifier);
         }
 
         [Fact]

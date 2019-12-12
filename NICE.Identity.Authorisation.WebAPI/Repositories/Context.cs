@@ -41,27 +41,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
 		public User CreateUser(User user)
         {
-            // find by email address as this should be unique
-            var foundUser = Users.FirstOrDefault(
-                u => u.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase));
+			//there might be multiple users with the same email address, e.g. if someone logs in with AD using the same email address as has been imported from nice accounts 
+			//so lookup with name identifier, which is unique
+            var foundUser = Users.FirstOrDefault(u => u.NameIdentifier.Equals(user.NameIdentifier, StringComparison.OrdinalIgnoreCase));
+            if (foundUser != null)
+            {
+	            return foundUser;
+            }
 
-            // existing user, just update the auth0 user id.
-            // this happens when the user logs in for the first time with AD,
-            // if that user has been imported.
-            if (foundUser == null)
-            {
-				user.InitialRegistrationDate = DateTime.UtcNow;
-                //new user
-                Users.Add(user);
-                SaveChanges();
-                return user;
-            }
-            if (string.IsNullOrEmpty(foundUser.NameIdentifier))
-            {
-	            foundUser.NameIdentifier = user.NameIdentifier;
-	            SaveChanges();
-            }
-            return foundUser;
+			user.InitialRegistrationDate = DateTime.UtcNow;
+            Users.Add(user);
+            SaveChanges();
+            return user;
         }
 
 		public void UpdateUserLastLoggedInDate(User user)
