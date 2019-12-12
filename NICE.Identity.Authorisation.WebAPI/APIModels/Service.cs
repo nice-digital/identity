@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -30,6 +31,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             });
         }
 
+        [JsonProperty(PropertyName = "id")]
         public int? ServiceId { get; set; }
         public string Name { get; set; }
         

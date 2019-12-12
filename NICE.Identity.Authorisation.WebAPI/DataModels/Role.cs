@@ -27,5 +27,12 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         public Website Website { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
+
+        public void UpdateFromApiModel(ApiModels.Role role)
+        {
+            WebsiteId = role?.WebsiteId ?? WebsiteId;
+            Name = role?.Name ?? Name;
+            Description = role?.Description ?? Description;
+        }
     }
 }

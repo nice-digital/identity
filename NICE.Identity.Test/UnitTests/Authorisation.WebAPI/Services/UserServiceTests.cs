@@ -6,6 +6,7 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -62,28 +63,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.Users.Count().ShouldBe(1);
         }
 
-		//I don't think this test is valid anymore. not sure when updating authentication provider id is ever needed.
-        //[Fact]
-        //public void Create_user_where_user_already_exists_to_update_authentication_provider_id()
-        //{
-        //    //Arrange
-        //    var userEmailAddress = "new@user.com";
-        //    var nameIdentifier = "some value";
-
-        //    var context = GetContext();
-        //    context.Users.Add(new DataModels.User { EmailAddress = userEmailAddress, NameIdentifier = null });
-        //    context.SaveChanges();
-
-        //    var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-        //    var userToInsert = new ApiModels.User { EmailAddress = userEmailAddress, NameIdentifier = nameIdentifier };
-
-        //    //Act 
-        //    userService.CreateUser(userToInsert);
-
-        //    //Assert
-        //    context.Users.Single().NameIdentifier.ShouldBe(nameIdentifier);
-        //}
-
         [Fact]
         public void Get_single_user_from_userId()
         {
@@ -103,6 +82,28 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             actual.NameIdentifier.ShouldBe(nameIdentifier);
         }
 
+        [Fact]
+        public void Get_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            
+            var user1 = new ApiModels.User { NameIdentifier = "auth|user1", EmailAddress = "user1@example.com" };
+            var user2 = new ApiModels.User { NameIdentifier = "auth|user2", EmailAddress = "user2@example.com" };
+            var createdUser1 = userService.CreateUser(user1);
+            var createdUser2 = userService.CreateUser(user2);
+
+            //Act
+            var users = userService.GetUsers();
+
+            //Assert
+            context.Users.Count().ShouldBe(2);
+            users.Count().ShouldBe(2);
+            users.First(u => u.UserId == createdUser1.UserId).NameIdentifier.ShouldBe("auth|user1");
+            users.First(u => u.UserId == createdUser2.UserId).NameIdentifier.ShouldBe("auth|user2");
+        }
+        
         [Fact]
         public async Task Update_user_that_already_exists()
         {
@@ -142,7 +143,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Delete_single_user_with_userId()
+        public async Task Delete_single_user_with_userId()
         {
             //Arrange
             const string newUserEmailAddress = "usertodelete@example.com";
@@ -153,11 +154,230 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var createdUser = userService.CreateUser(user);
 
             //Act
-            userService.DeleteUser(createdUser.UserId.Value);
+            var deleteReturn = await userService.DeleteUser(createdUser.UserId.Value);
 
             //Assert
             var deletedUser = userService.GetUser(createdUser.UserId.Value);
             deletedUser.ShouldBe(null);
+            deleteReturn.ShouldBe(1);
+        }
+        
+        [Fact]
+        public void Get_roles_for_user_by_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole");
+            TestData.AddUser(ref context, 1);
+            TestData.AddUserRole(ref context);
+            context.SaveChanges();
+
+            //Act
+            var userRolesByWebsite =  userService.GetRolesForUserByWebsite(1, 1);
+
+            //Assert
+            userRolesByWebsite.Roles.Count().ShouldBe(1);
+            userRolesByWebsite.Roles.First().Name.ShouldBe("TestRole");
+            userRolesByWebsite.UserId.ShouldBe(1);
+            userRolesByWebsite.WebsiteId.ShouldBe(1);
+        }
+
+        [Fact]
+        public void Update_roles_for_user_by_website()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole1");
+            TestData.AddRole(ref context, 2, 1, "TestRole2");
+            TestData.AddRole(ref context, 3, 1, "TestRole3");
+            TestData.AddUser(ref context, 1);
+            context.UserRoles.Add(new DataModels.UserRole() {UserId = 1, RoleId = 1});
+            context.UserRoles.Add(new DataModels.UserRole() {UserId = 1, RoleId = 2});
+            context.SaveChanges();
+
+            //Act
+            userService.UpdateRolesForUserByWebsite(
+                1,1, new ApiModels.UserRolesByWebsite()
+                {
+                    UserId = 1,
+                    WebsiteId = 1,
+                    Roles = new List<ApiModels.UserRoleDetailed>()
+                    {
+                        new ApiModels.UserRoleDetailed()
+                        {
+                            Id = 1,
+                            HasRole = true
+                        },
+                        new ApiModels.UserRoleDetailed()
+                        {
+                            Id = 2,
+                            HasRole = false
+                        },
+                        new ApiModels.UserRoleDetailed()
+                        {
+                            Id = 3,
+                            HasRole = true
+                        }
+                    }
+                });
+
+            //Assert
+            var userRolesByWebsite =  userService.GetRolesForUserByWebsite(1, 1);
+            userRolesByWebsite.UserId.ShouldBe(1);
+            userRolesByWebsite.WebsiteId.ShouldBe(1);
+            userRolesByWebsite.Roles.Find(r => r.Id == 1).HasRole.ShouldBe(true);
+            userRolesByWebsite.Roles.Find(r => r.Id == 2).HasRole.ShouldBe(false);
+            userRolesByWebsite.Roles.Find(r => r.Id == 3).HasRole.ShouldBe(true);
+        }
+
+        [Fact]
+        public void Get_roles_for_user()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole1");
+            TestData.AddRole(ref context, 2, 1, "TestRole2");
+            TestData.AddUser(ref context, 1);
+            TestData.AddUserRole(ref context, 1, 1, 1);
+            TestData.AddUserRole(ref context, 2, 2, 1);
+            context.SaveChanges();
+
+            //Act
+            var userRoles =  userService.GetRolesForUser(1);
+
+            //Assert
+            userRoles.Count().ShouldBe(2);
+            userRoles.First(r=>r.UserRoleId == 1).RoleId.ShouldBe(1);
+            userRoles.First(r=>r.UserRoleId == 2).RoleId.ShouldBe(2);
+        }
+        
+        [Fact]
+        public void Update_roles_for_user()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            TestData.AddEnvironment(ref context, 1);
+            TestData.AddService(ref context, 1);
+            TestData.AddWebsite(ref context, 1, 1, 1);
+            TestData.AddRole(ref context, 1, 1, "TestRole1");
+            TestData.AddRole(ref context, 2, 1, "TestRole2");
+            TestData.AddUser(ref context, 1);
+            context.SaveChanges();
+
+            //Act
+            var userRoles =  userService.UpdateRolesForUser(1, new List<ApiModels.UserRole>()
+            {
+                new ApiModels.UserRole(){UserId = 1, RoleId = 1},
+                new ApiModels.UserRole(){UserId = 1, RoleId = 2}
+            });
+
+            //Assert
+            userRoles.Count().ShouldBe(2);
+            userRoles.Find(r => r.UserRoleId == 1).RoleId.ShouldBe(1);
+            userRoles.Find(r => r.UserRoleId == 2).RoleId.ShouldBe(2);
+        }
+
+        [Fact]
+        public void Find_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Dev"});
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 2, Name = "Test"});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
+            context.Websites.Add(new DataModels.Website()
+            {
+                WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "dev.nice.org.uk"
+            });
+            context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole1"});
+            context.Roles.Add(new DataModels.Role() {RoleId = 2, WebsiteId = 1, Name = "TestRole2"});
+            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1"});
+            context.Users.Add(new DataModels.User(){UserId = 2, NameIdentifier = "auth|user2"});
+            context.SaveChanges();
+
+            //Act
+            var users = userService.FindUsers(new []{"auth|user1","auth|user2"});
+
+            //Assert
+            users.Count().ShouldBe(2);
+            users[0].NameIdentifier.ShouldBe("auth|user1");
+            users[1].NameIdentifier.ShouldBe("auth|user2");
+        }
+
+        [Fact]
+        public void Find_roles()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test"});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
+            context.Websites.Add(new DataModels.Website()
+            {
+                WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"
+            });
+            context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole"});
+            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1"});
+            context.UserRoles.Add(new DataModels.UserRole() { UserRoleId = 1, RoleId = 1, UserId = 1});
+            context.SaveChanges();
+
+            //Act
+            var users = userService.FindRoles(new []{"auth|user1","auth|user2"}, "test.nice.org.uk");
+
+            //Assert
+            users["auth|user1"].First().ShouldBe("TestRole");
+        }
+        
+        [Fact]
+        public void Import_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test"});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
+            context.Websites.Add(new DataModels.Website()
+            {
+                WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"
+            });
+            context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole1"});
+            context.SaveChanges();
+
+            //Act
+            userService.ImportUsers(new List<DataModels.ImportUser>()
+            {
+                new DataModels.ImportUser()
+                {
+                    UserId = Guid.NewGuid(),
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    EmailAddress = "FirstName.LastName@nice.org.uk",
+                    Roles = new List<DataModels.ImportRole>()
+                    {
+                        new DataModels.ImportRole(){RoleName = "TestRole1", WebsiteHost = "test.nice.org.uk"},
+                    }
+                },
+            });
+
+            //Assert
+            context.Users.Count().ShouldBe(1);
+            var user = context.Users.First();
+            user.FirstName.ShouldBe("FirstName");
+            context.UserRoles.First(ur => ur.User.UserId == user.UserId).Role.Name.ShouldBe("TestRole1");
         }
     }
 }
