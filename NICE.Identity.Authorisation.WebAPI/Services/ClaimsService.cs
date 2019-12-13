@@ -3,7 +3,7 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using System;
 using System.Collections.Generic;
-using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Responses.Claim;
+using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Claim;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services

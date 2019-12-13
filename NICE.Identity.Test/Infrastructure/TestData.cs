@@ -24,17 +24,17 @@ namespace NICE.Identity.Test.Infrastructure
 			context.Websites.Add(new Website(websiteId, serviceId, environmentId, host));
 		}
 
-		private static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator", string description = "the administrator role is the super user")
+        public static void AddRole(ref IdentityContext context, int roleId = 1, int websiteId = 1, string name = "Administrator", string description = "the administrator role is the super user")
 		{
 			context.Roles.Add(new Role(roleId, websiteId, name, description));
 		}
 
-		private static void AddUserRole(ref IdentityContext context, int userRoleId = 1, int roleId = 1, int userId = 1)
+        public static void AddUserRole(ref IdentityContext context, int userRoleId = 1, int roleId = 1, int userId = 1)
 		{
 			context.UserRoles.Add(new UserRole(userRoleId, roleId, userId));
 		}
 
-		private static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string nameIdentifier = "some auth0 userid")
+		public static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string nameIdentifier = "some auth0 userid")
 		{
 			context.Users.Add(new User(userId, nameIdentifier, firstName, lastName, true, true, null, null, true, null, true, true, true, true));
 		}

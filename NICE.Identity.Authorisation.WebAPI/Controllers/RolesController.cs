@@ -13,132 +13,134 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-	[ApiController]
-    public class WebsitesController: ControllerBase
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+    [ApiController]
+    public class RolesController : ControllerBase
     {
-        private readonly ILogger<WebsitesController> _logger;
-        private readonly IWebsitesService _websitesService;
+        private readonly ILogger<RolesController> _logger;
+        private readonly IRolesService _rolesService;
 
-        public WebsitesController(IWebsitesService websitesService, ILogger<WebsitesController> logger)
+        public RolesController(IRolesService rolesService, ILogger<RolesController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _websitesService = websitesService ?? throw new ArgumentNullException(nameof(websitesService));
+            _rolesService = rolesService ?? throw new ArgumentNullException(nameof(rolesService));
         }
         
         /// <summary>
-        /// create website
+        /// create role
         /// </summary>
-        /// <param name="website"></param>
+        /// <param name="role"></param>
         /// <returns></returns>
         [HttpPost("")]
-        [ProducesResponseType(typeof(Website), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Role), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult CreateWebsite([FromBody] Website website)
+        public IActionResult CreateRole(Role role)
         {
             if (!ModelState.IsValid)
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid model for create website", modelStateJson);
-                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create website"});
+                _logger.LogError($"Invalid model for create role", modelStateJson);
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for create role"});
             }
 
             try
             {
-                var createdWebsite = _websitesService.CreateWebsite(website);
-                return Created($"/website/{createdWebsite.WebsiteId.ToString()}", createdWebsite);
+                var createdRole = _rolesService.CreateRole(role);
+                return Created($"/role/{createdRole.RoleId.ToString()}", createdRole);
             }
             catch (Exception e)
             {
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message, Detail = e.InnerException?.Message});
             }
         }
-
+        
         /// <summary>
-        /// get list of all websites
+        /// get list of all roles
         /// </summary>
         /// <returns></returns>
         [HttpGet("")]
-        [ProducesResponseType(typeof(List<Website>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<Role>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetWebsites()
+        public IActionResult GetRoles()
         {
             try
             {
-                return Ok(_websitesService.GetWebsites());
+                return Ok(_rolesService.GetRoles());
             }
             catch (Exception e)
             {
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
-
+        
         /// <summary>
-        /// get website with id
+        /// get role with id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(Website), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Role), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetWebsite(int id)
+        public IActionResult GetRole(int id)
         {
             try
             {
-                var website = _websitesService.GetWebsite(id);
-                if (website != null)
+                var role = _rolesService.GetRole(id);
+                if (role != null)
                 {
-                    return Ok(website);
+                    return Ok(role);
                 }
-                return NotFound(new ProblemDetails {Status = 404, Title = "Website not found"});
+                return NotFound(new ProblemDetails {Status = 404, Title = "Role not found"});
             }
             catch (Exception e)
             {
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
-
+        
         /// <summary>
-        /// update website with id
+        /// update role with id
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="role"></param>
         /// <returns></returns>
-        [HttpPatch("{id}", Name = "UpdateWebsitePartial")]
-        [HttpPut("{id}", Name = "UpdateWebsite")]
-        [ProducesResponseType(typeof(Website), StatusCodes.Status200OK)]
+        [HttpPatch("{id}", Name = "UpdateRolePartial")]
+        [HttpPut("{id}", Name = "UpdateRole")]
+        [ProducesResponseType(typeof(Role), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateWebsite([FromRoute] int id, [FromBody] Website website)
+        public IActionResult UpdateRole(int id, Role role)
         {
             if (!ModelState.IsValid)
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid model for update website {modelStateJson}");
-                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update website"});
+                _logger.LogError($"Invalid model for update role {modelStateJson}");
+                return BadRequest(new ProblemDetails {Status = 400, Title = "Invalid model for update role"});
             }
 
             try
             {
-                return Ok(_websitesService.UpdateWebsite(id, website));
+                return Ok(_rolesService.UpdateRole(id, role));
             }
             catch (Exception e)
             {
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
             }
         }
+
         /// <summary>
-        /// delete website with id
+        /// delete role with id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -146,11 +148,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteWebsite(int id)
+        public IActionResult DeleteRole(int id)
         {
             try
             {
-                _websitesService.DeleteWebsite(id);
+                _rolesService.DeleteRole(id);
                 return Ok();
             }
             catch (Exception e)

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace NICE.Identity.Authorisation.WebAPI.ApiModels.Requests
+namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
     public class VerificationEmail
     {

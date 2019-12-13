@@ -83,18 +83,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// get service with id
         /// </summary>
-        /// <param name="serviceId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{serviceId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(Service), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetService(int serviceId)
+        public IActionResult GetService(int id)
         {
             try
             {
-                var service = _servicesService.GetService(serviceId);
+                var service = _servicesService.GetService(id);
                 if (service != null)
                 {
                     return Ok(service);
@@ -110,17 +110,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// update service with id
         /// </summary>
-        /// <param name="serviceId"></param>
+        /// <param name="id"></param>
         /// <param name="service"></param>
         /// <returns></returns>
-        [HttpPatch("{serviceId}", Name = "UpdateServicePartial")]
-        [HttpPut("{serviceId}", Name = "UpdateService")]
+        [HttpPatch("{id}", Name = "UpdateServicePartial")]
+        [HttpPut("{id}", Name = "UpdateService")]
         [ProducesResponseType(typeof(Service), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateService(int serviceId, Service service)
+        public IActionResult UpdateService(int id, Service service)
         {
             if (!ModelState.IsValid)
             {
@@ -132,7 +132,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_servicesService.UpdateService(serviceId, service));
+                return Ok(_servicesService.UpdateService(id, service));
             }
             catch (Exception e)
             {
@@ -142,17 +142,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// <summary>
         /// delete service with id
         /// </summary>
-        /// <param name="serviceId"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{serviceId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult DeleteService(int serviceId)
+        public IActionResult DeleteService(int id)
         {
             try
             {
-                _servicesService.DeleteService(serviceId);
+                _servicesService.DeleteService(id);
                 return Ok();
             }
             catch (Exception e)
