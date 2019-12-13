@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using NICE.Identity.Authentication.Sdk.Configuration;
 
 namespace NICE.Identity.Authentication.Sdk.API
 {
@@ -42,19 +41,24 @@ namespace NICE.Identity.Authentication.Sdk.API
 			if (!nameIdentifiers.Any())
 				return new List<UserDetails>();
 
-			var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+			var httpContext = _httpContextAccessor.HttpContext;
+			var accessToken = await httpContext.GetTokenAsync("access_token");
 			if (string.IsNullOrEmpty(accessToken))
 				throw new Exception("Access token not found");
 
 			var client = httpClient ?? new HttpClient();
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
 			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindUsers}");
 
-			var nameIdentifiersInJSON = JsonConvert.SerializeObject(nameIdentifiers);
-			var content = new StringContent(nameIdentifiersInJSON, Encoding.UTF8, "application/json");
+			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
+			{
+				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifiers), Encoding.UTF8, "application/json"),
+				Headers = { 
+					Authorization = new AuthenticationHeaderValue("Bearer", accessToken)
+				}
+			};
+			httpRequestMessage.Headers.Add(AuthenticationConstants.HeaderForAddingAllRolesForWebsite, httpContext.Request.Host.Host);
 
-			var responseMessage = await client.PostAsync(uri, content); //call the api to get all the claims for the current user
+			var responseMessage = await client.SendAsync(httpRequestMessage); //call the api to get all the claims for the current user
 			if (responseMessage.IsSuccessStatusCode)
 			{
 				return JsonConvert.DeserializeObject<UserDetails[]>(await responseMessage.Content.ReadAsStringAsync());
@@ -75,19 +79,24 @@ namespace NICE.Identity.Authentication.Sdk.API
 			if (!nameIdentifiers.Any())
 				return new Dictionary<string, IEnumerable<string>>();
 
-			var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+			var httpContext = _httpContextAccessor.HttpContext;
+			var accessToken = await httpContext.GetTokenAsync("access_token");
 			if (string.IsNullOrEmpty(accessToken))
 				throw new Exception("Access token not found");
 
 			var client = httpClient ?? new HttpClient();
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
 			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindRoles}{host}");
 
-			var nameIdentifiersInJSON = JsonConvert.SerializeObject(nameIdentifiers);
-			var content = new StringContent(nameIdentifiersInJSON, Encoding.UTF8, "application/json");
+			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
+			{
+				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifiers), Encoding.UTF8, "application/json"),
+				Headers = {
+					Authorization = new AuthenticationHeaderValue("Bearer", accessToken)
+				}
+			};
+			httpRequestMessage.Headers.Add(AuthenticationConstants.HeaderForAddingAllRolesForWebsite, httpContext.Request.Host.Host);
 
-			var responseMessage = await client.PostAsync(uri, content); //call the api to get all the claims for the current user
+			var responseMessage = await client.SendAsync(httpRequestMessage); //call the api to get all the claims for the current user
 			if (responseMessage.IsSuccessStatusCode)
 			{
 				return JsonConvert.DeserializeObject<Dictionary<string, IEnumerable<string>>>(await responseMessage.Content.ReadAsStringAsync());

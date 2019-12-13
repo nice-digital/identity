@@ -11,6 +11,7 @@ namespace NICE.Identity.Authentication.Sdk
 			public const string GetClaims = "/api/claims/";
 			public const string FindUsers = "/api/users/findusers";
 			public const string FindRoles = "/api/users/findroles/";
+			public const string GetRolesByWebsite = "/api/roles/getrolesbywebsite/";
 		}
 	}
 }

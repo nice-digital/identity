@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -31,11 +32,35 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return;
 	        }
 
+			//if the granttype is client-credentials, then ... (todo: explanation)
 			var grantTypeClaim = context.User.Claims.FirstOrDefault(claim => claim.Type.Equals("gty"));
 			if (grantTypeClaim != null && grantTypeClaim.Value.Equals("client-credentials"))
 			{
 				context.Succeed(requirement);
 				return;
+			}
+
+			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim());
+
+			//if any of the roles starts with the website prefix "Website:" then hit an endpoint in the api to lookup all the roles for that website, for the current host.
+			var websiteRoles = rolesRequired.Where(role => role.StartsWith(Policies.IdAMSpecific.WebsitePrefix)).ToList();
+			foreach (var websiteRole in websiteRoles)
+			{
+				//sometimes all roles for a given website, for a given host should succeed
+				var websiteName = requirement.Role.Substring(Policies.IdAMSpecific.WebsitePrefix.Length);
+				var request = _httpContextAccessor.HttpContext.Request;
+				var host = request.Headers[AuthenticationConstants.HeaderForAddingAllRolesForWebsite];
+				var userId = context.User.Claims.Single(claim => claim.Type.Equals(ClaimTypes.NameIdentifier)).Value;
+				if (!string.IsNullOrEmpty(websiteName) && !string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(userId))
+				{
+					//call the api and get all the roles for the current user, for the current website and add to user.
+
+					var authorisationHeader = request.Headers[Microsoft.Net.Http.Headers.HeaderNames.Authorization];
+					var authHeader = AuthenticationHeaderValue.Parse(authorisationHeader);
+					var client = _httpClientFactory.CreateClient();
+
+					await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, host, context.User, client);
+				}
 			}
 
 			//if the user doesn't have any idam claims, then add them. this will happen during M2M auth.
@@ -46,10 +71,14 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				var authHeader = AuthenticationHeaderValue.Parse(authorisationHeader);
 				var client = _httpClientFactory.CreateClient();
 
-				await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, _httpContextAccessor.HttpContext.Request.Host.Host, context.User, client);
+				var request = _httpContextAccessor.HttpContext.Request;
+				var hosts = new List<string> {request.Host.Host};
+				if (request.Headers.ContainsKey(AuthenticationConstants.HeaderForAddingAllRolesForWebsite))
+				{
+					hosts.Add(request.Headers[AuthenticationConstants.HeaderForAddingAllRolesForWebsite]);
+				}
+				await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, hosts, context.User, client);
 			}
-
-			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim());
 
 			if (context.User.Claims.Any(claim => claim.Type.Equals(ClaimType.Role) &&
 			                                     rolesRequired.Contains(claim.Value, StringComparer.OrdinalIgnoreCase)))

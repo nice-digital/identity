@@ -14,6 +14,7 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -144,7 +145,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     {
 						var accessToken = context.TokenEndpointResponse.AccessToken;
 						var userId = context.SecurityToken.Subject;
-						await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, context.HttpContext.Request.Host.Host, context.Principal, localClient);
+						await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string>{ context.HttpContext.Request.Host.Host }, context.Principal, localClient);
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
