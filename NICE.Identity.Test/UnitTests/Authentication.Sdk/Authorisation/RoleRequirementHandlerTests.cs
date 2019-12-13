@@ -29,7 +29,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 		{
 			//Arrange
 			var host = "www.nice.org.uk";
-			const string roleName = Policies.Web.Administrator;
+			const string roleName = "Administrator";
 
 			var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
 			{
@@ -62,7 +62,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 		{
 			//Arrange
 			var host = "www.nice.org.uk";
-			const string roleName = Policies.Web.Administrator;
+			const string roleName = "Administrator";
 			
 			var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
 			{
@@ -89,7 +89,7 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
 		{
 			//Arrange
 			var host = "www.nice.org.uk";
-			const string roleName = Policies.Web.Administrator;
+			const string roleName = "Administrator";
 			
 			var claimsPrincipal = new ClaimsPrincipal(new List<ClaimsIdentity>()
 			{

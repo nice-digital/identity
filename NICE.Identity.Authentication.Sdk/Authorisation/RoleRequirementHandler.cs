@@ -40,27 +40,12 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return;
 			}
 
-			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim());
+			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim()).ToList();
 
-			//if any of the roles starts with the website prefix "Website:" then hit an endpoint in the api to lookup all the roles for that website, for the current host.
-			var websiteRoles = rolesRequired.Where(role => role.StartsWith(Policies.IdAMSpecific.WebsitePrefix)).ToList();
-			foreach (var websiteRole in websiteRoles)
+			if (rolesRequired.Contains(Policies.API.RolesWithAccessToUserProfilesPlaceholder))
 			{
-				//sometimes all roles for a given website, for a given host should succeed
-				var websiteName = requirement.Role.Substring(Policies.IdAMSpecific.WebsitePrefix.Length);
-				var request = _httpContextAccessor.HttpContext.Request;
-				var host = request.Headers[AuthenticationConstants.HeaderForAddingAllRolesForWebsite];
-				var userId = context.User.Claims.Single(claim => claim.Type.Equals(ClaimTypes.NameIdentifier)).Value;
-				if (!string.IsNullOrEmpty(websiteName) && !string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(userId))
-				{
-					//call the api and get all the roles for the current user, for the current website and add to user.
-
-					var authorisationHeader = request.Headers[Microsoft.Net.Http.Headers.HeaderNames.Authorization];
-					var authHeader = AuthenticationHeaderValue.Parse(authorisationHeader);
-					var client = _httpClientFactory.CreateClient();
-
-					await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, host, context.User, client);
-				}
+				rolesRequired.Remove(Policies.API.RolesWithAccessToUserProfilesPlaceholder);
+				rolesRequired.AddRange(_authConfiguration.RolesWithAccessToUserProfiles);
 			}
 
 			//if the user doesn't have any idam claims, then add them. this will happen during M2M auth.

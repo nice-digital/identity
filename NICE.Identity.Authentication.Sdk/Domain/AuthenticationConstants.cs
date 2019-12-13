@@ -17,6 +17,8 @@
 
 		public const string HeaderForAddingAllRolesForWebsite = "X-HOST";
 
+		public const string JWTAuthenticationScheme = "Bearer";
+
 		public static class Tokens
 		{
 			public const string IdToken = "id_token";

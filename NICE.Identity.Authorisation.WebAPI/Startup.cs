@@ -18,6 +18,7 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 using Microsoft.IdentityModel.Logging;
+using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.Environments;
 
 namespace NICE.Identity.Authorisation.WebAPI
@@ -77,14 +78,14 @@ namespace NICE.Identity.Authorisation.WebAPI
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
-                options.AddSecurityDefinition("Bearer", new ApiKeyScheme{
+                options.AddSecurityDefinition(AuthenticationConstants.JWTAuthenticationScheme, new ApiKeyScheme{
                     In = "header",
-                    Description = "Enter into the field the word 'Bearer' followed by space and the JWT token",
+                    Description = "Enter into the field the word '" + AuthenticationConstants.JWTAuthenticationScheme+ "' followed by space and the JWT token",
                     Name = "Authorization", 
                     Type = "apiKey"
                 });
                 options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
-                    { "Bearer", Enumerable.Empty<string>() },
+                    { AuthenticationConstants.JWTAuthenticationScheme, Enumerable.Empty<string>() },
                 });
             });
 

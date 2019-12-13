@@ -7,15 +7,9 @@
 	/// </summary>
     public static class Policies
     {
-	    public static class Web
-	    {
-		    public const string Administrator = "Administrator"; //todo: remove
 
-			/// <summary>
-			/// This policy is used by the .net core test client to test authorisation of a route with a specific role.
-			/// </summary>
-		    public const string Editor = "Editor";
-	    }
+		//web policies have been removed. see class comment.
+
 
 		/// <summary>
 		/// By convention API policy names (scopes) have a colon in them. 
@@ -23,17 +17,12 @@
 		public static class API
 	    {
 		    public const string UserAdministration = "User:Administration";
-		}
 
-
-		/// <summary>
-		/// Policies to secure IdAM specific functionality.
-		/// </summary>
-		public static class IdAMSpecific
-		{
-			public const string WebsitePrefix = "Website:";
-
-			public const string AllRolesForWebsiteComments = WebsitePrefix + "Consultation Comments";
-		}
+			/// <summary>
+			/// This following string is used in the API to secure the FindUsers and FindRoles actions. The actual roles with access to these
+			/// functions are defined in configuration and replaced in, in the RoleRequirementHandler.
+			/// </summary>
+		    public const string RolesWithAccessToUserProfilesPlaceholder = "Placeholder:Roles_are_replaced_here_at_runtime_from_config";
+	    }
     }
 }

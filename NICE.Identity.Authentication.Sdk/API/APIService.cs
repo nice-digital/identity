@@ -47,13 +47,13 @@ namespace NICE.Identity.Authentication.Sdk.API
 				throw new Exception("Access token not found");
 
 			var client = httpClient ?? new HttpClient();
-			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindUsers}");
+			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindUsersFullPath}");
 
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
 			{
 				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifiers), Encoding.UTF8, "application/json"),
 				Headers = { 
-					Authorization = new AuthenticationHeaderValue("Bearer", accessToken)
+					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
 				}
 			};
 			httpRequestMessage.Headers.Add(AuthenticationConstants.HeaderForAddingAllRolesForWebsite, httpContext.Request.Host.Host);
@@ -85,13 +85,13 @@ namespace NICE.Identity.Authentication.Sdk.API
 				throw new Exception("Access token not found");
 
 			var client = httpClient ?? new HttpClient();
-			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindRoles}{host}");
+			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindRolesFullPath}{host}");
 
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
 			{
 				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifiers), Encoding.UTF8, "application/json"),
 				Headers = {
-					Authorization = new AuthenticationHeaderValue("Bearer", accessToken)
+					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
 				}
 			};
 			httpRequestMessage.Headers.Add(AuthenticationConstants.HeaderForAddingAllRolesForWebsite, httpContext.Request.Host.Host);
