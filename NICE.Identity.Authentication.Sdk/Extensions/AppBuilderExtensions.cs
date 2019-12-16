@@ -1,6 +1,5 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿#if NETSTANDARD //This whole class is only used by .net framework. we target .net standard 2.0 which is compatible with .net framework 4.6.1
+
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;
@@ -12,6 +11,9 @@ using Microsoft.Owin.Security.OpenIdConnect;
 using NICE.Identity.Authentication.Sdk.Configuration;
 //using NICE.Identity.Authentication.Sdk.SessionStore;
 using Owin;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
@@ -98,3 +100,5 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		}
 	}
 }
+
+#endif

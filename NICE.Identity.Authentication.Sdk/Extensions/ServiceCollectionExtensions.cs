@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
@@ -21,11 +19,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
-	public static class ServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         //public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
         //                                                      IConfiguration configuration,
@@ -189,6 +186,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
+	        //System.Diagnostics.Debugger.Launch();
             services.TryAddSingleton(authConfig => authConfiguration);
 
             services.AddAuthentication()
@@ -199,7 +197,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 });
 
             Action<AuthorizationOptions> defaultOptions = options => { };
-			services.AddAuthorization(authorizationOptions ?? defaultOptions);
+
+#if NETSTANDARD
+            services.AddAuthorization(authorizationOptions ?? defaultOptions);
+#endif
+#if NETCOREAPP3_1
+			services.AddAuthorizationCore(authorizationOptions ?? defaultOptions);
+#endif
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
