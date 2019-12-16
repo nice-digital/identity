@@ -150,7 +150,39 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             usersFilterMultiple.Last().NameIdentifier.ShouldBe("auth|user2");
             
         }
-        
+
+        [Fact]
+        public void Get_users_with_filter_not_found()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user1",
+                FirstName = "FirstName1",
+                LastName = "LastName1",
+                EmailAddress = "user1@example.com"
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user2",
+                FirstName = "FirstName2",
+                LastName = "LastName2",
+                EmailAddress = "user2@example.com"
+            });
+            context.SaveChanges();
+
+            //Act
+            var usersFilterNotFound = userService.GetUsers("Name3");
+
+            //Assert
+            context.Users.Count().ShouldBe(2);
+            usersFilterNotFound.Count().ShouldBe(0);
+            usersFilterNotFound.ShouldNotBe(null);
+        }
+
         [Fact]
         public async Task Update_user_that_already_exists()
         {
