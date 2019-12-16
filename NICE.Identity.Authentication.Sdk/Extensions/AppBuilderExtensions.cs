@@ -10,7 +10,7 @@ using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.OpenIdConnect;
 using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.SessionStore;
+//using NICE.Identity.Authentication.Sdk.SessionStore;
 using Owin;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
@@ -20,14 +20,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
             // Enable Kentor Cookie Saver middleware
-            app.UseKentorOwinCookieSaver();
-			var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
+            //app.UseKentorOwinCookieSaver();
+			//var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
             // Set Cookies as default authentication type
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
             var options = new CookieAuthenticationOptions
             {
 	            AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
-	            SessionStore = new RedisOwinSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+	          //  SessionStore = new RedisOwinSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
 	            CookieHttpOnly = true,
 	            CookieSecure = CookieSecureOption.Always,
 	            LoginPath = new PathString("/Account/Login")

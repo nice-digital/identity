@@ -12,7 +12,7 @@ using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
-using StackExchange.Redis;
+//using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -27,34 +27,34 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
-                                                              IConfiguration configuration,
-                                                              string redisCacheServiceConfigurationPath,
-                                                              string clientName)
-        {
-            services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
-            var serviceProvider = services.BuildServiceProvider();
-            var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
+        //public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
+        //                                                      IConfiguration configuration,
+        //                                                      string redisCacheServiceConfigurationPath,
+        //                                                      string clientName)
+        //{
+        //    services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
+        //    var serviceProvider = services.BuildServiceProvider();
+        //    var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
 
-            if (redisConfiguration.Enabled)
-            {
-                var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
+        //    if (redisConfiguration.Enabled)
+        //    {
+        //        var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
 
-                services.AddDataProtection()
-                    .SetApplicationName(clientName)
-                    .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
+        //        services.AddDataProtection()
+        //            .SetApplicationName(clientName)
+        //            .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
 
-                services.AddSession(options =>
-                {
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.Name = $"{clientName}.Session";
-                    options.Cookie.HttpOnly = true;
-                    options.IdleTimeout = TimeSpan.FromMinutes(10);
-                });
-            }
+        //        services.AddSession(options =>
+        //        {
+        //            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        //            options.Cookie.Name = $"{clientName}.Session";
+        //            options.Cookie.HttpOnly = true;
+        //            options.IdleTimeout = TimeSpan.FromMinutes(10);
+        //        });
+        //    }
 
-            return services;
-        }
+        //    return services;
+        //}
 
         public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
