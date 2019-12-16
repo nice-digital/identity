@@ -198,12 +198,11 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
             Action<AuthorizationOptions> defaultOptions = options => { };
 
-#if NETSTANDARD
-            services.AddAuthorization(authorizationOptions ?? defaultOptions);
-#endif
-#if NETCOREAPP3_1
-			services.AddAuthorizationCore(authorizationOptions ?? defaultOptions);
-#endif
+            #if NETSTANDARD
+                services.AddAuthorization(authorizationOptions ?? defaultOptions);
+            #else
+            	services.AddAuthorizationCore(authorizationOptions ?? defaultOptions);
+            #endif
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
