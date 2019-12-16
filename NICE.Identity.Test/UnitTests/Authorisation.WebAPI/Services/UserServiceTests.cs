@@ -105,6 +105,53 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
         
         [Fact]
+        public void Get_users_with_filter()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user1",
+                FirstName = "FirstName1",
+                LastName = "LastName1",
+                EmailAddress = "user1@example.com"
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user2",
+                FirstName = "FirstName2",
+                LastName = "LastName2",
+                EmailAddress = "user2@example.com"
+            });
+            context.SaveChanges();
+
+            //Act
+            var usersFilterByFirstName = userService.GetUsers("Name1");
+            var usersFilterByLastName = userService.GetUsers("Name2");
+            var usersFilterByEmailAddress = userService.GetUsers("user1");
+            var usersFilterMultiple = userService.GetUsers("example");
+
+            //Assert
+            context.Users.Count().ShouldBe(2);
+
+            usersFilterByFirstName.Count().ShouldBe(1);
+            usersFilterByFirstName.First().NameIdentifier.ShouldBe("auth|user1");
+
+            usersFilterByLastName.Count().ShouldBe(1);
+            usersFilterByLastName.First().NameIdentifier.ShouldBe("auth|user2");
+
+            usersFilterByEmailAddress.Count().ShouldBe(1);
+            usersFilterByEmailAddress.First().NameIdentifier.ShouldBe("auth|user1");
+
+            usersFilterMultiple.Count().ShouldBe(2);
+            usersFilterMultiple.First().NameIdentifier.ShouldBe("auth|user1");
+            usersFilterMultiple.Last().NameIdentifier.ShouldBe("auth|user2");
+            
+        }
+        
+        [Fact]
         public async Task Update_user_that_already_exists()
         {
             //Arrange

@@ -79,14 +79,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return user != null ? new User(user) : null;
 		}
 
-		public List<User> GetUsers(string filter)
+		public List<User> GetUsers(string filter = null)
 		{
             if (!string.IsNullOrEmpty(filter))
             {
                 return _context.Users.Select(user => new User(user))
-                    .Where(u => u.FirstName.ToLower().Contains(filter.ToLower())
-                                || u.LastName.ToLower().Contains(filter.ToLower())
-                                || u.EmailAddress.ToLower().Contains(filter.ToLower()))
+                    .Where(u => (u.FirstName != null && u.FirstName.ToLower().Contains(filter.ToLower()))
+                                || (u.LastName!= null && u.LastName.ToLower().Contains(filter.ToLower()))
+                                || (u.EmailAddress!= null && u.EmailAddress.ToLower().Contains(filter.ToLower())))
                     .ToList();
             }
             return _context.Users.Select(user => new User(user)).ToList();
