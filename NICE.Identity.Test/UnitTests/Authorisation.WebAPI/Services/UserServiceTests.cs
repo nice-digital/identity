@@ -316,12 +316,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            TestData.AddEnvironment(ref context, 1);
-            TestData.AddService(ref context, 1);
-            TestData.AddWebsite(ref context, 1, 1, 1);
-            TestData.AddRole(ref context, 1, 1, "TestRole1");
-            TestData.AddRole(ref context, 2, 1, "TestRole2");
-            TestData.AddUser(ref context, 1);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1});
+            context.Websites.Add(new DataModels.Website(){WebsiteId = 1, ServiceId = 1, EnvironmentId = 1});
+            context.Roles.Add(new DataModels.Role() { RoleId = 1, Name = "TestRole1"});
+            context.Roles.Add(new DataModels.Role() { RoleId = 2, Name = "TestRole2"});
+            context.Users.Add(new DataModels.User(){UserId = 1});
             context.SaveChanges();
 
             //Act
@@ -333,8 +333,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             userRoles.Count().ShouldBe(2);
-            userRoles.Find(r => r.UserRoleId == 1).RoleId.ShouldBe(1);
-            userRoles.Find(r => r.UserRoleId == 2).RoleId.ShouldBe(2);
+            userRoles.First(r => r.UserRoleId == 1).UserId.ShouldBe(1);
+            userRoles.First(r => r.UserRoleId == 1).RoleId.ShouldBe(1);
+            userRoles.First(r => r.UserRoleId == 2).UserId.ShouldBe(1);
+            userRoles.First(r => r.UserRoleId == 2).RoleId.ShouldBe(2);
         }
 
         [Fact]
