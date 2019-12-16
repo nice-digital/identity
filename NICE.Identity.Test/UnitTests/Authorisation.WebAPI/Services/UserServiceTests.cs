@@ -333,10 +333,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             userRoles.Count().ShouldBe(2);
-            userRoles.First(r => r.UserRoleId == 1).UserId.ShouldBe(1);
-            userRoles.First(r => r.UserRoleId == 1).RoleId.ShouldBe(1);
-            userRoles.First(r => r.UserRoleId == 2).UserId.ShouldBe(1);
-            userRoles.First(r => r.UserRoleId == 2).RoleId.ShouldBe(2);
+            userRoles.First().UserId.ShouldBe(1);
+            userRoles.First().RoleId.ShouldBe(1);
+            userRoles.Last().UserId.ShouldBe(1);
+            userRoles.Last().RoleId.ShouldBe(2);
         }
 
         [Fact]

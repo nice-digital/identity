@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,12 +7,14 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
+using System;
+using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-    [ApiController]
+	[Route("api/[controller]")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+	[ApiController]
     public class RolesController : ControllerBase
     {
         private readonly ILogger<RolesController> _logger;
@@ -38,7 +38,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult CreateRole(Role role)
+		public IActionResult CreateRole(Role role)
         {
             if (!ModelState.IsValid)
             {
@@ -67,7 +67,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(typeof(List<Role>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetRoles()
+		public IActionResult GetRoles()
         {
             try
             {
@@ -89,7 +89,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetRole(int id)
+		public IActionResult GetRole(int id)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateRole(int id, Role role)
+		public IActionResult UpdateRole(int id, Role role)
         {
             if (!ModelState.IsValid)
             {

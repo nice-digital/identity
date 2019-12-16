@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -31,11 +32,20 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return;
 	        }
 
+			//if the granttype is client-credentials, then ... (todo: explanation)
 			var grantTypeClaim = context.User.Claims.FirstOrDefault(claim => claim.Type.Equals("gty"));
 			if (grantTypeClaim != null && grantTypeClaim.Value.Equals("client-credentials"))
 			{
 				context.Succeed(requirement);
 				return;
+			}
+
+			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim()).ToList();
+
+			if (rolesRequired.Contains(Policies.API.RolesWithAccessToUserProfilesPlaceholder))
+			{
+				rolesRequired.Remove(Policies.API.RolesWithAccessToUserProfilesPlaceholder);
+				rolesRequired.AddRange(_authConfiguration.RolesWithAccessToUserProfiles);
 			}
 
 			//if the user doesn't have any idam claims, then add them. this will happen during M2M auth.
@@ -46,10 +56,14 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				var authHeader = AuthenticationHeaderValue.Parse(authorisationHeader);
 				var client = _httpClientFactory.CreateClient();
 
-				await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, _httpContextAccessor.HttpContext.Request.Host.Host, context.User, client);
+				var request = _httpContextAccessor.HttpContext.Request;
+				var hosts = new List<string> {request.Host.Host};
+				if (request.Headers.ContainsKey(AuthenticationConstants.HeaderForAddingAllRolesForWebsite))
+				{
+					hosts.Add(request.Headers[AuthenticationConstants.HeaderForAddingAllRolesForWebsite]);
+				}
+				await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, hosts, context.User, client);
 			}
-
-			var rolesRequired = requirement.Role.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(role => role.Trim());
 
 			if (context.User.Claims.Any(claim => claim.Type.Equals(ClaimType.Role) &&
 			                                     rolesRequired.Contains(claim.Value, StringComparer.OrdinalIgnoreCase)))

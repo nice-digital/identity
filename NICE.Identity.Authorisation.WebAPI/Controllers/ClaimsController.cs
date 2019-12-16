@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	    {
 	        try
 	        {
-	            var result = _claimsService.GetClaims(authenticationProviderUserId);
+	            var result = _claimsService.GetClaims(HttpUtility.UrlDecode(authenticationProviderUserId));
 
 	            if (result == null)
 	            {

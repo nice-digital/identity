@@ -9,8 +9,17 @@ namespace NICE.Identity.Authentication.Sdk
 		public static class AuthorisationURLs
 		{
 			public const string GetClaims = "/api/claims/";
-			public const string FindUsers = "/api/users/findusers";
-			public const string FindRoles = "/api/users/findroles/";
+
+			private const string ApiUsersPath = "/api/users/";
+			public const string FindUsersRoute = "findusers";
+			public const string FindUsersFullPath = ApiUsersPath + FindUsersRoute;
+
+			public const string FindRolesRoute = "findroles/";
+			public const string FindRolesFullPath = ApiUsersPath + FindRolesRoute;
+			
+			public const string GetRolesByWebsiteRoute = "getrolesbywebsite";
+			public const string GetRolesByWebsiteFullPath = "/api/roles/" + GetRolesByWebsiteRoute + "/";
+
 		}
 	}
 }
