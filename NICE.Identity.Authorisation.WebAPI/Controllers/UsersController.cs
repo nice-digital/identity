@@ -9,16 +9,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //can't add the UserAdministration policy at this level as the find users and find roles actions don't need it.
 	[ApiController]
     public class UsersController : ControllerBase
     {
@@ -44,7 +46,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult CreateUser([FromBody] User user)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult CreateUser([FromBody] User user)
         {
             if (!ModelState.IsValid)
             {
@@ -74,6 +77,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
 		public IActionResult GetUsers()
 		{
 			try
@@ -96,6 +100,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
 		public IActionResult GetUser(int userId)
 		{
 			try
@@ -118,10 +123,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		/// </summary>
 		/// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
 		/// <returns></returns>
-		[HttpPost("findusers")]
+		[HttpPost(Constants.AuthorisationURLs.FindUsersRoute)]
 		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration + "," + Policies.API.RolesWithAccessToUserProfilesPlaceholder)]
 		public IActionResult FindUsers([FromBody] IEnumerable<string> nameIdentifiers)
         {
 			try
@@ -139,10 +145,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		/// </summary>
 		/// <param name="nameIdentifiers">this is the auth0UserId aka the "Name identifier"</param>
 		/// <returns></returns>
-		[HttpPost("findroles/{host}")]
+		[HttpPost( Constants.AuthorisationURLs.FindRolesRoute +"{host}")]
 		[ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration + "," + Policies.API.RolesWithAccessToUserProfilesPlaceholder)]
 		public IActionResult FindRoles([FromBody] IEnumerable<string> nameIdentifiers, string host)
 		{
 			try
@@ -168,7 +175,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int userId, [FromBody] User user)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public async Task<IActionResult> UpdateUser([FromRoute] int userId, [FromBody] User user)
         {
             if (!ModelState.IsValid)
             {
@@ -197,7 +205,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public async Task<IActionResult> DeleteUser(int userId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public async Task<IActionResult> DeleteUser(int userId)
         {
             try
             {
@@ -216,7 +225,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult ImportUsers([FromBody] IList<ImportUser> usersToImport)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult ImportUsers([FromBody] IList<ImportUser> usersToImport)
         {
 	        if (!ModelState.IsValid)
 	        {
@@ -248,7 +258,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetRolesForUserByWebsite(int userId, int websiteId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult GetRolesForUserByWebsite(int userId, int websiteId)
         {
             try
             {
@@ -286,7 +297,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
             [FromBody] UserRolesByWebsite userRolesByWebsite)
         {
             if (!ModelState.IsValid)
@@ -317,7 +329,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetRolesForUser(int userId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult GetRolesForUser(int userId)
         {
             try
             {
@@ -351,7 +364,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public IActionResult UpdateRolesForUser([FromRoute] int userId, [FromBody] List<ApiModels.UserRole> userRoles)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult UpdateRolesForUser([FromRoute] int userId, [FromBody] List<ApiModels.UserRole> userRoles)
         {
             if (!ModelState.IsValid)
             {

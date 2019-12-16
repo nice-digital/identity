@@ -101,10 +101,10 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
             return View("Error");
         }
 
-        [Authorize(Policy = Policies.Web.Editor)]
+        [Authorize(Policy = "Editor")]
         public IActionResult EditorAction()
         {
-	        ViewData["Message"] = $"This action only available to someone with the role: {Policies.Web.Editor}";
+	        ViewData["Message"] = "This action only available to someone with the role: Editor";
 
 	        return View("Index");
         }
