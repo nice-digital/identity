@@ -1,33 +1,36 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
 using NICE.Logging;
 using NICE.Logging.Sinks.RabbitMQ;
 using Serilog;
+using System;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
-    public interface ISeriLogger {
-        void Configure(ILoggerFactory loggerFactory, IConfiguration configuration, IApplicationLifetime appLifetime, IHostingEnvironment env);
-    }
-
-    public class SeriLogger : ISeriLogger
+    /// <summary>
+    /// This has been refactored for .NET Core 3.1 
+    /// 
+    /// It now just sets up a LoggerConfiguration object based off appsettings.json (and secrets.json on dev machines)
+    /// </summary>
+    public static class SeriLogger 
     {
-        public void Configure(ILoggerFactory loggerFactory, IConfiguration configuration, IApplicationLifetime appLifetime, IHostingEnvironment env)
+        public static LoggerConfiguration GetLoggerConfiguration()
         {
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddUserSecrets<Startup>()
+                .Build();
+
             // read appsettings
-            var logCfg = configuration.GetSection("Logging");
-
-            loggerFactory.AddConsole(logCfg); // add provider to send logs to System.Console.WriteLine()
-            loggerFactory.AddDebug(); // add provider to send logs to System.Diagnostics.Debug.WriteLine()
-
+            var logCfg = config.GetSection("Logging");
+                
             var rabbitSettingsFound = int.TryParse(logCfg["RabbitMQPort"], out var rPort);
             bool.TryParse(logCfg["UseRabbit"], out var useRabbit);
             string logFilePath = logCfg["LogFilePath"]; ;
 
             var formatter = new NiceSerilogFormatter(logCfg["Environment"], "IdentityApi");
             var logConfig = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
                 .MinimumLevel
                 .Warning();
 
@@ -51,13 +54,7 @@ namespace NICE.Identity.Authorisation.WebAPI
             if (useFile) //probably dev only
                 logConfig.WriteTo.RollingFile(formatter, logFilePath, fileSizeLimitBytes: 5000000, retainedFileCountLimit: 5, flushToDiskInterval: TimeSpan.FromSeconds(20));
 
-            Log.Logger = logConfig.CreateLogger();
-
-            // add serilog provider (this is the hook)
-            loggerFactory.AddSerilog();
-
-            // clean up on shutdown
-            appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
+            return logConfig;
         }
     }
 }
