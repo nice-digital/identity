@@ -9,7 +9,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
     {
         public int TermsVersionId { get; set; }
         public DateTime VersionDate { get; set; }
-        public int CreatedByUserId { get; set; }
+        public int? CreatedByUserId { get; set; }
 
         public User CreatedByUser { get; set; }
         public ICollection<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
