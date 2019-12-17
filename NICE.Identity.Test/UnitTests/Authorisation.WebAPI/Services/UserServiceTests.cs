@@ -128,27 +128,30 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.SaveChanges();
 
             //Act
-            var usersFilterByFirstName = userService.GetUsers("Name1");
-            var usersFilterByLastName = userService.GetUsers("Name2");
-            var usersFilterByEmailAddress = userService.GetUsers("user1");
-            var usersFilterMultiple = userService.GetUsers("example");
+            var usersFilterByFirstName = userService.GetUsers("FirstName1");
+            var usersFilterByLastName = userService.GetUsers("LastName2");
+            var usersFilterByEmailAddress = userService.GetUsers("user1@example.com");
+            var usersFilterByNameIdentifier = userService.GetUsers("auth|user1");
+            var usersFilterMultiple = userService.GetUsers("example.com");
 
             //Assert
             context.Users.Count().ShouldBe(2);
 
-            usersFilterByFirstName.Count().ShouldBe(1);
+            usersFilterByFirstName.Count.ShouldBe(1);
             usersFilterByFirstName.First().NameIdentifier.ShouldBe("auth|user1");
 
-            usersFilterByLastName.Count().ShouldBe(1);
+            usersFilterByLastName.Count.ShouldBe(1);
             usersFilterByLastName.First().NameIdentifier.ShouldBe("auth|user2");
 
-            usersFilterByEmailAddress.Count().ShouldBe(1);
+            usersFilterByEmailAddress.Count.ShouldBe(1);
             usersFilterByEmailAddress.First().NameIdentifier.ShouldBe("auth|user1");
+            
+            usersFilterByNameIdentifier.Count.ShouldBe(1);
+            usersFilterByNameIdentifier.First().NameIdentifier.ShouldBe("auth|user1");
 
-            usersFilterMultiple.Count().ShouldBe(2);
+            usersFilterMultiple.Count.ShouldBe(2);
             usersFilterMultiple.First().NameIdentifier.ShouldBe("auth|user1");
             usersFilterMultiple.Last().NameIdentifier.ShouldBe("auth|user2");
-            
         }
 
         [Fact]

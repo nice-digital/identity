@@ -86,7 +86,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return _context.Users.Select(user => new User(user))
                     .Where(u => (u.FirstName != null && u.FirstName.ToLower().Contains(filter.ToLower()))
                                 || (u.LastName!= null && u.LastName.ToLower().Contains(filter.ToLower()))
-                                || (u.EmailAddress!= null && u.EmailAddress.ToLower().Contains(filter.ToLower())))
+                                || (u.EmailAddress!= null && u.EmailAddress.ToLower().Contains(filter.ToLower()))
+                                || (u.NameIdentifier != null && u.NameIdentifier.ToLower().Contains(filter.ToLower())))
                     .ToList();
             }
             return _context.Users.Select(user => new User(user)).ToList();
