@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -24,11 +25,13 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 		private readonly string _authDomain;
         private readonly IHttpClientFactory _clientFactory;
         private readonly IAPIService _apiService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService)
+        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IHttpContextAccessor httpContextAccessor)
         {
             _clientFactory = clientFactory;
             _apiService = apiService;
+            _httpContextAccessor = httpContextAccessor;
             _apiIdentifier = configuration.GetSection("WebAppConfiguration").GetSection("ApiIdentifier").Value;
             _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
 			_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
@@ -64,8 +67,7 @@ namespace NICE.Identity.TestClient.NetCore.Controllers
 
 			try
             {
-	            var roles = await _apiService.FindRoles(new List<string> {currentUsersNameIdentifier},
-		            "dev-identitytestcore.nice.org.uk");
+	            var roles = await _apiService.FindRoles(new List<string> {currentUsersNameIdentifier}, _httpContextAccessor.HttpContext.Request.Host.Host);
 
 	            ViewData["Roles"] = JsonConvert.SerializeObject(roles);
             }

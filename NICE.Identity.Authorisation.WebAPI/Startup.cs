@@ -140,16 +140,17 @@ namespace NICE.Identity.Authorisation.WebAPI
 			}
 
 			app.UseHttpsRedirection();
-			app.UseStaticFiles();
+			app.UseStaticFiles(); //this line must be before UserRouting.
 			//app.UseCookiePolicy();
 
 
 			app.UseRouting();
-			
-			app.UseAuthentication();
-			app.UseAuthorization(); //TODO: this is new. test this.
 
-			app.UseCors(CorsPolicyName); //cors should be before usemvc (maybe this translates to before useendpoints too?)
+			app.UseCors(CorsPolicyName); //cors should be before UseAuthentication and UseEndpoints
+
+			app.UseAuthentication(); //this line must be in between UseRouting and UseEndpoints
+			app.UseAuthorization(); //TODO: not sure if we should have this or not.
+			
 
 			app.UseEndpoints(endpoints =>
 			{

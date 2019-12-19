@@ -9,7 +9,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
 using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
@@ -18,7 +17,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 	{
 		internal static async Task AddClaimsToUser(IAuthConfiguration authConfiguration, string userId, string accessToken, IEnumerable<string> hosts, ClaimsPrincipal claimsPrincipal, HttpClient client)
 		{
-			var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{Constants.AuthorisationURLs.GetClaims}{HttpUtility.UrlEncode(userId)}");
+			var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{Constants.AuthorisationURLs.GetClaims}{WebUtility.UrlEncode(userId)}");
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
 			{
 				Headers = { Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken) }

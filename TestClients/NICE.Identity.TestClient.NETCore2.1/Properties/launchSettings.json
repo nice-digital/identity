@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://local-identity.nice.org.uk:22",
-      "sslPort": 44322
+      "applicationUrl": "http://local-identity.nice.org.uk:21",
+      "sslPort": 44321
     }
   },
   "profiles": {
@@ -21,7 +21,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://dev-identitytestcore.nice.org.uk:44322"
+      "applicationUrl": "https://dev-identitytestcore.nice.org.uk:44321"
     }
   }
 }

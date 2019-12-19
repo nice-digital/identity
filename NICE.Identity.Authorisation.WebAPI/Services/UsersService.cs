@@ -95,7 +95,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			var users = _context.GetUsers(nameIdentifiers);
 			return users.ToDictionary(user => user.NameIdentifier,
 				user => user.UserRoles
-					.Where(userRole => userRole.Role.Website.Host.Equals(host, StringComparison.OrdinalIgnoreCase))
+					.Where(userRole => EF.Functions.Like(userRole.Role.Website.Host, host))
 					.Select(role => role.Role.Name));
 		}
 
