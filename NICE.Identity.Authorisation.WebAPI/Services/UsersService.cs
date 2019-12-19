@@ -209,7 +209,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 
             var userRoles = _context.UserRoles.Where((ur => ur.UserId == userId)).ToList();
-            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId)
+            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId).ToList()
                 .Select(role => new UserRoleDetailed()
                 {
                     Id = role.RoleId,
