@@ -12,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public User GetUser(string authenticationProviderUserId)
         {
-            var result = Users.Where(users => users.NameIdentifier.Equals(authenticationProviderUserId, StringComparison.OrdinalIgnoreCase))
+            var result = Users.Where(user => EF.Functions.Like(user.NameIdentifier, authenticationProviderUserId))
                 .Include(users => users.UserRoles)
                 .ThenInclude(userRoles => userRoles.Role)
                 .ThenInclude(website => website.Website)
@@ -32,7 +32,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public List<User> GetUsers(IEnumerable<string> authenticationProviderUserIds)
         {
-	        return Users.Where(users => authenticationProviderUserIds.Contains(users.NameIdentifier, StringComparer.OrdinalIgnoreCase))
+            var lowercasedAuthenticationProviderUserIds = authenticationProviderUserIds.Select(userId => userId.ToLower());
+	        return Users.Where(users => lowercasedAuthenticationProviderUserIds.Contains(users.NameIdentifier.ToLower()))
 		        .Include(users => users.UserRoles)
 		        .ThenInclude(userRoles => userRoles.Role)
 		        .ThenInclude(website => website.Website)
@@ -43,7 +44,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
 			//there might be multiple users with the same email address, e.g. if someone logs in with AD using the same email address as has been imported from nice accounts 
 			//so lookup with name identifier, which is unique
-            var foundUser = Users.FirstOrDefault(u => u.NameIdentifier.Equals(user.NameIdentifier, StringComparison.OrdinalIgnoreCase));
+            var foundUser = Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, user.NameIdentifier));
             if (foundUser != null)
             {
 	            return foundUser;
@@ -100,8 +101,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		public Role GetRole(string websiteHost, string roleName)
 		{
 			return Roles.FirstOrDefault(r =>
-				r.Website.Host.Equals(websiteHost, StringComparison.OrdinalIgnoreCase) &&
-				r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+                EF.Functions.Like(r.Website.Host, websiteHost) &&
+                EF.Functions.Like(r.Name, roleName));
 		}
 
 

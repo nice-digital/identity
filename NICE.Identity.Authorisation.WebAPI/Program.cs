@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using System;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -7,40 +9,27 @@ namespace NICE.Identity.Authorisation.WebAPI
 	{
 		public static void Main(string[] args)
 		{
-			CreateWebHostBuilder(args).Build().Run();
+			Log.Logger = SeriLogger.GetLoggerConfiguration().CreateLogger();
+			try
+			{
+				CreateHostBuilder(args).Build().Run();
+			}
+			catch (Exception ex)
+			{
+				Log.Fatal(ex, "Application start-up failed");
+			}
+			finally
+			{
+				Log.CloseAndFlush();
+			}			
 		}
 
-		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-			WebHost.CreateDefaultBuilder(args)
-				.UseStartup<Startup>();
+		public static IHostBuilder CreateHostBuilder(string[] args) =>
+			Host.CreateDefaultBuilder(args)
+				.UseSerilog() 
+				.ConfigureWebHostDefaults(webBuilder =>
+				{
+					webBuilder.UseStartup<Startup>();
+				});
 	}
-
-	//public class Program
-	//{
-	//	public static void Main(string[] args)
-	//	{
-	//		Func<IHostingEnvironment, IConfigurationBuilder> configurationFactory = env =>
-	//			new ConfigurationBuilder()
-	//				.SetBasePath(env.ContentRootPath)
-	//				.AddEnvironmentVariables()
-	//				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-	//				//.AddJsonFile($"appsettings.{environmentName}.json", optional: true)
-	//				.AddUserSecrets(Assembly.GetAssembly(typeof(Startup)));
-
-	//		var startup = new Startup("AuthorisationAPI", configurationFactory, ProductionDependencies.AddProductionDependencies);
-
-	//		var builder = new WebHostBuilder()
-	//			.UseKestrel()
-	//			.UseContentRoot(Directory.GetCurrentDirectory())
-	//			.ConfigureServices(services => services.TryAddSingleton<IStartup>(startup));
-
-	//		using (var host = builder.Build())
-	//		{
-	//			host.Run();
-	//		}
-	//	}
-
-	//}
 }
-
-

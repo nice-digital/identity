@@ -23,7 +23,7 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		public List<User> GetUsers()
+		public List<User> GetUsers(string filter)
 		{
 			throw new NotImplementedException();
 		}
