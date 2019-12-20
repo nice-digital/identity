@@ -25,7 +25,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Task<int> DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
         UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
-        UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
+        Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
         List<UserRole> GetRolesForUser(int userId);
         List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 
@@ -234,7 +234,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return userRolesByWebsite;
         }
 
-        public UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
+        public async Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
         {
             var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
             if (user == null)
@@ -297,7 +297,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                         _context.UserRoles.Add(userRoleToCreate);
                     }
                 });
-                _context.SaveChanges();
+
+				await _providerManagementService.RevokeRefreshTokensForUser(user.NameIdentifier);
+
+				_context.SaveChanges();
 
                 return GetRolesForUserByWebsite(userId,websiteId);
             }

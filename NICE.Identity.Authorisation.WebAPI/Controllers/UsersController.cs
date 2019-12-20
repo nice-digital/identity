@@ -298,7 +298,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [Consumes("application/json")]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public IActionResult UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
+		public async Task<IActionResult> UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
             [FromBody] UserRolesByWebsite userRolesByWebsite)
         {
             if (!ModelState.IsValid)
@@ -311,7 +311,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_usersService.UpdateRolesForUserByWebsite(userId, websiteId, userRolesByWebsite));
+                return Ok(await _usersService.UpdateRolesForUserByWebsite(userId, websiteId, userRolesByWebsite));
             }
             catch (Exception e)
             {

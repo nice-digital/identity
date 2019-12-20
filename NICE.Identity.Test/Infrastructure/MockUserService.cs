@@ -58,7 +58,7 @@ namespace NICE.Identity.Test.Infrastructure
             throw new NotImplementedException();
         }
 
-        public UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
+        public async Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
         {
             throw new NotImplementedException();
         }
