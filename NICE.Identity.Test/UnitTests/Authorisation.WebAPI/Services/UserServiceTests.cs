@@ -133,6 +133,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var usersFilterByEmailAddress = userService.GetUsers("user1@example.com");
             var usersFilterByNameIdentifier = userService.GetUsers("auth|user1");
             var usersFilterMultiple = userService.GetUsers("example.com");
+            var usersFilterWithFirstNameAndLastName = userService.GetUsers("Firstname1 Lastname1");
 
             //Assert
             context.Users.Count().ShouldBe(2);
@@ -152,6 +153,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             usersFilterMultiple.Count.ShouldBe(2);
             usersFilterMultiple.First().NameIdentifier.ShouldBe("auth|user1");
             usersFilterMultiple.Last().NameIdentifier.ShouldBe("auth|user2");
+
+            usersFilterWithFirstNameAndLastName.Count.ShouldBe(1);
+            usersFilterWithFirstNameAndLastName.Single().NameIdentifier.ShouldBe("auth|user1");
         }
 
         [Fact]
@@ -368,10 +372,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             userRoles.Count().ShouldBe(2);
-            userRoles.First().UserId.ShouldBe(1);
-            userRoles.First().RoleId.ShouldBe(1);
-            userRoles.Last().UserId.ShouldBe(1);
-            userRoles.Last().RoleId.ShouldBe(2);
+            userRoles.SingleOrDefault(ur => ur.UserId == 1 && ur.RoleId == 1).ShouldNotBeNull();
+            userRoles.SingleOrDefault(ur => ur.UserId == 1 && ur.RoleId == 2).ShouldNotBeNull();
         }
 
         [Fact]
