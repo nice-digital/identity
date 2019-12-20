@@ -1,27 +1,22 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.Configuration;
-using NICE.Identity.Authorisation.WebAPI.Services;
-using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.Extensions;
-using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
-using Microsoft.IdentityModel.Logging;
-using NICE.Identity.Authentication.Sdk.Domain;
-using NICE.Identity.Authorisation.WebAPI.Environments;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using NICE.Identity.Authentication.Sdk.Configuration;
+using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authentication.Sdk.Extensions;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
+using NICE.Identity.Authorisation.WebAPI.Environments;
+using NICE.Identity.Authorisation.WebAPI.Services;
+using System;
+using System.IO;
+using System.Reflection;
+using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -128,6 +123,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime appLifetime, ILogger<Startup> startupLogger)
 		{
+			startupLogger.LogInformation("Identity WebAPI starting up");
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -143,15 +139,13 @@ namespace NICE.Identity.Authorisation.WebAPI
 			app.UseStaticFiles(); //this line must be before UserRouting.
 			//app.UseCookiePolicy();
 
-
 			app.UseRouting();
 
 			app.UseCors(CorsPolicyName); //cors should be before UseAuthentication and UseEndpoints
 
 			app.UseAuthentication(); //this line must be in between UseRouting and UseEndpoints
-			app.UseAuthorization(); //TODO: not sure if we should have this or not.
+			app.UseAuthorization();
 			
-
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
