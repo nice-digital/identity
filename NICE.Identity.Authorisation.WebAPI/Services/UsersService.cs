@@ -104,7 +104,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			var users = _context.GetUsers(nameIdentifiers);
 			return users.ToDictionary(user => user.NameIdentifier,
 				user => user.UserRoles
-					.Where(userRole => userRole.Role.Website.Host.Equals(host, StringComparison.OrdinalIgnoreCase))
+					.Where(userRole => EF.Functions.Like(userRole.Role.Website.Host, host))
 					.Select(role => role.Role.Name));
 		}
 
@@ -226,7 +226,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 
             var userRoles = _context.UserRoles.Where((ur => ur.UserId == userId)).ToList();
-            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId)
+            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId).ToList()
                 .Select(role => new UserRoleDetailed()
                 {
                     Id = role.RoleId,

@@ -36,7 +36,7 @@ namespace NICE.Identity.Test.Infrastructure
 
 		public static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string nameIdentifier = "some auth0 userid")
 		{
-			context.Users.Add(new User(userId, nameIdentifier, firstName, lastName, true, true, null, null, true, null, true, true, true, true));
+			context.Users.Add(new User(userId, nameIdentifier, firstName, lastName, true, true, null, null, true, null, false, true, true, true));
 		}
 
         private static void AddTermsVersion(ref IdentityContext context, int creatorId = 1, int version = 1, DateTime? versionDate = null)

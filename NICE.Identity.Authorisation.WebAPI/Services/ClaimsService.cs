@@ -49,6 +49,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 return null;
 		    }
+
+		    if (user.IsLockedOut)
+		    {
+			    //it shouldn't be possible to hit this method if the user is locked out. 
+				_logger.LogError($"GetUser hit with locked out user. authenticationProviderUserId: '{authenticationProviderUserId}'");
+				throw new Exception("User is locked out"); 
+		    }
+
 			_context.UpdateUserLastLoggedInDate(user); //currently this method is only ever called when logging in, and populating the cookie with claims. if that changes, so should this.
 
 			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), AuthenticationConstants.IdAMIssuer));

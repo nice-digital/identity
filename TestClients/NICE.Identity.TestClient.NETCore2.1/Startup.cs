@@ -26,7 +26,7 @@ namespace NICE.Identity.TestClient.NetCore
 		{
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             var authConfiguration = new AuthConfiguration(Configuration, "WebAppConfiguration");
             services.AddAuthentication(authConfiguration);
