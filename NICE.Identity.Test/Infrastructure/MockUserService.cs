@@ -23,12 +23,12 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		public List<User> GetUsers(string filter)
+		public IList<User> GetUsers(string filter)
 		{
 			throw new NotImplementedException();
 		}
 
-		public List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
+		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
 		{
 			throw new NotImplementedException();
 		}
@@ -63,12 +63,12 @@ namespace NICE.Identity.Test.Infrastructure
             throw new NotImplementedException();
         }
 
-        public List<UserRole> GetRolesForUser(int userId)
+        public IList<UserRole> GetRolesForUser(int userId)
         {
             throw new NotImplementedException();
         }
 
-        public List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
+        public IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
         {
             throw new NotImplementedException();
         }
