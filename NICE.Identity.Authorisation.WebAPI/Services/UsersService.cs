@@ -18,16 +18,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	{
 		User CreateUser(User user);
 		User GetUser(int userId);
-		List<User> GetUsers(string filter);
-		List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
+		IList<User> GetUsers(string filter);
+		IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
 		Task<User> UpdateUser(int userId, User user);
         Task<int> DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
         UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
         UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
-        List<UserRole> GetRolesForUser(int userId);
-        List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
+        IList<UserRole> GetRolesForUser(int userId);
+        IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 
     }
 
@@ -79,21 +79,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return user != null ? new User(user) : null;
 		}
 
-		public List<User> GetUsers(string filter = null)
+		public IList<User> GetUsers(string filter = null)
 		{
-            if (!string.IsNullOrEmpty(filter))
-            {
-                return _context.Users.Select(user => new User(user))
-                    .Where(u => (u.FirstName != null && u.FirstName.ToLower().Contains(filter.ToLower()))
-                                || (u.LastName!= null && u.LastName.ToLower().Contains(filter.ToLower()))
-                                || (u.EmailAddress!= null && u.EmailAddress.ToLower().Contains(filter.ToLower()))
-                                || (u.NameIdentifier != null && u.NameIdentifier.ToLower().Contains(filter.ToLower())))
-                    .ToList();
+			if (!string.IsNullOrEmpty(filter))
+			{
+                return _context.Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
+                                || (u.LastName!= null && EF.Functions.Like(u.LastName, $"%{filter}%"))
+                                || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
+                                || (u.EmailAddress!= null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
+                                || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%")))
+	                .Select(user => new User(user)).ToList();
+
             }
             return _context.Users.Select(user => new User(user)).ToList();
 		}
 
-		public List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
+		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
 		{
 			return _context.Users.Where(user => nameIdentifiers.Contains(user.NameIdentifier)).Select(user =>
 				new UserDetails(user.NameIdentifier, user.DisplayName, user.EmailAddress)).ToList();
@@ -328,7 +329,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<UserRole> GetRolesForUser(int userId)
+        public IList<UserRole> GetRolesForUser(int userId)
         {
             var userRoles = _context.UserRoles
                 .Where((ur => ur.UserId == userId))
@@ -337,7 +338,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return userRoles;
         }
 
-        public List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
+        public IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
         {
             try
             {
@@ -364,9 +365,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to update user role {userId.ToString()} - exception: {e.InnerException.Message}");
-                throw new Exception(
-                    $"Failed to update user role {userId.ToString()} - exception: {e.InnerException.Message}");
+                _logger.LogError($"Failed to update user role {userId.ToString()} - exception: {e.ToString()}");
+                throw new Exception($"Failed to update user role {userId.ToString()} - exception: {e.ToString()}", e);
             }
         }
     }
