@@ -23,6 +23,7 @@
 		<PackageReference Include="Microsoft.Owin.Security" Version="4.1.0" />
 		<PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.1.0" />
 		<PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.1.0" />
+		<PackageReference Include="Kentor.OwinCookieSaver" Version="1.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>

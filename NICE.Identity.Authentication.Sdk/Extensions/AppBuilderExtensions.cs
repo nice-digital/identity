@@ -22,7 +22,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, RedisConfiguration redisConfiguration)
 		{
             // Enable Kentor Cookie Saver middleware
-            //app.UseKentorOwinCookieSaver();
+            app.UseKentorOwinCookieSaver();
+
+			
 			//var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
             // Set Cookies as default authentication type
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
