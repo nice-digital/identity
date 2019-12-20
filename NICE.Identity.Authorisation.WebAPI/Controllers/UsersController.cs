@@ -78,11 +78,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public IActionResult GetUsers()
+        public IActionResult GetUsers([FromQuery(Name = "q")] string filter)
 		{
 			try
 			{
-				return Ok(_usersService.GetUsers());
+				return Ok(_usersService.GetUsers(filter));
 			}
 			catch (Exception e)
 			{

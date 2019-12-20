@@ -18,7 +18,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	{
 		User CreateUser(User user);
 		User GetUser(int userId);
-		List<User> GetUsers();
+		List<User> GetUsers(string filter);
 		List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
 		Task<User> UpdateUser(int userId, User user);
@@ -79,9 +79,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return user != null ? new User(user) : null;
 		}
 
-		public List<User> GetUsers()
+		public List<User> GetUsers(string filter = null)
 		{
-			return _context.Users.Select(user => new User(user)).ToList();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                return _context.Users.Select(user => new User(user))
+                    .Where(u => (u.FirstName != null && u.FirstName.ToLower().Contains(filter.ToLower()))
+                                || (u.LastName!= null && u.LastName.ToLower().Contains(filter.ToLower()))
+                                || (u.EmailAddress!= null && u.EmailAddress.ToLower().Contains(filter.ToLower()))
+                                || (u.NameIdentifier != null && u.NameIdentifier.ToLower().Contains(filter.ToLower())))
+                    .ToList();
+            }
+            return _context.Users.Select(user => new User(user)).ToList();
 		}
 
 		public List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
@@ -108,7 +117,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					throw new Exception($"User not found {userId.ToString()}");
 
 				userToUpdate.UpdateFromApiModel(user);
-				await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+
+                if (userToUpdate.IsInAuthenticationProvider)
+                {
+                    await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+                }
 
 				_context.SaveChanges();
 				return new User(userToUpdate);
@@ -130,7 +143,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
 
 				_context.Users.RemoveRange(userToDelete);
-                await _providerManagementService.DeleteUser(userToDelete.NameIdentifier);
+
+                if (userToDelete.IsInAuthenticationProvider)
+                {
+                    await _providerManagementService.DeleteUser(userToDelete.NameIdentifier);
+                }
 
 				return _context.SaveChanges();
 			}
