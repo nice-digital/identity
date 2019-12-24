@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -24,7 +24,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             Description = role.Description;
         }
 
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public int? RoleId { get; set; }
         public int? WebsiteId { get; set; }
         public string Name { get; set; }
