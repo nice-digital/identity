@@ -2,20 +2,21 @@
 using System.Web.Mvc;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
+using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.TestClient.NETFramework.Controllers
 {
 	public class AccountController : Controller
 	{
-		public ActionResult Login(string returnUrl)
+		public ActionResult Login(string returnUrl, bool goToRegisterPage = false)
 		{
-			var test = Url.Action("Index", "Home");
             HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties
 				{
-                    RedirectUri = returnUrl ?? test,
-					IsPersistent = true
+                    RedirectUri = returnUrl ?? "/",
+					IsPersistent = true,
+					Dictionary = { { "register", goToRegisterPage.ToString().ToLower() } }
 				},
-				"Auth0");
+				AuthenticationConstants.AuthenticationScheme);
 			return new HttpUnauthorizedResult();
 		}
 
@@ -23,7 +24,7 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
 		public void Logout()
 		{
 			HttpContext.GetOwinContext().Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
-			HttpContext.GetOwinContext().Authentication.SignOut("Auth0");
+			HttpContext.GetOwinContext().Authentication.SignOut(AuthenticationConstants.AuthenticationScheme);
 		}
 
 		[Authorize]

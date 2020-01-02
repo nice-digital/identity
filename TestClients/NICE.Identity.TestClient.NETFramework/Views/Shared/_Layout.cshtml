@@ -19,11 +19,12 @@
                 @Html.ActionLink(".NET Framework test client", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-	            <ul class="nav navbar-nav">
-		            <li>@Html.ActionLink("Home", "Index", "Home")</li>
-		            <li>@Html.ActionLink("About", "About", "Home")</li>
-		            <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-	            </ul>
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("User Profile (authenticated)", "UserProfile", "Home")</li>
+                    <li>@Html.ActionLink("API Data (authenticated)", "ApiData", "Home")</li>
+	                <li>@Html.ActionLink("Editor Action (Editor role required)", "EditorAction", "Home")</li>
+                </ul>
 	            <ul class="nav navbar-nav navbar-right">
 		            @if (User.Identity.IsAuthenticated)
 		            {
@@ -39,6 +40,12 @@
     </div>
     <div class="container body-content">
         @RenderBody()
+        <p>
+	        <a href="@Url.Action("Login", "Account", new { returnUrl = "/home/userprofile"})">Here's a link that logs you in and then redirects you to the user profile page.</a>
+        </p>
+        <p>
+	        <a href="@Url.Action("Login", "Account", new { returnUrl = "/home/userprofile", goToRegisterPage = true})">Here's a link that sends you to the register page directly.</a>
+        </p>
         <hr />
         <footer>
             <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>

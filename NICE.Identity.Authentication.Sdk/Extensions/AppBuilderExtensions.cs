@@ -83,19 +83,20 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						
 					},
 
-                    RedirectToIdentityProvider = notification =>
+                    RedirectToIdentityProvider = async notification =>
 					{
 						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication)
 						{
-							if (!string.IsNullOrEmpty(authConfiguration.MachineToMachineSettings.ApiIdentifier))
-							{
-								notification.ProtocolMessage.SetParameter("audience", authConfiguration.MachineToMachineSettings.ApiIdentifier);
-							}
-
-							//TODO: implement this:
-							//if (notification.Properties.Items.ContainsKey("goToRegisterPage"))
+							//TODO: fix this:
+							//var authenticateResult = await notification.OwinContext.Authentication.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationType); //or should it be Auth0?
+							//var dictionary = authenticateResult.Properties.Dictionary;
+							//if (!string.IsNullOrEmpty(authConfiguration.MachineToMachineSettings.ApiIdentifier))
 							//{
-							//	context.ProtocolMessage.SetParameter("register", context.Properties.Items["goToRegisterPage"]);
+							//	notification.ProtocolMessage.SetParameter("audience", authConfiguration.MachineToMachineSettings.ApiIdentifier);
+							//}
+							//if (dictionary.ContainsKey("register"))
+							//{
+							//	notification.ProtocolMessage.SetParameter("register", dictionary["register"]);
 							//}
 						}
 						else if(notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
@@ -117,7 +118,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 							notification.Response.Redirect(logoutUri);
 							notification.HandleResponse();
 						}
-						return Task.FromResult(0);
 					}
 				}
 			});
