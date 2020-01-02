@@ -21,13 +21,13 @@ namespace NICE.Identity.TestClient.NETFramework
 			var secretsFile = JObject.Parse(File.ReadAllText(secretsPath));
 
 			var authConfiguration = new AuthConfiguration(
-				tenantDomain: secretsFile.SelectToken("AuthConfiguration")["Domain"].ToString(),
-				clientId: secretsFile.SelectToken("AuthConfiguration")["ClientId"].ToString(),
-				clientSecret: secretsFile.SelectToken("AuthConfiguration")["ClientSecret"].ToString(),
-				redirectUri: secretsFile.SelectToken("AuthConfiguration")["RedirectUri"].ToString(),
-				postLogoutRedirectUri: secretsFile.SelectToken("AuthConfiguration")["PostLogoutRedirectUri"].ToString(),
-				apiIdentifier: secretsFile.SelectToken("AuthConfiguration")["ApiIdentifier"].ToString(),
-                authorisationServiceUri: secretsFile.SelectToken("AuthConfiguration")["AuthorisationServiceUri"].ToString()
+				tenantDomain: secretsFile.SelectToken("WebAppConfiguration")["Domain"].ToString(),
+				clientId: secretsFile.SelectToken("WebAppConfiguration")["ClientId"].ToString(),
+				clientSecret: secretsFile.SelectToken("WebAppConfiguration")["ClientSecret"].ToString(),
+				redirectUri: secretsFile.SelectToken("WebAppConfiguration")["RedirectUri"].ToString(),
+				postLogoutRedirectUri: secretsFile.SelectToken("WebAppConfiguration")["PostLogoutRedirectUri"].ToString(),
+				apiIdentifier: secretsFile.SelectToken("WebAppConfiguration")["ApiIdentifier"].ToString(),
+                authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
 				);
 
 			var redisConfig = new RedisConfiguration
