@@ -30,15 +30,15 @@ namespace NICE.Identity.TestClient.NETFramework
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
 				);
 
-			var redisConfig = new RedisConfiguration
-			{
-				IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
-				Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString()),
-				Enabled = bool.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Enabled"].ToString())
-			};
+			//var redisConfig = new RedisConfiguration
+			//{
+			//	IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
+			//	Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString()),
+			//	Enabled = bool.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Enabled"].ToString())
+			//};
 
-			app.AddOwinAuthentication(authConfiguration, redisConfig);
-			
+			app.AddOwinAuthentication(authConfiguration);  //, redisConfig);
+
 		}
 	}
 }
