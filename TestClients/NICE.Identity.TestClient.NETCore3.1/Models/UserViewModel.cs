@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NICE.Identity.TestClient.NetCore.Models
+namespace NICE.Identity.TestClient.Models
 {
     public class UserViewModel
     {

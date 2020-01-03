@@ -62,7 +62,8 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				{
 					hosts.Add(request.Headers[AuthenticationConstants.HeaderForAddingAllRolesForWebsite]);
 				}
-				await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, hosts, context.User, client);
+				var claimsToAdd = await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, hosts, client);
+				context.User.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
 			}
 
 			if (context.User.Claims.Any(claim => claim.Type.Equals(ClaimType.Role) &&

@@ -1,4 +1,6 @@
-﻿namespace NICE.Identity.Authentication.Sdk.Domain
+﻿using System.Security.Claims;
+
+namespace NICE.Identity.Authentication.Sdk.Domain
 {
 	public static class ClaimType
 	{

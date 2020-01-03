@@ -10,7 +10,7 @@ using Microsoft.Extensions.Hosting;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 
-namespace NICE.Identity.TestClient.NetCore
+namespace NICE.Identity.TestClient
 {
 	public class Startup
 	{

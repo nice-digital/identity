@@ -15,7 +15,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
 	internal static class ClaimsHelper
 	{
-		internal static async Task AddClaimsToUser(IAuthConfiguration authConfiguration, string userId, string accessToken, IEnumerable<string> hosts, ClaimsPrincipal claimsPrincipal, HttpClient client)
+		internal static async Task<IList<System.Security.Claims.Claim>> AddClaimsToUser(IAuthConfiguration authConfiguration, string userId, string accessToken, IEnumerable<string> hosts, HttpClient client)
 		{
 			var uri = new Uri($"{authConfiguration.WebSettings.AuthorisationServiceUri}{Constants.AuthorisationURLs.GetClaims}{WebUtility.UrlEncode(userId)}");
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
@@ -32,10 +32,12 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				                                            hosts.Contains(claim.Issuer, StringComparer.OrdinalIgnoreCase)))
 					.Select(claim => new System.Security.Claims.Claim(claim.Type, claim.Value, null, claim.Issuer)).ToList();
 
-				if (claimsToAdd.Any())
-				{
-					claimsPrincipal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
-				}
+				return claimsToAdd;
+
+				//if (claimsToAdd.Any())
+				//{
+				//	claimsPrincipal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
+				//}
 			}
 			else
 			{

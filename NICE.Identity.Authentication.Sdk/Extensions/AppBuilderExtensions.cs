@@ -1,4 +1,8 @@
-﻿#if NETSTANDARD //This whole class is only used by .net framework. we target .net standard 2.0 which is compatible with .net framework 4.6.1
+﻿
+
+
+using Claim = System.Security.Claims.Claim;
+#if NETSTANDARD //This whole class is only used by .net framework. we target .net standard 2.0 which is compatible with .net framework 4.6.1
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;
@@ -13,6 +17,7 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using Owin;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -54,50 +59,51 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 				RedirectUri = authConfiguration.WebSettings.RedirectUri,
 				PostLogoutRedirectUri = authConfiguration.WebSettings.PostLogoutRedirectUri,
 
-				ResponseType = OpenIdConnectResponseType.CodeIdToken, //Denotes the kind of credential that Auth0 will return (code vs token). For this flow (hybrid), the value must be code id_token, code token, or code id_token token. More specifically, token returns an Access Token, id_token returns an ID Token, and code returns the Authorization Code.
+				ResponseType = OpenIdConnectResponseType.CodeIdTokenToken, //Denotes the kind of credential that Auth0 will return (code vs token). For this flow (hybrid), the value must be code id_token, code token, or code id_token token. More specifically, token returns an Access Token, id_token returns an ID Token, and code returns the Authorization Code.
 				Scope = "openid profile email offline_access",
 
 				TokenValidationParameters = new TokenValidationParameters
 				{
-					NameClaimType = "name"
+					NameClaimType = ClaimType.DisplayName,
+					RoleClaimType = ClaimType.Role
 				},
 				CallbackPath = new PathString(authConfiguration.WebSettings.CallBackPath ?? "/signin-auth0"), //if this isn't passed, then it's just worked out from the RedirectUri
 				SaveTokens = true,
+				
 				Notifications = new OpenIdConnectAuthenticationNotifications
 				{
+					AuthorizationCodeReceived = notification =>
+					{
+						
+						return Task.CompletedTask;
+					},
 					SecurityTokenValidated = async notification =>
 					{
-						//notification.AuthenticationTicket.Identity.AddClaim(new Claim("id_token", notification.ProtocolMessage.IdToken));
-						//notification.AuthenticationTicket.Identity.AddClaim(new Claim("access_token", notification.ProtocolMessage.AccessToken));
-
-						//TODO: validate this!
-
-						var accessToken = notification.ProtocolMessage.AccessToken;
-						var userId = notification.ProtocolMessage.UserId; 
+						var accessToken = notification.ProtocolMessage.AccessToken; //TODO: not sure this is right
+						var userId = notification.AuthenticationTicket.Identity.Claims.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.NameIdentifier))?.Value; 
 						var host = notification.Request.Host.Value;
 						var httpClientToUse = httpClient ?? new HttpClient();
-						ClaimsIdentity user = notification.AuthenticationTicket.Identity;
+						var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { host }, httpClientToUse);
 
-						//todo: need a ClaimsPrincipal, not ClaimsIdentity..
-						//await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { host }, notification.AuthenticationTicket.Identity, httpClientToUse);
-						
+						claimsToAdd.Add(new Claim("id_token", notification.ProtocolMessage.IdToken));
+						claimsToAdd.Add(new Claim("access_token", notification.ProtocolMessage.AccessToken));
+
+						notification.AuthenticationTicket.Identity.AddClaims(claimsToAdd);
 					},
 
-                    RedirectToIdentityProvider = async notification =>
+                    RedirectToIdentityProvider = notification =>
 					{
 						if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication)
 						{
-							//TODO: fix this:
-							//var authenticateResult = await notification.OwinContext.Authentication.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationType); //or should it be Auth0?
-							//var dictionary = authenticateResult.Properties.Dictionary;
-							//if (!string.IsNullOrEmpty(authConfiguration.MachineToMachineSettings.ApiIdentifier))
-							//{
-							//	notification.ProtocolMessage.SetParameter("audience", authConfiguration.MachineToMachineSettings.ApiIdentifier);
-							//}
-							//if (dictionary.ContainsKey("register"))
-							//{
-							//	notification.ProtocolMessage.SetParameter("register", dictionary["register"]);
-							//}
+							if (!string.IsNullOrEmpty(authConfiguration.MachineToMachineSettings.ApiIdentifier))
+							{
+								notification.ProtocolMessage.SetParameter("audience", authConfiguration.MachineToMachineSettings.ApiIdentifier);
+							}
+							var dictionary = notification.OwinContext.Authentication.AuthenticationResponseChallenge?.Properties.Dictionary;
+							if (dictionary != null && dictionary.ContainsKey("register"))
+							{
+								notification.ProtocolMessage.SetParameter("register", dictionary["register"]);
+							}
 						}
 						else if(notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
 						{
@@ -118,6 +124,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 							notification.Response.Redirect(logoutUri);
 							notification.HandleResponse();
 						}
+						return Task.FromResult(0);
 					}
 				}
 			});

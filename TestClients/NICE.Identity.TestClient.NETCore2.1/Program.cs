@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace NICE.Identity.TestClient.NetCore
+namespace NICE.Identity.TestClient
 {
 	public class Program
 	{
