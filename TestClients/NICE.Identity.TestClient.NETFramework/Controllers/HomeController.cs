@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.EnterpriseServices;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.API;
+using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.TestClient.NETFramework.Controllers
 {
@@ -18,16 +21,15 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
         private readonly string _authorisationServiceUri;
         private readonly string _authDomain;
         //private readonly IHttpClientFactory _clientFactory;
-        private readonly IAPIService _apiService;
+       // private readonly IAPIService _apiService;
 
-        //public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService)
-        //{
-        //    _clientFactory = clientFactory;
-        //    _apiService = apiService;
-        //    _apiIdentifier = configuration.GetSection("WebAppConfiguration").GetSection("ApiIdentifier").Value;
-        //    _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
-        //    _authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
-        //}
+        public HomeController()
+        {
+           // _apiService = apiService;
+            _apiIdentifier = ConfigurationManager.AppSettings["ApiIdentifier"];
+           // _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
+            //_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
+        }
 
         public ActionResult Index()
         {
@@ -75,32 +77,34 @@ namespace NICE.Identity.TestClient.NETFramework.Controllers
         [Authorize]
         public async Task<ActionResult> ApiData()
         {
-	        return View();
-	        //    var client = _clientFactory.CreateClient("HttpClient");
-	        //    var accessToken = await HttpContext.GetTokenAsync("access_token");
+	        var claimsIdentity = (ClaimsPrincipal)User;
+            
+            using (var client = new HttpClient())
+            {
+	            var accessToken = claimsIdentity.Claims.FirstOrDefault(claim => claim.Type.Equals(AuthenticationConstants.Tokens.AccessToken))?.Value;
 
-	        //    var request = new HttpRequestMessage()
-	        //    {
-	        //        RequestUri = new Uri($"{_apiIdentifier}/users"), //new Uri($"{_authorisationServiceUri}/api/users") , // new Uri($"{_apiIdentifier}/users"), //, //new Uri($"{_apiIdentifier}/users"), 
-	        //        Method = HttpMethod.Get,
-	        //        Headers = { Authorization = new AuthenticationHeaderValue("Bearer", accessToken) }
-	        //    };
+	            var request = new HttpRequestMessage()
+	            {
+		            RequestUri = new Uri($"{_apiIdentifier}/users"), //new Uri($"{_authorisationServiceUri}/api/users") , // new Uri($"{_apiIdentifier}/users"), //, //new Uri($"{_apiIdentifier}/users"), 
+		            Method = HttpMethod.Get,
+		            Headers = {Authorization = new AuthenticationHeaderValue("Bearer", accessToken)}
+	            };
 
-	        //    var response = await client.SendAsync(request);
-	        //    if (response.IsSuccessStatusCode)
-	        //    {
-	        //        var usersResponse = await response.Content.ReadAsStringAsync();
-	        //        var users = JsonConvert.DeserializeObject<List<UserViewModel>>(usersResponse);
-	        //        return View(users);
-	        //    }
-
-	        //    return View("Error");
+	            var response = await client.SendAsync(request);
+	            if (response.IsSuccessStatusCode)
+	            {
+		            var usersResponse = await response.Content.ReadAsStringAsync();
+		            var users = JsonConvert.DeserializeObject<List<NICE.Identity.TestClient.Models.UserViewModel>>(usersResponse);
+		            return View(users);
+	            }
+            }
+            return View("Error");
         }
 
         [Authorize(Roles= "Editor")]
         public ActionResult EditorAction()
         {
-            ViewData["Message"] = "This action only available to someone with the role: Editor";
+	        ViewBag.Message = "This action only available to someone with the role: Editor";
 
             return View("Index");
         }
