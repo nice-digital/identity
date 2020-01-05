@@ -24,15 +24,16 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	{
 		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, HttpClient httpClient = null) //, RedisConfiguration redisConfiguration)
 		{
-			var localHttpClient = httpClient ?? new HttpClient(); 
+			var localHttpClient = httpClient ?? new HttpClient();
 
-			// Enable Kentor Cookie Saver middleware
+			// Enable Kentor Cookie Saver middleware https://coding.abel.nu/2014/11/catching-the-system-webowin-cookie-monster/
 			app.UseKentorOwinCookieSaver();
 
+			//var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName); //redis removed for now.
 
-			//var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName);
 			// Set Cookies as default authentication type
 			app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
+
 			var options = new CookieAuthenticationOptions
 			{
 				AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
@@ -67,16 +68,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 								var refreshTokenResponse = await ClaimsHelper.UpdateAccessToken(authConfiguration, refreshToken, localHttpClient);
 								if (!refreshTokenResponse.Valid)
 								{
-									context.RejectIdentity();
+									context.RejectIdentity(); //refresh token has been revoked. this will happen when the user's roles are changed in the admin site.
 									return;
 								}
 
 								context.Properties.AllowRefresh = true;
-								//context.Properties.Dictionary[AuthenticationConstants.Tokens.AccessToken] = refreshTokenResponse.AccessToken; //update the access token.
 								var newExpiryDate = DateTime.UtcNow.AddSeconds(refreshTokenResponse.ExpiresInSeconds);
-								//context.Properties.Dictionary[AuthenticationConstants.Tokens.AccessTokenExpires] = newExpiryDate.ToString("o", CultureInfo.InvariantCulture);
 
-								//todo: unclear if the cookie will need renewing here.
 								var identity = context.Identity;
 
 								identity.TryRemoveClaim(identity.Claims.FirstOrDefault(claim => claim.Type.Equals(AuthenticationConstants.Tokens.AccessToken)));
@@ -89,13 +87,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 								identity.AddClaim(new Claim(AuthenticationConstants.Tokens.RefreshToken, refreshToken));
 
 								context.ReplaceIdentity(identity); 
-								//context.Request.Context.Authentication.SignIn(identity);
+								//context.Request.Context.Authentication.SignIn(identity); //alternate method. doesn't appear to be necessary.
 							}
 						}
 					}
 				}
 			};
-
 			app.UseCookieAuthentication(options);
 
 			// Configure Auth0 authentication
@@ -149,12 +146,10 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						{
 							if (!string.IsNullOrEmpty(authConfiguration.MachineToMachineSettings.ApiIdentifier))
 							{
-								notification.ProtocolMessage.SetParameter("audience",
-									authConfiguration.MachineToMachineSettings.ApiIdentifier);
+								notification.ProtocolMessage.SetParameter("audience", authConfiguration.MachineToMachineSettings.ApiIdentifier);
 							}
 
-							var dictionary = notification.OwinContext.Authentication.AuthenticationResponseChallenge
-								?.Properties.Dictionary;
+							var dictionary = notification.OwinContext.Authentication.AuthenticationResponseChallenge?.Properties.Dictionary;
 							if (dictionary != null && dictionary.ContainsKey("register"))
 							{
 								notification.ProtocolMessage.SetParameter("register", dictionary["register"]);
@@ -162,8 +157,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						}
 						else if (notification.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
 						{
-							var logoutUri =
-								$"https://{authConfiguration.TenantDomain}/v2/logout?client_id={authConfiguration.WebSettings.ClientId}";
+							var logoutUri = $"https://{authConfiguration.TenantDomain}/v2/logout?client_id={authConfiguration.WebSettings.ClientId}";
 
 							var postLogoutUri = notification.ProtocolMessage.PostLogoutRedirectUri;
 							if (!string.IsNullOrEmpty(postLogoutUri))
@@ -172,10 +166,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 								{
 									// transform to absolute
 									var request = notification.Request;
-									postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase +
-									                postLogoutUri;
+									postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
 								}
-
 								logoutUri += $"&returnTo={Uri.EscapeDataString(postLogoutUri)}";
 							}
 
@@ -190,5 +182,4 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		}
 	}
 }
-
 #endif

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using NICE.Identity.Authentication.Sdk;
@@ -30,6 +31,8 @@ namespace NICE.Identity.TestClient.NETFramework
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
 				);
 
+			IdentityModelEventSource.ShowPII = true;
+
 			//var redisConfig = new RedisConfiguration
 			//{
 			//	IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
@@ -38,6 +41,8 @@ namespace NICE.Identity.TestClient.NETFramework
 			//};
 
 			app.AddOwinAuthentication(authConfiguration);  //, redisConfig);
+
+			
 
 		}
 	}
