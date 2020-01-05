@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD //This whole class is only used by .net framework. we target .net standard 2.0 which is compatible with .net framework 4.6.1
+﻿#if NET452 //This whole class is only used by .net framework. we target .net standard 2.0 which is compatible with .net framework 4.6.1
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;

@@ -1,8 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
+		<TargetFrameworks>net452;netstandard2.0;netcoreapp3.1</TargetFrameworks>
 	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+		<PackageReference Include="Microsoft.Owin.Security" Version="4.1.0" />
+		<PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.1.0" />
+		<PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.1.0" />
+		<PackageReference Include="Kentor.OwinCookieSaver" Version="1.1.1" />
+	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -20,10 +27,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.1.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Authorization.Policy" Version="2.1.2" />
 	    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
-		<PackageReference Include="Microsoft.Owin.Security" Version="4.1.0" />
-		<PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.1.0" />
-		<PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.1.0" />
-		<PackageReference Include="Kentor.OwinCookieSaver" Version="1.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>

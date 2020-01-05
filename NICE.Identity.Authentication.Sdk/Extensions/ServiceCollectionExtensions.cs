@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -211,3 +212,4 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         }
     }
 }
+#endif

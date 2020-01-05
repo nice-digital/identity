@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Configuration;
@@ -106,3 +107,4 @@ namespace NICE.Identity.Authentication.Sdk.API
 		}
 	}
 }
+#endif

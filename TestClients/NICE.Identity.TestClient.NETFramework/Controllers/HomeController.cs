@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
-using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.TestClient.NETFramework.Controllers
