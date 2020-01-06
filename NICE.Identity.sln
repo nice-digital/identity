@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Test", "NICE.Identity.Test\NICE.Identity.Test.csproj", "{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.NetCore", "TestClients\NICE.Identity.TestClient.NETCore\NICE.Identity.TestClient.NetCore.csproj", "{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NETFramework", "TestClients\NICE.Identity.TestClient.NETFramework\NICE.Identity.TestClient.NETFramework.csproj", "{4C555E13-A02C-4529-AAFF-7DCAE97774AD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.React", "TestClients\NICE.Identity.TestClient.React\NICE.Identity.TestClient.React.csproj", "{E7DC7E68-5778-450A-BCBD-DA13B5221124}"
@@ -16,6 +14,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authorisation.WebAPI", "NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj", "{B90B1505-E44F-40E7-BDE6-882A2F1E653A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.Authentication.Sdk", "NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj", "{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.NetCore3.1", "TestClients\NICE.Identity.TestClient.NETCore3.1\NICE.Identity.TestClient.NetCore3.1.csproj", "{EC5B0A77-ECF0-4B6B-A311-822296A7BF9B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NICE.Identity.TestClient.NetCore2.1", "TestClients\NICE.Identity.TestClient.NETCore2.1\NICE.Identity.TestClient.NetCore2.1.csproj", "{A3C1BA9D-3AAC-4339-896C-F0A5AEBFBFA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +29,6 @@ Global
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5BD7E9C-6AC9-482B-A041-7A0ADF64D9E6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C555E13-A02C-4529-AAFF-7DCAE97774AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,14 +45,23 @@ Global
 		{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C693ABFD-4FA0-4006-BABE-B42DF5AFAFE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC5B0A77-ECF0-4B6B-A311-822296A7BF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC5B0A77-ECF0-4B6B-A311-822296A7BF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC5B0A77-ECF0-4B6B-A311-822296A7BF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC5B0A77-ECF0-4B6B-A311-822296A7BF9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3C1BA9D-3AAC-4339-896C-F0A5AEBFBFA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3C1BA9D-3AAC-4339-896C-F0A5AEBFBFA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3C1BA9D-3AAC-4339-896C-F0A5AEBFBFA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3C1BA9D-3AAC-4339-896C-F0A5AEBFBFA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{5EBDD7C0-66E0-4305-99E7-047DE29E8C4B} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 		{4C555E13-A02C-4529-AAFF-7DCAE97774AD} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 		{E7DC7E68-5778-450A-BCBD-DA13B5221124} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
+		{EC5B0A77-ECF0-4B6B-A311-822296A7BF9B} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
+		{A3C1BA9D-3AAC-4339-896C-F0A5AEBFBFA9} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03D45238-C53B-4C50-8057-FFBBF8579DC1}

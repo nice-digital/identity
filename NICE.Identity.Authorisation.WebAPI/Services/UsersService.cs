@@ -18,16 +18,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	{
 		User CreateUser(User user);
 		User GetUser(int userId);
-		List<User> GetUsers();
-		List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
+		IList<User> GetUsers(string filter);
+		IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
 		Task<User> UpdateUser(int userId, User user);
         Task<int> DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
         UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
-        UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
-        List<UserRole> GetRolesForUser(int userId);
-        List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
+        Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
+        IList<UserRole> GetRolesForUser(int userId);
+        IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 
     }
 
@@ -79,12 +79,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return user != null ? new User(user) : null;
 		}
 
-		public List<User> GetUsers()
+		public IList<User> GetUsers(string filter = null)
 		{
-			return _context.Users.Select(user => new User(user)).ToList();
+			if (!string.IsNullOrEmpty(filter))
+			{
+                return _context.Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
+                                || (u.LastName!= null && EF.Functions.Like(u.LastName, $"%{filter}%"))
+                                || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
+                                || (u.EmailAddress!= null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
+                                || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%")))
+	                .Select(user => new User(user)).ToList();
+
+            }
+            return _context.Users.Select(user => new User(user)).ToList();
 		}
 
-		public List<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
+		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
 		{
 			return _context.Users.Where(user => nameIdentifiers.Contains(user.NameIdentifier)).Select(user =>
 				new UserDetails(user.NameIdentifier, user.DisplayName, user.EmailAddress)).ToList();
@@ -95,7 +105,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			var users = _context.GetUsers(nameIdentifiers);
 			return users.ToDictionary(user => user.NameIdentifier,
 				user => user.UserRoles
-					.Where(userRole => userRole.Role.Website.Host.Equals(host, StringComparison.OrdinalIgnoreCase))
+					.Where(userRole => EF.Functions.Like(userRole.Role.Website.Host, host))
 					.Select(role => role.Role.Name));
 		}
 
@@ -108,7 +118,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					throw new Exception($"User not found {userId.ToString()}");
 
 				userToUpdate.UpdateFromApiModel(user);
-				await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+
+                if (userToUpdate.IsInAuthenticationProvider)
+                {
+                    await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+                }
 
 				_context.SaveChanges();
 				return new User(userToUpdate);
@@ -130,7 +144,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
 
 				_context.Users.RemoveRange(userToDelete);
-                await _providerManagementService.DeleteUser(userToDelete.NameIdentifier);
+
+                if (userToDelete.IsInAuthenticationProvider)
+                {
+                    await _providerManagementService.DeleteUser(userToDelete.NameIdentifier);
+                }
 
 				return _context.SaveChanges();
 			}
@@ -209,7 +227,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 return null;
 
             var userRoles = _context.UserRoles.Where((ur => ur.UserId == userId)).ToList();
-            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId)
+            var rolesByWebsite = _context.Roles.Where(r => r.WebsiteId == websiteId).ToList()
                 .Select(role => new UserRoleDetailed()
                 {
                     Id = role.RoleId,
@@ -234,7 +252,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return userRolesByWebsite;
         }
 
-        public UserRolesByWebsite UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
+        public async Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
         {
             var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
             if (user == null)
@@ -297,7 +315,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                         _context.UserRoles.Add(userRoleToCreate);
                     }
                 });
-                _context.SaveChanges();
+
+				await _providerManagementService.RevokeRefreshTokensForUser(user.NameIdentifier);
+
+				_context.SaveChanges();
 
                 return GetRolesForUserByWebsite(userId,websiteId);
             }
@@ -311,7 +332,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<UserRole> GetRolesForUser(int userId)
+        public IList<UserRole> GetRolesForUser(int userId)
         {
             var userRoles = _context.UserRoles
                 .Where((ur => ur.UserId == userId))
@@ -320,7 +341,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return userRoles;
         }
 
-        public List<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
+        public IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
         {
             try
             {
@@ -347,9 +368,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to update user role {userId.ToString()} - exception: {e.InnerException.Message}");
-                throw new Exception(
-                    $"Failed to update user role {userId.ToString()} - exception: {e.InnerException.Message}");
+                _logger.LogError($"Failed to update user role {userId.ToString()} - exception: {e.ToString()}");
+                throw new Exception($"Failed to update user role {userId.ToString()} - exception: {e.ToString()}", e);
             }
         }
     }

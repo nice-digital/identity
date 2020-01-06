@@ -105,6 +105,92 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
         
         [Fact]
+        public void Get_users_with_filter()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user1",
+                FirstName = "FirstName1",
+                LastName = "LastName1",
+                EmailAddress = "user1@example.com"
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user2",
+                FirstName = "FirstName2",
+                LastName = "LastName2",
+                EmailAddress = "user2@example.com"
+            });
+            context.SaveChanges();
+
+            //Act
+            var usersFilterByFirstName = userService.GetUsers("FirstName1");
+            var usersFilterByLastName = userService.GetUsers("LastName2");
+            var usersFilterByEmailAddress = userService.GetUsers("user1@example.com");
+            var usersFilterByNameIdentifier = userService.GetUsers("auth|user1");
+            var usersFilterMultiple = userService.GetUsers("example.com");
+            var usersFilterWithFirstNameAndLastName = userService.GetUsers("Firstname1 Lastname1");
+
+            //Assert
+            context.Users.Count().ShouldBe(2);
+
+            usersFilterByFirstName.Count.ShouldBe(1);
+            usersFilterByFirstName.First().NameIdentifier.ShouldBe("auth|user1");
+
+            usersFilterByLastName.Count.ShouldBe(1);
+            usersFilterByLastName.First().NameIdentifier.ShouldBe("auth|user2");
+
+            usersFilterByEmailAddress.Count.ShouldBe(1);
+            usersFilterByEmailAddress.First().NameIdentifier.ShouldBe("auth|user1");
+            
+            usersFilterByNameIdentifier.Count.ShouldBe(1);
+            usersFilterByNameIdentifier.First().NameIdentifier.ShouldBe("auth|user1");
+
+            usersFilterMultiple.Count.ShouldBe(2);
+            usersFilterMultiple.First().NameIdentifier.ShouldBe("auth|user1");
+            usersFilterMultiple.Last().NameIdentifier.ShouldBe("auth|user2");
+
+            usersFilterWithFirstNameAndLastName.Count.ShouldBe(1);
+            usersFilterWithFirstNameAndLastName.Single().NameIdentifier.ShouldBe("auth|user1");
+        }
+
+        [Fact]
+        public void Get_users_with_filter_not_found()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+            
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user1",
+                FirstName = "FirstName1",
+                LastName = "LastName1",
+                EmailAddress = "user1@example.com"
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|user2",
+                FirstName = "FirstName2",
+                LastName = "LastName2",
+                EmailAddress = "user2@example.com"
+            });
+            context.SaveChanges();
+
+            //Act
+            var usersFilterNotFound = userService.GetUsers("Name3");
+
+            //Assert
+            context.Users.Count().ShouldBe(2);
+            usersFilterNotFound.Count().ShouldBe(0);
+            usersFilterNotFound.ShouldNotBe(null);
+        }
+
+        [Fact]
         public async Task Update_user_that_already_exists()
         {
             //Arrange
@@ -269,12 +355,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            TestData.AddEnvironment(ref context, 1);
-            TestData.AddService(ref context, 1);
-            TestData.AddWebsite(ref context, 1, 1, 1);
-            TestData.AddRole(ref context, 1, 1, "TestRole1");
-            TestData.AddRole(ref context, 2, 1, "TestRole2");
-            TestData.AddUser(ref context, 1);
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1});
+            context.Services.Add(new DataModels.Service(){ServiceId = 1});
+            context.Websites.Add(new DataModels.Website(){WebsiteId = 1, ServiceId = 1, EnvironmentId = 1});
+            context.Roles.Add(new DataModels.Role() { RoleId = 1, Name = "TestRole1"});
+            context.Roles.Add(new DataModels.Role() { RoleId = 2, Name = "TestRole2"});
+            context.Users.Add(new DataModels.User(){UserId = 1});
             context.SaveChanges();
 
             //Act
@@ -286,8 +372,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             userRoles.Count().ShouldBe(2);
-            userRoles.Find(r => r.UserRoleId == 1).RoleId.ShouldBe(1);
-            userRoles.Find(r => r.UserRoleId == 2).RoleId.ShouldBe(2);
+            userRoles.SingleOrDefault(ur => ur.UserId == 1 && ur.RoleId == 1).ShouldNotBeNull();
+            userRoles.SingleOrDefault(ur => ur.UserId == 1 && ur.RoleId == 2).ShouldNotBeNull();
         }
 
         [Fact]

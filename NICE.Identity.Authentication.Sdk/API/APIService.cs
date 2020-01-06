@@ -6,6 +6,7 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -85,7 +86,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 				throw new Exception("Access token not found");
 
 			var client = httpClient ?? new HttpClient();
-			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindRolesFullPath}{host}");
+			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindRolesFullPath}{WebUtility.UrlEncode(host)}");
 
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
 			{

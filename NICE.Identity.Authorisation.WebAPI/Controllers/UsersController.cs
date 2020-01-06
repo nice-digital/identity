@@ -78,11 +78,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public IActionResult GetUsers()
+        public IActionResult GetUsers([FromQuery(Name = "q")] string filter)
 		{
 			try
 			{
-				return Ok(_usersService.GetUsers());
+				return Ok(_usersService.GetUsers(filter));
 			}
 			catch (Exception e)
 			{
@@ -140,13 +140,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			}
 		}
 
-		/// <summary>
-		/// returns a dictionary of all the users supplied along with a list of their available roles.
-		/// </summary>
-		/// <param name="nameIdentifiers">this is the auth0UserId aka the "Name identifier"</param>
-		/// <returns></returns>
-		[HttpPost( Constants.AuthorisationURLs.FindRolesRoute +"{host}")]
-		[ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
+        /// <summary>
+        /// FindRoles - gets a list of the all the roles for the given users for the given host
+        /// </summary>
+        /// <param name="nameIdentifiers"></param>
+        /// <param name="host"></param>
+        /// <returns></returns>
+        [HttpPost( Constants.AuthorisationURLs.FindRolesRoute + "{host}")]
+        [ProducesResponseType(typeof(Dictionary<string, IEnumerable<string>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration + "," + Policies.API.RolesWithAccessToUserProfilesPlaceholder)]
@@ -298,7 +299,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [Consumes("application/json")]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public IActionResult UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
+		public async Task<IActionResult> UpdateRolesForUserByWebsite([FromRoute] int userId, [FromRoute] int websiteId, 
             [FromBody] UserRolesByWebsite userRolesByWebsite)
         {
             if (!ModelState.IsValid)
@@ -311,7 +312,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(_usersService.UpdateRolesForUserByWebsite(userId, websiteId, userRolesByWebsite));
+                return Ok(await _usersService.UpdateRolesForUserByWebsite(userId, websiteId, userRolesByWebsite));
             }
             catch (Exception e)
             {

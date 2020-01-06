@@ -1,25 +1,22 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.Configuration;
-using NICE.Identity.Authorisation.WebAPI.Services;
-using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using NICE.Identity.Authentication.Sdk.Configuration;
-using NICE.Identity.Authentication.Sdk.Extensions;
-using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.OpenApi.Models;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authentication.Sdk.Extensions;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Environments;
+using NICE.Identity.Authorisation.WebAPI.Services;
+using System;
+using System.IO;
+using System.Reflection;
+using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -48,7 +45,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddDbContext<IdentityContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-			services.TryAddSingleton<ISeriLogger, SeriLogger>();
+			//services.TryAddSingleton<ISeriLogger, SeriLogger>();
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IJobsService, JobsService>();
@@ -58,18 +55,19 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddTransient<IRolesService, RolesService>();
             services.AddTransient<IUserRolesService, UserRolesService>();
             services.AddTransient<IProviderManagementService, Auth0ManagementService>();
+            services.AddHttpClient(); //this adds http client factory for use in DI
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			services.AddRouting(options => options.LowercaseUrls = true);
 
 			services.AddAuthentication(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
             services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
 			//services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
 
-            services.AddRouting(options => options.LowercaseUrls = true);
+			services.AddControllers();
 
-            services.AddSwaggerGen(options =>
+			services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc(ApiVersion, new Info
+                options.SwaggerDoc(ApiVersion, new OpenApiInfo
                 {
                     Title = ApiTitle, 
                     Version = ApiVersion,
@@ -78,15 +76,26 @@ namespace NICE.Identity.Authorisation.WebAPI
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
-                options.AddSecurityDefinition(AuthenticationConstants.JWTAuthenticationScheme, new ApiKeyScheme{
-                    In = "header",
+                options.AddSecurityDefinition(AuthenticationConstants.JWTAuthenticationScheme, new OpenApiSecurityScheme
+				{
+                    In = ParameterLocation.Header,
                     Description = "Enter into the field the word '" + AuthenticationConstants.JWTAuthenticationScheme+ "' followed by space and the JWT token",
                     Name = "Authorization", 
-                    Type = "apiKey"
+                    Type = SecuritySchemeType.ApiKey
                 });
-                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
-                    { AuthenticationConstants.JWTAuthenticationScheme, Enumerable.Empty<string>() },
-                });
+				options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+				   {
+					 new OpenApiSecurityScheme
+					 {
+					   Reference = new OpenApiReference
+					   {
+						 Type = ReferenceType.SecurityScheme,
+						 Id = AuthenticationConstants.JWTAuthenticationScheme
+					   }
+					  },
+					  new string[] { }
+					}
+				  });
             });
 
 			services.ConfigureSwaggerGen(c =>
@@ -113,10 +122,9 @@ namespace NICE.Identity.Authorisation.WebAPI
         }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ISeriLogger seriLogger, IApplicationLifetime appLifetime)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime appLifetime, ILogger<Startup> startupLogger)
 		{
-			seriLogger.Configure(loggerFactory, Configuration, appLifetime, env);
-			var startupLogger = loggerFactory.CreateLogger<Startup>();
+			startupLogger.LogInformation("Identity WebAPI starting up");
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -129,26 +137,28 @@ namespace NICE.Identity.Authorisation.WebAPI
 			}
 
 			app.UseHttpsRedirection();
-			app.UseStaticFiles();
+			app.UseStaticFiles(); //this line must be before UserRouting.
 			//app.UseCookiePolicy();
-			app.UseAuthentication();
+
+			app.UseRouting();
+
+			app.UseCors(CorsPolicyName); //cors should be before UseAuthentication and UseEndpoints
+
+			app.UseAuthentication(); //this line must be in between UseRouting and UseEndpoints
+			app.UseAuthorization();
+			
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
+			});
 
 			app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
-                options.RoutePrefix = string.Empty; //this makes the route of the website use swagger
-                options.DisplayOperationId();
-                options.ShowExtensions();
-            });
-
-			app.UseCors(CorsPolicyName); //moving cors to before usemvc
-
-			app.UseMvc(routes =>
+			app.UseSwaggerUI(options =>
 			{
-				routes.MapRoute(
-					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
+				options.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
+				options.RoutePrefix = string.Empty; //this makes the route of the website use swagger
+				options.DisplayOperationId();
+				options.ShowExtensions();
 			});
 
 			try

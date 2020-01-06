@@ -1,15 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using NICE.Identity.Authorisation.WebAPI.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using NICE.Identity.Authorisation.WebAPI.DataModels;
-using NICE.Identity.Authorisation.WebAPI.Services;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
