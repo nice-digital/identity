@@ -11,6 +11,7 @@
 		<PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.1.0" />
 		<PackageReference Include="Kentor.OwinCookieSaver" Version="1.1.1" />
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
+		<PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

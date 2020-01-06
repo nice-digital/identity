@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Attributes;
 using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.TestClient.NETFramework461.Controllers
@@ -33,7 +34,7 @@ namespace NICE.Identity.TestClient.NETFramework461.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorise]
         public async Task<ActionResult> UserProfile()
         {
             //ViewData["IdToken"] = await HttpContext.GetTokenAsync("id_token");
@@ -71,7 +72,7 @@ namespace NICE.Identity.TestClient.NETFramework461.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorise]
         public async Task<ActionResult> ApiData()
         {
 	        var claimsIdentity = (ClaimsPrincipal)User;
@@ -98,7 +99,7 @@ namespace NICE.Identity.TestClient.NETFramework461.Controllers
             return View("Error");
         }
 
-        [Authorize(Roles= "Editor")]
+        [Authorise(Roles= "Editor")]
         public ActionResult EditorAction()
         {
 	        ViewBag.Message = "This action only available to someone with the role: Editor";

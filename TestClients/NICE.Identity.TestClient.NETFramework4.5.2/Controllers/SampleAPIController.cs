@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using NICE.Identity.Authentication.Sdk.Attributes;
 
 namespace NICE.Identity.TestClient.NETFramework452.Controllers
 {
@@ -18,7 +19,7 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
 		// GET /api/secured
 		[HttpGet]
 		[Route("secured")]
-		[Authorize(Roles = "Administrator")]
+		[AuthoriseApi(Roles = "Administrator")]
 		public IHttpActionResult SecuredAdministrator()
 		{
 
@@ -28,7 +29,7 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
 		// GET /api/secured-editor
 		[HttpGet]
 		[Route("secured-editor")]
-		[Authorize(Roles = "Editor")]
+		[AuthoriseApi(Roles = "Editor")]
 		public IHttpActionResult SecuredEditor()
 		{
 
