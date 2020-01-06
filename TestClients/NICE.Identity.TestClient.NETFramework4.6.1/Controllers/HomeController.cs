@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.EnterpriseServices;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Domain;
 
-namespace NICE.Identity.TestClient.NETFramework.Controllers
+namespace NICE.Identity.TestClient.NETFramework461.Controllers
 {
     public class HomeController : Controller
     {

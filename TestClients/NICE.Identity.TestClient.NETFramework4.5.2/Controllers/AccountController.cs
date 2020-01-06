@@ -4,7 +4,7 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using NICE.Identity.Authentication.Sdk.Domain;
 
-namespace NICE.Identity.TestClient.NETFramework.Controllers
+namespace NICE.Identity.TestClient.NETFramework452.Controllers
 {
 	public class AccountController : Controller
 	{

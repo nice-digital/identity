@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Web;
+﻿using System.Net;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using NICE.Identity.TestClient.NETFramework;
 
-namespace NICE.Identity.TestClient.NETFramework
+namespace NICE.Identity.TestClient.NETFramework452
 {
 	public class MvcApplication : System.Web.HttpApplication
 	{

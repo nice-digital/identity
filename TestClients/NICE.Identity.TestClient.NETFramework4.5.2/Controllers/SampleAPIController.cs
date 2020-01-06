@@ -1,6 +1,6 @@
 ﻿using System.Web.Http;
 
-namespace NICE.Identity.TestClient.NETFramework.Controllers
+namespace NICE.Identity.TestClient.NETFramework452.Controllers
 {
 	[RoutePrefix("api")]
 	public class SampleApiController : ApiController

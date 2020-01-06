@@ -4,14 +4,14 @@ using System.IO;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
-using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
+using NICE.Identity.TestClient.NETFramework461;
 using Owin;
 
-[assembly: OwinStartup(typeof(NICE.Identity.TestClient.NETFramework.Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 
-namespace NICE.Identity.TestClient.NETFramework
+namespace NICE.Identity.TestClient.NETFramework461
 {
 	public class Startup
 	{
