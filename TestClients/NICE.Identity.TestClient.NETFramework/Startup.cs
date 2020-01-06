@@ -31,7 +31,7 @@ namespace NICE.Identity.TestClient.NETFramework
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
 				);
 
-			IdentityModelEventSource.ShowPII = true;
+			IdentityModelEventSource.ShowPII = true; //show more detail on some auth errors. only set to true for dev/debug.
 
 			//var redisConfig = new RedisConfiguration
 			//{
