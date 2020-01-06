@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
+using System.Net;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
@@ -25,8 +27,8 @@ namespace NICE.Identity.TestClient.NETFramework
 				tenantDomain: secretsFile.SelectToken("WebAppConfiguration")["Domain"].ToString(),
 				clientId: secretsFile.SelectToken("WebAppConfiguration")["ClientId"].ToString(),
 				clientSecret: secretsFile.SelectToken("WebAppConfiguration")["ClientSecret"].ToString(),
-				redirectUri: secretsFile.SelectToken("WebAppConfiguration")["RedirectUri"].ToString(),
-				postLogoutRedirectUri: secretsFile.SelectToken("WebAppConfiguration")["PostLogoutRedirectUri"].ToString(),
+				redirectUri: ConfigurationManager.AppSettings["auth0:RedirectUri"],
+				postLogoutRedirectUri: ConfigurationManager.AppSettings["auth0:PostLogoutRedirectUri"],
 				apiIdentifier: secretsFile.SelectToken("WebAppConfiguration")["ApiIdentifier"].ToString(),
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
 				);
@@ -41,9 +43,6 @@ namespace NICE.Identity.TestClient.NETFramework
 			//};
 
 			app.AddOwinAuthentication(authConfiguration);  //, redisConfig);
-
-			
-
 		}
 	}
 }
