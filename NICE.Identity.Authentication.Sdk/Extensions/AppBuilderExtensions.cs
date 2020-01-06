@@ -1,4 +1,4 @@
-﻿#if NET452 //This whole class is only used by .net framework. 
+﻿#if NETFRAMEWORK //This whole class is only used by .net framework. 
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;

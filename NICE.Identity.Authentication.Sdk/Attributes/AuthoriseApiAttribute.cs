@@ -1,4 +1,5 @@
-﻿//using System;
+﻿//#if NETFRAMEWORK
+//using System;
 //using System.Web.Http.Controllers;
 
 //namespace NICE.Identity.Authentication.Sdk.Attributes
@@ -30,3 +31,4 @@
 //		}
 //	}
 //}
+//#endif
