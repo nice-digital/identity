@@ -75,9 +75,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return;
 			}
 			context.Fail();
-			//var authorizationFilterContext = context.Resource as AuthorizationFilterContext;
-			//authorizationFilterContext.Result = new JsonResult($"Permission denied. user:{context.User.Identity.Name} does not have role:{requirement.Role}") { StatusCode = 403 };
-			//context.Succeed(requirement);
 		}
     }
 }

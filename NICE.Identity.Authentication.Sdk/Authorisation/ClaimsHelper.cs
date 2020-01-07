@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Claim = NICE.Identity.Authentication.Sdk.Domain.Claim;
 
@@ -33,11 +32,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 					.Select(claim => new System.Security.Claims.Claim(claim.Type, claim.Value, null, claim.Issuer)).ToList();
 
 				return claimsToAdd;
-
-				//if (claimsToAdd.Any())
-				//{
-				//	claimsPrincipal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
-				//}
 			}
 			else
 			{

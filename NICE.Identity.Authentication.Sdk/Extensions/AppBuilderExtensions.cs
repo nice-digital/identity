@@ -119,7 +119,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 					RoleClaimType = ClaimType.Role
 				},
 				CallbackPath = new PathString(authConfiguration.WebSettings.CallBackPath ?? "/signin-auth0"), //if this isn't passed, then it's just worked out from the RedirectUri
-				SaveTokens = true, //stores tokens in the cookies. but not only accessible by the server, not the client
+				SaveTokens = true, //stores tokens in the cookies. but only accessible by the server, not the client
 
 				Notifications = new OpenIdConnectAuthenticationNotifications
 				{
