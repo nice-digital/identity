@@ -1,6 +1,7 @@
 ﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -74,6 +76,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 				options.Events = new CookieAuthenticationEvents
 				{
+					OnRedirectToAccessDenied = context =>
+					{
+						if (context.HttpContext.User.Identity.IsAuthenticated && !context.Response.HasStarted)
+						{
+							context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+						}
+                        return Task.CompletedTask;
+					},
 					OnValidatePrincipal = async (context) =>
 					{
 						//check to see if user is authenticated first
