@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -27,7 +27,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             Environment = website.Environment != null ? new Environment(website.Environment) : null;
         }
 
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public int? WebsiteId { get; set; }
         public int? ServiceId { get; set; }
         public int? EnvironmentId { get; set; }
