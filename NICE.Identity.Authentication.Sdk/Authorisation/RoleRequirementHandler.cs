@@ -72,6 +72,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 			                                     rolesRequired.Contains(claim.Value, StringComparer.OrdinalIgnoreCase)))
 			{
 		        context.Succeed(requirement);
+				return;
 			}
 			context.Fail();
 			//var authorizationFilterContext = context.Resource as AuthorizationFilterContext;
