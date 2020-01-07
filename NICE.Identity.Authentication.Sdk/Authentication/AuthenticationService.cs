@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -34,3 +35,4 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
         }
     }
 }
+#endif

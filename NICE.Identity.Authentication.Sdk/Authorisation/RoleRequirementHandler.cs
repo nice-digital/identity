@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
@@ -29,6 +30,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         {
 			if (!context.User.Identity.IsAuthenticated)
 			{
+				//context.Fail();
 				return;
 	        }
 
@@ -62,14 +64,18 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				{
 					hosts.Add(request.Headers[AuthenticationConstants.HeaderForAddingAllRolesForWebsite]);
 				}
-				await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, hosts, context.User, client);
+				var claimsToAdd = await ClaimsHelper.AddClaimsToUser(_authConfiguration, userId, authHeader.Parameter, hosts, client);
+				context.User.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
 			}
 
 			if (context.User.Claims.Any(claim => claim.Type.Equals(ClaimType.Role) &&
 			                                     rolesRequired.Contains(claim.Value, StringComparer.OrdinalIgnoreCase)))
 			{
 		        context.Succeed(requirement);
+				return;
 			}
-        }
+			context.Fail();
+		}
     }
 }
+#endif

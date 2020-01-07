@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
@@ -72,6 +76,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 				options.Events = new CookieAuthenticationEvents
 				{
+					OnRedirectToAccessDenied = context =>
+					{
+						if (context.HttpContext.User.Identity.IsAuthenticated && !context.Response.HasStarted)
+						{
+							context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+						}
+                        return Task.CompletedTask;
+					},
 					OnValidatePrincipal = async (context) =>
 					{
 						//check to see if user is authenticated first
@@ -127,7 +139,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 options.Scope.Add("offline_access");
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    NameClaimType = "name"
+                    NameClaimType = ClaimType.DisplayName,
+                    RoleClaimType = ClaimType.Role
                 };
                 // Set the callback path, so Auth0 will call back to http://URI/signin-auth0
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
@@ -142,7 +155,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     {
 						var accessToken = context.TokenEndpointResponse.AccessToken;
 						var userId = context.SecurityToken.Subject;
-						await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string>{ context.HttpContext.Request.Host.Host }, context.Principal, localClient);
+						var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string>{ context.HttpContext.Request.Host.Host }, localClient);
+						context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
@@ -208,3 +222,4 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         }
     }
 }
+#endif

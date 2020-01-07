@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using Microsoft.AspNetCore.Authorization;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -12,3 +13,4 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		}
 	}
 }
+#endif

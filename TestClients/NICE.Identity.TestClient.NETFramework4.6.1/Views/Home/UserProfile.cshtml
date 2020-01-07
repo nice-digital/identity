@@ -1,0 +1,29 @@
+﻿@using System.Security.Claims
+@{
+	ViewBag.Title = "User Profile";
+}
+<h2>User Profile for @User.Identity.Name</h2>
+<p>This page can only be accessed if the user is authenticated.</p>
+<h3>User Claims</h3>
+<p>
+	<ul>
+		@foreach (var claim in ((ClaimsPrincipal)User).Claims)
+		{
+			<li>@claim.Type : @claim.Value</li>
+		}
+		@*<li>IdToken: @ViewData["IdToken"]</li>
+		<li>AccessToken: @ViewData["AccessToken"]</li>
+		<li>AccessTokenExpires: @ViewData["AccessTokenExpires"]</li>
+		<li>TokenType: @ViewData["TokenType"]</li>
+		<li>RefreshToken: @ViewData["RefreshToken"]</li>*@
+	</ul>
+</p>
+
+<p>
+	<ul>
+		<li>Name identifier: @ViewData["Users.NameIdentifier"]</li>
+		<li>Display name: @ViewData["Users.DisplayName"]</li>
+		<li>Email address: @ViewData["Users.EmailAddress"]</li>
+		<li>Roles json: @ViewData["Roles"]</li>
+	</ul>
+</p>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
@@ -11,3 +12,4 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
         Task Logout(HttpContext context, string returnUrl);
     }
 }
+#endif

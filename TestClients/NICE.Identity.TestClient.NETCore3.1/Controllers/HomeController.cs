@@ -13,9 +13,9 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Extensions;
-using NICE.Identity.TestClient.NetCore.Models;
+using NICE.Identity.TestClient.Models;
 
-namespace NICE.Identity.TestClient.NetCore.Controllers
+namespace NICE.Identity.TestClient.Controllers
 {
     public class HomeController : Controller
     {
