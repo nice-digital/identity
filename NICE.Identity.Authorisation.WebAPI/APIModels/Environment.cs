@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -20,7 +20,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             Order = environment.Order;
         }
 
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public int EnvironmentId { get; set; }
         public string Name { get; set; }
         public int Order { get; set; }

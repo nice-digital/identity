@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
     public class VerificationEmail
     {
-	    [JsonProperty("user_id")]
+	    [JsonPropertyName("user_id")]
 		public string UserId { get; set; }
     }
 }

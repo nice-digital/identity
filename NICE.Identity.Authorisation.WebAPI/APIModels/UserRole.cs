@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -16,7 +16,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             UserId = userRole.UserId;
         }
 
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public int? UserRoleId { get; set; }
         public int? RoleId { get; set; }
         public int? UserId { get; set; }
