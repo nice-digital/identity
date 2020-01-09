@@ -25,12 +25,13 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 
         public async Task Logout(HttpContext context, string returnUrl = "/")
         {
+	        const bool forceHttps = true; 
 	        await context.SignOutAsync(AuthenticationConstants.AuthenticationScheme, new AuthenticationProperties
             {
                 // Indicate here where Auth0 should redirect the user after a logout.
                 // Note that the resulting absolute Uri must be whitelisted in the 
                 // **Allowed Logout URLs** settings for the client.
-                RedirectUri = (new Uri(context.Request.GetUri(), returnUrl)).AbsoluteUri
+                RedirectUri = (new Uri(context.Request.GetUri(forceHttps), returnUrl)).AbsoluteUri
             });
 
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
