@@ -12,8 +12,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 		/// <summary>
 		/// Gets http request Uri from request object.
+		///
+		/// This extension is based on the GetUri in Microsoft.ApplicationInsights.AspNetCore.Extensions.HttpRequestExtensions
+		/// https://github.com/Microsoft/ApplicationInsights-aspnetcore/blob/master/src/Microsoft.ApplicationInsights.AspNetCore/Extensions/HttpRequestExtensions.cs#L20
+		/// 
 		/// </summary>
 		/// <param name="request">The <see cref="HttpRequest"/>.</param>
+		/// <param name="forceHttps">if true the returned url uses the https scheme. if false, the original uri scheme is retained.</param>
 		/// <returns>A New Uri object representing request Uri.</returns>
 		public static Uri GetUri(this HttpRequest request, bool forceHttps = false)
 		{
