@@ -30,7 +30,7 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
                 // Indicate here where Auth0 should redirect the user after a logout.
                 // Note that the resulting absolute Uri must be whitelisted in the 
                 // **Allowed Logout URLs** settings for the client.
-                RedirectUri = (new Uri(context.Request.GetUri(true), returnUrl)).AbsoluteUri
+                RedirectUri = (new Uri(context.Request.GetUri(), returnUrl)).AbsoluteUri
             });
 
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
