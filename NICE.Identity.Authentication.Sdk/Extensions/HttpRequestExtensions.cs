@@ -15,7 +15,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		/// </summary>
 		/// <param name="request">The <see cref="HttpRequest"/>.</param>
 		/// <returns>A New Uri object representing request Uri.</returns>
-		public static Uri GetUri(this HttpRequest request)
+		public static Uri GetUri(this HttpRequest request, bool forceHttps = false)
 		{
 			if (request == null)
 			{
@@ -28,7 +28,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			}
 
 			return new Uri(string.Concat(
-				request.Scheme,
+				forceHttps ? Uri.UriSchemeHttps : request.Scheme,
 				"://",
 				request.Host.HasValue ? (request.Host.Value.IndexOf(Comma, StringComparison.Ordinal) > 0 ? MultipleHostName : request.Host.Value) : UnknownHostName,
 				request.Path.HasValue ? request.Path.Value : string.Empty,
