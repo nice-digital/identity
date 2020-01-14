@@ -25,10 +25,10 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
     public class UserRoleDetailed
     {
         [Required]
-        public int Id;
+        public int Id { get; set; }
         [Required]
-        public bool HasRole;
-        public string Name;
-        public string Description;
+        public bool HasRole { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 }
