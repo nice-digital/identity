@@ -18,15 +18,23 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
 	public class ImportUser
 	{
-		public Guid UserId { get; set; }
+		public string UserId { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string EmailAddress { get; set; }
 
 		public IList<ImportRole> Roles { get; set; }
 
-		public string NameIdentifier =>
-			$"{AuthenticationConstants.NameIdentifierDefaultPrefix}{UserId.ToString().ToLower()}";
+		public string NameIdentifier {
+			get
+			{
+				if (Guid.TryParse(UserId, out var userGuid))
+				{
+					return $"{AuthenticationConstants.NameIdentifierDefaultPrefix}{userGuid.ToString().ToLower()}";
+				}
+				return UserId;
+			}
+		}
 
 		public User AsUser => new DataModels.User()
 			{
