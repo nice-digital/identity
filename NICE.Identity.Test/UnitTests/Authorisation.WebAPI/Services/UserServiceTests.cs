@@ -448,7 +448,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             {
                 new DataModels.ImportUser()
                 {
-                    UserId = Guid.NewGuid(),
+                    UserId = Guid.NewGuid().ToString(),
                     FirstName = "FirstName",
                     LastName = "LastName",
                     EmailAddress = "FirstName.LastName@nice.org.uk",

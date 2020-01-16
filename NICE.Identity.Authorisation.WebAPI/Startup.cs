@@ -22,6 +22,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 {
 	public class Startup
 	{
+		private readonly IWebHostEnvironment _env;
 		private const string ApiTitle = "NICE Identity API";
 		private const string ApiVersion = "v1";
         private const string ApiDescription = "NICE Identity API";
@@ -31,8 +32,9 @@ namespace NICE.Identity.Authorisation.WebAPI
         
         readonly string CorsPolicyName = "IdentityCorsPolicy";
 
-		public Startup(IConfiguration configuration)
+		public Startup(IConfiguration configuration, IWebHostEnvironment env)
 		{
+			_env = env;
 			Configuration = configuration;
 		}
 
@@ -65,47 +67,51 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			services.AddControllers();
 
-			services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc(ApiVersion, new OpenApiInfo
-                {
-                    Title = ApiTitle, 
-                    Version = ApiVersion,
-                    Description = ApiDescription
-                });
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
-                options.AddSecurityDefinition(AuthenticationConstants.JWTAuthenticationScheme, new OpenApiSecurityScheme
-				{
-                    In = ParameterLocation.Header,
-                    Description = "Enter into the field the word '" + AuthenticationConstants.JWTAuthenticationScheme+ "' followed by space and the JWT token",
-                    Name = "Authorization", 
-                    Type = SecuritySchemeType.ApiKey
-                });
-				options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-				   {
-					 new OpenApiSecurityScheme
-					 {
-					   Reference = new OpenApiReference
-					   {
-						 Type = ReferenceType.SecurityScheme,
-						 Id = AuthenticationConstants.JWTAuthenticationScheme
-					   }
-					  },
-					  new string[] { }
-					}
-				  });
-            });
-
-			services.ConfigureSwaggerGen(c =>
+			if (!_env.IsProduction())
 			{
-				c.CustomSchemaIds(x => x.FullName);
-			});
+				services.AddSwaggerGen(options =>
+				{
+					options.SwaggerDoc(ApiVersion, new OpenApiInfo
+					{
+						Title = ApiTitle,
+						Version = ApiVersion,
+						Description = ApiDescription
+					});
+					var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+					var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+					options.IncludeXmlComments(xmlPath);
+					options.AddSecurityDefinition(AuthenticationConstants.JWTAuthenticationScheme,
+						new OpenApiSecurityScheme
+						{
+							In = ParameterLocation.Header,
+							Description = "Enter into the field the word '" +
+							              AuthenticationConstants.JWTAuthenticationScheme +
+							              "' followed by space and the JWT token",
+							Name = "Authorization",
+							Type = SecuritySchemeType.ApiKey
+						});
+					options.AddSecurityRequirement(new OpenApiSecurityRequirement
+					{
+						{
+							new OpenApiSecurityScheme
+							{
+								Reference = new OpenApiReference
+								{
+									Type = ReferenceType.SecurityScheme,
+									Id = AuthenticationConstants.JWTAuthenticationScheme
+								}
+							},
+							new string[] { }
+						}
+					});
+				});
 
-            IdentityModelEventSource.ShowPII = true;
+				services.ConfigureSwaggerGen(c => { c.CustomSchemaIds(x => x.FullName); });
+			}
 
-            services.AddCors(options =>
+			IdentityModelEventSource.ShowPII = true;
+
+			services.AddCors(options =>
             {
                 options.AddPolicy(CorsPolicyName,
                     builder =>
@@ -122,10 +128,10 @@ namespace NICE.Identity.Authorisation.WebAPI
         }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime appLifetime, ILogger<Startup> startupLogger)
+		public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifetime, ILogger<Startup> startupLogger)
 		{
 			startupLogger.LogInformation("Identity WebAPI starting up");
-			if (env.IsDevelopment())
+			if (_env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
@@ -152,14 +158,17 @@ namespace NICE.Identity.Authorisation.WebAPI
 				endpoints.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			app.UseSwagger();
-			app.UseSwaggerUI(options =>
+			if (!_env.IsProduction())
 			{
-				options.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
-				options.RoutePrefix = string.Empty; //this makes the route of the website use swagger
-				options.DisplayOperationId();
-				options.ShowExtensions();
-			});
+				app.UseSwagger();
+				app.UseSwaggerUI(options =>
+				{
+					options.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiTitle);
+					options.RoutePrefix = string.Empty; //this makes the route of the website use swagger
+					options.DisplayOperationId();
+					options.ShowExtensions();
+				});
+			}
 
 			try
 			{

@@ -176,6 +176,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 				//create the user
 				var insertedUser = _context.CreateUser(userToImport.AsUser);
+				var userWithRoles = _context.GetUser(insertedUser.UserId);
 
 				//now to insert the roles
 				if (userToImport.Roles != null && userToImport.Roles.Any())
@@ -208,7 +209,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 								continue;
 							}
 						}
-						_context.AddUsersToRole(new List<DataModels.User> { insertedUser }, importRole.RoleId.Value);
+
+						if (!userWithRoles.UserRoles.Any(userRole => userRole.RoleId.Equals(importRole.RoleId.Value)))
+						{
+							_context.AddUsersToRole(new List<DataModels.User> { insertedUser }, importRole.RoleId.Value);
+                        }
+						else
+						{
+							_logger.LogWarning($"User: { insertedUser.UserId} already has role: {importRole.RoleName} for website: {importRole.WebsiteHost}");
+                        }
 					}
 				}
 			}
