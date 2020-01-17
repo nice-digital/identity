@@ -73,6 +73,11 @@ namespace NICE.Identity.Test.Infrastructure
             throw new NotImplementedException();
         }
 
+        public Task<int> DeleteAllUsers()
+        {
+	        throw new NotImplementedException();
+        }
+
         Task<User> IUsersService.UpdateUser(int userId, User user)
 		{
 			throw new NotImplementedException();
