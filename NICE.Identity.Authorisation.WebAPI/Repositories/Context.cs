@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 
@@ -44,15 +45,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
 		public User CreateUser(User user)
         {
-			//there might be multiple users with the same email address, e.g. if someone logs in with AD using the same email address as has been imported from nice accounts 
-			//so lookup with name identifier, which is unique
-            var foundUser = Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, user.NameIdentifier));
+			var foundUser = Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, user.NameIdentifier));
             if (foundUser != null)
             {
 	            return foundUser;
             }
 
-			user.InitialRegistrationDate = DateTime.UtcNow;
+            //if someone logs in with AD using the same email address as has been imported from nice accounts there will already be an existing record in the database with that email, but the nameidentifier will be wrong.
+            //in which case, update the nameidentifier this one time, set the last logged in date and update the database.
+            var foundUserByEmail = Users.FirstOrDefault(u => EF.Functions.Like(u.EmailAddress, user.EmailAddress));
+            if (foundUserByEmail != null && foundUserByEmail.IsMigrated && !foundUserByEmail.IsInAuthenticationProvider)
+            {
+	            foundUserByEmail.NameIdentifier = user.NameIdentifier;
+	            foundUserByEmail.IsInAuthenticationProvider = true;
+                foundUserByEmail.LastLoggedInDate = DateTime.UtcNow;
+                SaveChanges();
+	            return foundUserByEmail;
+            }
+
+            user.InitialRegistrationDate = DateTime.UtcNow;
             Users.Add(user);
             SaveChanges();
             return user;
@@ -63,6 +74,19 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 			user.LastLoggedInDate = DateTime.UtcNow;
 			Users.Update(user);
 			SaveChanges();
+		}
+
+        /// <summary>
+        /// This delete all users method is temporary. it also can only be called on non-production environments, by an admin.
+        /// </summary>
+        /// <returns></returns>
+		public async Task<int> DeleteAllUsers()
+		{
+			return await Database.ExecuteSqlRawAsync(@"
+				DELETE FROM UserAcceptedTermsVersion
+				DELETE FROM UserRoles
+				DELETE FROM Users
+			");
 		}
 
         #endregion

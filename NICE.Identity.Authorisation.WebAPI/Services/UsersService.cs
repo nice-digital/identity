@@ -28,8 +28,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
-
-    }
+        Task<int> DeleteAllUsers();
+	}
 
 	public class UsersService : IUsersService
 	{
@@ -381,5 +381,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 throw new Exception($"Failed to update user role {userId.ToString()} - exception: {e.ToString()}", e);
             }
         }
-    }
+
+        public async Task<int> DeleteAllUsers()
+        {
+	        return await _context.DeleteAllUsers();
+        }
+	}
 }
