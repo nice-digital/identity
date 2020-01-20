@@ -175,7 +175,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				}
 
 				//create the user
-				var insertedUser = _context.CreateUser(userToImport.AsUser);
+				var insertedUser = _context.CreateUser(userToImport.AsUser, importing: true);
 				var userWithRoles = _context.GetUser(insertedUser.UserId);
 
 				//now to insert the roles

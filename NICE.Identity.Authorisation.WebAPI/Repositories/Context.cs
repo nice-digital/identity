@@ -43,7 +43,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ToList();
         }
 
-		public User CreateUser(User user)
+		public User CreateUser(User user, bool importing = false)
         {
 			var foundUser = Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, user.NameIdentifier));
             if (foundUser != null)
@@ -57,8 +57,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             if (foundUserByEmail != null && foundUserByEmail.IsMigrated && !foundUserByEmail.IsInAuthenticationProvider)
             {
 	            foundUserByEmail.NameIdentifier = user.NameIdentifier;
-	            foundUserByEmail.IsInAuthenticationProvider = true;
-                foundUserByEmail.LastLoggedInDate = DateTime.UtcNow;
+	            if (!importing) //when importing don't set the isinauthentication provider flag explicitly. this is important so that when imports are run multiple times, the isinauthenticationprovider flag isn't mistakenly set to true.
+	            {
+		            foundUserByEmail.IsInAuthenticationProvider = true;
+	            }
+	            foundUserByEmail.LastLoggedInDate = DateTime.UtcNow;
                 Users.Update(foundUserByEmail);
                 SaveChanges();
 	            return foundUserByEmail;
