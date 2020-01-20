@@ -59,6 +59,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            foundUserByEmail.NameIdentifier = user.NameIdentifier;
 	            foundUserByEmail.IsInAuthenticationProvider = true;
                 foundUserByEmail.LastLoggedInDate = DateTime.UtcNow;
+                Users.Update(foundUserByEmail);
                 SaveChanges();
 	            return foundUserByEmail;
             }
