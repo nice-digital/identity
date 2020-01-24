@@ -67,7 +67,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			services.AddControllers();
 
-			if (!_env.IsProduction())
+			if (AppSettings.EnvironmentConfig.UseSwaggerUI)
 			{
 				services.AddSwaggerGen(options =>
 				{
@@ -158,7 +158,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 				endpoints.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			if (!_env.IsProduction())
+			if (AppSettings.EnvironmentConfig.UseSwaggerUI)
 			{
 				app.UseSwagger();
 				app.UseSwaggerUI(options =>
