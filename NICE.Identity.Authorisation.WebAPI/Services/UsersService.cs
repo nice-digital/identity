@@ -144,9 +144,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				if (userToDelete == null)
 					return 0;
                 var userRolesToDelete = _context.UserRoles.Where(u => u.UserId == userId);
-                
+                var userAcceptedTermsVersionToDelete = _context.UserAcceptedTermsVersions.Where(u => u.UserId == userId);
+
                 _context.UserRoles.RemoveRange(userRolesToDelete);
-				_context.Users.RemoveRange(userToDelete);
+                _context.UserAcceptedTermsVersions.RemoveRange(userAcceptedTermsVersionToDelete);
+                _context.Users.RemoveRange(userToDelete);
 
                 if (userToDelete.IsInAuthenticationProvider)
                 {
