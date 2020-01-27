@@ -8,7 +8,67 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
+	        migrationBuilder.Sql(@"
+				DECLARE @Sql NVARCHAR(500) DECLARE @Cursor CURSOR
+
+				SET @Cursor = CURSOR FAST_FORWARD FOR
+				SELECT DISTINCT sql = 'ALTER TABLE [' + tc2.TABLE_SCHEMA + '].[' +  tc2.TABLE_NAME + '] DROP [' + rc1.CONSTRAINT_NAME + '];'
+				FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc1
+				LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc2 ON tc2.CONSTRAINT_NAME =rc1.CONSTRAINT_NAME
+
+				OPEN @Cursor FETCH NEXT FROM @Cursor INTO @Sql
+
+				WHILE (@@FETCH_STATUS = 0)
+				BEGIN
+				Exec sp_executesql @Sql
+				FETCH NEXT FROM @Cursor INTO @Sql
+				END
+
+				CLOSE @Cursor DEALLOCATE @Cursor
+				GO
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'Environments'))
+				BEGIN
+				    DROP TABLE Environments
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'Services'))
+				BEGIN
+				    DROP TABLE [Services]
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'Users'))
+				BEGIN
+				    DROP TABLE Users
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'Websites'))
+				BEGIN
+				    DROP TABLE Websites
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'Roles'))
+				BEGIN
+				    DROP TABLE Roles
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'UserRoles'))
+				BEGIN
+				    DROP TABLE UserRoles
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'TermsVersions'))
+				BEGIN
+				    DROP TABLE TermsVersions
+				END
+
+				IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'UserAcceptedTermsVersion'))
+				BEGIN
+				    DROP TABLE UserAcceptedTermsVersion
+				END
+			");
+
+	        migrationBuilder.CreateTable(
                 name: "Environments",
                 columns: table => new
                 {
@@ -40,7 +100,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                 {
                     UserID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    NameIdentifier = table.Column<string>(maxLength: 100, nullable: false),
+                    Auth0UserId = table.Column<string>(maxLength: 100, nullable: false),
                     NICEAccountsID = table.Column<Guid>(nullable: true),
                     Title = table.Column<string>(maxLength: 50, nullable: true),
                     FirstName = table.Column<string>(maxLength: 100, nullable: true),
