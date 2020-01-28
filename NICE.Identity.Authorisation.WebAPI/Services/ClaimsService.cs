@@ -57,7 +57,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				throw new Exception("User is locked out"); 
 		    }
 
-			_context.UpdateUserLastLoggedInDate(user); //currently this method is only ever called when logging in, and populating the cookie with claims. if that changes, so should this.
+			_context.UpdateFieldsDueToLogin(user); //currently this method is only ever called when logging in, and populating the cookie with claims. if that changes, so should this.
 
 			claims.Add(new Claim(ClaimType.IdAMId, user.UserId.ToString(), AuthenticationConstants.IdAMIssuer));
 			claims.Add(new Claim(ClaimType.NameIdentifier, user.NameIdentifier, AuthenticationConstants.IdAMIssuer));
