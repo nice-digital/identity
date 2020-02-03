@@ -57,7 +57,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         //    return services;
         //}
 
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
+        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, string loginPath = "/account/login", string logoutPath = "/account/logout", HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -73,6 +73,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
             .AddCookie(options =>
             {
+		        options.LoginPath = new PathString(loginPath);
+		        options.LogoutPath = new PathString(logoutPath);
+
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 				options.Events = new CookieAuthenticationEvents
 				{
