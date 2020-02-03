@@ -77,6 +77,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		        options.LogoutPath = new PathString(logoutPath);
 
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
+	            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 				options.Events = new CookieAuthenticationEvents
 				{
 					OnRedirectToAccessDenied = context =>
