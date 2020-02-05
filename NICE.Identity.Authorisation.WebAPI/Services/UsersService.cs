@@ -130,9 +130,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e.Message} - {e.InnerException?.Message}");
-				throw new Exception(
-					$"Failed to update user {userId.ToString()} - exception: {e.Message} - {e.InnerException?.Message}");
+				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
+				throw new Exception($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
 			}
 		}
 
@@ -159,8 +158,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to delete user {userId.ToString()} - exception: {e.Message} - {e.InnerException?.Message}");
-				throw new Exception($"Failed to delete user {userId.ToString()} - exception: {e.Message} - {e.InnerException?.Message}");
+				_logger.LogError($"Failed to delete user {userId.ToString()} - exception: {e} - {e.InnerException}");
+				throw new Exception($"Failed to delete user {userId.ToString()} - exception: {e} - {e.InnerException}");
 			}
 		}
 
