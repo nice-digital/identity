@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.APIModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
@@ -18,7 +19,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	{
 		User CreateUser(User user);
 		User GetUser(int userId);
-		IList<User> GetUsers(string filter);
+		User GetUserWithRoles(int userId);
+        IList<User> GetUsers(string filter);
 		IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
 		Task<User> UpdateUser(int userId, User user);
@@ -79,7 +81,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return user != null ? new User(user) : null;
 		}
 
-		public IList<User> GetUsers(string filter = null)
+
+		public User GetUserWithRoles(int userId)
+		{
+			var user = _context.GetUser(userId);
+			return user != null ? new UserWithRoles(user) : null;
+		}
+
+        public IList<User> GetUsers(string filter = null)
 		{
 			if (!string.IsNullOrEmpty(filter))
 			{

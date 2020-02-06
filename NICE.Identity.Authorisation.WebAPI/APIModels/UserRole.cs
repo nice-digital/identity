@@ -14,12 +14,16 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             UserRoleId = userRole.UserRoleId;
             RoleId = userRole.RoleId;
             UserId = userRole.UserId;
+
+	        Role = userRole.Role != null ? new Role(userRole.Role) : null;
         }
 
         [JsonPropertyName("id")]
         public int? UserRoleId { get; set; }
         public int? RoleId { get; set; }
         public int? UserId { get; set; }
+
+        public Role Role { get; set; }
     }
     
     public class UserRoleDetailed

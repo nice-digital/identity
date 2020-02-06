@@ -22,6 +22,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             WebsiteId = role.WebsiteId;
             Name = role.Name;
             Description = role.Description;
+            Website = role.Website != null ? new Website(role.Website) : null;
         }
 
         [JsonPropertyName("id")]
@@ -29,5 +30,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         public int? WebsiteId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+
+        public Website Website { get; set; }
     }
 }

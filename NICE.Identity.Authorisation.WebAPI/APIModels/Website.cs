@@ -25,6 +25,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             EnvironmentId = website.EnvironmentId;
             Host = website.Host;
             Environment = website.Environment != null ? new Environment(website.Environment) : null;
+            Service = website.Service != null ? new Service(website.Service) : null;
         }
 
         [JsonPropertyName("id")]
@@ -32,6 +33,8 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         public int? ServiceId { get; set; }
         public int? EnvironmentId { get; set; }
         public string Host { get; set; }
+
         public Environment Environment { get; set; }
+        public Service Service { get; set; }
     }
 }
