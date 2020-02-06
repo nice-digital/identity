@@ -23,6 +23,11 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
+		public User GetUserWithRoles(int userId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public IList<User> GetUsers(string filter)
 		{
 			throw new NotImplementedException();
