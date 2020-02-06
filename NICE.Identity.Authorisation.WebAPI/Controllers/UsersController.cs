@@ -13,7 +13,6 @@ using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
-using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
@@ -212,7 +211,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             try
             {
                 await _usersService.DeleteUser(userId);
-                return Ok();
+                // In .NET Core 3.0 the OK / 200 object result returns no content instead of empty JSON.
+                // In HTTP a OK / 200 response always needs a payload.
+                // Invoking it with an empty object as a parameter will return an empty JSON object as the payload.
+                return Ok(new object());
             }
             catch (Exception e)
             {

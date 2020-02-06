@@ -113,7 +113,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		{
 			try
 			{
-				var userToUpdate = _context.GetUser(userId);
+				var userToUpdate = _context.Users.Find(userId);
+
 				if (userToUpdate == null)
 					throw new Exception($"User not found {userId.ToString()}");
 
@@ -129,9 +130,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e.InnerException.Message}");
-				throw new Exception(
-					$"Failed to update user {userId.ToString()} - exception: {e.InnerException.Message}");
+				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
+				throw new Exception($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
 			}
 		}
 
@@ -139,11 +139,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		{
 			try
 			{
-				var userToDelete = _context.GetUser(userId);
+				var userToDelete = _context.Users.Find(userId);
 				if (userToDelete == null)
 					return 0;
+                var userRolesToDelete = _context.UserRoles.Where(u => u.UserId == userId);
+                var userAcceptedTermsVersionToDelete = _context.UserAcceptedTermsVersions.Where(u => u.UserId == userId);
 
-				_context.Users.RemoveRange(userToDelete);
+                _context.UserRoles.RemoveRange(userRolesToDelete);
+                _context.UserAcceptedTermsVersions.RemoveRange(userAcceptedTermsVersionToDelete);
+                _context.Users.RemoveRange(userToDelete);
 
                 if (userToDelete.IsInAuthenticationProvider)
                 {
@@ -154,8 +158,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to delete user {userId.ToString()} - exception: {e.Message}");
-				throw new Exception($"Failed to delete user {userId.ToString()} - exception: {e.Message}");
+				_logger.LogError($"Failed to delete user {userId.ToString()} - exception: {e} - {e.InnerException}");
+				throw new Exception($"Failed to delete user {userId.ToString()} - exception: {e} - {e.InnerException}");
 			}
 		}
 
