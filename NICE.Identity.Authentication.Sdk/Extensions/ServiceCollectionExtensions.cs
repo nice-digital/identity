@@ -21,6 +21,8 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Redis;
+using NICE.Identity.Authentication.Sdk.SessionStore;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 
@@ -57,7 +59,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         //    return services;
         //}
 
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, string loginPath = "/account/login", string logoutPath = "/account/logout", HttpClient httpClient = null)
+        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, IRedisConfiguration redisConfiguration = null, string loginPath = "/account/login", string logoutPath = "/account/logout", HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -70,14 +72,19 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
+                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
             .AddCookie(options =>
             {
-		        options.LoginPath = new PathString(loginPath);
+		        options.LoginPath = new PathString(loginPath); //todo: move to appsettings
 		        options.LogoutPath = new PathString(logoutPath);
 
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 	            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+				if (redisConfiguration != null && redisConfiguration.Enabled)
+	            {
+		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = redisConfiguration.ConnectionString });
+                }
 				options.Events = new CookieAuthenticationEvents
 				{
 					OnRedirectToAccessDenied = context =>
@@ -87,47 +94,48 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 							context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
 						}
                         return Task.CompletedTask;
-					},
-					OnValidatePrincipal = async (context) =>
-					{
-						//check to see if user is authenticated first
-						if (context.Principal.Identity.IsAuthenticated)
-						{
-							//get the users tokens
-							var tokens = context.Properties.GetTokens().ToList();
-							var refreshToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.RefreshToken));
-							var accessToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessToken));
-							var accessTokenExpires = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessTokenExpires));
+                    },
+                    OnValidatePrincipal = async (context) =>
+                    {
+                        //check to see if user is authenticated first
+                        if (context.Principal.Identity.IsAuthenticated)
+                        {
+                            //get the users tokens
+                            var tokens = context.Properties.GetTokens().ToList();
+                            var refreshToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.RefreshToken));
+                            var accessToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessToken));
+                            var accessTokenExpires = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessTokenExpires));
 
-							if (string.IsNullOrEmpty(refreshToken?.Value) || string.IsNullOrEmpty(accessToken?.Value) || string.IsNullOrEmpty(accessTokenExpires?.Value)) //this should never really happen. it's just a safety check.
-							{ 
-								context.RejectPrincipal(); //reject will issue 401. if the client app allows anonymous, then they will simply be logged out. if the route needs authentication then they will be redirected back to the login page
-								return;
-							}
-							var expiryDateUtc = DateTime.Parse(accessTokenExpires.Value).ToUniversalTime(); //accessTokenExpires.Value contains a time like: "2019-12-08T13:00:43.8211482Z" the Z at the end indicates it's a UTC time. the DateTime.Parse converts it to local time. the ToUniversalTime converts back to UTC.
-							if (expiryDateUtc < DateTime.UtcNow)
-							{
-								//access token in the cookie has expired. There is a refresh token, so attempt to use the refresh token here and get another access token.
-								//this could still be rejected if the refresh token has been revoked at auth0.
-								var refreshTokenResponse = await ClaimsHelper.UpdateAccessToken(authConfiguration, refreshToken.Value, localClient);
-								if (!refreshTokenResponse.Valid)
-								{
-									context.RejectPrincipal(); //this should only be hit if the user's access has been revoked.
-									return;
-								}
-								accessToken.Value = refreshTokenResponse.AccessToken;
-								var newExpiryDate = DateTime.UtcNow.AddSeconds(refreshTokenResponse.ExpiresInSeconds);
-								accessTokenExpires.Value = newExpiryDate.ToString("o", CultureInfo.InvariantCulture);
-								context.Properties.StoreTokens(tokens);
-								context.ShouldRenew = true; //trigger context to renew cookie with new token values
-							}
-						}
-					}
-				};
+                            if (string.IsNullOrEmpty(refreshToken?.Value) || string.IsNullOrEmpty(accessToken?.Value) || string.IsNullOrEmpty(accessTokenExpires?.Value)) //this should never really happen. it's just a safety check.
+                            {
+                                context.RejectPrincipal(); //reject will issue 401. if the client app allows anonymous, then they will simply be logged out. if the route needs authentication then they will be redirected back to the login page
+                                return;
+                            }
+                            var expiryDateUtc = DateTime.Parse(accessTokenExpires.Value).ToUniversalTime(); //accessTokenExpires.Value contains a time like: "2019-12-08T13:00:43.8211482Z" the Z at the end indicates it's a UTC time. the DateTime.Parse converts it to local time. the ToUniversalTime converts back to UTC.
+                            if (expiryDateUtc < DateTime.UtcNow)
+                            {
+                                //access token in the cookie has expired. There is a refresh token, so attempt to use the refresh token here and get another access token.
+                                //this could still be rejected if the refresh token has been revoked at auth0.
+                                var refreshTokenResponse = await ClaimsHelper.UpdateAccessToken(authConfiguration, refreshToken.Value, localClient);
+                                if (!refreshTokenResponse.Valid)
+                                {
+                                    context.RejectPrincipal(); //this should only be hit if the user's access has been revoked.
+                                    return;
+                                }
+                                accessToken.Value = refreshTokenResponse.AccessToken;
+                                var newExpiryDate = DateTime.UtcNow.AddSeconds(refreshTokenResponse.ExpiresInSeconds);
+                                accessTokenExpires.Value = newExpiryDate.ToString("o", CultureInfo.InvariantCulture);
+                                context.Properties.StoreTokens(tokens);
+                                context.ShouldRenew = true; //trigger context to renew cookie with new token values
+                            }
+                        }
+                    }
+                };
 
-			})
-            .AddOpenIdConnect(AuthenticationConstants.AuthenticationScheme, options => {
-                // Set the authority to your Auth0 domain
+            })
+            .AddOpenIdConnect(AuthenticationConstants.AuthenticationScheme, options =>
+            {
+	            // Set the authority to your Auth0 domain
                 options.Authority = $"https://{authConfiguration.TenantDomain}";
                 // Configure the Auth0 Client ID and Client Secret
                 options.ClientId = authConfiguration.WebSettings.ClientId;
@@ -154,13 +162,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 // Saves tokens to the AuthenticationProperties
                 options.SaveTokens = true;
                 options.Events = new OpenIdConnectEvents
-                {
+                {  
                     OnTokenValidated = async (context) =>
                     {
-						var accessToken = context.TokenEndpointResponse.AccessToken;
-						var userId = context.SecurityToken.Subject;
-						var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string>{ context.HttpContext.Request.Host.Host }, localClient);
-						context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
+                        var accessToken = context.TokenEndpointResponse.AccessToken;
+                        var userId = context.SecurityToken.Subject;
+                        var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { context.HttpContext.Request.Host.Host }, localClient);
+                        context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
+                       // context.Success(); //this causes a loop
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
@@ -204,7 +213,6 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
-	        //System.Diagnostics.Debugger.Launch();
             services.TryAddSingleton(authConfig => authConfiguration);
 
             services.AddAuthentication()

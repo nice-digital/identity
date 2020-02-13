@@ -32,6 +32,11 @@ namespace NICE.Identity.TestClient.NETFramework461
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
 				);
 
+			var redisConfiguration = new RedisConfiguration(
+				ipConfig: secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
+				port: int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString()),
+				enabled: bool.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Enabled"].ToString()));
+
 			IdentityModelEventSource.ShowPII = true; //show more detail on some auth errors. only set to true for dev/debug.
 
 			//var redisConfig = new RedisConfiguration

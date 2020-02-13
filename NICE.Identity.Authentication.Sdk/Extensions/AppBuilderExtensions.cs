@@ -16,20 +16,23 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Owin.Security.DataHandler;
+using Microsoft.Owin.Security.DataProtection;
+using NICE.Identity.Authentication.Sdk.SessionStore;
 using Claim = System.Security.Claims.Claim;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, HttpClient httpClient = null) //, RedisConfiguration redisConfiguration)
+		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, IRedisConfiguration redisConfiguration = null, HttpClient httpClient = null) //, RedisConfiguration redisConfiguration)
 		{
 			var localHttpClient = httpClient ?? new HttpClient();
 
 			// Enable Kentor Cookie Saver middleware https://coding.abel.nu/2014/11/catching-the-system-webowin-cookie-monster/
 			app.UseKentorOwinCookieSaver();
 
-			//var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName); //redis removed for now.
+			var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName); //redis removed for now.
 
 			// Set Cookies as default authentication type
 			app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
@@ -37,7 +40,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			var options = new CookieAuthenticationOptions
 			{
 				AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
-				//  SessionStore = new RedisOwinSessionStore(new TicketDataFormat(dataProtector), redisConfiguration),
+				SessionStore = redisConfiguration != null && redisConfiguration.Enabled ? new RedisOwinSessionStore(new TicketDataFormat(dataProtector), redisConfiguration) : null,
 				CookieHttpOnly = true,
 				CookieSecure = CookieSecureOption.Always,
 				LoginPath = new PathString("/Account/Login"),
