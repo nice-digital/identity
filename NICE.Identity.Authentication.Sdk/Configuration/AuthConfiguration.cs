@@ -13,7 +13,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		IEnumerable<string> RolesWithAccessToUserProfiles { get; }
 		string LoginPath { get; }
 		string LogoutPath { get; }
-		RedisConfiguration RedisConfiguration { get; }
+		AuthConfiguration.RedisConfig RedisConfiguration { get; }
 	}
 
 	/// <summary>
@@ -21,6 +21,18 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	/// </summary>
 	public class AuthConfiguration : IAuthConfiguration
 	{
+		public class RedisConfig
+		{
+			public RedisConfig(bool enabled, string connectionString)
+			{
+				Enabled = enabled;
+				ConnectionString = connectionString;
+			}
+
+			public bool Enabled { get; private set; }
+			public string ConnectionString { get; private set; }
+		}
+
 #if NETSTANDARD2_0 || NETCOREAPP3_1
 		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
@@ -33,9 +45,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			LogoutPath = section["LogoutPath"];
 
 			var redisSection = configuration.GetSection(appSettingsSectionName + ":RedisServiceConfiguration");
-			RedisConfiguration = new RedisConfiguration(
-				ipConfig: redisSection["IpConfig"],
-				port: int.TryParse(redisSection["Port"], out var port) ? port : 6379,
+			RedisConfiguration = new RedisConfig(
 				enabled: bool.TryParse(redisSection["Enabled"], out var enabled) ? enabled : false,
 				connectionString: redisSection["ConnectionString"]
 			);
@@ -43,7 +53,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 #endif
 		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
 			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
-			string redisIpConfig = null, int? redisPort = null, bool redisEnabled = false, string redisConnectionString = null)
+			bool redisEnabled = false, string redisConnectionString = null)
 		{
 			TenantDomain = tenantDomain;
 			WebSettings = new WebSettingsType(clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri, callBackPath);
@@ -53,9 +63,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			LoginPath = loginPath;
 			LogoutPath = logoutPath;
 
-			RedisConfiguration = new RedisConfiguration(
-				ipConfig: redisIpConfig,
-				port: redisPort ?? 6379,
+			RedisConfiguration = new RedisConfig(
 				enabled: redisEnabled,
 				connectionString: redisConnectionString
 			);
@@ -113,6 +121,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			set => _logoutPath = value;
 		}
 
-		public RedisConfiguration RedisConfiguration { get; private set; }
+		public RedisConfig RedisConfiguration { get; private set; }
 	}
 }

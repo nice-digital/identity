@@ -25,7 +25,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{
-		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, IRedisConfiguration redisConfiguration = null, HttpClient httpClient = null) //, RedisConfiguration redisConfiguration)
+		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, HttpClient httpClient = null) //, RedisConfiguration redisConfiguration)
 		{
 			var localHttpClient = httpClient ?? new HttpClient();
 
@@ -38,7 +38,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			var options = new CookieAuthenticationOptions
 			{
 				AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
-				SessionStore = redisConfiguration != null && redisConfiguration.Enabled ? new RedisOwinSessionStore(new TicketDataFormat(app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName)), redisConfiguration) : null,
+				SessionStore = authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled ? new RedisOwinSessionStore(new TicketDataFormat(app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName)), authConfiguration.RedisConfiguration.ConnectionString) : null,
 				CookieHttpOnly = true,
 				CookieSecure = CookieSecureOption.Always,
 				LoginPath = new PathString("/Account/Login"),

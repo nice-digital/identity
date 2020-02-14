@@ -32,11 +32,11 @@ namespace NICE.Identity.TestClient.NETFramework461
 				postLogoutRedirectUri: ConfigurationManager.AppSettings["auth0:PostLogoutRedirectUri"], 
 				apiIdentifier: secretsFile.SelectToken("WebAppConfiguration")["ApiIdentifier"].ToString(),
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString(),
-				redisIpConfig: redisConfig["IpConfig"].ToString(),
-				redisPort: int.Parse(redisConfig["Port"].ToString()),
-				redisEnabled: bool.Parse(redisConfig["Enabled"].ToString())
+				redisEnabled: bool.Parse(redisConfig["Enabled"].ToString()),
+				redisConnectionString: redisConfig["ConnectionString"].ToString()
 				);
 
+			
 			IdentityModelEventSource.ShowPII = true; //show more detail on some auth errors. only set to true for dev/debug.
 
 			app.AddOwinAuthentication(authConfiguration); 

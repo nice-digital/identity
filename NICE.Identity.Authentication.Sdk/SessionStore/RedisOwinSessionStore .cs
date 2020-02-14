@@ -21,10 +21,10 @@ namespace NICE.Identity.Authentication.Sdk.SessionStore
         private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         private TicketDataFormat _formatter;
 
-        public RedisOwinSessionStore(TicketDataFormat formatter, IRedisConfiguration redisConfiguration)
+        public RedisOwinSessionStore(TicketDataFormat formatter, string redisConnectionString)
         {
             var serializer = new NewtonsoftSerializer(jsonSetting);
-            _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConfiguration.ConnectionString);
+            _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConnectionString);
             _formatter = formatter;
         }
 
