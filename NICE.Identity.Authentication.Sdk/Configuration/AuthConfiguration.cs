@@ -29,7 +29,9 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			WebSettings = new WebSettingsType(section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"], section["CallBackPath"]);
 			MachineToMachineSettings = new MachineToMachineSettingsType(section["ApiIdentifier"]);
 			RolesWithAccessToUserProfiles = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles").Get<string[]>() ?? new string[0];
-			
+			LoginPath = section["LoginPath"];
+			LogoutPath = section["LogoutPath"];
+
 			var redisSection = configuration.GetSection(appSettingsSectionName + ":RedisServiceConfiguration");
 			RedisConfiguration = new RedisConfiguration(
 				ipConfig: redisSection["IpConfig"],
@@ -40,13 +42,16 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		}
 #endif
 		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
-			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, 
+			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
 			string redisIpConfig = null, int? redisPort = null, bool redisEnabled = false, string redisConnectionString = null)
 		{
 			TenantDomain = tenantDomain;
 			WebSettings = new WebSettingsType(clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri, callBackPath);
 			MachineToMachineSettings = new MachineToMachineSettingsType(apiIdentifier);
 			RolesWithAccessToUserProfiles = rolesWithAccessToUserProfiles ?? new List<string>();
+
+			LoginPath = loginPath;
+			LogoutPath = logoutPath;
 
 			RedisConfiguration = new RedisConfiguration(
 				ipConfig: redisIpConfig,
@@ -94,8 +99,19 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 
 		public IEnumerable<string> RolesWithAccessToUserProfiles { get; }
 
-		public string LoginPath { get; set; } = "/account/login";
-		public string LogoutPath { get; set; } = "/account/logout";
+		private string _loginPath;
+		public string LoginPath
+		{
+			get => _loginPath ?? "/account/login";
+			set => _loginPath = value;
+		}
+
+		private string _logoutPath;
+		public string LogoutPath
+		{
+			get => _logoutPath ?? "/account/logout";
+			set => _logoutPath = value;
+		}
 
 		public RedisConfiguration RedisConfiguration { get; private set; }
 	}
