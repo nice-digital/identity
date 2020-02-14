@@ -27,8 +27,7 @@ namespace NICE.Identity.TestClient
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var authConfiguration = new AuthConfiguration(Configuration, "WebAppConfiguration");
-			var redisConfiguration = new RedisConfiguration(Configuration, "RedisServiceConfiguration");
-            services.AddAuthentication(authConfiguration, redisConfiguration);
+            services.AddAuthentication(authConfiguration);
             services.AddAuthorisation(new AuthConfiguration(Configuration, "WebAppConfiguration"));
 
 			// HttpClient with certificate validation returning true

@@ -1,8 +1,4 @@
-﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
-using Microsoft.Extensions.Configuration;
-#endif
-
-namespace NICE.Identity.Authentication.Sdk.Configuration
+﻿namespace NICE.Identity.Authentication.Sdk.Configuration
 {
 	public interface IRedisConfiguration
 	{
@@ -18,15 +14,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 
 	public class RedisConfiguration : IRedisConfiguration
 	{
-#if NETSTANDARD2_0 || NETCOREAPP3_1
-		public RedisConfiguration(IConfiguration configuration, string appSettingsSectionName)
-		{
-			var section = configuration.GetSection(appSettingsSectionName);
-			IpConfig = section["IpConfig"];
-			Port = int.TryParse(section["Port"], out var port) ? port : 6379;
-			Enabled = !string.IsNullOrEmpty(IpConfig) && bool.TryParse(section["Enabled"], out var enabled) ? enabled : false;
-		}
-#endif
 		public RedisConfiguration(string ipConfig, int port, bool enabled, string connectionString = null)
 		{
 			IpConfig = ipConfig;

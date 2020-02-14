@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +13,7 @@ using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
-//using StackExchange.Redis;
+using NICE.Identity.Authentication.Sdk.SessionStore;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,8 +22,6 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Redis;
-using NICE.Identity.Authentication.Sdk.SessionStore;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 
@@ -30,36 +29,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        //public static IServiceCollection AddRedisCacheSDK(this IServiceCollection services,
-        //                                                      IConfiguration configuration,
-        //                                                      string redisCacheServiceConfigurationPath,
-        //                                                      string clientName)
-        //{
-        //    services.Configure<RedisConfiguration>(configuration.GetSection(redisCacheServiceConfigurationPath));
-        //    var serviceProvider = services.BuildServiceProvider();
-        //    var redisConfiguration = serviceProvider.GetService<IOptions<RedisConfiguration>>().Value;
-
-        //    if (redisConfiguration.Enabled)
-        //    {
-        //        var redis = ConnectionMultiplexer.Connect(redisConfiguration.ConnectionString);
-
-        //        services.AddDataProtection()
-        //            .SetApplicationName(clientName)
-        //            .PersistKeysToStackExchangeRedis(redis, $"{Guid.NewGuid().ToString()}.Id-Keys");
-
-        //        services.AddSession(options =>
-        //        {
-        //            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        //            options.Cookie.Name = $"{clientName}.Session";
-        //            options.Cookie.HttpOnly = true;
-        //            options.IdleTimeout = TimeSpan.FromMinutes(10);
-        //        });
-        //    }
-
-        //    return services;
-        //}
-
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, IRedisConfiguration redisConfiguration = null, string loginPath = "/account/login", string logoutPath = "/account/logout", HttpClient httpClient = null)
+        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -76,14 +46,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             })
             .AddCookie(options =>
             {
-		        options.LoginPath = new PathString(loginPath); //todo: move to appsettings
-		        options.LogoutPath = new PathString(logoutPath);
+		        options.LoginPath = new PathString(authConfiguration.LoginPath);
+		        options.LogoutPath = new PathString(authConfiguration.LogoutPath);
 
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 	            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-				if (redisConfiguration != null && redisConfiguration.Enabled)
+				if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 	            {
-		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = redisConfiguration.ConnectionString });
+		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = authConfiguration.RedisConfiguration.ConnectionString });
                 }
 				options.Events = new CookieAuthenticationEvents
 				{
