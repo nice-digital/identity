@@ -1,6 +1,4 @@
 ﻿#if NETFRAMEWORK //This whole class is only used by .net framework. 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
@@ -9,9 +7,14 @@ using NICE.Identity.Authentication.Sdk.Configuration;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core;
 using StackExchange.Redis.Extensions.Newtonsoft;
+using System;
+using System.Threading.Tasks;
 
 namespace NICE.Identity.Authentication.Sdk.SessionStore
 {
+    /// <summary>
+    /// This class store the session info to the redis session store. It uses StackExchange.Redis, and is only used by .NET Framework (4.5.2 and 4.6.1 supported.)
+    /// </summary>
     public class RedisOwinSessionStore : IAuthenticationSessionStore
     {
         private readonly ICacheClient _cacheClient;
@@ -20,23 +23,14 @@ namespace NICE.Identity.Authentication.Sdk.SessionStore
 
         public RedisOwinSessionStore(TicketDataFormat formatter, IRedisConfiguration redisConfiguration)
         {
-	        //StackExchange.Redis.IConnectionMultiplexer mux = StackExchange.Redis.ConnectionMultiplexer.Connect(new ConfigurationOptions
-         //   {
-         //       DefaultVersion = new Version(3, 0, 503),
-         //       EndPoints = { { redisConfiguration.IpConfig, redisConfiguration.Port } },
-         //       AllowAdmin = true,
-         //       ConnectTimeout = 5000,
-         //       Ssl = false
-         //   });
             var serializer = new NewtonsoftSerializer(jsonSetting);
-            _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConfiguration.ConnectionString);// new StackExchangeRedisCacheClient(mux, serializer);
+            _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConfiguration.ConnectionString);
             _formatter = formatter;
         }
 
         public async Task RemoveAsync(string key)
         {
             await _cacheClient.RemoveAsync(key);
-
         }
 
         public async Task RenewAsync(string key, AuthenticationTicket ticket)
@@ -56,7 +50,6 @@ namespace NICE.Identity.Authentication.Sdk.SessionStore
             {
                 await _cacheClient.AddAsync(key, ticketData);
             }
-
         }
 
         public async Task<AuthenticationTicket> RetrieveAsync(string key)
@@ -72,7 +65,6 @@ namespace NICE.Identity.Authentication.Sdk.SessionStore
                 return null;
 
             return result;
-
         }
 
         public async Task<string> StoreAsync(AuthenticationTicket ticket)
@@ -87,7 +79,6 @@ namespace NICE.Identity.Authentication.Sdk.SessionStore
             await _cacheClient.AddAsync(ticketData.Key, ticketData, TimeSpan.FromSeconds(3600));
             return ticketData.Key;
         }
-
     }
 }
 #endif

@@ -8,6 +8,9 @@ using Microsoft.Extensions.Caching.Redis;
 
 namespace NICE.Identity.Authentication.Sdk.SessionStore
 {
+    /// <summary>
+    /// This class store the session info to the redis session store. It's only used by .NET Standard / .NET Core
+    /// </summary>
     public class RedisCacheTicketStore : ITicketStore
     {
         private const string KeyPrefix = "IdAM-";

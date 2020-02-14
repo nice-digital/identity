@@ -32,15 +32,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			// Enable Kentor Cookie Saver middleware https://coding.abel.nu/2014/11/catching-the-system-webowin-cookie-monster/
 			app.UseKentorOwinCookieSaver();
 
-			var dataProtector = app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName); //redis removed for now.
-
 			// Set Cookies as default authentication type
 			app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
 			var options = new CookieAuthenticationOptions
 			{
 				AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
-				SessionStore = redisConfiguration != null && redisConfiguration.Enabled ? new RedisOwinSessionStore(new TicketDataFormat(dataProtector), redisConfiguration) : null,
+				SessionStore = redisConfiguration != null && redisConfiguration.Enabled ? new RedisOwinSessionStore(new TicketDataFormat(app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName)), redisConfiguration) : null,
 				CookieHttpOnly = true,
 				CookieSecure = CookieSecureOption.Always,
 				LoginPath = new PathString("/Account/Login"),
@@ -111,7 +109,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 				RedirectUri = authConfiguration.WebSettings.RedirectUri,
 				PostLogoutRedirectUri = authConfiguration.WebSettings.PostLogoutRedirectUri,
 
-				ResponseType = OpenIdConnectResponseType.Code, //IdTokenToken, //Denotes the kind of credential that Auth0 will return (code vs token). For this flow (hybrid), the value must be code id_token, code token, or code id_token token. More specifically, token returns an Access Token, id_token returns an ID Token, and code returns the Authorization Code.
+				ResponseType = OpenIdConnectResponseType.Code, //Denotes the kind of credential that Auth0 will return (code vs token). For this flow (code), the value must be code id_token, code token, or code id_token token. More specifically, token returns an Access Token, id_token returns an ID Token, and code returns the Authorization Code.
 				ResponseMode = OpenIdConnectResponseMode.Query, //needed for authorisation code flow.
 				RedeemCode = true, //needed for authorisation code flow.
 				Scope = "openid profile email offline_access",
