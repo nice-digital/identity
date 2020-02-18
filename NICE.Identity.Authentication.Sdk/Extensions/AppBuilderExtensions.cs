@@ -41,6 +41,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 				SessionStore = authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled ? new RedisOwinSessionStore(new TicketDataFormat(app.CreateDataProtector(typeof(RedisAuthenticationTicket).FullName)), authConfiguration.RedisConfiguration.ConnectionString) : null,
 				CookieHttpOnly = true,
 				CookieSecure = CookieSecureOption.Always,
+                CookieSameSite = SameSiteMode.None,
 				LoginPath = new PathString("/Account/Login"),
 				Provider = new CookieAuthenticationProvider
 				{

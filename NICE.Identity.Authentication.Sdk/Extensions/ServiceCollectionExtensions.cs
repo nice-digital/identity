@@ -51,6 +51,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 	            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = SameSiteMode.None;
 				if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 	            {
 		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = authConfiguration.RedisConfiguration.ConnectionString });
