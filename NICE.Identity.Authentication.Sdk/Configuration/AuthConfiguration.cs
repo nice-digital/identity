@@ -11,6 +11,9 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		AuthConfiguration.WebSettingsType WebSettings { get; }
 		AuthConfiguration.MachineToMachineSettingsType MachineToMachineSettings { get; }
 		IEnumerable<string> RolesWithAccessToUserProfiles { get; }
+		string LoginPath { get; }
+		string LogoutPath { get; }
+		AuthConfiguration.RedisConfig RedisConfiguration { get; }
 	}
 
 	/// <summary>
@@ -18,6 +21,18 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 	/// </summary>
 	public class AuthConfiguration : IAuthConfiguration
 	{
+		public class RedisConfig
+		{
+			public RedisConfig(bool enabled, string connectionString)
+			{
+				Enabled = enabled;
+				ConnectionString = connectionString;
+			}
+
+			public bool Enabled { get; private set; }
+			public string ConnectionString { get; private set; }
+		}
+
 #if NETSTANDARD2_0 || NETCOREAPP3_1
 		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
@@ -26,14 +41,32 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			WebSettings = new WebSettingsType(section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"], section["CallBackPath"]);
 			MachineToMachineSettings = new MachineToMachineSettingsType(section["ApiIdentifier"]);
 			RolesWithAccessToUserProfiles = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles").Get<string[]>() ?? new string[0];
+			LoginPath = section["LoginPath"];
+			LogoutPath = section["LogoutPath"];
+
+			var redisSection = configuration.GetSection(appSettingsSectionName + ":RedisServiceConfiguration");
+			RedisConfiguration = new RedisConfig(
+				enabled: bool.TryParse(redisSection["Enabled"], out var enabled) ? enabled : false,
+				connectionString: redisSection["ConnectionString"]
+			);
 		}
 #endif
-		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null)
+		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
+			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
+			bool redisEnabled = false, string redisConnectionString = null)
 		{
 			TenantDomain = tenantDomain;
 			WebSettings = new WebSettingsType(clientId, clientSecret, redirectUri, postLogoutRedirectUri, authorisationServiceUri, callBackPath);
 			MachineToMachineSettings = new MachineToMachineSettingsType(apiIdentifier);
 			RolesWithAccessToUserProfiles = rolesWithAccessToUserProfiles ?? new List<string>();
+
+			LoginPath = loginPath;
+			LogoutPath = logoutPath;
+
+			RedisConfiguration = new RedisConfig(
+				enabled: redisEnabled,
+				connectionString: redisConnectionString
+			);
 		}
 
 		public string TenantDomain { get; }
@@ -73,5 +106,21 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		public MachineToMachineSettingsType MachineToMachineSettings { get; private set; }
 
 		public IEnumerable<string> RolesWithAccessToUserProfiles { get; }
+
+		private string _loginPath;
+		public string LoginPath
+		{
+			get => _loginPath ?? "/account/login";
+			set => _loginPath = value;
+		}
+
+		private string _logoutPath;
+		public string LogoutPath
+		{
+			get => _logoutPath ?? "/account/logout";
+			set => _logoutPath = value;
+		}
+
+		public RedisConfig RedisConfiguration { get; private set; }
 	}
 }
