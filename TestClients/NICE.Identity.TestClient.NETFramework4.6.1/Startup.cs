@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
@@ -23,7 +24,6 @@ namespace NICE.Identity.TestClient.NETFramework461
 			var secretsFile = JObject.Parse(File.ReadAllText(secretsPath));
 
 			var redisConfig = secretsFile.SelectToken("WebAppConfiguration.RedisServiceConfiguration");
-			
 			var authConfiguration = new AuthConfiguration(
 				tenantDomain: secretsFile.SelectToken("WebAppConfiguration")["Domain"].ToString(),
 				clientId: secretsFile.SelectToken("WebAppConfiguration")["ClientId"].ToString(),

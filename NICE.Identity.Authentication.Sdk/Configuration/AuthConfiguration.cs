@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-#if NETSTANDARD2_0 || NETCOREAPP3_1
+
+#if NETCOREAPP || NETSTANDARD //|| NET461
 using Microsoft.Extensions.Configuration;
 #endif
 
@@ -33,7 +34,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			public string ConnectionString { get; private set; }
 		}
 
-#if NETSTANDARD2_0 || NETCOREAPP3_1
+
 		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
@@ -50,7 +51,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 				connectionString: redisSection["ConnectionString"]
 			);
 		}
-#endif
+
 		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
 			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
 			bool redisEnabled = false, string redisConnectionString = null)

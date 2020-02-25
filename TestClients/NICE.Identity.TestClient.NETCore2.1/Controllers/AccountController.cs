@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿#if NETFRAMEWORK
+using System.Web.Mvc;
+#elif NETCOREAPP
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+#endif
 using NICE.Identity.Authentication.Sdk.Authentication;
 using System.Threading.Tasks;
+
 
 namespace NICE.Identity.TestClient.Controllers
 {
