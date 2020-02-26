@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-#if NETSTANDARD2_0 || NETCOREAPP3_1
+
+#if NET461 || NETSTANDARD2_0 || NETCOREAPP
 using Microsoft.Extensions.Configuration;
 #endif
 
@@ -33,14 +34,22 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			public string ConnectionString { get; private set; }
 		}
 
-#if NETSTANDARD2_0 || NETCOREAPP3_1
+#if NET461 || NETSTANDARD2_0 || NETCOREAPP
 		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
 			TenantDomain = section["Domain"];
 			WebSettings = new WebSettingsType(section["ClientId"], section["ClientSecret"], section["RedirectUri"], section["PostLogoutRedirectUri"], section["AuthorisationServiceUri"], section["CallBackPath"]);
 			MachineToMachineSettings = new MachineToMachineSettingsType(section["ApiIdentifier"]);
-			RolesWithAccessToUserProfiles = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles").Get<string[]>() ?? new string[0];
+
+			var rolesSection = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles");
+
+#if NET461
+			RolesWithAccessToUserProfiles = new List<string> {"todo! "}; //todo!
+#else
+			RolesWithAccessToUserProfiles = rolesSection.Get<string[]>() ?? new string[0];
+#endif
+
 			LoginPath = section["LoginPath"];
 			LogoutPath = section["LogoutPath"];
 
@@ -51,7 +60,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			);
 		}
 #endif
-		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
+			public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
 			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
 			bool redisEnabled = false, string redisConnectionString = null)
 		{
