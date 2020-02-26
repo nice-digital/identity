@@ -1,12 +1,21 @@
-﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
+
+#if NETFRAMEWORK
+using System.Web;
+using System.Web.Mvc;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Host.SystemWeb;
+#else
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+#endif
+
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {
@@ -15,17 +24,34 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 
         public async Task Login(HttpContext context, string returnUrl = "/", bool goToRegisterPage = false)
         {
-	        await context.ChallengeAsync(AuthenticationConstants.AuthenticationScheme,
+#if NETFRAMEWORK
+	        var owinContext = new HttpContextWrapper(context).GetOwinContext();
+	        owinContext.Authentication.Challenge(new AuthenticationProperties
+		        {
+			        RedirectUri = returnUrl ?? "/",
+			        IsPersistent = true,
+			        Dictionary = { { "register", goToRegisterPage.ToString().ToLower() } }
+		        },
+		        AuthenticationConstants.AuthenticationScheme);
+	        //return new HttpUnauthorizedResult(); //todo: not sure about this.
+#else
+            await context.ChallengeAsync(AuthenticationConstants.AuthenticationScheme,
 		        new AuthenticationProperties
 		        {
 			        RedirectUri = returnUrl,
 			        Items = {new KeyValuePair<string, string>(nameof(goToRegisterPage), goToRegisterPage.ToString().ToLower())}
 		        });
+#endif
         }
 
         public async Task Logout(HttpContext context, string returnUrl = "/")
         {
-	        const bool forceHttps = true; 
+#if NETFRAMEWORK
+	        var owinContext = new HttpContextWrapper(context).GetOwinContext();
+	        owinContext.Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
+	        owinContext.Authentication.SignOut(AuthenticationConstants.AuthenticationScheme);
+#else
+			const bool forceHttps = true; 
 	        await context.SignOutAsync(AuthenticationConstants.AuthenticationScheme, new AuthenticationProperties
             {
                 // Indicate here where Auth0 should redirect the user after a logout.
@@ -35,7 +61,7 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
             });
 
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        }
+#endif
+		}
     }
 }
-#endif

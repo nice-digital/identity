@@ -1,4 +1,4 @@
-﻿//#if NETSTANDARD2_0 || NETCOREAPP3_1
+﻿#if NETSTANDARD2_0
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -205,4 +205,4 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
         }
     }
 }
-//#endif
+#endif
