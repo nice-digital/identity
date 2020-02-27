@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
 
-#if NET452
+#if NETFRAMEWORK
 
 using System.Web;
 using System.Web.Mvc;

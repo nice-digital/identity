@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-#if NET461 || NETSTANDARD2_0 || NETCOREAPP
+#if !NET452
 using Microsoft.Extensions.Configuration;
 #endif
 
@@ -34,7 +34,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			public string ConnectionString { get; private set; }
 		}
 
-#if NET461 || NETSTANDARD2_0 || NETCOREAPP
+#if !NET452
 		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
@@ -44,12 +44,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 
 			var rolesSection = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles");
 
-#if NET461
-			RolesWithAccessToUserProfiles = new List<string> {"todo! "}; //todo!
-#else
 			RolesWithAccessToUserProfiles = rolesSection.Get<string[]>() ?? new string[0];
-#endif
-
 			LoginPath = section["LoginPath"];
 			LogoutPath = section["LogoutPath"];
 
@@ -60,7 +55,8 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			);
 		}
 #endif
-			public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
+
+		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
 			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
 			bool redisEnabled = false, string redisConnectionString = null)
 		{

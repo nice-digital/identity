@@ -12,13 +12,7 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 {
     public interface IAuthenticationService
     {
-        Task Login(
-#if NET452
-		System.Web.HttpContext context,
-#else
-		Microsoft.AspNetCore.Http.HttpContext context,
-#endif
-		string returnUrl, bool goToRegisterPage = false);
+        Task Login(HttpContext context,	string returnUrl, bool goToRegisterPage = false);
         Task Logout(HttpContext context, string returnUrl);
     }
 }
