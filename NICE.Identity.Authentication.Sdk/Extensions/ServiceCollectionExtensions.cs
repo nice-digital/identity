@@ -1,15 +1,7 @@
-﻿#if NETSTANDARD2_0
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Redis;
+﻿#if NETSTANDARD2_0 || NET461
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
-using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
@@ -25,18 +17,34 @@ using System.Threading.Tasks;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 
+
+#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Redis;
+using NICE.Identity.Authentication.Sdk.API;
+#endif
+
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
-    public static class ServiceCollectionExtensions
-    {
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
-        {
+	public static class ServiceCollectionExtensions
+	{
+		public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration,
+			HttpClient httpClient = null)
+		{
+#if NETSTANDARD2_0
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
+
             services.TryAddScoped<IAPIService, APIService>();
             services.AddHttpContextAccessor();
 	        services.AddHttpClient(); //this adds http client factory for use in DI services like RoleRequirementHandler
-			var localClient = httpClient ?? new HttpClient(); //this http client is used by this extension method only
+
+            var localClient = httpClient ?? new HttpClient(); //this http client is used by this extension method only
 
 			// Add authentication services
 			services.AddAuthentication(options => {
@@ -54,7 +62,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 options.Cookie.SameSite = SameSiteMode.None;
 				if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 	            {
-		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = authConfiguration.RedisConfiguration.ConnectionString });
+		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration =
+ authConfiguration.RedisConfiguration.ConnectionString });
                 }
 				options.Events = new CookieAuthenticationEvents
 				{
@@ -73,21 +82,26 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                         {
                             //get the users tokens
                             var tokens = context.Properties.GetTokens().ToList();
-                            var refreshToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.RefreshToken));
-                            var accessToken = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessToken));
-                            var accessTokenExpires = tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessTokenExpires));
+                            var refreshToken =
+ tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.RefreshToken));
+                            var accessToken =
+ tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessToken));
+                            var accessTokenExpires =
+ tokens.FirstOrDefault(t => t.Name.Equals(AuthenticationConstants.Tokens.AccessTokenExpires));
 
                             if (string.IsNullOrEmpty(refreshToken?.Value) || string.IsNullOrEmpty(accessToken?.Value) || string.IsNullOrEmpty(accessTokenExpires?.Value)) //this should never really happen. it's just a safety check.
                             {
                                 context.RejectPrincipal(); //reject will issue 401. if the client app allows anonymous, then they will simply be logged out. if the route needs authentication then they will be redirected back to the login page
                                 return;
                             }
-                            var expiryDateUtc = DateTime.Parse(accessTokenExpires.Value).ToUniversalTime(); //accessTokenExpires.Value contains a time like: "2019-12-08T13:00:43.8211482Z" the Z at the end indicates it's a UTC time. the DateTime.Parse converts it to local time. the ToUniversalTime converts back to UTC.
+                            var expiryDateUtc =
+ DateTime.Parse(accessTokenExpires.Value).ToUniversalTime(); //accessTokenExpires.Value contains a time like: "2019-12-08T13:00:43.8211482Z" the Z at the end indicates it's a UTC time. the DateTime.Parse converts it to local time. the ToUniversalTime converts back to UTC.
                             if (expiryDateUtc < DateTime.UtcNow)
                             {
                                 //access token in the cookie has expired. There is a refresh token, so attempt to use the refresh token here and get another access token.
                                 //this could still be rejected if the refresh token has been revoked at auth0.
-                                var refreshTokenResponse = await ClaimsHelper.UpdateAccessToken(authConfiguration, refreshToken.Value, localClient);
+                                var refreshTokenResponse =
+ await ClaimsHelper.UpdateAccessToken(authConfiguration, refreshToken.Value, localClient);
                                 if (!refreshTokenResponse.Valid)
                                 {
                                     context.RejectPrincipal(); //this should only be hit if the user's access has been revoked.
@@ -138,7 +152,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     {
                         var accessToken = context.TokenEndpointResponse.AccessToken;
                         var userId = context.SecurityToken.Subject;
-                        var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { context.HttpContext.Request.Host.Host }, localClient);
+                        var claimsToAdd =
+ await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { context.HttpContext.Request.Host.Host }, localClient);
                         context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
                        // context.Success(); //this causes a loop
                     },
@@ -162,7 +177,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     // handle the logout redirection 
                     OnRedirectToIdentityProviderForSignOut = (context) =>
                     {
-                       var logoutUri = $"https://{authConfiguration.TenantDomain}/v2/logout?client_id={authConfiguration.WebSettings.ClientId}";
+                       var logoutUri =
+ $"https://{authConfiguration.TenantDomain}/v2/logout?client_id={authConfiguration.WebSettings.ClientId}";
                        var postLogoutUri = context.Properties.RedirectUri;
                        if (!string.IsNullOrEmpty(postLogoutUri))
                        {
@@ -180,9 +196,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     }
                 };
             });
-        }
+#endif
+		}
 
-        public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
+#if NETSTANDARD
+        public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions
+ = null)
         {
             services.TryAddSingleton(authConfig => authConfiguration);
 
@@ -195,14 +214,15 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
             Action<AuthorizationOptions> defaultOptions = options => { };
 
-            #if NETSTANDARD
+#if NETSTANDARD
                 services.AddAuthorization(authorizationOptions ?? defaultOptions);
-            #else
+#else
             	services.AddAuthorizationCore(authorizationOptions ?? defaultOptions);
-            #endif
+#endif
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
-    }
+#endif
+	}
 }
 #endif

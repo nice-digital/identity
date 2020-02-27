@@ -4,18 +4,21 @@ using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
 
-#if NETFRAMEWORK
+#if NET452
+
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Host.SystemWeb;
+
 #else
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-#endif
 
+#endif
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {
