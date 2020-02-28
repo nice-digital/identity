@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿#if NETCOREAPP
+using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -69,3 +70,4 @@ namespace NICE.Identity.TestClient
 		}
 	}
 }
+#endif

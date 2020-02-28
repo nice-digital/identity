@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-
-#if !NET452
 using Microsoft.Extensions.Configuration;
-#endif
 
 namespace NICE.Identity.Authentication.Sdk.Configuration
 {
@@ -34,7 +31,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			public string ConnectionString { get; private set; }
 		}
 
-#if !NET452
 		public AuthConfiguration(IConfiguration configuration, string appSettingsSectionName)
 		{
 			var section = configuration.GetSection(appSettingsSectionName);
@@ -44,7 +40,11 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 
 			var rolesSection = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles");
 
+#if !NET452
 			RolesWithAccessToUserProfiles = rolesSection.Get<string[]>() ?? new string[0];
+#else
+			RolesWithAccessToUserProfiles = new string[0]; //todo: this feature currently not supported in framework 4.5.2
+#endif
 			LoginPath = section["LoginPath"];
 			LogoutPath = section["LogoutPath"];
 
@@ -54,7 +54,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 				connectionString: redisSection["ConnectionString"]
 			);
 		}
-#endif
 
 		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
 			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,

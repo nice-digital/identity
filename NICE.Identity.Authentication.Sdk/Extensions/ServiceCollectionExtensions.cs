@@ -1,7 +1,4 @@
-﻿#if NETSTANDARD2_0 || NET461
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
@@ -16,9 +13,10 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
-
+using Microsoft.Extensions.DependencyInjection;
 
 #if NETSTANDARD2_0
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -225,4 +223,3 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 #endif
 	}
 }
-#endif

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
+using Microsoft.AspNetCore.Http;
 
 #if NETFRAMEWORK
 
@@ -16,7 +17,6 @@ using Microsoft.Owin.Host.SystemWeb;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 
 #endif
 
@@ -25,7 +25,14 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 	public class AuthenticationService : IAuthenticationService
     {
 
-        public async Task Login(HttpContext context, string returnUrl = "/", bool goToRegisterPage = false)
+        public async Task Login(
+#if NETFRAMEWORK
+			System.Web.HttpContext context,
+#else
+			Microsoft.AspNetCore.Http.HttpContext context,
+#endif
+
+			string returnUrl = "/", bool goToRegisterPage = false)
         {
 #if NETFRAMEWORK
 	        var owinContext = new HttpContextWrapper(context).GetOwinContext();
@@ -47,8 +54,15 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 #endif
         }
 
-        public async Task Logout(HttpContext context, string returnUrl = "/")
+        public async Task Logout(
+#if NETFRAMEWORK
+			System.Web.HttpContext context,
+#else
+			Microsoft.AspNetCore.Http.HttpContext context,
+#endif
+			string returnUrl = "/")
         {
+
 #if NETFRAMEWORK
 	        var owinContext = new HttpContextWrapper(context).GetOwinContext();
 	        owinContext.Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);

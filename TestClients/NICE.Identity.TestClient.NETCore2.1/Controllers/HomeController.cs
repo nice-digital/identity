@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+#if NETCOREAPP
 using NICE.Identity.Authentication.Sdk.API;
+#endif
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.TestClient.Models;
@@ -23,14 +25,22 @@ namespace NICE.Identity.TestClient.Controllers
         private readonly string _apiIdentifier;
         private readonly string _authorisationServiceUri;
 		private readonly string _authDomain;
+#if NETCOREAPP
         private readonly IHttpClientFactory _clientFactory;
         private readonly IAPIService _apiService;
+#endif
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IHttpContextAccessor httpContextAccessor)
+        public HomeController(IConfiguration configuration,
+#if NETCOREAPP
+            IHttpClientFactory clientFactory, IAPIService apiService, 
+#endif
+            IHttpContextAccessor httpContextAccessor)
         {
+#if NETCOREAPP
             _clientFactory = clientFactory;
             _apiService = apiService;
+#endif
             _httpContextAccessor = httpContextAccessor;
             _apiIdentifier = configuration.GetSection("WebAppConfiguration").GetSection("ApiIdentifier").Value;
             _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
@@ -51,6 +61,7 @@ namespace NICE.Identity.TestClient.Controllers
             ViewData["TokenType"] = await HttpContext.GetTokenAsync("token_type");
             ViewData["RefreshToken"] = await HttpContext.GetTokenAsync("refresh_token");
 
+#if NETCOREAPP
             var currentUsersNameIdentifier = User.NameIdentifier();
             try
             {
@@ -75,6 +86,7 @@ namespace NICE.Identity.TestClient.Controllers
             {
 	            ViewData["Roles"] = "error:" + ex.ToString();
             }
+#endif
 
             return View();
         }
@@ -82,6 +94,7 @@ namespace NICE.Identity.TestClient.Controllers
         [Authorize]
         public async Task<IActionResult> ApiData()
         {
+#if NETCOREAPP
             var client = _clientFactory.CreateClient("HttpClient");
             var accessToken = await HttpContext.GetTokenAsync("access_token");
 
@@ -99,6 +112,7 @@ namespace NICE.Identity.TestClient.Controllers
                 var users = JsonConvert.DeserializeObject<List<UserViewModel>>(usersResponse);
                 return View(users);
             }
+#endif
 
             return View("Error");
         }

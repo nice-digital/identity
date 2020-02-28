@@ -34,6 +34,11 @@
 	    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+		<PackageReference Include="Microsoft.AspNetCore" Version="1.1.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.1.3" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
   </ItemGroup>
