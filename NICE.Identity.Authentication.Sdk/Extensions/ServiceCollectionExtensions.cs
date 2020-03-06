@@ -142,7 +142,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                         var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { context.HttpContext.Request.Host.Host }, localClient);
                         context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
                         var cookies = context.HttpContext.Request.Cookies.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-                        TrackingService.TrackSuccessfulSignIn(localClient, cookies, authConfiguration.GoogleTrackingId);
+                        TrackingService.TrackSuccessfulSignIn(localClient, cookies, context.HttpContext.Request.Host.Value, authConfiguration.GoogleTrackingId);
 
                         // context.Success(); //don't do this, it causes a redirect loop
                     },

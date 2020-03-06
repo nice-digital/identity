@@ -11,6 +11,8 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 		private static readonly string endpoint = "http://www.google-analytics.com/collect";
 		private static readonly string googleVersion = "1";
 		private static readonly string googleCookieName = "_ga";
+		private static readonly string googleTypeEvent = "event";
+		private static readonly string googleTypePageview = "pageview";
 
 		/// <summary>
 		/// this uses the google measurement protocol to track the sign in:
@@ -19,7 +21,7 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 		/// 
 		/// </summary>
 		/// <param name="httpContext"></param>
-		public static void TrackSuccessfulSignIn(HttpClient httpClient, Dictionary<string, string> cookies, string trackingId)
+		public static void TrackSuccessfulSignIn(HttpClient httpClient, Dictionary<string, string> cookies, string host, string trackingId)
 		{
 			if (string.IsNullOrEmpty(trackingId))
 				throw new ArgumentNullException(nameof(trackingId));
@@ -34,10 +36,11 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 			var gaCookieRegex = new Regex(@"^GA\d\.\d\."); //for getting the client id. see: https://stackoverflow.com/questions/31854752/how-to-get-the-client-id-while-sending-data-to-ga-using-measurement-protocol
 			var clientId = gaCookieRegex.Replace(gaCookie, string.Empty);
 
-			TrackEvent(httpClient, trackingId, clientId, "todo: category", "todo: action", "todo: label");
+			Track(httpClient, trackingId, clientId, host, googleTypeEvent, "IDAM", "Sign-in", "Successful sign in", 1);
+			Track(httpClient, trackingId, clientId, host, googleTypePageview, "IDAM", "Sign-in", "Successful sign in", 1);
 		}
 
-		public static async Task<HttpResponseMessage> TrackEvent(HttpClient httpClient, string trackingId, string googleClientId, string category, string action, string label, int? value = null)
+		public static async Task<HttpResponseMessage> Track(HttpClient httpClient, string trackingId, string googleClientId, string host, string type, string category, string action, string label, int? value = null)
 		{
 			if (string.IsNullOrEmpty(category))
 				throw new ArgumentNullException(nameof(category));
@@ -45,15 +48,24 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 			if (string.IsNullOrEmpty(action))
 				throw new ArgumentNullException(nameof(action));
 
-			var postData = new List<KeyValuePair<string, string>>()
-			{
+			var postData = new List<KeyValuePair<string, string>> {
 				new KeyValuePair<string, string>("v", googleVersion),
 				new KeyValuePair<string, string>("tid", trackingId),
 				new KeyValuePair<string, string>("cid", googleClientId),
-				new KeyValuePair<string, string>("t", "event"),
-				new KeyValuePair<string, string>("ec", category),
-				new KeyValuePair<string, string>("ea", action)
+				new KeyValuePair<string, string>("t", type)
 			};
+
+			if (type == googleTypeEvent)
+			{
+				postData.Add(new KeyValuePair<string, string>("ec", category));
+				postData.Add(new KeyValuePair<string, string>("ea", action));
+			}
+			else if (type == googleTypePageview)
+			{
+				postData.Add(new KeyValuePair<string, string>("dh", host));
+				postData.Add(new KeyValuePair<string, string>("dp", "/virtual/sign-in-success"));
+				postData.Add(new KeyValuePair<string, string>("dt", "Sign in success | IDAM"));
+			}
 
 			if (label != null)
 			{

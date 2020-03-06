@@ -143,7 +143,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						notification.AuthenticationTicket.Identity.AddClaims(claimsToAdd);
 
 						var cookies = notification.Request.Cookies.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-						TrackingService.TrackSuccessfulSignIn(localHttpClient, cookies, authConfiguration.GoogleTrackingId);
+						TrackingService.TrackSuccessfulSignIn(localHttpClient, cookies, notification.Request.Host.Value, authConfiguration.GoogleTrackingId);
 					},
 
 					RedirectToIdentityProvider = notification =>
