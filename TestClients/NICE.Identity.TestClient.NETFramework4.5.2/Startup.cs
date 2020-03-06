@@ -29,7 +29,8 @@ namespace NICE.Identity.TestClient.NETFramework452
 				redirectUri: ConfigurationManager.AppSettings["auth0:RedirectUri"],
 				postLogoutRedirectUri: ConfigurationManager.AppSettings["auth0:PostLogoutRedirectUri"],
 				apiIdentifier: secretsFile.SelectToken("WebAppConfiguration")["ApiIdentifier"].ToString(),
-                authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString()
+                authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString(),
+				googleTrackingId: secretsFile.SelectToken("WebAppConfiguration")["GoogleTrackingId"].ToString()
 				);
 
 			IdentityModelEventSource.ShowPII = true; //show more detail on some auth errors. only set to true for dev/debug.

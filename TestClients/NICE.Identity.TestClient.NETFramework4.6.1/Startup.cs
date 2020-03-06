@@ -33,7 +33,8 @@ namespace NICE.Identity.TestClient.NETFramework461
 				apiIdentifier: secretsFile.SelectToken("WebAppConfiguration")["ApiIdentifier"].ToString(),
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString(),
 				redisEnabled: bool.Parse(redisConfig["Enabled"].ToString()),
-				redisConnectionString: redisConfig["ConnectionString"].ToString()
+				redisConnectionString: redisConfig["ConnectionString"].ToString(),
+				googleTrackingId: secretsFile.SelectToken("WebAppConfiguration")["GoogleTrackingId"].ToString()
 				);
 
 			

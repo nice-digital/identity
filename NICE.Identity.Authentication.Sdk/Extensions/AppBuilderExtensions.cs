@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
 using NICE.Identity.Authentication.Sdk.SessionStore;
+using NICE.Identity.Authentication.Sdk.Tracking;
 using Claim = System.Security.Claims.Claim;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
@@ -140,6 +141,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						claimsToAdd.Add(new Claim(AuthenticationConstants.Tokens.AccessToken, notification.ProtocolMessage.AccessToken));
 						
 						notification.AuthenticationTicket.Identity.AddClaims(claimsToAdd);
+
+						var cookies = notification.Request.Cookies.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+						TrackingService.TrackSuccessfulSignIn(localHttpClient, cookies, authConfiguration.GoogleTrackingId);
 					},
 
 					RedirectToIdentityProvider = notification =>

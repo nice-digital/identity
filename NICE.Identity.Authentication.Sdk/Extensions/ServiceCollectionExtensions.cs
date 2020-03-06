@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Tracking;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 
@@ -140,7 +141,10 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                         var userId = context.SecurityToken.Subject;
                         var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { context.HttpContext.Request.Host.Host }, localClient);
                         context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
-                       // context.Success(); //this causes a loop
+                        var cookies = context.HttpContext.Request.Cookies.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                        TrackingService.TrackSuccessfulSignIn(localClient, cookies, authConfiguration.GoogleTrackingId);
+
+                        // context.Success(); //don't do this, it causes a redirect loop
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
