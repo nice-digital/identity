@@ -51,9 +51,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            return foundUser;
             }
 
+            var foundUserByEmail = Users.FirstOrDefault(u => EF.Functions.Like(u.EmailAddress, user.EmailAddress));
+
+            ////if users are imported, where that user has already signed in, this will evaluate to truee and a new user shouldn't be created, the found user should be returned.
+            if (foundUserByEmail != null && importing)
+            {
+                return foundUserByEmail;
+            }
+
             //if someone logs in with AD using the same email address as has been imported from nice accounts there will already be an existing record in the database with that email, but the nameidentifier will be wrong.
             //in which case, update the nameidentifier this one time, set the last logged in date and update the database.
-            var foundUserByEmail = Users.FirstOrDefault(u => EF.Functions.Like(u.EmailAddress, user.EmailAddress));
             if (foundUserByEmail != null && foundUserByEmail.IsMigrated && !foundUserByEmail.IsInAuthenticationProvider)
             {
 	            foundUserByEmail.NameIdentifier = user.NameIdentifier;
