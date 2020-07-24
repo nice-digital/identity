@@ -13,18 +13,18 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         }
 
-        public Job(int jobId, int userId, int organisationId, string jobTitle)
+        public Job(int jobId, int userId, int organisationId, bool isLead)
         {
             JobId = jobId;
             UserId = userId;
             OrganisationId = organisationId;
-            JobTitle = jobTitle;
+            IsLead = isLead;
         }
 
         public int JobId { get; set; }
         public int UserId { get; set; }
         public int OrganisationId { get; set; }
-        public string JobTitle { get; set; }
+        public bool IsLead { get; set; }
 
         public User User { get; set; }
         public Organisation Organisation { get; set; }

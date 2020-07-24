@@ -237,9 +237,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 entity.Property(e => e.UserId).HasColumnName("UserID");
                 entity.Property(e => e.OrganisationId).HasColumnName("OrganisationID");
 
-                entity.Property(e => e.JobTitle)
-                    .HasMaxLength(100);
-
                 entity.HasOne(x => x.User)
                     .WithMany(x => x.Jobs)
                     .HasForeignKey(x => x.UserId)

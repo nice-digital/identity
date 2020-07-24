@@ -167,11 +167,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var organisationService = new OrganisationService(context, _logger.Object);
             organisationService.CreateOrganisation(new ApiModels.Organisation
             {
-                Name = "Organisation1",
-            });
-            organisationService.CreateOrganisation(new ApiModels.Organisation
-            {
-                Name = "Organisation2",
+                Name = "Organisation",
             });
 
             //Act & Assert
