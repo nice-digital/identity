@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NICE.Identity.Authorisation.WebAPI.APIModels
+namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
     public class Organisation
     {

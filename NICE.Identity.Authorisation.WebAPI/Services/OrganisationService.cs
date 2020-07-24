@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using NICE.Identity.Authorisation.WebAPI.APIModels;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using System;
 using System.Collections.Generic;

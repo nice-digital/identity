@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using Xunit;
-using ApiModels = NICE.Identity.Authorisation.WebAPI.APIModels;
+using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
@@ -170,8 +170,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 Name = "Organisation",
             });
 
-            //Act & Assert
-            Assert.Throws<Exception>(() => organisationService.DeleteOrganisation(9999));
+            //Act
+            var deletedOrganisationResponse = organisationService.DeleteOrganisation(9999);
+
+            //Assert
+            deletedOrganisationResponse.ShouldBe(0);
+            context.Organisations.Count().ShouldBe(1);
         }
     }
 }

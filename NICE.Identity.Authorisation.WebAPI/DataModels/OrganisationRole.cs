@@ -24,5 +24,11 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public int RoleId { get; set; }
         public Organisation Organisation { get; set; }
         public Role Role { get; set; }
+
+        public void UpdateFromApiModel(ApiModels.OrganisationRole organisationRole)
+        {
+            OrganisationId = organisationRole?.OrganisationRoleId ?? OrganisationRoleId;
+            RoleId = organisationRole?.RoleId ?? RoleId;
+        }
     }
 }
