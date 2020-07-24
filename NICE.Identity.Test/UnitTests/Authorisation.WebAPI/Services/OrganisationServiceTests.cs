@@ -158,5 +158,24 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             deletedOrganisationResponse.ShouldBe(1);
             context.Organisations.Count().ShouldBe(1);
         }
+
+        [Fact]
+        public void Delete_organisation_that_does_not_exist()
+        {
+            //Arrange
+            var context = GetContext();
+            var organisationService = new OrganisationService(context, _logger.Object);
+            organisationService.CreateOrganisation(new ApiModels.Organisation
+            {
+                Name = "Organisation1",
+            });
+            organisationService.CreateOrganisation(new ApiModels.Organisation
+            {
+                Name = "Organisation2",
+            });
+
+            //Act & Assert
+            Assert.Throws<Exception>(() => organisationService.DeleteOrganisation(9999));
+        }
     }
 }
