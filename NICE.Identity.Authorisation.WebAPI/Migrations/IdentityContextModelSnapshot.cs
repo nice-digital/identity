@@ -86,9 +86,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("JobTitle")
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
+                    b.Property<bool>("IsLead")
+                        .HasColumnType("bit");
 
                     b.Property<int>("OrganisationId")
                         .HasColumnName("OrganisationID")
