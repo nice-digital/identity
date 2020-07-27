@@ -21,23 +21,16 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 		/// 
 		/// </summary>
 		/// <param name="httpContext"></param>
-		public static void TrackSuccessfulSignIn(HttpClient httpClient, Dictionary<string, string> cookies, string host, string trackingId)
+		public static void TrackSuccessfulSignIn(HttpClient httpClient, string host, string trackingId, string googleClientId)
 		{
 			if (string.IsNullOrEmpty(trackingId))
 				throw new ArgumentNullException(nameof(trackingId));
 
-			if (cookies == null)
-				throw new ArgumentNullException(nameof(cookies));
+			if (string.IsNullOrEmpty(googleClientId))
+				throw new ArgumentNullException(nameof(googleClientId));
 
-			if (!cookies.ContainsKey(googleCookieName))
-				throw new ArgumentException($"Cookie {googleCookieName} not found");
-			var gaCookie = cookies[googleCookieName];
-
-			var gaCookieRegex = new Regex(@"^GA\d\.\d\."); //for getting the client id. see: https://stackoverflow.com/questions/31854752/how-to-get-the-client-id-while-sending-data-to-ga-using-measurement-protocol
-			var clientId = gaCookieRegex.Replace(gaCookie, string.Empty);
-
-			Track(httpClient, trackingId, clientId, host, googleTypeEvent, "IDAM", "Sign-in", "Successful sign in", 1);
-			Track(httpClient, trackingId, clientId, host, googleTypePageview, "IDAM", "Sign-in", "Successful sign in", 1);
+			Track(httpClient, trackingId, googleClientId, host, googleTypeEvent, "IDAM", "Sign-in", "Successful sign in", 1);
+			Track(httpClient, trackingId, googleClientId, host, googleTypePageview, "IDAM", "Sign-in", "Successful sign in", 1);
 		}
 
 		public static async Task<HttpResponseMessage> Track(HttpClient httpClient, string trackingId, string googleClientId, string host, string type, string category, string action, string label, int? value = null)

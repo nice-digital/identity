@@ -21,5 +21,10 @@ namespace NICE.Identity.Authentication.Sdk
 			public const string GetRolesByWebsiteFullPath = "/api/roles/" + GetRolesByWebsiteRoute + "/";
 
 		}
+
+		public static class IdTokenPayload
+        {
+			public const string tempCid = "http://nice.org.uk/tempCid";
+		}
 	}
 }
