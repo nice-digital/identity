@@ -28,5 +28,12 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
         public User User { get; set; }
         public Organisation Organisation { get; set; }
+
+        internal void UpdateFromApiModel(ApiModels.Job job)
+        {
+            UserId = job?.UserId ?? UserId;
+            OrganisationId = job?.OrganisationId ?? OrganisationId;
+            IsLead = job?.IsLead ?? IsLead;
+        }
     }
 }

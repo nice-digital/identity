@@ -102,7 +102,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Update_role()
+        public void Update_organisation()
         {
             //Arrange
             var context = GetContext();
