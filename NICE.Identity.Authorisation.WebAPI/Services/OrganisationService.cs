@@ -11,6 +11,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     public interface IOrganisationService
     {
         List<Organisation> GetOrganisations();
+        Organisation GetOrganisation(int organisationId);
         Organisation CreateOrganisation(Organisation organisation);
         Organisation UpdateOrganisation(int organisationId, Organisation organisation);
         int DeleteOrganisation(int organisationId);

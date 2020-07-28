@@ -57,6 +57,7 @@ namespace NICE.Identity.Authorisation.WebAPI
             services.AddTransient<IRolesService, RolesService>();
             services.AddTransient<IUserRolesService, UserRolesService>();
             services.AddTransient<IProviderManagementService, Auth0ManagementService>();
+			services.AddTransient<IOrganisationService, OrganisationService>();
             services.AddHttpClient(); //this adds http client factory for use in DI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
