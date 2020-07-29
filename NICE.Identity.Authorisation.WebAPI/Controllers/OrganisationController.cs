@@ -24,11 +24,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             _organisationService = organisationService ?? throw new ArgumentNullException(nameof(organisationService));
         }
 
-        ///// <summary>
-        ///// create organisation
-        ///// </summary>
-        ///// <param name="organisation"></param>
-        ///// <returns></returns>
+        /// <summary>
+        /// create organisation
+        /// </summary>
+        /// <param name="organisation"></param>
+        /// <returns></returns>
         //[HttpPost("")]
         //[ProducesResponseType(typeof(Organisation), StatusCodes.Status201Created)]
         //[ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -11,7 +11,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     public interface IUserJobsService
     {
         Job CreateJob(Job job);
-
+        List<Job> GetJobs();
+        Job GetJob(int jobId);
+        Job UpdateJob(int jobId, Job job);
+        int DeleteJob(int jobId);
     }
 
     public class UserJobsService : IUserJobsService
