@@ -51,7 +51,22 @@ namespace NICE.Identity.Test.Infrastructure
             context.UserAcceptedTermsVersions.Add(new UserAcceptedTermsVersion(acceptedId, userId, versionId, adate));
         }
 
-		public static void AddAll(ref IdentityContext context)
+        public static void AddJob(ref IdentityContext context, int jobId = 1, int userId = 1, int organisationId = 1, bool isLead = false)
+        {
+			context.Jobs.Add(new Job(jobId, userId, organisationId, isLead));
+        }
+
+		public static void AddOrganisation(ref IdentityContext context, int organisationId = 1, string name = "NICE")
+        {
+			context.Organisations.Add(new Organisation(organisationId, name));
+        }
+
+		public static void AddOrganisationRole(ref IdentityContext context, int organisationRoleId = 1, int organisationId = 1, int roleId = 1)
+        {
+			context.OrganisationRoles.Add(new OrganisationRole(organisationRoleId, organisationId, roleId);
+        }
+
+        public static void AddAll(ref IdentityContext context)
 		{
 			AddService(ref context);
 			AddEnvironment(ref context);
@@ -61,6 +76,9 @@ namespace NICE.Identity.Test.Infrastructure
 			AddUser(ref context);
             AddTermsVersion(ref context);
             AddUserAcceptedTermsVersion(ref context);
+			AddJob(ref context);
+			AddOrganisation(ref context);
+			AddOrganisationRole(ref context);
 			context.SaveChanges();
 		}
 
