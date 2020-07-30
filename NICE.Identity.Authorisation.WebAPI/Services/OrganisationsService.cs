@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
-    public interface IOrganisationService
+    public interface IOrganisationsService
     {
         List<Organisation> GetOrganisations();
         Organisation GetOrganisation(int organisationId);
@@ -17,12 +17,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         int DeleteOrganisation(int organisationId);
     }
 
-    public class OrganisationService : IOrganisationService
+    public class OrganisationsService : IOrganisationsService
     {
         private readonly IdentityContext _context;
-        private readonly ILogger<OrganisationService> _logger;
+        private readonly ILogger<OrganisationsService> _logger;
 
-        public OrganisationService(IdentityContext context, ILogger<OrganisationService> logger)
+        public OrganisationsService(IdentityContext context, ILogger<OrganisationsService> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

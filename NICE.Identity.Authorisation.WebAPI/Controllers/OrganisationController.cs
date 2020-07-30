@@ -16,9 +16,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     public class OrganisationController : ControllerBase
     {
         private readonly ILogger<OrganisationController> _logger;
-        private readonly IOrganisationService _organisationService;
+        private readonly IOrganisationsService _organisationService;
 
-        public OrganisationController(IOrganisationService organisationService, ILogger<OrganisationController> logger)
+        public OrganisationController(IOrganisationsService organisationService, ILogger<OrganisationController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _organisationService = organisationService ?? throw new ArgumentNullException(nameof(organisationService));
