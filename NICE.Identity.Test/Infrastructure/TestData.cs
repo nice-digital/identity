@@ -63,7 +63,7 @@ namespace NICE.Identity.Test.Infrastructure
 
 		public static void AddOrganisationRole(ref IdentityContext context, int organisationRoleId = 1, int organisationId = 1, int roleId = 1)
         {
-			context.OrganisationRoles.Add(new OrganisationRole(organisationRoleId, organisationId, roleId);
+			context.OrganisationRoles.Add(new OrganisationRole(organisationRoleId, organisationId, roleId));
         }
 
         public static void AddAll(ref IdentityContext context)
