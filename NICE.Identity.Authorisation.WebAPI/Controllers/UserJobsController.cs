@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
-using Job = NICE.Identity.Authorisation.WebAPI.ApiModels.Job;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -106,6 +106,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// update job with id
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="job"></param>
         /// <returns></returns>
         [HttpPatch("{id}", Name = "UpdateJobPartial")]
         [HttpPut("{id}", Name = "UpdateJob")]
