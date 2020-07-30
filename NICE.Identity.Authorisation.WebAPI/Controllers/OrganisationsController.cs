@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,12 +11,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrganisationController : ControllerBase
+    public class OrganisationsController : ControllerBase
     {
-        private readonly ILogger<OrganisationController> _logger;
+        private readonly ILogger<OrganisationsController> _logger;
         private readonly IOrganisationsService _organisationService;
 
-        public OrganisationController(IOrganisationsService organisationService, ILogger<OrganisationController> logger)
+        public OrganisationsController(IOrganisationsService organisationService, ILogger<OrganisationsController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _organisationService = organisationService ?? throw new ArgumentNullException(nameof(organisationService));
