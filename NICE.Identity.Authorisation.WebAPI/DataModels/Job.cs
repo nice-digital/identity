@@ -2,10 +2,7 @@
 {
     public class Job
     {
-        public Job()
-        {
-
-        }
+        public Job() { }
 
         public Job(int jobId, int userId, int organisationId, bool isLead)
         {
@@ -19,7 +16,6 @@
         public int UserId { get; set; }
         public int OrganisationId { get; set; }
         public bool IsLead { get; set; }
-
         public User User { get; set; }
         public Organisation Organisation { get; set; }
 

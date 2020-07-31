@@ -48,9 +48,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var rolesService = new RolesService(context, _logger.Object);
-            TestData.AddEnvironment(ref context);
-            TestData.AddService(ref context);
-            TestData.AddWebsite(ref context);
+            //TestData.AddEnvironment(ref context);
+            //TestData.AddService(ref context);
+            //TestData.AddWebsite(ref context);
             rolesService.CreateRole(new ApiModels.Role()
             {
                 WebsiteId = 1,

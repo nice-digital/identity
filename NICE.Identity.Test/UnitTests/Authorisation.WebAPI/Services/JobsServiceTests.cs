@@ -11,13 +11,13 @@ using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
-    public class UserJobsServiceTests : TestBase
+    public class JobsServiceTests : TestBase
     {
-        private readonly Mock<ILogger<UserJobsService>> _logger;
+        private readonly Mock<ILogger<JobsService>> _logger;
 
-        public UserJobsServiceTests()
+        public JobsServiceTests()
         {
-            _logger = new Mock<ILogger<UserJobsService>>();
+            _logger = new Mock<ILogger<JobsService>>();
         }
 
         [Fact]
@@ -25,10 +25,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
+            var jobsService = new JobsService(context, _logger.Object);
 
             //Act
-            var createdJob = userJobsService.CreateJob(new ApiModels.Job()
+            var createdJob = jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -51,14 +51,14 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            userJobsService.CreateJob(new ApiModels.Job()
+            var jobsService = new JobsService(context, _logger.Object);
+            jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
                 IsLead = true
             });
-            userJobsService.CreateJob(new ApiModels.Job()
+            jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 2,
@@ -66,7 +66,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
 
             //Act
-            var jobs = userJobsService.GetJobs();
+            var jobs = jobsService.GetJobs();
 
             //Assert
             jobs.Count.ShouldBe(2);
@@ -79,8 +79,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            var createdJob = userJobsService.CreateJob(new ApiModels.Job()
+            var jobsService = new JobsService(context, _logger.Object);
+            var createdJob = jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -88,7 +88,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
 
             //Act
-            var job = userJobsService.GetJob(createdJob.JobId.GetValueOrDefault());
+            var job = jobsService.GetJob(createdJob.JobId.GetValueOrDefault());
 
             //Assert
             context.Jobs.Count().ShouldBe(1);
@@ -100,8 +100,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            userJobsService.CreateJob(new ApiModels.Job()
+            var jobsService = new JobsService(context, _logger.Object);
+            jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -109,7 +109,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
 
             //Act
-            var job = userJobsService.GetJob(9999);
+            var job = jobsService.GetJob(9999);
 
             //Assert
             job.ShouldBeNull();
@@ -120,8 +120,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            var createdJobsId = userJobsService.CreateJob(new ApiModels.Job
+            var jobsService = new JobsService(context, _logger.Object);
+            var createdJobsId = jobsService.CreateJob(new ApiModels.Job
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -129,13 +129,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             }).JobId.GetValueOrDefault();
 
             //Act
-            var updatedOrganisation = userJobsService.UpdateJob(createdJobsId, new ApiModels.Job()
+            var updatedOrganisation = jobsService.UpdateJob(createdJobsId, new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
                 IsLead = false,
             });
-            var job = userJobsService.GetJob(createdJobsId);
+            var job = jobsService.GetJob(createdJobsId);
 
             //Assert
             updatedOrganisation.IsLead.ShouldBe(false);
@@ -147,8 +147,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            var jobToUpdate = userJobsService.CreateJob(new ApiModels.Job
+            var jobsService = new JobsService(context, _logger.Object);
+            var jobToUpdate = jobsService.CreateJob(new ApiModels.Job
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -156,7 +156,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             }).JobId.GetValueOrDefault();
 
             //Act + Assert
-            Assert.Throws<Exception>(() => userJobsService.UpdateJob(9999, new ApiModels.Job()
+            Assert.Throws<Exception>(() => jobsService.UpdateJob(9999, new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -169,14 +169,14 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            var createdJob = userJobsService.CreateJob(new ApiModels.Job()
+            var jobsService = new JobsService(context, _logger.Object);
+            var createdJob = jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
                 IsLead = true
             });
-            userJobsService.CreateJob(new ApiModels.Job()
+            jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 2,
@@ -184,7 +184,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
 
             //Act
-            var deletedJobResponse = userJobsService.DeleteJob(createdJob.JobId.GetValueOrDefault());
+            var deletedJobResponse = jobsService.DeleteJob(createdJob.JobId.GetValueOrDefault());
 
             //Assert
             deletedJobResponse.ShouldBe(1);
@@ -196,8 +196,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userJobsService = new UserJobsService(context, _logger.Object);
-            userJobsService.CreateJob(new ApiModels.Job()
+            var jobsService = new JobsService(context, _logger.Object);
+            jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
                 OrganisationId = 1,
@@ -205,7 +205,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
 
             //Act
-            var deletedJobResponse = userJobsService.DeleteJob(9999);
+            var deletedJobResponse = jobsService.DeleteJob(9999);
 
             //Assert
             deletedJobResponse.ShouldBe(0);
