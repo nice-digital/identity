@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -10,7 +6,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
     {
         public Organisation()
         {
-
         }
 
         public Organisation(int organisationId, string name)
@@ -24,7 +19,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             OrganisationId = organisation.OrganisationId;
             Name = organisation.Name;
         }
-
 
         [JsonPropertyName("id")]
         public int? OrganisationId { get; set; }

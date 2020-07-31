@@ -10,11 +10,11 @@ using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
-    public class OrganisationServiceTests : TestBase
+    public class OrganisationsServiceTests : TestBase
     {
         private readonly Mock<ILogger<OrganisationsService>> _logger;
 
-        public OrganisationServiceTests()
+        public OrganisationsServiceTests()
         {
             _logger = new Mock<ILogger<OrganisationsService>>();
         }
@@ -60,8 +60,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             organisation.Count.ShouldBe(2);
-            organisation.First().Name.ShouldBe("Organisation1");
-            organisation.Last().Name.ShouldBe("Organisation2");
+            organisation[0].Name.ShouldBe("Organisation1");
+            organisation[1].Name.ShouldBe("Organisation2");
         }
 
         [Fact]

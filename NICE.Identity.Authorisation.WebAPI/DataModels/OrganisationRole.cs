@@ -4,7 +4,6 @@
     {
         public OrganisationRole()
         {
-
         }
 
         public OrganisationRole(int organisationRoleId, int organisationId, int roleId)

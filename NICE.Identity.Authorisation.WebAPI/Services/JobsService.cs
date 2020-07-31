@@ -91,5 +91,4 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
     }
-
 }

@@ -40,7 +40,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             {
                 var serializableModelState = new SerializableError(ModelState);
                 var modelStateJson = JsonConvert.SerializeObject(serializableModelState);
-                _logger.LogError($"Invalid Model State at JobsController VerificationEmail for UserId: {verificationEmail.UserId}", modelStateJson);
+                _logger.LogError($"Invalid Model State at VerificationEmailController VerificationEmail for UserId: {verificationEmail.UserId}", modelStateJson);
 
                 return BadRequest("Request failed validation");
             }

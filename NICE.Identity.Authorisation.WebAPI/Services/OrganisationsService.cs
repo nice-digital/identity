@@ -69,8 +69,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to update role {organisationId.ToString()} - exception: {e.Message}");
-                throw new Exception($"Failed to update role {organisationId.ToString()} - exception: {e.Message}");
+                _logger.LogError($"Failed to update organisation {organisationId.ToString()} - exception: {e.Message}");
+                throw new Exception($"Failed to update organisation {organisationId.ToString()} - exception: {e.Message}");
             }
         }
 

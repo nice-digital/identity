@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using DataModels = NICE.Identity.Authorisation.WebAPI.DataModels;
 using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;

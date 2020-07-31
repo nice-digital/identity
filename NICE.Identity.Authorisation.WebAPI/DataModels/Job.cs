@@ -2,7 +2,9 @@
 {
     public class Job
     {
-        public Job() { }
+        public Job() 
+        { 
+        }
 
         public Job(int jobId, int userId, int organisationId, bool isLead)
         {

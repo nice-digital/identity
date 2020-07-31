@@ -22,7 +22,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         public virtual DbSet<Website> Websites { get; set; }
         public virtual DbSet<TermsVersion> TermsVersions { get; set; }
         public virtual DbSet<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
-
         public virtual DbSet<Organisation> Organisations { get; set; }
         public virtual DbSet<OrganisationRole> OrganisationRoles { get; set; }
         public virtual DbSet<Job> Jobs { get; set; }

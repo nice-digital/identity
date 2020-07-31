@@ -6,7 +6,6 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
     {
         public Organisation()
         {
-            OrganisationRoles = new HashSet<OrganisationRole>();
         }
 
         public Organisation(int organisationId, string name)
