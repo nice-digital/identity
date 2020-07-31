@@ -26,6 +26,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
 
             //Act
             var createdJob = jobsService.CreateJob(new ApiModels.Job()
@@ -52,6 +54,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
+            TestData.AddOrganisation(ref context, 2, "NHS");
             jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
@@ -80,6 +85,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
             var createdJob = jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
@@ -101,6 +108,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
             jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
@@ -121,6 +130,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
             var createdJobsId = jobsService.CreateJob(new ApiModels.Job
             {
                 UserId = 1,
@@ -148,6 +159,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
             var jobToUpdate = jobsService.CreateJob(new ApiModels.Job
             {
                 UserId = 1,
@@ -170,6 +183,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
+            TestData.AddOrganisation(ref context, 2, "NHS");
             var createdJob = jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,
@@ -197,6 +213,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var jobsService = new JobsService(context, _logger.Object);
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
             jobsService.CreateJob(new ApiModels.Job()
             {
                 UserId = 1,

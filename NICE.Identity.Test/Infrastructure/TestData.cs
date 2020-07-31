@@ -95,5 +95,14 @@ namespace NICE.Identity.Test.Infrastructure
 			AddUser(ref context);
 			context.SaveChanges();
 		}
+
+		public static void AddWithTwoRolesTwoOrganisations(ref IdentityContext context)
+		{
+			AddRole(ref context);
+			AddRole(ref context, roleId: 2, websiteId: 1, name: "Moderator");
+			AddOrganisation(ref context);
+			AddOrganisation(ref context, 2, "NHS");
+			context.SaveChanges();
+		}
 	}
 }

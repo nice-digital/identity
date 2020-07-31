@@ -25,6 +25,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+            TestData.AddOrganisation(ref context);
+            TestData.AddRole(ref context);
 
             //Act
             var createdOrganisationRole = organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
@@ -48,6 +50,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+            TestData.AddWithTwoRolesTwoOrganisations(ref context);
             organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
             {
                 OrganisationId = 1,
@@ -74,6 +77,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+            TestData.AddOrganisation(ref context);
+            TestData.AddRole(ref context);
             var createdOrganisationRole = organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
             {
                 OrganisationId = 1,
@@ -94,6 +99,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+            TestData.AddOrganisation(ref context);
+            TestData.AddRole(ref context);
             organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
             {
                 OrganisationId = 1,
@@ -113,6 +120,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+            TestData.AddWithTwoRolesTwoOrganisations(ref context);
             var createdOrganisationRole = organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
             {
                 OrganisationId = 1,
@@ -138,6 +146,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+            TestData.AddOrganisation(ref context);
+            TestData.AddRole(ref context);
             organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
             {
                 OrganisationId = 1,

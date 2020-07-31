@@ -22,5 +22,4 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         public int? OrganisationId { get; set; }
         public bool? IsLead { get; set; }
     }
-
 }
