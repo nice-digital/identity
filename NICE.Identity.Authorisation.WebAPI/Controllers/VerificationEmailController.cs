@@ -57,7 +57,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 {
                     Status = 500, 
                     Title = e.Message, 
-                    Detail = e.InnerException?.Message
+                    Detail = e.ToString()
                 });
             }
         }

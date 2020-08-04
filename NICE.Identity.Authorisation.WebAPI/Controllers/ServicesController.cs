@@ -35,7 +35,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [HttpPost("")]
         [ProducesResponseType(typeof(Service), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
@@ -56,7 +55,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message, Detail = e.InnerException?.Message});
+                return StatusCode(500, new ProblemDetails {Status = 500, Title = e.Message, Detail = e.ToString() });
             }
         }
 
