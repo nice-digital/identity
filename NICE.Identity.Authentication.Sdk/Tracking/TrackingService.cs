@@ -10,7 +10,6 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 	{
 		private static readonly string endpoint = "http://www.google-analytics.com/collect";
 		private static readonly string googleVersion = "1";
-		private static readonly string googleCookieName = "_ga";
 		private static readonly string googleTypeEvent = "event";
 		private static readonly string googleTypePageview = "pageview";
 
