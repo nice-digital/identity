@@ -27,10 +27,14 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 				throw new ArgumentNullException(nameof(trackingId));
 
 			if (string.IsNullOrEmpty(googleClientId))
-				throw new ArgumentNullException(nameof(googleClientId));
-
-			Track(httpClient, trackingId, googleClientId, host, googleTypeEvent, "IDAM", "Sign-in", "Successful sign in", 1);
-			Track(httpClient, trackingId, googleClientId, host, googleTypePageview, "IDAM", "Sign-in", "Successful sign in", 1);
+			{
+				//Do nothing. AD logins dont have a googleClientId, we are currently not tracking AD logins
+			}
+            else
+            {
+				Track(httpClient, trackingId, googleClientId, host, googleTypeEvent, "IDAM", "Sign-in", "Successful sign in", 1);
+				Track(httpClient, trackingId, googleClientId, host, googleTypePageview, "IDAM", "Sign-in", "Successful sign in", 1);
+			}
 		}
 
 		public static async Task<HttpResponseMessage> Track(HttpClient httpClient, string trackingId, string googleClientId, string host, string type, string category, string action, string label, int? value = null)
