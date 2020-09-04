@@ -50,7 +50,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		        options.LogoutPath = new PathString(authConfiguration.LogoutPath);
 
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
-	            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+	            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
 				if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 	            {
