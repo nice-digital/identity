@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 
@@ -52,6 +53,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
 	            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
+                
 				if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 	            {
 		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = authConfiguration.RedisConfiguration.ConnectionString });
@@ -125,6 +127,10 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     NameClaimType = ClaimType.DisplayName,
                     RoleClaimType = ClaimType.Role
                 };
+
+                options.NonceCookie.SameSite = SameSiteMode.None;
+                options.CorrelationCookie.SameSite = SameSiteMode.None;
+
                 // Set the callback path, so Auth0 will call back to http://URI/signin-auth0
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
                 options.CallbackPath = new PathString(authConfiguration.WebSettings.CallBackPath ?? "/signin-auth0");
@@ -202,6 +208,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             #endif
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
+
+			services.Configure<CookiePolicyOptions>(options =>
+			{
+				options.MinimumSameSitePolicy = SameSiteMode.None;
+				options.Secure = CookieSecurePolicy.Always;
+			});
         }
     }
 }
