@@ -205,15 +205,16 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                 services.AddAuthorization(authorizationOptions ?? defaultOptions);
             #else
             	services.AddAuthorizationCore(authorizationOptions ?? defaultOptions);
-            #endif
+
+                services.Configure<CookiePolicyOptions>(options =>
+                {
+	                options.MinimumSameSitePolicy = SameSiteMode.None;
+	                options.Secure = CookieSecurePolicy.Always;
+                });
+			#endif
+
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
-
-			services.Configure<CookiePolicyOptions>(options =>
-			{
-				options.MinimumSameSitePolicy = SameSiteMode.None;
-				options.Secure = CookieSecurePolicy.Always;
-			});
         }
     }
 }
