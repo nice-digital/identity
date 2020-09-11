@@ -1,15 +1,12 @@
 ﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
