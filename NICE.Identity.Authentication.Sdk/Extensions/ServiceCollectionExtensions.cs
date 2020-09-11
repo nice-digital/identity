@@ -1,7 +1,6 @@
 ﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,9 +26,9 @@ using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.I
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
-    public static class ServiceCollectionExtensions
+	public static class ServiceCollectionExtensions
     {
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, HttpClient httpClient = null)
+        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, bool allowNonSecureCookie = false, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -50,8 +49,17 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		        options.LogoutPath = new PathString(authConfiguration.LogoutPath);
 
 	            options.Cookie.Name = AuthenticationConstants.CookieName;
-	            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.None;
+
+	            if (allowNonSecureCookie) //this is here to support development environments where https isn't used. It should not be true in production.
+                {
+		            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                }
+	            else 
+	            {
+		            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                }
+
+	            options.Cookie.SameSite = SameSiteMode.None;
 				if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 	            {
 		            options.SessionStore = new RedisCacheTicketStore(new RedisCacheOptions { Configuration = authConfiguration.RedisConfiguration.ConnectionString });
