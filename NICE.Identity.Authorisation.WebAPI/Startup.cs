@@ -50,14 +50,17 @@ namespace NICE.Identity.Authorisation.WebAPI
 			//services.TryAddSingleton<ISeriLogger, SeriLogger>();
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
-            services.AddTransient<IJobsService, JobsService>();
+            services.AddTransient<IVerificationEmailService, VerificationEmailService>();
             services.AddTransient<IWebsitesService, WebsitesService>();
             services.AddTransient<IServicesService, ServicesService>();
             services.AddTransient<IEnvironmentsService, EnvironmentsService>();
             services.AddTransient<IRolesService, RolesService>();
             services.AddTransient<IUserRolesService, UserRolesService>();
             services.AddTransient<IProviderManagementService, Auth0ManagementService>();
-            services.AddHttpClient(); //this adds http client factory for use in DI
+			services.AddTransient<IOrganisationsService, OrganisationsService>();
+			services.AddTransient<IOrganisationRolesService, OrganisationRolesService>();
+			services.AddTransient<IJobsService, JobsService>();
+			services.AddHttpClient(); //this adds http client factory for use in DI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
 

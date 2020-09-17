@@ -22,6 +22,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         public virtual DbSet<Website> Websites { get; set; }
         public virtual DbSet<TermsVersion> TermsVersions { get; set; }
         public virtual DbSet<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
+        public virtual DbSet<Organisation> Organisations { get; set; }
+        public virtual DbSet<OrganisationRole> OrganisationRoles { get; set; }
+        public virtual DbSet<Job> Jobs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -223,6 +226,64 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                     .HasConstraintName("FK_UserAcceptedTermsVersion_User");
             });
 
+            modelBuilder.Entity<Job>(entity =>
+            {
+                entity.ToTable("Jobs");
+
+                entity.HasKey(e => e.JobId);
+
+                entity.Property(e => e.JobId).HasColumnName("JobID");
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+                entity.Property(e => e.OrganisationId).HasColumnName("OrganisationID");
+
+                entity.HasOne(x => x.User)
+                    .WithMany(x => x.Jobs)
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Jobs_User");
+
+                entity.HasOne(x => x.Organisation)
+                    .WithMany(x => x.Jobs)
+                    .HasForeignKey(x => x.OrganisationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Jobs_Organisation");
+            });
+
+            modelBuilder.Entity<Organisation>(entity =>
+            {
+                entity.ToTable("Organisations");
+
+                entity.HasKey(e => e.OrganisationId);
+
+                entity.Property(e => e.OrganisationId).HasColumnName("OrganisationID");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<OrganisationRole>(entity =>
+            {
+                entity.ToTable("OrganisationRoles");
+
+                entity.HasKey(e => e.OrganisationRoleId);
+
+                entity.Property(e => e.OrganisationRoleId).HasColumnName("OrganisationRoleID");
+                entity.Property(e => e.OrganisationId).HasColumnName("OrganisationID");
+                entity.Property(e => e.RoleId).HasColumnName("RoleID");
+
+                entity.HasOne(x => x.Organisation)
+                    .WithMany(x => x.OrganisationRoles)
+                    .HasForeignKey(x => x.OrganisationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_OrganisationRole_Organisation");
+
+                entity.HasOne(x => x.Role)
+                    .WithMany(x => x.OrganisationRoles)
+                    .HasForeignKey(x => x.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_OrganisationRole_Role");
+            });
         }
     }
 }

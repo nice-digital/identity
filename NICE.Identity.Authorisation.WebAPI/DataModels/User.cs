@@ -62,6 +62,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 		public ICollection<UserRole> UserRoles { get; set; }
         public ICollection<TermsVersion> UserCreatedTermsVersions { get; set; }
         public ICollection<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
+        public ICollection<Job> Jobs { get; set; }
 
         public string DisplayName => $"{FirstName} {LastName}".Trim();
 
