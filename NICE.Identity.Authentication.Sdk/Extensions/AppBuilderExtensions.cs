@@ -19,7 +19,9 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
 using NICE.Identity.Authentication.Sdk.SessionStore;
+using NICE.Identity.Authentication.Sdk.Tracking;
 using Claim = System.Security.Claims.Claim;
+using static NICE.Identity.Authentication.Sdk.Constants;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
@@ -131,6 +133,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						var userId = notification.AuthenticationTicket.Identity.Claims
 							.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.NameIdentifier))?.Value;
 						var host = notification.Request.Host.Value;
+						var googleClientId = notification.AuthenticationTicket.Identity.Claims.FirstOrDefault(claim => claim.Type.Equals(IdTokenPayload.tempCid))?.Value;
 						var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken,
 							new List<string> {host}, localHttpClient);
 
@@ -140,6 +143,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 						claimsToAdd.Add(new Claim(AuthenticationConstants.Tokens.AccessToken, notification.ProtocolMessage.AccessToken));
 						
 						notification.AuthenticationTicket.Identity.AddClaims(claimsToAdd);
+
+						var cookies = notification.Request.Cookies.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+						TrackingService.TrackSuccessfulSignIn(localHttpClient, notification.Request.Host.Value, authConfiguration.GoogleTrackingId, googleClientId);
 					},
 
 					RedirectToIdentityProvider = notification =>

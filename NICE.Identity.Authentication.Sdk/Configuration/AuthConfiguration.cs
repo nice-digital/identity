@@ -14,6 +14,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		string LoginPath { get; }
 		string LogoutPath { get; }
 		AuthConfiguration.RedisConfig RedisConfiguration { get; }
+		string GoogleTrackingId { get;  }
 	}
 
 	/// <summary>
@@ -43,6 +44,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			RolesWithAccessToUserProfiles = configuration.GetSection(appSettingsSectionName + ":RolesWithAccessToUserProfiles").Get<string[]>() ?? new string[0];
 			LoginPath = section["LoginPath"];
 			LogoutPath = section["LogoutPath"];
+			GoogleTrackingId = section["GoogleTrackingId"];
 
 			var redisSection = configuration.GetSection(appSettingsSectionName + ":RedisServiceConfiguration");
 			RedisConfiguration = new RedisConfig(
@@ -52,7 +54,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		}
 #endif
 		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
-			string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
+			string googleTrackingId, string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
 			bool redisEnabled = false, string redisConnectionString = null)
 		{
 			TenantDomain = tenantDomain;
@@ -62,6 +64,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 
 			LoginPath = loginPath;
 			LogoutPath = logoutPath;
+			GoogleTrackingId = googleTrackingId;
 
 			RedisConfiguration = new RedisConfig(
 				enabled: redisEnabled,
@@ -122,5 +125,6 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		}
 
 		public RedisConfig RedisConfiguration { get; private set; }
+		public string GoogleTrackingId { get; private set; }
 	}
 }

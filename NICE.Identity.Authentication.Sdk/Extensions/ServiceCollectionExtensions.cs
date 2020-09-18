@@ -21,8 +21,10 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Tracking;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
+using static NICE.Identity.Authentication.Sdk.Constants;
 
 namespace NICE.Identity.Authentication.Sdk.Extensions
 {
@@ -148,7 +150,13 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                         var userId = context.SecurityToken.Subject;
                         var claimsToAdd = await ClaimsHelper.AddClaimsToUser(authConfiguration, userId, accessToken, new List<string> { context.HttpContext.Request.Host.Host }, localClient);
                         context.Principal.AddIdentity(new ClaimsIdentity(claimsToAdd, null, ClaimType.DisplayName, ClaimType.Role));
-                       // context.Success(); //this causes a loop
+
+                        var googleClientId = string.Empty;
+                        if(context.SecurityToken.Payload.Any(t => t.Key == IdTokenPayload.tempCid))
+                            googleClientId = context.SecurityToken.Payload.FirstOrDefault(t => t.Key == IdTokenPayload.tempCid).Value.ToString();
+                        TrackingService.TrackSuccessfulSignIn(localClient, context.HttpContext.Request.Host.Value, authConfiguration.GoogleTrackingId, googleClientId);
+
+                        // context.Success(); //don't do this, it causes a redirect loop
                     },
                     OnRedirectToIdentityProvider = context =>
                     {
@@ -203,11 +211,11 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
             Action<AuthorizationOptions> defaultOptions = options => { };
 
-            #if NETSTANDARD
+#if NETSTANDARD
                 services.AddAuthorization(authorizationOptions ?? defaultOptions);
-            #else
+#else
             	services.AddAuthorizationCore(authorizationOptions ?? defaultOptions);
-            #endif
+#endif
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorisationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
         }
