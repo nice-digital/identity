@@ -30,8 +30,8 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 				ConnectionString = connectionString;
 			}
 
-			public bool Enabled { get; private set; }
-			public string ConnectionString { get; private set; }
+			public bool Enabled { get; set; }
+			public string ConnectionString { get; set; }
 		}
 
 #if NETSTANDARD2_0 || NETCOREAPP3_1
@@ -86,15 +86,15 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 				CallBackPath = callBackPath;
 			}
 
-			public string ClientId { get; private set; }
-			public string ClientSecret { get; private set; }
-			public string RedirectUri { get; private set; }
-			public string PostLogoutRedirectUri { get; private set; }
+			public string ClientId { get; set; }
+			public string ClientSecret { get; set; }
+			public string RedirectUri { get; set; }
+			public string PostLogoutRedirectUri { get; set; }
 
-			public string AuthorisationServiceUri { get; private set; }
-			public string CallBackPath { get; private set; }
+			public string AuthorisationServiceUri { get; set; }
+			public string CallBackPath { get; set; }
 		}
-		public WebSettingsType WebSettings { get; private set; }
+		public WebSettingsType WebSettings { get; set; }
 
 
 		public class MachineToMachineSettingsType
@@ -104,9 +104,9 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 				ApiIdentifier = apiIdentifier;
 			}
 
-			public string ApiIdentifier { get; private set; }
+			public string ApiIdentifier { get; set; }
 		}
-		public MachineToMachineSettingsType MachineToMachineSettings { get; private set; }
+		public MachineToMachineSettingsType MachineToMachineSettings { get; set; }
 
 		public IEnumerable<string> RolesWithAccessToUserProfiles { get; }
 
@@ -124,7 +124,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			set => _logoutPath = value;
 		}
 
-		public RedisConfig RedisConfiguration { get; private set; }
-		public string GoogleTrackingId { get; private set; }
+		public RedisConfig RedisConfiguration { get; set; }
+		public string GoogleTrackingId { get; set; }
 	}
 }
