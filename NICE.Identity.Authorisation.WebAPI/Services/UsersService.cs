@@ -88,10 +88,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                                 || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
                                 || (u.EmailAddress!= null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
                                 || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%")))
+	                .OrderByDescending(user => user.UserId)
 	                .Select(user => new User(user)).ToList();
 
             }
-            return _context.Users.Select(user => new User(user)).ToList();
+            return _context.Users.OrderByDescending(user => user.UserId).Select(user => new User(user)).ToList();
 		}
 
 		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
