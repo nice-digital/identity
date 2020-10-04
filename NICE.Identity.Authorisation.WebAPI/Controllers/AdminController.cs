@@ -20,12 +20,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         private readonly ILogger<AdminController> _logger;
         private readonly IWebHostEnvironment _environment;
         private readonly IUsersService _usersService;
-
-        public AdminController(ILogger<AdminController> logger, IWebHostEnvironment environment, IUsersService usersService)
+		private readonly IProviderManagementService _providerManagementService;
+		public AdminController(ILogger<AdminController> logger, IWebHostEnvironment environment, IUsersService usersService, IProviderManagementService providerManagementService)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _environment = environment;
 	        _usersService = usersService;
+			_providerManagementService = providerManagementService;
         }
 
         /// <summary>
@@ -59,5 +60,27 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
 	        }
         }
-    }
+
+		/// <summary>
+		/// get user with id
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <returns></returns>
+		[HttpGet("getmanagementapitoken")]
+		[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[Produces("application/json")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		public IActionResult GetManagementAPIToken()
+		{
+			try
+			{
+				return await Ok(_providerManagementService.GetAccessTokenForManagementAPI());
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+			}
+		}
+	}
 }
