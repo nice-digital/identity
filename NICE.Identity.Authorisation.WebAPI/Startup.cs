@@ -16,7 +16,10 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.IO;
 using System.Reflection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
+using HealthChecks.UI.Client;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -44,10 +47,10 @@ namespace NICE.Identity.Authorisation.WebAPI
 		public void ConfigureServices(IServiceCollection services)
 		{
 			AppSettings.Configure(services, Configuration);
+			var sqlConnectionString = Configuration.GetConnectionString("DefaultConnection");
 			services.AddDbContext<IdentityContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+				options.UseSqlServer(sqlConnectionString));
 
-			//services.TryAddSingleton<ISeriLogger, SeriLogger>();
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IVerificationEmailService, VerificationEmailService>();
@@ -64,9 +67,9 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
 
-			services.AddAuthentication(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
-            services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
-			//services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
+			var authConfiguration = new AuthConfiguration(Configuration, "IdentityApiConfiguration");
+			services.AddAuthentication(authConfiguration);
+            services.AddAuthorisation(authConfiguration);
 
 			services.AddControllers();
 
@@ -128,7 +131,23 @@ namespace NICE.Identity.Authorisation.WebAPI
 	                        .Build();
                     });
             });
-        }
+
+			var healthChecksBuilder = services.AddHealthChecks();
+			healthChecksBuilder.AddSqlServer(connectionString: sqlConnectionString,
+				healthQuery: "SELECT 1;",
+				name: "Identity database",
+				failureStatus: HealthStatus.Degraded);
+
+			if (authConfiguration.RedisConfiguration.Enabled)
+			{
+				healthChecksBuilder.AddRedis(
+					redisConnectionString: authConfiguration.RedisConfiguration.ConnectionString,
+					name: "Redis",
+					failureStatus: HealthStatus.Degraded);
+			}
+
+			services.AddHealthChecksUI().AddInMemoryStorage();
+		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifetime, ILogger<Startup> startupLogger)
@@ -155,10 +174,17 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			app.UseAuthentication(); //this line must be in between UseRouting and UseEndpoints
 			app.UseAuthorization();
-			
-			app.UseEndpoints(endpoints =>
+
+			app.UseEndpoints(config =>
 			{
-				endpoints.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
+				config.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
+				config.MapHealthChecks("healthz", new HealthCheckOptions()
+				{
+					Predicate = _ => true,
+					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+				});
+				config.MapHealthChecksUI();
+				config.MapDefaultControllerRoute();
 			});
 
 			if (AppSettings.EnvironmentConfig.UseSwaggerUI)
