@@ -71,11 +71,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public IActionResult GetManagementAPIToken()
+		public async Task<IActionResult> GetManagementAPIToken()
 		{
 			try
 			{
-				return await Ok(_providerManagementService.GetAccessTokenForManagementAPI());
+				return Ok(await _providerManagementService.GetAccessTokenForManagementAPI());
 			}
 			catch (Exception e)
 			{
