@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth0.Core.Collections;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -144,6 +145,33 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
 
             _logger.LogInformation($"Finished Revoking {refreshTokens.Count()} Refresh Tokens");
+        }
+
+
+        public async Task<IPagedList<Auth0.ManagementApi.Models.User>> GetUsers()
+        {
+	        _logger.LogInformation($"Getting users from management api");
+
+	        var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+	        var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _httpClient);
+	        try
+	        {
+
+		        var pagination = new PaginationInfo(0, 10, true);
+
+
+                var last10UsersWithTotals = await managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = "created_at:-1",},
+	                pagination);
+
+
+		        return last10UsersWithTotals;
+
+	        }
+	        catch (Exception e)
+	        {
+		        _logger.LogError(e.Message);
+		        throw new Exception("Error when calling the Management API.", e);
+	        }
         }
     }
 }

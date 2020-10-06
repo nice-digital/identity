@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Auth0.Core.Collections;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -12,5 +13,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Task<string> GetAccessTokenForManagementAPI();
 
         Task RevokeRefreshTokensForUser(string nameIdentifier);
+
+        Task<IPagedList<Auth0.ManagementApi.Models.User>> GetUsers();
+
     }
 }

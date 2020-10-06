@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 using HealthChecks.UI.Client;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NICE.Identity.Authorisation.WebAPI.HealthChecks;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -30,9 +31,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 		private const string ApiVersion = "v1";
         private const string ApiDescription = "NICE Identity API";
 
-		//todo: delete 
-		private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
-        
         readonly string CorsPolicyName = "IdentityCorsPolicy";
 
 		public Startup(IConfiguration configuration, IWebHostEnvironment env)
@@ -132,11 +130,17 @@ namespace NICE.Identity.Authorisation.WebAPI
                     });
             });
 
+			//health check code
+
 			var healthChecksBuilder = services.AddHealthChecks();
+
 			healthChecksBuilder.AddSqlServer(connectionString: sqlConnectionString,
 				healthQuery: "SELECT 1;",
 				name: "Identity database",
 				failureStatus: HealthStatus.Degraded);
+
+			healthChecksBuilder.AddCheck<DuplicateCheck>("Duplicate email addresses in DB");
+			healthChecksBuilder.AddCheck<UserSyncCheck>("Users are synchronised between databases");
 
 			if (authConfiguration.RedisConfiguration.Enabled)
 			{
