@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Auth0.Core.Collections;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -14,7 +15,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         Task RevokeRefreshTokensForUser(string nameIdentifier);
 
-        Task<IPagedList<Auth0.ManagementApi.Models.User>> GetUsers();
-
+        Task<(int totalUsersCount, List<Auth0ManagementService.BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount();
     }
 }

@@ -150,7 +150,11 @@ namespace NICE.Identity.Authorisation.WebAPI
 					failureStatus: HealthStatus.Degraded);
 			}
 
-			services.AddHealthChecksUI().AddInMemoryStorage();
+			if (AppSettings.EnvironmentConfig.UseHealthChecksUI)
+			{
+				services.AddHealthChecksUI(setupSettings: setup => { setup.SetApiMaxActiveRequests(1); })
+					.AddInMemoryStorage();
+			}
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -181,14 +185,17 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			app.UseEndpoints(config =>
 			{
-				config.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
-				config.MapHealthChecks("healthz", new HealthCheckOptions()
+				config.MapDefaultControllerRoute();
+
+				config.MapHealthChecks(AppSettings.EnvironmentConfig.HealthChecksAPIEndpoint, new HealthCheckOptions()
 				{
 					Predicate = _ => true,
 					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 				});
-				config.MapHealthChecksUI();
-				config.MapDefaultControllerRoute();
+				if (AppSettings.EnvironmentConfig.UseHealthChecksUI)
+				{
+					config.MapHealthChecksUI();
+				}
 			});
 
 			if (AppSettings.EnvironmentConfig.UseSwaggerUI)

@@ -148,7 +148,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         }
 
 
-        public async Task<IPagedList<Auth0.ManagementApi.Models.User>> GetUsers()
+
+
+        public struct BasicUserInfo
+        {
+	        public string NameIdentifier;
+	        public string EmailAddress;
+
+        }
+
+        public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
         {
 	        _logger.LogInformation($"Getting users from management api");
 
@@ -156,16 +165,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _httpClient);
 	        try
 	        {
-
 		        var pagination = new PaginationInfo(0, 10, true);
 
 
-                var last10UsersWithTotals = await managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = "created_at:-1",},
-	                pagination);
+                var pagedUsers = await managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = "created_at:-1",}, pagination);
 
-
-		        return last10UsersWithTotals;
-
+                var last10Users= pagedUsers.Select(user => new BasicUserInfo {NameIdentifier = user.UserId, EmailAddress = user.Email}).ToList();
+                
+		        return (pagedUsers.Paging.Total, last10Users);
 	        }
 	        catch (Exception e)
 	        {

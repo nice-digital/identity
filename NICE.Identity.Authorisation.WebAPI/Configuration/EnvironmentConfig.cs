@@ -4,5 +4,7 @@
 	{
 		public string Name { get; set; }
 		public bool UseSwaggerUI { get; set; }
+		public string HealthChecksAPIEndpoint { get; set; }
+		public bool UseHealthChecksUI { get; set; }
 	}
 }
