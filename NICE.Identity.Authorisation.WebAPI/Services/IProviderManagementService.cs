@@ -1,11 +1,10 @@
+using NICE.Identity.Authorisation.WebAPI.DataModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Auth0.Core.Collections;
-using NICE.Identity.Authorisation.WebAPI.DataModels;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
-    public interface IProviderManagementService
+	public interface IProviderManagementService
     {
         Task UpdateUser(string authenticationProviderUserId, User user);
 
@@ -15,6 +14,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         Task RevokeRefreshTokensForUser(string nameIdentifier);
 
-        Task<(int totalUsersCount, List<Auth0ManagementService.BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount();
+        Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount();
     }
 }

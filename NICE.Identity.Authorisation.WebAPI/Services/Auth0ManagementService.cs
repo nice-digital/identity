@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Auth0.Core.Collections;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -150,12 +151,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 
 
-        public struct BasicUserInfo
-        {
-	        public string NameIdentifier;
-	        public string EmailAddress;
-
-        }
+       
 
         public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
         {
@@ -170,7 +166,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 var pagedUsers = await managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = "created_at:-1",}, pagination);
 
-                var last10Users= pagedUsers.Select(user => new BasicUserInfo {NameIdentifier = user.UserId, EmailAddress = user.Email}).ToList();
+                var last10Users= pagedUsers.Select(user => new BasicUserInfo( nameIdentifier: user.UserId, emailAddress: user.Email)).ToList();
                 
 		        return (pagedUsers.Paging.Total, last10Users);
 	        }

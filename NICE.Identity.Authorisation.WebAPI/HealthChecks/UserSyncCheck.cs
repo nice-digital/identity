@@ -1,15 +1,21 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
+using NICE.Identity.Authorisation.WebAPI.Services;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using NICE.Identity.Authorisation.WebAPI.Services;
 
 namespace NICE.Identity.Authorisation.WebAPI.HealthChecks
 {
-	public class UserSyncCheck : IHealthCheck
+	public interface IUserSyncCheck : IHealthCheck
+	{
+		Task<UserSync> GetUserSyncData();
+	}
+
+	public class UserSyncCheck : IUserSyncCheck
 	{
 		private readonly IProviderManagementService _providerManagementService;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -20,7 +26,7 @@ namespace NICE.Identity.Authorisation.WebAPI.HealthChecks
 			_serviceScopeFactory = serviceScopeFactory;
 		}
 
-		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+		public async Task<UserSync> GetUserSyncData()
 		{
 			using (var scope = _serviceScopeFactory.CreateScope())
 			{
@@ -28,35 +34,41 @@ namespace NICE.Identity.Authorisation.WebAPI.HealthChecks
 
 				var allUsersInLocalDB = dbContext.Users.ToList();
 
-				var lastTenUsersAndTotalCountFromProvider =
-					await _providerManagementService.GetLastTenUsersAndTotalCount();
-
-
-				var countsMatch = allUsersInLocalDB.Count.Equals(lastTenUsersAndTotalCountFromProvider.totalUsersCount);
+				var lastTenUsersAndTotalCountFromProvider = await _providerManagementService.GetLastTenUsersAndTotalCount();
 
 				var usersNotInLocalDB = lastTenUsersAndTotalCountFromProvider.last10Users
 					.Where(auth0User => !allUsersInLocalDB.Any(localUser =>
 						localUser.NameIdentifier.Equals(auth0User.NameIdentifier, StringComparison.OrdinalIgnoreCase)))
 					.ToList();
 
-				var usersPresentInLocalDB = !usersNotInLocalDB.Any();
-				var usersNotInDBDescription = usersPresentInLocalDB
-					? null
-					: $"The following of the 10 most recent users in the provider database are not in the local database: {string.Join(',', usersNotInLocalDB.Select(u => u.NameIdentifier))}";
-
-				if (countsMatch && usersPresentInLocalDB)
-					return HealthCheckResult.Healthy();
-
-				if (countsMatch && !usersPresentInLocalDB)
-					return HealthCheckResult.Unhealthy(description: $"The user counts match ({allUsersInLocalDB.Count}). {usersNotInDBDescription}"); //
-
-				var countsNotMatchingErrorText = $"The user counts don't match between the provider user table ({lastTenUsersAndTotalCountFromProvider.totalUsersCount}) and the local database ({allUsersInLocalDB.Count})."; //({lastTenUsersAndTotalCountFromProvider.totalUsersCount}) //({allUsersInLocalDB.Count})
-
-				if (usersPresentInLocalDB)
-					return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} However the most recent 10 users in the provider are in the local database.");
-
-				return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} {usersNotInDBDescription}");
+				return new UserSync(totalUsersInLocalDatabase: allUsersInLocalDB.Count,
+					totalUsersInRemoteDatabase: lastTenUsersAndTotalCountFromProvider.totalUsersCount,
+					usersNotInLocalDbOfTheTenMostRecent: usersNotInLocalDB);
 			}
+		}
+
+		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+		{
+			var userSyncData = await GetUserSyncData();
+
+			var countsMatch = userSyncData.TotalUsersInLocalDatabase.Equals(userSyncData.TotalUsersInRemoteDatabase);
+
+			var usersPresentInLocalDB = !userSyncData.UsersNotInLocalDBOfTheTenMostRecent.Any();
+			
+			if (countsMatch && usersPresentInLocalDB)
+				return HealthCheckResult.Healthy();
+
+			var usersNotInDBDescription = "Not all of the 10 most recently added users in the remote database are in the local database.";
+
+			if (countsMatch && !usersPresentInLocalDB)
+				return HealthCheckResult.Unhealthy(description: $"The user counts match. {usersNotInDBDescription}"); //
+
+			var countsNotMatchingErrorText = $"The user counts don't match between the provider user table and the local database.";
+
+			if (usersPresentInLocalDB)
+				return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} However the most recent 10 users in the provider are in the local database.");
+
+			return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} {usersNotInDBDescription}");
 		}
 	}
 }
