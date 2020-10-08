@@ -58,15 +58,15 @@ namespace NICE.Identity.Authorisation.WebAPI.HealthChecks
 			if (countsMatch && usersPresentInLocalDB)
 				return HealthCheckResult.Healthy();
 
-			var usersNotInDBDescription = "Not all of the 10 most recently added users in the remote database are in the local database.";
+			var usersNotInDBDescription = "Users out of sync.";
 
 			if (countsMatch && !usersPresentInLocalDB)
 				return HealthCheckResult.Unhealthy(description: $"The user counts match. {usersNotInDBDescription}"); //
 
-			var countsNotMatchingErrorText = $"The user counts don't match between the provider user table and the local database.";
+			var countsNotMatchingErrorText = $"The user counts don't match.";
 
 			if (usersPresentInLocalDB)
-				return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} However the most recent 10 users in the provider are in the local database.");
+				return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} However the users are in sync.");
 
 			return HealthCheckResult.Unhealthy(description: $"{countsNotMatchingErrorText} {usersNotInDBDescription}");
 		}
