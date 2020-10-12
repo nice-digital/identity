@@ -111,19 +111,19 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
             
-            userService.CreateUser(new ApiModels.User
-            {
-                NameIdentifier = "auth|user1",
-                FirstName = "FirstName1",
-                LastName = "LastName1",
-                EmailAddress = "user1@example.com"
-            });
-            userService.CreateUser(new ApiModels.User
+            userService.CreateUser(new ApiModels.User 
             {
                 NameIdentifier = "auth|user2",
                 FirstName = "FirstName2",
                 LastName = "LastName2",
                 EmailAddress = "user2@example.com"
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+	            NameIdentifier = "auth|user1",
+	            FirstName = "FirstName1",
+	            LastName = "LastName1",
+	            EmailAddress = "user1@example.com"
             });
             context.SaveChanges();
 
@@ -137,6 +137,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             context.Users.Count().ShouldBe(2);
+            
+            //note: users are returned sorted by most recently added first
 
             usersFilterByFirstName.Count.ShouldBe(1);
             usersFilterByFirstName.First().NameIdentifier.ShouldBe("auth|user1");
