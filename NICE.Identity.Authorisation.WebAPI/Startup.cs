@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
@@ -12,15 +15,12 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Environments;
+using NICE.Identity.Authorisation.WebAPI.HealthChecks;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
-using HealthChecks.UI.Client;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using NICE.Identity.Authorisation.WebAPI.HealthChecks;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -151,12 +151,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 					name: "Redis",
 					failureStatus: HealthStatus.Degraded);
 			}
-
-			if (AppSettings.EnvironmentConfig.UseHealthChecksUI)
-			{
-				services.AddHealthChecksUI(setupSettings: setup => { setup.SetApiMaxActiveRequests(1); })
-					.AddInMemoryStorage();
-			}
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -194,10 +188,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 					Predicate = _ => true,
 					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 				});
-				if (AppSettings.EnvironmentConfig.UseHealthChecksUI)
-				{
-					config.MapHealthChecksUI();
-				}
 			});
 
 			if (AppSettings.EnvironmentConfig.UseSwaggerUI)
