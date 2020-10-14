@@ -30,7 +30,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
     {
-        public static void AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, bool allowNonSecureCookie = false, HttpClient httpClient = null)
+        public static AuthenticationBuilder AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, bool allowNonSecureCookie = false, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -40,7 +40,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			var localClient = httpClient ?? new HttpClient(); //this http client is used by this extension method only
 
 			// Add authentication services
-			services.AddAuthentication(options => {
+			var authenticationBuilder = services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -196,6 +196,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
                     }
                 };
             });
+			return authenticationBuilder;
         }
 
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
