@@ -19,6 +19,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 	{
 		Task<IEnumerable<UserDetails>> FindUsers(IEnumerable<string> nameIdentifiers, HttpClient httpClient = null);
 		Task<Dictionary<string, IEnumerable<string>>> FindRoles(IEnumerable<string> nameIdentifiers, string host, HttpClient httpClient = null);
+		Task<string> RevokeRefreshTokensForUser(string nameIdentifier, HttpClient httpClient = null);
 	}
 
 	public class APIService : IAPIService
@@ -102,6 +103,42 @@ namespace NICE.Identity.Authentication.Sdk.API
 			if (responseMessage.IsSuccessStatusCode)
 			{
 				return JsonConvert.DeserializeObject<Dictionary<string, IEnumerable<string>>>(await responseMessage.Content.ReadAsStringAsync());
+			}
+			throw new Exception($"Error calling the API. status code: {(int)responseMessage.StatusCode}");
+		}
+
+		/// <summary>
+		/// Refresh users token
+		/// </summary>
+		/// <param name="nameIdentifier"></param>
+		/// <param name="httpClient"></param>
+		/// <returns></returns>
+		public async Task<string> RevokeRefreshTokensForUser(string nameIdentifier, HttpClient httpClient = null)
+		{
+			if (string.IsNullOrEmpty(nameIdentifier))
+				throw new ArgumentNullException(nameof(nameIdentifier));
+
+			var httpContext = _httpContextAccessor.HttpContext;
+			var accessToken = await httpContext.GetTokenAsync("access_token");
+			if (string.IsNullOrEmpty(accessToken))
+				throw new Exception("Access token not found");
+
+			var client = httpClient ?? new HttpClient();
+			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.RevokeRefreshTokensForUserFullPath}");
+
+			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri)
+			{
+				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifier), Encoding.UTF8, "application/json"),
+				Headers = {
+					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
+				}
+			};
+			httpRequestMessage.Headers.Add(AuthenticationConstants.HeaderForAddingAllRolesForWebsite, httpContext.Request.Host.Host);
+
+			var responseMessage = await client.SendAsync(httpRequestMessage); //call the api to revoke the refresh tokens for the user
+			if (responseMessage.IsSuccessStatusCode)
+			{
+				return await responseMessage.Content.ReadAsStringAsync();
 			}
 			throw new Exception($"Error calling the API. status code: {(int)responseMessage.StatusCode}");
 		}
