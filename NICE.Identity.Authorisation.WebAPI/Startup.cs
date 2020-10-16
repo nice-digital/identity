@@ -37,7 +37,7 @@ namespace NICE.Identity.Authorisation.WebAPI
         private const string CorsPolicyName = "IdentityCorsPolicy";
         private const string APIKeyPolicyName = "APIKeyPolicy";
 
-        private const string AuthenticatedHealthCheckTag = "authenticated-health-check";
+        private const string AuthenticatedHealthCheckTag = "authenticated";
 
 		public Startup(IConfiguration configuration, IWebHostEnvironment env)
 		{

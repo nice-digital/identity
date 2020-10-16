@@ -29,11 +29,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 				.UseSerilog() 
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
-					//webBuilder.UseKestrel()
-					//   .ConfigureKestrel(serverOptions =>
-					//   {
-					//	   serverOptions.ListenAnyIP(6969);
-					//   });
 					webBuilder.UseStartup<Startup>();
 				});
 	}
