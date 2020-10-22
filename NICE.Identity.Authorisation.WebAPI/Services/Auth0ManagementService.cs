@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -144,6 +145,30 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
 
             _logger.LogInformation($"Finished Revoking {refreshTokens.Count()} Refresh Tokens");
+        }
+
+        public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
+        {
+	        _logger.LogInformation($"Getting users from management api");
+
+	        var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+	        var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _httpClient);
+	        try
+	        {
+		        var pagination = new PaginationInfo(pageNo: 0, perPage: 10, includeTotals: true);
+
+		        const string sortByCreatedDescending = "created_at:-1";
+		        var pagedUsers = await managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = sortByCreatedDescending, }, pagination);
+
+                var last10Users= pagedUsers.Select(user => new BasicUserInfo( nameIdentifier: user.UserId, emailAddress: user.Email)).ToList();
+                
+		        return (pagedUsers.Paging.Total, last10Users);
+	        }
+	        catch (Exception e)
+	        {
+		        _logger.LogError(e.ToString());
+		        throw new Exception("Error when calling the Management API.", e);
+	        }
         }
     }
 }
