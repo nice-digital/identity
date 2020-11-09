@@ -9,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NICE.Identity.Authorisation.WebAPI;
 using Xunit;
+using Xunit.Sdk;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
@@ -25,13 +27,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Create_user_where_user_email_exists_but_name_identifier_is_different_creates_new_user_record() //i.e. duplicate emails are valid.
+        public void Create_user_where_user_email_exists_but_name_identifier_is_different_and_existing_user_is_migrated_does_not_create_new_user() 
         {
             //Arrange
             const string existingUserEmail = "existing.user@email.com";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
-            context.Users.Add(new DataModels.User {NameIdentifier = "some name identifier", EmailAddress = existingUserEmail });
+            context.Users.Add(new DataModels.User {NameIdentifier = "some name identifier", EmailAddress = existingUserEmail, IsMigrated = true, IsInAuthenticationProvider = false});
             context.SaveChanges();
 
             //Act
@@ -39,10 +41,21 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             var allUsers = context.Users.ToList();
-            allUsers.Count.ShouldBe(2);
-            var usersWithSameEmail = allUsers.Where(user => user.EmailAddress == existingUserEmail);
-            usersWithSameEmail.Count().ShouldBe(2);
-            usersWithSameEmail.Select(u => u.NameIdentifier).Distinct().Count().ShouldBe(2);
+            allUsers.Count.ShouldBe(1);
+        }
+
+        [Fact]
+        public void Create_user_where_user_email_exists_but_name_identifier_is_different_and_existing_user_is_not_migrated() 
+        {
+	        //Arrange
+	        const string existingUserEmail = "existing.user@email.com";
+	        var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+	        context.Users.Add(new DataModels.User { NameIdentifier = "some name identifier", EmailAddress = existingUserEmail, IsMigrated = false, IsInAuthenticationProvider = true });
+	        context.SaveChanges();
+
+	        //Act + Assert
+            Assert.Throws<DuplicateEmailException>(() => userService.CreateUser(new ApiModels.User { NameIdentifier = "another name identifier", EmailAddress = existingUserEmail }));
         }
 
         [Fact]
