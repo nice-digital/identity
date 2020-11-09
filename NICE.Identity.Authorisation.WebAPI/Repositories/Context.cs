@@ -74,6 +74,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            return foundUserByEmail;
             }
 
+            if (foundUserByEmail != null)
+            {
+	            throw new DuplicateEmailException($"Duplicate email address supplied: {foundUserByEmail.EmailAddress}");
+            }
+
             user.InitialRegistrationDate = DateTime.UtcNow;
             Users.Add(user);
             SaveChanges();
