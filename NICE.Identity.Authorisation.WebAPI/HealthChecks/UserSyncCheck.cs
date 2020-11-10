@@ -32,17 +32,19 @@ namespace NICE.Identity.Authorisation.WebAPI.HealthChecks
 			{
 				var dbContext = scope.ServiceProvider.GetService<IdentityContext>(); //dbContext not thread safe, so creating in it's own scope.
 
-				var allUsersInLocalDB = dbContext.Users.ToList();
+				var userCountLocalDB = dbContext.Users.ToList();
+				var userCountLocalDbWhereMarkedInRemote = userCountLocalDB.Count(u => u.IsInAuthenticationProvider);
 
 				var lastTenUsersAndTotalCountFromProvider = await _providerManagementService.GetLastTenUsersAndTotalCount();
 
 				var usersNotInLocalDB = lastTenUsersAndTotalCountFromProvider.last10Users
-					.Where(auth0User => !allUsersInLocalDB.Any(localUser =>
+					.Where(auth0User => !userCountLocalDB.Any(localUser =>
 						localUser.NameIdentifier.Equals(auth0User.NameIdentifier, StringComparison.OrdinalIgnoreCase)))
 					.ToList();
 
-				return new UserSync(totalUsersInLocalDatabase: allUsersInLocalDB.Count,
-					totalUsersInRemoteDatabase: lastTenUsersAndTotalCountFromProvider.totalUsersCount,
+				return new UserSync(userCountLocalDB: userCountLocalDB.Count,
+					userCountLocalDbWhereMarkedInRemote: userCountLocalDbWhereMarkedInRemote,
+					userCountRemoteDB: lastTenUsersAndTotalCountFromProvider.totalUsersCount,
 					usersNotInLocalDbOfTheTenMostRecent: usersNotInLocalDB);
 			}
 		}
@@ -51,7 +53,7 @@ namespace NICE.Identity.Authorisation.WebAPI.HealthChecks
 		{
 			var userSyncData = await GetUserSyncData();
 
-			var countsMatch = userSyncData.TotalUsersInLocalDatabase.Equals(userSyncData.TotalUsersInRemoteDatabase);
+			var countsMatch = userSyncData.UserCountLocalDBWhereMarkedInRemote.Equals(userSyncData.UserCountRemoteDB);
 
 			var usersPresentInLocalDB = !userSyncData.UsersNotInLocalDBOfTheTenMostRecent.Any();
 			
