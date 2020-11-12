@@ -66,6 +66,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 				return new User(_context.CreateUser(userToCreate));
 			}
+			catch (DuplicateEmailException e)
+			{
+				_logger.LogError($"CreateUsers duplicate email address: {user.EmailAddress}, name identifier: ${user.NameIdentifier} - exception: {e.Message}");
+				throw;
+			}
 			catch (Exception e)
 			{
 				_logger.LogError($"Failed to create user {user.NameIdentifier} - exception: {e.Message}");

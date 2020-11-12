@@ -7,15 +7,17 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 	/// </summary>
 	public class UserSync
 	{
-		public UserSync(int totalUsersInLocalDatabase, int totalUsersInRemoteDatabase, IEnumerable<BasicUserInfo> usersNotInLocalDbOfTheTenMostRecent)
+		public UserSync(int userCountLocalDB, int userCountLocalDbWhereMarkedInRemote, int userCountRemoteDB, IEnumerable<BasicUserInfo> usersNotInLocalDbOfTheTenMostRecent)
 		{
-			TotalUsersInLocalDatabase = totalUsersInLocalDatabase;
-			TotalUsersInRemoteDatabase = totalUsersInRemoteDatabase;
+			UserCountLocalDB = userCountLocalDB;
+			UserCountLocalDBWhereMarkedInRemote = userCountLocalDbWhereMarkedInRemote;
+			UserCountRemoteDB = userCountRemoteDB;
 			UsersNotInLocalDBOfTheTenMostRecent = usersNotInLocalDbOfTheTenMostRecent;
 		}
 
-		public int TotalUsersInLocalDatabase { get; private set; }
-		public int TotalUsersInRemoteDatabase { get; private set; }
+		public int UserCountLocalDB { get; private set; }
+		public int UserCountLocalDBWhereMarkedInRemote { get; private set; }
+		public int UserCountRemoteDB { get; private set; }
 
 		/// <summary>
 		/// This does not include all the users. only the 10 most recent.
