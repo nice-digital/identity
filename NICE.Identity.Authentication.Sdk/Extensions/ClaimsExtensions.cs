@@ -1,4 +1,5 @@
-﻿using NICE.Identity.Authentication.Sdk.Domain;
+﻿using Newtonsoft.Json;
+using NICE.Identity.Authentication.Sdk.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,23 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		public static IEnumerable<string> Roles(this ClaimsPrincipal claimsPrincipal, string host)
 		{
 			return claimsPrincipal.Claims.Where(claim => claim.Type.Equals(ClaimType.Role) && claim.Issuer.Equals(host, StringComparison.OrdinalIgnoreCase)).Select(claim => claim.Value);
+		}
+
+		public static IEnumerable<Organisation> Organisations(this ClaimsPrincipal claimsPrincipal)
+		{
+			var serialisedOrganisationsClaim = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type.Equals(ClaimType.Organisations) && claim.Issuer.Equals(AuthenticationConstants.IdAMIssuer))?.Value;
+
+			if (string.IsNullOrEmpty(serialisedOrganisationsClaim))
+				return new List<Organisation>();
+
+			var organisations = JsonConvert.DeserializeObject<IEnumerable<Organisation>>(serialisedOrganisationsClaim);
+			return organisations;
+		}
+
+		public static IEnumerable<Organisation> OrganisationsAssignedAsLead(this ClaimsPrincipal claimsPrincipal)
+		{
+			var allOrganisations = Organisations(claimsPrincipal);
+			return allOrganisations.Where(org => org.IsLead);
 		}
 	}
 }

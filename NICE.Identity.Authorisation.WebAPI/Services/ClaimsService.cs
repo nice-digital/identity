@@ -3,6 +3,8 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Claim;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
@@ -76,7 +78,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				claims.Add(new Claim(ClaimType.Role, userRole.Role.Name, userRole.Role.Website.Host));
 			}
 
-            var latv = user.LatestAcceptedTermsVersion();
+		    if (user.Jobs.Any())
+		    {
+			    var organisations = user.Jobs.Select(job => new Authentication.Sdk.Domain.Organisation(job.Organisation.OrganisationId, job.Organisation.Name, job.IsLead)).ToList();
+			    claims.Add(new Claim(ClaimType.Organisations, JsonSerializer.Serialize(organisations), AuthenticationConstants.IdAMIssuer));
+		    }
+
+		    var latv = user.LatestAcceptedTermsVersion();
             if (latv != null) claims.Add(new Claim(ClaimType.TermsAndConditions, latv.TermsVersionId.ToString(), AuthenticationConstants.IdAMIssuer));
 
             return claims;
