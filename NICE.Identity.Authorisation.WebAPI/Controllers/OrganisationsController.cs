@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
+using NICE.Identity.Authentication.Sdk;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
@@ -159,6 +160,29 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             {
                 return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
             }
+        }
+
+        /// <summary>
+        /// get list of all users given in the nameIdentifiers parameter
+        /// </summary>
+        /// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
+        /// <returns></returns>
+        [HttpPost(Constants.AuthorisationURLs.GetOrganisationsRoute)]
+        [ProducesResponseType(typeof(List<Authentication.Sdk.Domain.Organisation>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration + "," + Policies.API.RolesWithAccessToUserProfilesPlaceholder)] //TODO: figure out if this is going to work.
+        public IActionResult GetOrganisationsByIds([FromBody] IEnumerable<int> organisationIds)
+        {
+	        try
+	        {
+		        var organisations = _organisationService.GetOrganisationsByOrganisationIds(organisationIds);
+		        return Ok(organisations);
+	        }
+	        catch (Exception e)
+	        {
+		        return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+	        }
         }
     }
 }

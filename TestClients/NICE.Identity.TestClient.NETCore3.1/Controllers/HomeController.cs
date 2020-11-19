@@ -34,8 +34,18 @@ namespace NICE.Identity.TestClient.Controllers
 			_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+	        try
+	        {
+		        var organisations = await _apiService.GetOrganisations(new List<int> { 1 });
+		        ViewData["Organisation1"] = JsonConvert.SerializeObject(organisations.FirstOrDefault());
+	        }
+	        catch (Exception ex)
+	        {
+		        ViewData["Organisation1"] = "error:" + ex.ToString();
+	        }
+
             return View();
         }
 
