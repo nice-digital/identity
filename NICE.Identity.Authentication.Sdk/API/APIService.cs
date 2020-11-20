@@ -19,7 +19,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 	{
 		Task<IEnumerable<UserDetails>> FindUsers(IEnumerable<string> nameIdentifiers, HttpClient httpClient = null);
 		Task<Dictionary<string, IEnumerable<string>>> FindRoles(IEnumerable<string> nameIdentifiers, string host, HttpClient httpClient = null);
-		Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, HttpClient httpClient = null);
+		Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken, HttpClient httpClient = null);
 	}
 
 	public class APIService : IAPIService
@@ -74,7 +74,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 		/// <param name="organisationIds"></param>
 		/// <param name="httpClient"></param>
 		/// <returns></returns>
-		public async Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, HttpClient httpClient = null)
+		public async Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken, HttpClient httpClient = null)
 		{
 			if (!organisationIds.Any())
 				return new List<Organisation>();
@@ -82,7 +82,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var pathAndQuery = Constants.AuthorisationURLs.GetOrganisationsFullPath;
 			var serialisedOrganisationIds = JsonConvert.SerializeObject(organisationIds);
 
-			return await PostToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, httpClient);
+			return await PostToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, httpClient, machineToMachineAccessToken.AccessToken);
 		}
 
 
@@ -94,10 +94,10 @@ namespace NICE.Identity.Authentication.Sdk.API
 		/// <param name="serialisedObjectToPost"></param>
 		/// <param name="httpClient"></param>
 		/// <returns></returns>
-		private async Task<T> PostToAPI<T>(string pathAndQuery, string serialisedObjectToPost, HttpClient httpClient = null)
+		private async Task<T> PostToAPI<T>(string pathAndQuery, string serialisedObjectToPost, HttpClient httpClient = null, string machineToMachineAccessToken = null)
 		{
 			var httpContext = _httpContextAccessor.HttpContext;
-			var accessToken = await httpContext.GetTokenAsync("access_token");
+			var accessToken = machineToMachineAccessToken ?? await httpContext.GetTokenAsync("access_token");
 			if (string.IsNullOrEmpty(accessToken))
 				throw new Exception("Access token not found");
 

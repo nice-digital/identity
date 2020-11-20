@@ -11,31 +11,40 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
 	public interface IApiToken
     {
-        Task<JwtToken> GetAccessToken(IAuthConfiguration authConfiguration);
+	    Task<JwtToken> GetAccessToken(string domain, string clientId, string clientSecret, string audience);
+		Task<JwtToken> GetAccessToken(IAuthConfiguration authConfiguration);
     }
 
     public class ApiToken : IApiToken
     {
+	    public async Task<JwtToken> GetAccessToken(string domain, string clientId, string clientSecret, string audience)
+	    {
+		    using (var client = new HttpClient() { BaseAddress = new Uri($"https://{domain}") })
+		    {
+			    var tokenRequestFormContent = new FormUrlEncodedContent(new Dictionary<string, string>
+			    {
+				    {"client_id", clientId },
+				    {"client_secret", clientSecret },
+				    {"audience", audience },
+				    {"grant_type", $"client_credentials" }
+			    });
+			    tokenRequestFormContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+			    var response = await client.PostAsync("/oauth/token", tokenRequestFormContent);
+			    if (response.IsSuccessStatusCode)
+			    {
+				    var serialisedJwtToken = await response.Content.ReadAsStringAsync();
+				    return JsonConvert.DeserializeObject<JwtToken>(serialisedJwtToken);
+			    }
+			    return null;
+		    }
+        }
+
         public async Task<JwtToken> GetAccessToken(IAuthConfiguration authConfiguration)
         {
-            using (var client = new HttpClient() { BaseAddress = new Uri($"https://{authConfiguration.TenantDomain}") })
-            {
-                var tokenRequestFormContent = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    {"client_id", $"{authConfiguration.WebSettings.ClientId}"},
-                    {"client_secret", $"{authConfiguration.WebSettings.ClientSecret}" },
-                    {"audience", $"{authConfiguration.MachineToMachineSettings.ApiIdentifier}" },
-                    {"grant_type", $"client_credentials" }
-                });
-                tokenRequestFormContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-                var response = await client.PostAsync("/oauth/token", tokenRequestFormContent);
-                if (response.IsSuccessStatusCode)
-                {
-	                var serialisedJwtToken = await response.Content.ReadAsStringAsync(); // .ReadFromJsonAsync<JwtToken>();
-	                return JsonConvert.DeserializeObject<JwtToken>(serialisedJwtToken);
-                }
-                return null;
-            }
+	        return await GetAccessToken(authConfiguration.TenantDomain,
+		        authConfiguration.WebSettings.ClientId,
+		        authConfiguration.WebSettings.ClientSecret,
+		        audience: authConfiguration.MachineToMachineSettings.ApiIdentifier);
         }
     }
 }

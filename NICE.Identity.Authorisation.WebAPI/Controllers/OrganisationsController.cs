@@ -171,7 +171,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(typeof(List<Authentication.Sdk.Domain.Organisation>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration + "," + Policies.API.RolesWithAccessToUserProfilesPlaceholder)] //TODO: figure out if this is going to work.
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration + "," + Policies.API.RolesWithAccessToUserProfilesPlaceholder)]
         public IActionResult GetOrganisationsByIds([FromBody] IEnumerable<int> organisationIds)
         {
 	        try
