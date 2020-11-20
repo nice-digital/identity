@@ -112,7 +112,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
 			{
-				Content = new StringContent(serialisedObjectToPost, Encoding.UTF8, MediaTypeNames.Application.Json),
+				Content = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json"),
 				Headers = {
 					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
 				}
