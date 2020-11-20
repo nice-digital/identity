@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.API;
 using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.TestClient.Models;
 
@@ -22,20 +23,37 @@ namespace NICE.Identity.TestClient.Controllers
         private readonly string _apiIdentifier;
         private readonly string _authorisationServiceUri;
 		private readonly string _authDomain;
-        private readonly IHttpClientFactory _clientFactory;
+		private readonly IConfiguration _configuration;
+		private readonly IHttpClientFactory _clientFactory;
         private readonly IAPIService _apiService;
+        private readonly IApiToken _apiToken;
 
-        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService)
+        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IApiToken apiToken)
         {
-            _clientFactory = clientFactory;
+	        _configuration = configuration;
+	        _clientFactory = clientFactory;
             _apiService = apiService;
+            _apiToken = apiToken;
             _apiIdentifier = configuration.GetSection("WebAppConfiguration").GetSection("ApiIdentifier").Value;
             _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
 			_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+	        try
+	        {
+		        var authConfiguration = new AuthConfiguration(_configuration, "WebAppConfiguration");
+		        var m2mToken = await _apiToken.GetAccessToken(authConfiguration);
+
+                var organisations = await _apiService.GetOrganisations(new List<int> { 1 }, m2mToken);
+		        ViewData["Organisation1"] = JsonConvert.SerializeObject(organisations.FirstOrDefault());
+	        }
+	        catch (Exception ex)
+	        {
+		        ViewData["Organisation1"] = "error:" + ex.ToString();
+	        }
+
             return View();
         }
 

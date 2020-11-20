@@ -4,6 +4,7 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
@@ -173,6 +174,71 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             deletedOrganisationResponse.ShouldBe(0);
             context.Organisations.Count().ShouldBe(1);
+        }
+
+        [Fact]
+        public void Get_Single_Organisation_By_Valid_OrganisationIds()
+        {
+	        //Arrange
+	        var context = GetContext();
+	        var organisationService = new OrganisationsService(context, _logger.Object);
+	        var organisationName = "Organisation";
+	        var createdOrganisationId = organisationService.CreateOrganisation(new ApiModels.Organisation
+	        {
+		        Name = organisationName,
+	        }).OrganisationId.GetValueOrDefault();
+
+	        //Act
+	        var organisation = organisationService.GetOrganisationsByOrganisationIds(new List<int>(){ createdOrganisationId });
+
+	        //Assert
+	        context.Organisations.Count().ShouldBe(1);
+	        organisation.Single().OrganisationName.ShouldBe(organisationName);
+        }
+
+        [Fact]
+        public void Get_Multiple_Organisations_By_Valid_OrganisationIds()
+        {
+	        //Arrange
+	        var context = GetContext();
+	        var organisationService = new OrganisationsService(context, _logger.Object);
+	        var organisationName1 = "Organisation1";
+	        var createdOrganisationId1 = organisationService.CreateOrganisation(new ApiModels.Organisation
+	        {
+		        Name = organisationName1,
+	        }).OrganisationId.GetValueOrDefault();
+	        var organisationName2 = "Organisation2";
+            var createdOrganisationId2 = organisationService.CreateOrganisation(new ApiModels.Organisation
+	        {
+		        Name = organisationName2,
+	        }).OrganisationId.GetValueOrDefault();
+
+            //Act
+            var organisations = organisationService.GetOrganisationsByOrganisationIds(new List<int>() { createdOrganisationId1, createdOrganisationId2 });
+
+	        //Assert
+	        organisations.Count().ShouldBe(2);
+		    organisations.First().OrganisationName.ShouldBe(organisationName1);
+		    organisations.Skip(1).First().OrganisationName.ShouldBe(organisationName2);
+        }
+
+        [Fact]
+        public void Get_Single_Organisation_By_Invalid_OrganisationIds()
+        {
+	        //Arrange
+	        var context = GetContext();
+	        var organisationService = new OrganisationsService(context, _logger.Object);
+	        var organisationName = "Organisation";
+	        var createdOrganisationId = organisationService.CreateOrganisation(new ApiModels.Organisation
+	        {
+		        Name = organisationName,
+	        }).OrganisationId.GetValueOrDefault();
+
+	        //Act
+	        var organisation = organisationService.GetOrganisationsByOrganisationIds(new List<int>() { 99 });
+
+	        //Assert
+	        organisation.Count().ShouldBe(0);
         }
     }
 }

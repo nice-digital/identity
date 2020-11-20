@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +20,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 	{
 		Task<IEnumerable<UserDetails>> FindUsers(IEnumerable<string> nameIdentifiers, HttpClient httpClient = null);
 		Task<Dictionary<string, IEnumerable<string>>> FindRoles(IEnumerable<string> nameIdentifiers, string host, HttpClient httpClient = null);
+		Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken, HttpClient httpClient = null);
 	}
 
 	public class APIService : IAPIService
@@ -43,31 +45,11 @@ namespace NICE.Identity.Authentication.Sdk.API
 			if (!nameIdentifiers.Any())
 				return new List<UserDetails>();
 
-			var httpContext = _httpContextAccessor.HttpContext;
-			var accessToken = await httpContext.GetTokenAsync("access_token");
-			if (string.IsNullOrEmpty(accessToken))
-				throw new Exception("Access token not found");
+			var pathAndQuery = Constants.AuthorisationURLs.FindUsersFullPath;
+			var serialisedNameIdentifiers = JsonConvert.SerializeObject(nameIdentifiers);
 
-			var client = httpClient ?? new HttpClient();
-			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindUsersFullPath}");
-
-			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
-			{
-				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifiers), Encoding.UTF8, "application/json"),
-				Headers = { 
-					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
-				}
-			};
-			httpRequestMessage.Headers.Add(AuthenticationConstants.HeaderForAddingAllRolesForWebsite, httpContext.Request.Host.Host);
-
-			var responseMessage = await client.SendAsync(httpRequestMessage); //call the api to get all the claims for the current user
-			if (responseMessage.IsSuccessStatusCode)
-			{
-				return JsonConvert.DeserializeObject<UserDetails[]>(await responseMessage.Content.ReadAsStringAsync());
-			}
-			throw new Exception($"Error calling the API. status code: {(int)responseMessage.StatusCode}");
+			return await PostToAPI<IEnumerable<UserDetails>>(pathAndQuery, serialisedNameIdentifiers, httpClient);
 		}
-
 
 		/// <summary>
 		/// Find Roles
@@ -81,17 +63,56 @@ namespace NICE.Identity.Authentication.Sdk.API
 			if (!nameIdentifiers.Any())
 				return new Dictionary<string, IEnumerable<string>>();
 
+			var pathAndQuery = $"{Constants.AuthorisationURLs.FindRolesFullPath}{WebUtility.UrlEncode(host)}";
+			var serialisedNameIdentifiers = JsonConvert.SerializeObject(nameIdentifiers);
+			
+			return await PostToAPI<Dictionary<string, IEnumerable<string>>>(pathAndQuery, serialisedNameIdentifiers, httpClient);
+		}
+
+		/// <summary>
+		///  GetOrganisations - This is called by comment collection, which stores OrganisationId's in it's database, but not the Organisation name.
+		///
+		/// comment collection calls this when the user is not logged in, so it takes a machine to machine access token as a parameter, which can be retrieved
+		/// by calling ApiToken.GetAccessToken
+		/// </summary>
+		/// <param name="organisationIds"></param>
+		/// <param name="machineToMachineAccessToken"></param>
+		/// <param name="httpClient"></param>
+		/// <returns></returns>
+		public async Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken = null, HttpClient httpClient = null)
+		{
+			if (!organisationIds.Any())
+				return new List<Organisation>();
+
+			var pathAndQuery = Constants.AuthorisationURLs.GetOrganisationsFullPath;
+			var serialisedOrganisationIds = JsonConvert.SerializeObject(organisationIds);
+
+			return await PostToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, httpClient, machineToMachineAccessToken?.AccessToken);
+		}
+
+
+		/// <summary>
+		/// Private helper method to do the heavy lifting for the above calls.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="pathAndQuery"></param>
+		/// <param name="serialisedObjectToPost"></param>
+		/// <param name="httpClient"></param>
+		/// <param name="machineToMachineAccessToken"></param>
+		/// <returns></returns>
+		private async Task<T> PostToAPI<T>(string pathAndQuery, string serialisedObjectToPost, HttpClient httpClient = null, string machineToMachineAccessToken = null)
+		{
 			var httpContext = _httpContextAccessor.HttpContext;
-			var accessToken = await httpContext.GetTokenAsync("access_token");
+			var accessToken = machineToMachineAccessToken ?? await httpContext.GetTokenAsync("access_token");
 			if (string.IsNullOrEmpty(accessToken))
 				throw new Exception("Access token not found");
 
 			var client = httpClient ?? new HttpClient();
-			var uri = new Uri($"{_authorisationServiceUri}{Constants.AuthorisationURLs.FindRolesFullPath}{WebUtility.UrlEncode(host)}");
+			var uri = new Uri($"{_authorisationServiceUri}{pathAndQuery}");
 
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
 			{
-				Content = new StringContent(JsonConvert.SerializeObject(nameIdentifiers), Encoding.UTF8, "application/json"),
+				Content = new StringContent(serialisedObjectToPost, Encoding.UTF8, MediaTypeNames.Application.Json),
 				Headers = {
 					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
 				}
@@ -101,7 +122,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var responseMessage = await client.SendAsync(httpRequestMessage); //call the api to get all the claims for the current user
 			if (responseMessage.IsSuccessStatusCode)
 			{
-				return JsonConvert.DeserializeObject<Dictionary<string, IEnumerable<string>>>(await responseMessage.Content.ReadAsStringAsync());
+				return JsonConvert.DeserializeObject<T>(await responseMessage.Content.ReadAsStringAsync());
 			}
 			throw new Exception($"Error calling the API. status code: {(int)responseMessage.StatusCode}");
 		}

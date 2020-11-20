@@ -14,6 +14,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Organisation CreateOrganisation(Organisation organisation);
         Organisation UpdateOrganisation(int organisationId, Organisation organisation);
         int DeleteOrganisation(int organisationId);
+
+        IEnumerable<Authentication.Sdk.Domain.Organisation> GetOrganisationsByOrganisationIds(IEnumerable<int> organisationIds);
     }
 
     public class OrganisationsService : IOrganisationsService
@@ -89,6 +91,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 _logger.LogError($"Failed to delete organisation {organisationId.ToString()} - exception: {e.Message}");
                 throw new Exception($"Failed to delete organisation {organisationId.ToString()} - exception: {e.Message}");
             }
+        }
+
+        public IEnumerable<Authentication.Sdk.Domain.Organisation> GetOrganisationsByOrganisationIds(IEnumerable<int> organisationIds)
+        {
+	        var matchingOrganisationsInDatabase =  _context.Organisations.Where(org => organisationIds.Contains(org.OrganisationId)).ToList();
+
+	        return matchingOrganisationsInDatabase.Select(org => new Authentication.Sdk.Domain.Organisation(org.OrganisationId, org.Name, false));
         }
     }
 }
