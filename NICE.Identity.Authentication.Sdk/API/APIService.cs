@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,12 +70,16 @@ namespace NICE.Identity.Authentication.Sdk.API
 		}
 
 		/// <summary>
-		/// GetOrganisations - This is called by comment collection, which stores OrganisationId's in it's database, but not the Organisation name.
+		///  GetOrganisations - This is called by comment collection, which stores OrganisationId's in it's database, but not the Organisation name.
+		///
+		/// comment collection calls this when the user is not logged in, so it takes a machine to machine access token as a parameter, which can be retrieved
+		/// by calling ApiToken.GetAccessToken
 		/// </summary>
 		/// <param name="organisationIds"></param>
+		/// <param name="machineToMachineAccessToken"></param>
 		/// <param name="httpClient"></param>
 		/// <returns></returns>
-		public async Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken, HttpClient httpClient = null)
+		public async Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken = null, HttpClient httpClient = null)
 		{
 			if (!organisationIds.Any())
 				return new List<Organisation>();
@@ -82,7 +87,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var pathAndQuery = Constants.AuthorisationURLs.GetOrganisationsFullPath;
 			var serialisedOrganisationIds = JsonConvert.SerializeObject(organisationIds);
 
-			return await PostToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, httpClient, machineToMachineAccessToken.AccessToken);
+			return await PostToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, httpClient, machineToMachineAccessToken?.AccessToken);
 		}
 
 
@@ -93,6 +98,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 		/// <param name="pathAndQuery"></param>
 		/// <param name="serialisedObjectToPost"></param>
 		/// <param name="httpClient"></param>
+		/// <param name="machineToMachineAccessToken"></param>
 		/// <returns></returns>
 		private async Task<T> PostToAPI<T>(string pathAndQuery, string serialisedObjectToPost, HttpClient httpClient = null, string machineToMachineAccessToken = null)
 		{
@@ -106,7 +112,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 
 			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
 			{
-				Content = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json"),
+				Content = new StringContent(serialisedObjectToPost, Encoding.UTF8, MediaTypeNames.Application.Json),
 				Headers = {
 					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
 				}
