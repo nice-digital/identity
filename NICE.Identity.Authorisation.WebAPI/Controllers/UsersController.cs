@@ -5,6 +5,7 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -37,11 +38,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        // TODO: Conflict/409 if user already exists instead of 500
         [HttpPost("")]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [Consumes("application/json")]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
@@ -58,8 +59,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             try
             {
 	            user.IsInAuthenticationProvider = true; //currently this endpoint is only hit by the authentication provider, so setting here makes sense. 
-                var createdUser = _usersService.CreateUser(user);
-                return Created($"/user/{createdUser.UserId.ToString()}",createdUser);
+	            var createdUser = _usersService.CreateUser(user);
+	            return Created($"/user/{createdUser.UserId.ToString()}", createdUser);
+            }
+            catch (DuplicateEmailException e)
+            {
+	            const int conflict409StatusCode = (int)HttpStatusCode.Conflict;
+	            return StatusCode(conflict409StatusCode, new ProblemDetails {Status = conflict409StatusCode, Title = e.Message, Detail = e.ToString()});
             }
             catch (Exception e)
             {

@@ -1,19 +1,26 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Environments;
+using NICE.Identity.Authorisation.WebAPI.HealthChecks;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
@@ -27,10 +34,10 @@ namespace NICE.Identity.Authorisation.WebAPI
 		private const string ApiVersion = "v1";
         private const string ApiDescription = "NICE Identity API";
 
-		//todo: delete 
-		private const string RedisServiceConfigurationPath = "RedisServiceConfiguration";
-        
-        readonly string CorsPolicyName = "IdentityCorsPolicy";
+        private const string CorsPolicyName = "IdentityCorsPolicy";
+        private const string APIKeyPolicyName = "APIKeyPolicy";
+
+        private const string AuthenticatedHealthCheckTag = "authenticated";
 
 		public Startup(IConfiguration configuration, IWebHostEnvironment env)
 		{
@@ -44,10 +51,10 @@ namespace NICE.Identity.Authorisation.WebAPI
 		public void ConfigureServices(IServiceCollection services)
 		{
 			AppSettings.Configure(services, Configuration);
+			var sqlConnectionString = Configuration.GetConnectionString("DefaultConnection");
 			services.AddDbContext<IdentityContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+				options.UseSqlServer(sqlConnectionString));
 
-			//services.TryAddSingleton<ISeriLogger, SeriLogger>();
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IVerificationEmailService, VerificationEmailService>();
@@ -60,13 +67,24 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IOrganisationsService, OrganisationsService>();
 			services.AddTransient<IOrganisationRolesService, OrganisationRolesService>();
 			services.AddTransient<IJobsService, JobsService>();
+			services.AddTransient<IUserSyncCheck, UserSyncCheck>();
+			services.AddTransient<IDuplicateCheck, DuplicateCheck>();
 			services.AddHttpClient(); //this adds http client factory for use in DI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
 
-			services.AddAuthentication(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
-            services.AddAuthorisation(new AuthConfiguration(Configuration, "IdentityApiConfiguration"));
-			//services.AddRedisCacheSDK(Configuration, RedisServiceConfigurationPath, "todo:somestringforredis");
+			var authConfiguration = new AuthConfiguration(Configuration, "IdentityApiConfiguration");
+			services.AddAuthentication(authConfiguration)
+				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler> (ApiKeyAuthenticationOptions.DefaultScheme, options => { }); //the health check uses an api key based scheme as it doesn't support oidc yet.
+
+			services.AddAuthorisation(authConfiguration, authOptions =>
+            {
+	            authOptions.AddPolicy(APIKeyPolicyName, policyBuilder =>
+				{
+					policyBuilder.AuthenticationSchemes = new List<string> { ApiKeyAuthenticationOptions.DefaultScheme };
+					policyBuilder.AddRequirements(new RoleRequirement(ApiKeyAuthenticationOptions.APIKeyRole));
+				});
+			});
 
 			services.AddControllers();
 
@@ -128,7 +146,28 @@ namespace NICE.Identity.Authorisation.WebAPI
 	                        .Build();
                     });
             });
-        }
+
+			//health check code
+			var healthChecksBuilder = services.AddHealthChecks();
+
+			healthChecksBuilder.AddSqlServer(connectionString: sqlConnectionString,
+				healthQuery: "SELECT 1;",
+				name: "Identity database",
+				failureStatus: HealthStatus.Degraded,
+				tags: new[] { AuthenticatedHealthCheckTag });
+
+			healthChecksBuilder.AddCheck<DuplicateCheck>("Duplicate email addresses in DB", tags: new[] { AuthenticatedHealthCheckTag });
+			healthChecksBuilder.AddCheck<UserSyncCheck>("Users are synchronised between databases", tags: new[] { AuthenticatedHealthCheckTag });
+
+			if (authConfiguration.RedisConfiguration.Enabled)
+			{
+				healthChecksBuilder.AddRedis(
+					redisConnectionString: authConfiguration.RedisConfiguration.ConnectionString,
+					name: "Redis",
+					failureStatus: HealthStatus.Degraded,
+					tags: new[] { AuthenticatedHealthCheckTag });
+			}
+		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifetime, ILogger<Startup> startupLogger)
@@ -155,10 +194,22 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			app.UseAuthentication(); //this line must be in between UseRouting and UseEndpoints
 			app.UseAuthorization();
-			
-			app.UseEndpoints(endpoints =>
+
+			app.UseEndpoints(config =>
 			{
-				endpoints.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
+				config.MapDefaultControllerRoute();
+
+				config.MapHealthChecks(AppSettings.EnvironmentConfig.HealthCheckPublicAPIEndpoint, new HealthCheckOptions()
+				{
+					Predicate = (check) => !check.Tags.Contains(AuthenticatedHealthCheckTag),
+					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse					
+				});
+
+				config.MapHealthChecks(AppSettings.EnvironmentConfig.HealthCheckPrivateAPIEndpoint, new HealthCheckOptions
+				{
+					Predicate = _ => true,
+					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+				}).RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = ApiKeyAuthenticationOptions.DefaultScheme });
 			});
 
 			if (AppSettings.EnvironmentConfig.UseSwaggerUI)
