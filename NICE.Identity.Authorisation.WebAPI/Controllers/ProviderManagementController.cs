@@ -33,7 +33,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                await _providerManagementService.RevokeRefreshTokensForUser(nameIdentifier);
+                await _providerManagementService.RevokeUsersRefreshTokens(nameIdentifier);
                 return Ok();
             }
             catch (Exception e)

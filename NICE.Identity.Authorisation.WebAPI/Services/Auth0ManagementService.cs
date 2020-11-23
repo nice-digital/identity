@@ -3,13 +3,16 @@ using Auth0.AuthenticationApi.Models;
 using Auth0.ManagementApi;
 using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Logging;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -18,11 +21,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         private readonly ILogger<Auth0ManagementService> _logger;
         private readonly HttpClient _httpClient;
+        private readonly string _authorisationServiceUri;
 
-        public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory)
+        public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, IAuthConfiguration authConfiguration)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _httpClient = httpClientFactory.CreateClient();
+            _authorisationServiceUri = authConfiguration.WebSettings.AuthorisationServiceUri;
         }
 
         public async Task<string> GetAccessTokenForManagementAPI()
@@ -111,6 +116,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
         }
 
+
+
         private async Task RevokeRefreshToken(ManagementApiClient managementApiClient, IEnumerable<string> refreshTokens)
         {
 	        _logger.LogInformation($"Starting Revoking {refreshTokens.Count()} Refresh Tokens");
@@ -144,6 +151,42 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
 
             _logger.LogInformation($"Finished Revoking {refreshTokens.Count()} Refresh Tokens");
+        }
+
+
+        //*******************************************************************************************************************************************************************
+
+
+        public async Task RevokeUsersRefreshTokens(string nameIdentifier)
+        {
+
+            _logger.LogInformation($"Revoke Refresh Tokens For User {nameIdentifier}");
+
+            var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+
+            var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _httpClient);
+
+            var allDevices = await managementApiClient.DeviceCredentials.GetAllAsync(userId: nameIdentifier, type: "refresh_token");
+
+            if (allDevices.Any())
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                RevokeToken(allDevices.Select(device => device.Id)); //intentionally not awaiting. this might take a while to complete due to rate limiting.
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+        }
+
+        private void RevokeToken(IEnumerable<string> refreshTokens)
+        {
+
+            foreach (var refreshToken in refreshTokens)
+            {
+                var client = new RestClient($"https://{_authorisationServiceUri}/oauth/revoke");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("content-type", "application/json");
+                request.AddParameter("application/json", $"{{ \"client_id\": \"{AppSettings.ManagementAPI.ClientId}\", \"client_secret\": \"{AppSettings.ManagementAPI.ClientSecret}\", \"token\": \"{refreshToken}\" }}", ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+            }
         }
     }
 }

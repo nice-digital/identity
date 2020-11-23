@@ -12,5 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Task<string> GetAccessTokenForManagementAPI();
 
         Task RevokeRefreshTokensForUser(string nameIdentifier);
+
+        Task RevokeUsersRefreshTokens(string nameIdentifier);
     }
 }
