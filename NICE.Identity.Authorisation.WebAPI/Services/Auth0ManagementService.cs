@@ -176,41 +176,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		        throw new Exception("Error when calling the Management API.", e);
 	        }
         }
-
-
-        //*******************************************************************************************************************************************************************
-
-
-        public async Task RevokeUsersRefreshTokens(string nameIdentifier)
-        {
-
-            _logger.LogInformation($"Revoke Refresh Tokens For User {nameIdentifier}");
-
-            var managementApiAccessToken = await GetAccessTokenForManagementAPI();
-
-            var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _httpClient);
-
-            var allDevices = await managementApiClient.DeviceCredentials.GetAllAsync(userId: nameIdentifier, type: "refresh_token");
-
-            if (allDevices.Any())
-            {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                RevokeToken(allDevices.Select(device => device.Id)); //intentionally not awaiting. this might take a while to complete due to rate limiting.
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-        }
-
-        private void RevokeToken(IEnumerable<string> refreshTokens)
-        {
-
-            foreach (var refreshToken in refreshTokens)
-            {
-                var client = new RestClient($"https://{_authorisationServiceUri}/oauth/revoke");
-                var request = new RestRequest(Method.POST);
-                request.AddHeader("content-type", "application/json");
-                request.AddParameter("application/json", $"{{ \"client_id\": \"{AppSettings.ManagementAPI.ClientId}\", \"client_secret\": \"{AppSettings.ManagementAPI.ClientSecret}\", \"token\": \"{refreshToken}\" }}", ParameterType.RequestBody);
-                IRestResponse response = client.Execute(request);
-            }
-        }
     }
 }

@@ -21,7 +21,6 @@ namespace NICE.Identity.Authentication.Sdk
 			public const string GetRolesByWebsiteFullPath = "/api/roles/" + GetRolesByWebsiteRoute + "/";
 
 			public const string RevokeRefreshTokensForUserFullPath = "/api/providermanagement/";
-
 		}
 
 		public static class IdTokenPayload
