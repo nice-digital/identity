@@ -3,9 +3,7 @@ using Auth0.AuthenticationApi.Models;
 using Auth0.ManagementApi;
 using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Logging;
-using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +19,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         private readonly ILogger<Auth0ManagementService> _logger;
         private readonly HttpClient _httpClient;
-        private readonly string _authorisationServiceUri;
 
-        public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, IAuthConfiguration authConfiguration)
+        public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _httpClient = httpClientFactory.CreateClient();
-            _authorisationServiceUri = authConfiguration.WebSettings.AuthorisationServiceUri;
         }
 
         public async Task<string> GetAccessTokenForManagementAPI()
@@ -115,8 +111,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 	        }
         }
-
-
 
         private async Task RevokeRefreshToken(ManagementApiClient managementApiClient, IEnumerable<string> refreshTokens)
         {
