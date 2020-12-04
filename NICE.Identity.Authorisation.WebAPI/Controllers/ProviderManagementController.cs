@@ -11,12 +11,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     [ApiController]
     public class ProviderManagementController : ControllerBase
     {
-        private readonly ILogger<ProviderManagementController> _logger;
         private readonly IProviderManagementService _providerManagementService;
 
-        public ProviderManagementController(IProviderManagementService providerManagementService, ILogger<ProviderManagementController> logger)
+        public ProviderManagementController(IProviderManagementService providerManagementService)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _providerManagementService = providerManagementService ?? throw new ArgumentNullException(nameof(providerManagementService));
         }
 
