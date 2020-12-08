@@ -30,10 +30,7 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
 #elif NET461
         public RedisApiTokenStore(string redisConnectionString)
         {
-            var serializer = new NewtonsoftSerializer(new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            var serializer = new NewtonsoftSerializer();
             var redisConfiguration = new RedisConfiguration()
             {
                 ConnectionString = redisConnectionString
@@ -44,10 +41,7 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
 #else
         public RedisApiTokenStore(string redisConnectionString)
         {
-            var serializer = new NewtonsoftSerializer(new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+            var serializer = new NewtonsoftSerializer();
             _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConnectionString);
         }
 #endif
@@ -77,7 +71,7 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
         public void Dispose()
         {
 #if NETFRAMEWORK
-            var endPoints = _cacheClient.Database.Multiplexer.GetEndPoints();
+            var endPoints = _cacheClient.Database.Multiplexer.GetEndPoints(true);
             foreach (var endpoint in endPoints)
             {
                 var server = _cacheClient.Database.Multiplexer.GetServer(endpoint);
