@@ -22,5 +22,6 @@ namespace NICE.Identity.Authentication.Sdk.Domain
 		public static readonly string EmailAddress = "http://identity.nice.org.uk/claims/email-address";
 		public static readonly string DisplayName = "http://identity.nice.org.uk/claims/display-name";
 		public static readonly string IsMigrated = "http://identity.nice.org.uk/claims/is-migrated";
+		public static readonly string Organisations = "http://identity.nice.org.uk/claims/organisations";
 	}
 }

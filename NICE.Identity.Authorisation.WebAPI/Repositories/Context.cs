@@ -15,8 +15,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
             var result = Users.Where(user => EF.Functions.Like(user.NameIdentifier, authenticationProviderUserId))
                 .Include(users => users.UserRoles)
-                .ThenInclude(userRoles => userRoles.Role)
-                .ThenInclude(website => website.Website)
+					.ThenInclude(userRoles => userRoles.Role)
+						.ThenInclude(website => website.Website)
+                .Include(users => users.Jobs)
+					.ThenInclude(jobs => jobs.Organisation)
                 .ToList();
 
             return !result.Any() ? null : result.Single();
