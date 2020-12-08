@@ -21,7 +21,12 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.TokenStore;
 using NICE.Identity.Authentication.Sdk.Tracking;
+using StackExchange.Redis.Extensions.Core;
+using StackExchange.Redis.Extensions.Core.Abstractions;
+using StackExchange.Redis.Extensions.Core.Implementations;
+using StackExchange.Redis.Extensions.Newtonsoft;
 using AuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.AuthenticationService;
 using IAuthenticationService = NICE.Identity.Authentication.Sdk.Authentication.IAuthenticationService;
 using static NICE.Identity.Authentication.Sdk.Constants;
@@ -36,6 +41,24 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.TryAddScoped<IAPIService, APIService>();
             services.AddHttpContextAccessor();
+            services.AddSingleton<ApiTokenClient>();
+
+            if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
+            {
+                var redisConfiguration =
+                    StackExchange.Redis.ConfigurationOptions.Parse(
+                        authConfiguration.RedisConfiguration.ConnectionString); 
+
+                services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
+                services.AddSingleton<IRedisCacheConnectionPoolManager, RedisCacheConnectionPoolManager>();
+                services.AddSingleton<ISerializer, NewtonsoftSerializer>();
+
+                services.AddSingleton((provider) => provider.GetRequiredService<IRedisCacheClient>().GetDbFromConfiguration());
+
+                services.AddSingleton(redisConfiguration);
+                services.AddSingleton<IApiTokenStore, RedisApiTokenStore>();
+            }
+            
 	        services.AddHttpClient(); //this adds http client factory for use in DI services like RoleRequirementHandler
 			var localClient = httpClient ?? new HttpClient(); //this http client is used by this extension method only
 
