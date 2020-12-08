@@ -3,12 +3,15 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataHandler;
 using Newtonsoft.Json;
-using NICE.Identity.Authentication.Sdk.Configuration;
-using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core;
-using StackExchange.Redis.Extensions.Newtonsoft;
 using System;
 using System.Threading.Tasks;
+using StackExchange.Redis.Extensions.Core;
+using StackExchange.Redis.Extensions.Newtonsoft;
+#if NET461
+using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.Core.Abstractions;
+using StackExchange.Redis.Extensions.Core.Implementations;
+#endif
 
 namespace NICE.Identity.Authentication.Sdk.SessionStore
 {
@@ -17,14 +20,30 @@ namespace NICE.Identity.Authentication.Sdk.SessionStore
     /// </summary>
     public class RedisOwinSessionStore : IAuthenticationSessionStore
     {
+        #if NET452
         private readonly ICacheClient _cacheClient;
+        #else
+        private readonly IRedisDatabase _cacheClient;
+        #endif
+
         private readonly JsonSerializerSettings jsonSetting = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         private TicketDataFormat _formatter;
 
         public RedisOwinSessionStore(TicketDataFormat formatter, string redisConnectionString)
         {
+            #if NET452
             var serializer = new NewtonsoftSerializer(jsonSetting);
             _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConnectionString);
+            #else
+            var serializer = new NewtonsoftSerializer(jsonSetting);
+            var redisConfiguration = new RedisConfiguration()
+            {
+                ConnectionString = redisConnectionString
+            };
+            var connectionPoolManager = new RedisCacheConnectionPoolManager(redisConfiguration);
+            _cacheClient = new RedisCacheClient(connectionPoolManager, serializer, redisConfiguration).GetDbFromConfiguration();
+            #endif
+
             _formatter = formatter;
         }
 
