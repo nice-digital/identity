@@ -15,19 +15,19 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
     public class RedisApiTokenStore : IApiTokenStore, IDisposable
     {
         private const string KeyPrefix = "APITOKEN-";
-#if NETSTANDARD2_0 || NETCOREAPP3_1 || NET461
+        #if NET452
+        private readonly StackExchangeRedisCacheClient _cacheClient;
+        #else
         private readonly IRedisDatabase _cacheClient;
         private readonly IRedisCacheConnectionPoolManager _connectionPoolManager;
-#else
-        private readonly StackExchangeRedisCacheClient _cacheClient;
-#endif
+        #endif
 
-#if NETSTANDARD2_0 || NETCOREAPP3_1
+        #if NETSTANDARD2_0 || NETCOREAPP3_1
         public RedisApiTokenStore(IRedisCacheClient cacheClient)
         {
             _cacheClient = cacheClient.GetDbFromConfiguration();
         }
-#elif NET461
+        #elif NET461 || NET472
         public RedisApiTokenStore(string redisConnectionString)
         {
             var serializer = new NewtonsoftSerializer();
@@ -38,13 +38,13 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
             _connectionPoolManager = new RedisCacheConnectionPoolManager(redisConfiguration);
             _cacheClient = new RedisCacheClient(_connectionPoolManager, serializer, redisConfiguration).GetDbFromConfiguration();
         }
-#else
+        #else
         public RedisApiTokenStore(string redisConnectionString)
         {
             var serializer = new NewtonsoftSerializer();
             _cacheClient = new StackExchangeRedisCacheClient(serializer, redisConnectionString);
         }
-#endif
+        #endif
 
         public Task RemoveAsync(string key)
         {
@@ -70,7 +70,7 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
 
         public void Dispose()
         {
-#if NETFRAMEWORK
+        #if NETFRAMEWORK
             var endPoints = _cacheClient.Database.Multiplexer.GetEndPoints(true);
             foreach (var endpoint in endPoints)
             {
@@ -78,12 +78,12 @@ namespace NICE.Identity.Authentication.Sdk.TokenStore
                 server.FlushDatabase();
             }
             
-#if NET461
+            #if NET461 || NET472
            _connectionPoolManager.Dispose();
-#else
+            #else
            _cacheClient.Dispose();
-#endif
-#endif
+            #endif
+        #endif
         }
     }
 }

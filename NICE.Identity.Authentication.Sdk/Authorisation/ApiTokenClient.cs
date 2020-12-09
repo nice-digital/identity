@@ -12,12 +12,12 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
     public class ApiTokenClient
     {
+        private readonly IAuthConfiguration _authConfiguration;
         private readonly IApiTokenStore _tokenStore;
         private string TokenStoreKey { get; set; }
 
-#if NETSTANDARD2_0 || NETCOREAPP3_1
+        #if NETSTANDARD2_0 || NETCOREAPP3_1
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IAuthConfiguration _authConfiguration;
 
         public ApiTokenClient(IApiTokenStore tokenStore, IHttpClientFactory clientFactory, IAuthConfiguration authConfiguration)
         {
@@ -26,7 +26,6 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
             _authConfiguration = authConfiguration;
         }
         #else
-        private readonly IAuthConfiguration _authConfiguration;
         public ApiTokenClient(IAuthConfiguration authConfiguration)
         {
             _tokenStore = new RedisApiTokenStore(authConfiguration.RedisConfiguration.ConnectionString);
