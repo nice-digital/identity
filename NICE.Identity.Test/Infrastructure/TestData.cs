@@ -34,9 +34,9 @@ namespace NICE.Identity.Test.Infrastructure
 			context.UserRoles.Add(new UserRole(userRoleId, roleId, userId));
 		}
 
-		public static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string nameIdentifier = "some auth0 userid")
+		public static void AddUser(ref IdentityContext context, int userId = 1, string firstName = "Steve", string lastName = "Zissou", string nameIdentifier = "some auth0 userid", string emailAddress = "steve@belafonte.com")
 		{
-			context.Users.Add(new User(userId, nameIdentifier, firstName, lastName, true, true, null, null, true, null, false, true, true, true));
+			context.Users.Add(new User(userId, nameIdentifier, firstName, lastName, true, true, null, null, true, emailAddress, false, true, true, true));
 		}
 
         private static void AddTermsVersion(ref IdentityContext context, int creatorId = 1, int version = 1, DateTime? versionDate = null)
@@ -56,10 +56,12 @@ namespace NICE.Identity.Test.Infrastructure
 			context.Jobs.Add(new Job(jobId, userId, organisationId, isLead));
         }
 
-		public static void AddOrganisation(ref IdentityContext context, int organisationId = 1, string name = "NICE")
-        {
-			context.Organisations.Add(new Organisation(organisationId, name));
-        }
+		public static Organisation AddOrganisation(ref IdentityContext context, int organisationId = 1, string name = "NICE")
+		{
+			var organisation = new Organisation(organisationId, name);
+			context.Organisations.Add(organisation);
+			return organisation;
+		}
 
 		public static void AddOrganisationRole(ref IdentityContext context, int organisationRoleId = 1, int organisationId = 1, int roleId = 1)
         {
@@ -102,6 +104,16 @@ namespace NICE.Identity.Test.Infrastructure
 			AddRole(ref context, roleId: 2, websiteId: 1, name: "Moderator");
 			AddOrganisation(ref context);
 			AddOrganisation(ref context, 2, "NHS");
+			context.SaveChanges();
+		}
+
+		public static void AddWithTwoJobsOneLead(ref IdentityContext context, string leadOrganisationName = "Belafonte")
+		{
+			AddAll(ref context);
+			context.SaveChanges();
+
+			var org2 = AddOrganisation(ref context, 2, leadOrganisationName);
+			AddJob(ref context, 2, organisationId: 2, isLead: true);
 			context.SaveChanges();
 		}
 	}

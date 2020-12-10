@@ -35,6 +35,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.AddSingleton(authConfig => authConfiguration);
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.TryAddScoped<IAPIService, APIService>();
+            services.TryAddScoped<IApiToken, ApiToken>();
             services.AddHttpContextAccessor();
 	        services.AddHttpClient(); //this adds http client factory for use in DI services like RoleRequirementHandler
 			var localClient = httpClient ?? new HttpClient(); //this http client is used by this extension method only

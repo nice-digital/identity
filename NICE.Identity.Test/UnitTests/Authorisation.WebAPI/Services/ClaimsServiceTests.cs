@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
@@ -6,7 +7,9 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System.Linq;
+using System.Security.Claims;
 using Xunit;
+using Claim = NICE.Identity.Authorisation.WebAPI.ApiModels.Claim;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
@@ -66,5 +69,21 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             claims.Single(claim => claim.Type.Equals(ClaimType.FirstName)).Value.ShouldBe("Steve");
             claims.Single(claim => claim.Type.Equals(ClaimType.LastName)).Value.ShouldBe("Zissou");
 		}
+
+        [Fact]
+        public void OrganisationIsSerialisedAndDeserialised()
+        {
+	        //Arrange
+	        var leadOrganisationName = "Belafonte";
+	        TestData.AddWithTwoJobsOneLead(ref _identityContext, leadOrganisationName);
+
+	        //Act
+	        var claims = _sut.GetClaims("some auth0 userid");
+	        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims.Select(claim => new System.Security.Claims.Claim(claim.Type, claim.Value, "www.nice.org.uk", claim.Issuer))));
+	        var organisations = NICE.Identity.Authentication.Sdk.Extensions.ClaimsExtensions.OrganisationsAssignedAsLead(claimsPrincipal);
+
+            //Assert
+            organisations.Single().OrganisationName.Equals(leadOrganisationName);
+        }
     }
 }
