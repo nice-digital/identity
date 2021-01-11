@@ -21,6 +21,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 		Task<IEnumerable<UserDetails>> FindUsers(IEnumerable<string> nameIdentifiers, HttpClient httpClient = null);
 		Task<Dictionary<string, IEnumerable<string>>> FindRoles(IEnumerable<string> nameIdentifiers, string host, HttpClient httpClient = null);
 		Task<IEnumerable<Organisation>> GetOrganisations(IEnumerable<int> organisationIds, JwtToken machineToMachineAccessToken, HttpClient httpClient = null);
+		Task<IEnumerable<string>> RevokeRefreshTokensForUser(string nameIdentifier, HttpClient httpClient = null);
 	}
 
 	public class APIService : IAPIService
@@ -48,7 +49,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var pathAndQuery = Constants.AuthorisationURLs.FindUsersFullPath;
 			var serialisedNameIdentifiers = JsonConvert.SerializeObject(nameIdentifiers);
 
-			return await PostToAPI<IEnumerable<UserDetails>>(pathAndQuery, serialisedNameIdentifiers, httpClient);
+			return await RequestToAPI<IEnumerable<UserDetails>>(pathAndQuery, serialisedNameIdentifiers, HttpMethod.Post, httpClient);
 		}
 
 		/// <summary>
@@ -66,7 +67,7 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var pathAndQuery = $"{Constants.AuthorisationURLs.FindRolesFullPath}{WebUtility.UrlEncode(host)}";
 			var serialisedNameIdentifiers = JsonConvert.SerializeObject(nameIdentifiers);
 			
-			return await PostToAPI<Dictionary<string, IEnumerable<string>>>(pathAndQuery, serialisedNameIdentifiers, httpClient);
+			return await RequestToAPI<Dictionary<string, IEnumerable<string>>>(pathAndQuery, serialisedNameIdentifiers, HttpMethod.Post, httpClient);
 		}
 
 		/// <summary>
@@ -87,20 +88,36 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var pathAndQuery = Constants.AuthorisationURLs.GetOrganisationsFullPath;
 			var serialisedOrganisationIds = JsonConvert.SerializeObject(organisationIds);
 
-			return await PostToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, httpClient, machineToMachineAccessToken?.AccessToken);
+			return await RequestToAPI<IEnumerable<Organisation>>(pathAndQuery, serialisedOrganisationIds, HttpMethod.Post, httpClient, machineToMachineAccessToken?.AccessToken);
 		}
 
+		/// <summary>
+		/// Refresh users token
+		/// </summary>
+		/// <param name="nameIdentifier"></param>
+		/// <param name="httpClient"></param>
+		/// <returns></returns>
+		public async Task<IEnumerable<string>> RevokeRefreshTokensForUser(string nameIdentifier, HttpClient httpClient = null)
+	    {
+			if (string.IsNullOrEmpty(nameIdentifier))
+				throw new ArgumentNullException(nameof(nameIdentifier));
+
+			var pathAndQuery = Constants.AuthorisationURLs.RevokeRefreshTokensForUserFullPath;
+			var serialisedNameIdentifiers = JsonConvert.SerializeObject(nameIdentifier);
+
+			return await RequestToAPI<IEnumerable<string>>(pathAndQuery, serialisedNameIdentifiers, HttpMethod.Get, httpClient);
+		}
 
 		/// <summary>
 		/// Private helper method to do the heavy lifting for the above calls.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="pathAndQuery"></param>
-		/// <param name="serialisedObjectToPost"></param>
+		/// <param name="serialisedObjectToSend"></param>
 		/// <param name="httpClient"></param>
 		/// <param name="machineToMachineAccessToken"></param>
 		/// <returns></returns>
-		private async Task<T> PostToAPI<T>(string pathAndQuery, string serialisedObjectToPost, HttpClient httpClient = null, string machineToMachineAccessToken = null)
+		private async Task<T> RequestToAPI<T>(string pathAndQuery, string serialisedObjectToSend, HttpMethod httpMethod, HttpClient httpClient = null, string machineToMachineAccessToken = null)
 		{
 			var httpContext = _httpContextAccessor.HttpContext;
 			var accessToken = machineToMachineAccessToken ?? await httpContext.GetTokenAsync("access_token");
@@ -110,9 +127,9 @@ namespace NICE.Identity.Authentication.Sdk.API
 			var client = httpClient ?? new HttpClient();
 			var uri = new Uri($"{_authorisationServiceUri}{pathAndQuery}");
 
-			var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri)
+			var httpRequestMessage = new HttpRequestMessage(httpMethod, uri)
 			{
-				Content = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json"),
+				Content = new StringContent(serialisedObjectToSend, Encoding.UTF8, "application/json"),
 				Headers = {
 					Authorization = new AuthenticationHeaderValue(AuthenticationConstants.JWTAuthenticationScheme, accessToken)
 				}

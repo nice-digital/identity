@@ -1,5 +1,6 @@
 ﻿#if NETSTANDARD2_0 || NETCOREAPP3_1
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -7,11 +8,19 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
+using NICE.Identity.Authentication.Sdk.API;
+using System.Security.Claims;
 
 namespace NICE.Identity.Authentication.Sdk.Authentication
 {
 	public class AuthenticationService : IAuthenticationService
     {
+        private readonly IAPIService _apiService;
+
+        public AuthenticationService(IAPIService apiService)
+        {
+            _apiService = apiService;
+        }
 
         public async Task Login(HttpContext context, string returnUrl = "/", bool goToRegisterPage = false)
         {
@@ -35,6 +44,9 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
             });
 
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var userId = context.User.Claims.Single(claim => claim.Type.Equals(ClaimTypes.NameIdentifier)).Value;
+            await _apiService.RevokeRefreshTokensForUser(userId);
         }
     }
 }

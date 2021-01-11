@@ -16,6 +16,11 @@
 			
 			public const string GetOrganisationsRoute = "getorganisations";
 			public const string GetOrganisationsFullPath = "/api/organisations/" + GetOrganisationsRoute;
+
+			public const string GetRolesByWebsiteRoute = "getrolesbywebsite";
+			public const string GetRolesByWebsiteFullPath = "/api/roles/" + GetRolesByWebsiteRoute + "/";
+
+			public const string RevokeRefreshTokensForUserFullPath = "/api/providermanagement/";
 		}
 
 		public static class IdTokenPayload
