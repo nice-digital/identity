@@ -1,33 +1,36 @@
 using Auth0.AuthenticationApi;
 using Auth0.AuthenticationApi.Models;
+using Auth0.Core.Exceptions;
 using Auth0.ManagementApi;
 using Auth0.ManagementApi.Models;
+using Auth0.ManagementApi.Paging;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
+using Polly;
+using Polly.Retry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
-using Auth0.Core.Exceptions;
-using Auth0.ManagementApi.Paging;
-using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
-    public class Auth0ManagementService : IProviderManagementService
+	public class Auth0ManagementService : IProviderManagementService
     {
         private readonly ILogger<Auth0ManagementService> _logger;
         private readonly HttpClientManagementConnection _managementConnection;
         private readonly HttpClient _httpClient;
+        private readonly AsyncRetryPolicy _retryPolicy;
 
-        public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, HttpClientManagementConnection managementConnection)
+		public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, HttpClientManagementConnection managementConnection)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _httpClient = httpClientFactory.CreateClient();
 	        _managementConnection = managementConnection;
+	        _retryPolicy = GetAuth0RetryPolicy();
         }
 
         public async Task<string> GetAccessTokenForManagementAPI()
@@ -132,42 +135,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
             foreach (var refreshToken in refreshTokens)
 	        {
-		        try
-		        {
-			        await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken); //when we hit the management api too frequently in a short space of time (~ > 10 requests a second), you get a RateLimitApiException exception (handled below). 
-					_logger.LogInformation($"Refresh token: {refreshToken} revoked");
-		        }
-		        catch (RateLimitApiException rateLimitApiException)
-		        {
-			        var rateLimit = rateLimitApiException.RateLimit;
-			        if (rateLimit.Remaining <= 1 && rateLimit.Reset.HasValue)
-			        {
-				        var timeSpanToSleep = rateLimit.Reset.Value.Offset;
-				        if (timeSpanToSleep.TotalMinutes > 2) //typically it'll be a few seconds delay
-				        {
-					        _logger.LogError($"Rate limiting returned a time in excess of 2 minutes. this seems way too high. refresh token count: {refreshToken.Length}");
-					        break;
-				        }
-				        _logger.LogWarning($"Rate limiting the refresh token revocation. sleep time in seconds: {timeSpanToSleep.TotalSeconds}");
-				        Thread.Sleep(timeSpanToSleep);
-			        }
-
-			        try
-			        {
-				        await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken); 
-				        _logger.LogInformation($"Refresh token: {refreshToken} revoked after second try");
-			        }
-			        catch (Exception exception)
-			        {
-				        _logger.LogError(exception, $"error deleting refresh token: {refreshToken}, after rate limit exception");
-				        break;
-					}
-		        }
-	        }
+		        await GetAuth0RetryPolicy().ExecuteAsync(async () => await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken));
+		        _logger.LogInformation($"Refresh token: {refreshToken} revoked");
+			}
             _logger.LogInformation($"Finished Revoking {refreshTokens.Count()} Refresh Tokens");
         }
 
-        public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
+        private Polly.Retry.AsyncRetryPolicy GetAuth0RetryPolicy()
+        {
+	        return Policy
+		        .Handle<RateLimitApiException>(ex => ex.RateLimit.Remaining < 1 && ex.RateLimit.Reset.HasValue)
+		        .WaitAndRetryAsync(
+			        retryCount: 3,
+			        sleepDurationProvider: (retryCount, exception, context) => ((RateLimitApiException)exception).RateLimit.Reset.Value.Offset,
+			        onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"retry attempt no: {retryNumber}"))
+		        );
+        }
+
+
+		public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
         {
 	        _logger.LogInformation($"Getting users from management api");
 
