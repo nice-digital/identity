@@ -21,11 +21,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public class Auth0ManagementService : IProviderManagementService
     {
         private readonly ILogger<Auth0ManagementService> _logger;
-        private readonly HttpClientManagementConnection _managementConnection;
+        private readonly IManagementConnection _managementConnection;
         private readonly HttpClient _httpClient;
         private readonly AsyncRetryPolicy _retryPolicy;
 
-		public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, HttpClientManagementConnection managementConnection)
+		public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, IManagementConnection managementConnection)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _httpClient = httpClientFactory.CreateClient();
