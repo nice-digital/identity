@@ -93,7 +93,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             _logger.LogInformation($"Delete user {authenticationProviderUserId} from auth0");
 
             var managementApiAccessToken = await GetAccessTokenForManagementAPI();
-            
 
             try
             {
@@ -109,24 +108,35 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public async Task RevokeRefreshTokensForUser(string nameIdentifier)
+		public async Task RevokeRefreshTokensForUser(string nameIdentifier)
         {
-
 	        _logger.LogInformation($"Revoke Refresh Tokens For User {nameIdentifier}");
 
             var managementApiAccessToken = await GetAccessTokenForManagementAPI();
 
-            using (var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _managementConnection))
-            {
-				var allDevices = await managementApiClient.DeviceCredentials.GetAllAsync(userId: nameIdentifier, type: "refresh_token");
+			using (var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _managementConnection))
+			{
+				var pageNumber = 0;
+				const int pageSize = 50;
+				IPagedList<DeviceCredential> allDevices;
 
-	            if (allDevices.Any())
-	            {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-		            RevokeRefreshToken(managementApiClient, allDevices.Select(device => device.Id)); //intentionally not awaiting. this might take a while to complete due to rate limiting.
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-	            }
-            }
+				var getDeviceCredentialsRequest = new Auth0.ManagementApi.Models.GetDeviceCredentialsRequest()
+				{
+					UserId = nameIdentifier,
+					Type = "refresh_token"
+				};
+
+				do
+				{
+					var pagination = new PaginationInfo(pageNumber, pageSize);
+
+					allDevices = await managementApiClient.DeviceCredentials.GetAllAsync(getDeviceCredentialsRequest, pagination);
+
+					await RevokeRefreshToken(managementApiClient, allDevices.Select(device => device.Id));
+
+					pageNumber++;
+				} while (allDevices.Count >= pageSize);
+			}
         }
 
         private async Task RevokeRefreshToken(ManagementApiClient managementApiClient, IEnumerable<string> refreshTokens)
@@ -135,7 +145,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
             foreach (var refreshToken in refreshTokens)
 	        {
-		        await GetAuth0RetryPolicy().ExecuteAsync(async () => await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken));
+		        await _retryPolicy.ExecuteAsync(async () => await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken));
 		        _logger.LogInformation($"Refresh token: {refreshToken} revoked");
 			}
             _logger.LogInformation($"Finished Revoking {refreshTokens.Count()} Refresh Tokens");
@@ -180,4 +190,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
         }
     }
+
+
+   
+
 }
