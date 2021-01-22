@@ -37,8 +37,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         {
 	        try
 	        {
-		        using (var client = new AuthenticationApiClient(new Uri($"https://{AppSettings.ManagementAPI.Domain}/"),
-			        _httpClient))
+		        using (var client = new AuthenticationApiClient(new Uri($"https://{AppSettings.ManagementAPI.Domain}/")))
 		        {
 			        var managementApiTokenRequest = new ClientCredentialsTokenRequest
 			        {
