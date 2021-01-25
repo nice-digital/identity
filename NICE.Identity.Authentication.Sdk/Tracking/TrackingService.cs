@@ -17,20 +17,13 @@ namespace NICE.Identity.Authentication.Sdk.Tracking
 		/// this uses the google measurement protocol to track the sign in:
 		/// https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide#page
 		///
-		/// 
+		/// AD logins dont have a googleClientId, we are currently not tracking AD logins
 		/// </summary>
 		/// <param name="httpContext"></param>
 		public static void TrackSuccessfulSignIn(HttpClient httpClient, string host, string trackingId, string googleClientId)
 		{
-			if (string.IsNullOrEmpty(trackingId))
-				throw new ArgumentNullException(nameof(trackingId));
-
-			if (string.IsNullOrEmpty(googleClientId))
+			if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(trackingId))
 			{
-				//Do nothing. AD logins dont have a googleClientId, we are currently not tracking AD logins
-			}
-            else
-            {
 				Track(httpClient, trackingId, googleClientId, host, googleTypeEvent, "IDAM", "Sign-in", "Successful sign in", 1);
 				Track(httpClient, trackingId, googleClientId, host, googleTypePageview, "IDAM", "Sign-in", "Successful sign in", 1);
 			}
