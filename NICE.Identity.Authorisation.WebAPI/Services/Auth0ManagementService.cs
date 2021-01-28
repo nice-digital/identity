@@ -139,23 +139,23 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 					allDevices = await managementApiClient.DeviceCredentials.GetAllAsync(getDeviceCredentialsRequest, pagination);
 
-					await RevokeRefreshToken(managementApiClient, allDevices.Select(device => device.Id));
+					await RevokeRefreshToken(managementApiClient, allDevices.Select(device => device.Id).ToList());
 
 					pageNumber++;
 				} while (allDevices.Count >= pageSize);
 			}
 		}
 
-        private async Task RevokeRefreshToken(ManagementApiClient managementApiClient, IEnumerable<string> refreshTokens)
+        private async Task RevokeRefreshToken(ManagementApiClient managementApiClient, IList<string> refreshTokens)
         {
-	        _logger.LogInformation($"Starting Revoking {refreshTokens.Count()} Refresh Tokens");
+	        _logger.LogWarning($"Starting Revoking {refreshTokens.Count} Refresh Tokens");
 
             foreach (var refreshToken in refreshTokens)
 	        {
 		        await _retryPolicy.ExecuteAsync(async () => await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken));
-		        _logger.LogInformation($"Refresh token: {refreshToken} revoked");
+		        _logger.LogWarning($"Refresh token: {refreshToken} revoked");
 			}
-            _logger.LogInformation($"Finished Revoking {refreshTokens.Count()} Refresh Tokens");
+            _logger.LogWarning($"Finished Revoking {refreshTokens.Count} Refresh Tokens");
         }
 
         private Polly.Retry.AsyncRetryPolicy GetAuth0RetryPolicy()
