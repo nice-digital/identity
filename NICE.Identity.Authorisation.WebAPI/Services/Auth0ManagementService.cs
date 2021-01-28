@@ -113,6 +113,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
             var managementApiAccessToken = await GetAccessTokenForManagementAPI();
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+			GetAllRefreshTokensAndRevokeThem(nameIdentifier, managementApiAccessToken); //intentionally not awaiting so the logout succeeds, while refresh tokens are still deleted in the background.
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+		}
+
+		private async Task GetAllRefreshTokensAndRevokeThem(string nameIdentifier, string managementApiAccessToken)
+		{
 			using (var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _managementConnection))
 			{
 				var pageNumber = 0;
@@ -136,7 +144,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					pageNumber++;
 				} while (allDevices.Count >= pageSize);
 			}
-        }
+		}
 
         private async Task RevokeRefreshToken(ManagementApiClient managementApiClient, IEnumerable<string> refreshTokens)
         {
@@ -153,11 +161,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         private Polly.Retry.AsyncRetryPolicy GetAuth0RetryPolicy()
         {
 	        return Policy
-		        .Handle<RateLimitApiException>(ex => ex.RateLimit.Remaining < 1 && ex.RateLimit.Reset.HasValue)
+		        .Handle<RateLimitApiException>(ex => ex.RateLimit.Remaining < 1 && ex.RateLimit.Reset.HasValue && ex.RateLimit.Reset.Value > DateTime.UtcNow)
 		        .WaitAndRetryAsync(
 			        retryCount: 3,
-			        sleepDurationProvider: (retryCount, exception, context) => ((RateLimitApiException)exception).RateLimit.Reset.Value.Offset,
-			        onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"retry attempt no: {retryNumber}"))
+			        sleepDurationProvider: (retryCount, exception, context) => (((RateLimitApiException)exception).RateLimit.Reset.Value - DateTime.UtcNow),
+			        onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"RateLimit for management api hit. Retry attempt no: {retryNumber}. DateTime.UtcNow: {DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} Sleeping till: {((RateLimitApiException)exception).RateLimit.Reset.Value:dd/MM/yyyy HH:mm:ss} so sleeping for: {timespan.TotalSeconds} seconds"))
 		        );
         }
 
