@@ -33,9 +33,21 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        _retryPolicy = GetAuth0RetryPolicy();
         }
 
-        public async Task<string> GetAccessTokenForManagementAPI()
+		private Polly.Retry.AsyncRetryPolicy GetAuth0RetryPolicy()
+		{
+			return Policy
+				.Handle<RateLimitApiException>(ex => ex.RateLimit.Remaining < 5 && ex.RateLimit.Reset.HasValue && ex.RateLimit.Reset.Value > DateTime.UtcNow) 
+				.WaitAndRetryAsync(
+					retryCount: 3,
+					sleepDurationProvider: (retryCount, exception, context) => (((RateLimitApiException)exception).RateLimit.Reset.Value - DateTime.UtcNow),
+					onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"RateLimit for management api hit. Retry attempt no: {retryNumber}. DateTime.UtcNow: {DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} Sleeping till: {((RateLimitApiException)exception).RateLimit.Reset.Value:dd/MM/yyyy HH:mm:ss} so sleeping for: {timespan.TotalSeconds} seconds"))
+				)
+				;
+		}
+
+		public async Task<string> GetAccessTokenForManagementAPI()
         {
-	        try
+			try
 	        {
 		        using (var client = new AuthenticationApiClient(new Uri($"https://{AppSettings.ManagementAPI.Domain}/")))
 		        {
@@ -46,7 +58,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				        Audience = AppSettings.ManagementAPI.ApiIdentifier
 			        };
 
-			        var managementApiToken = await client.GetTokenAsync(managementApiTokenRequest);
+			        var managementApiToken = await _retryPolicy.ExecuteAsync(() => client.GetTokenAsync(managementApiTokenRequest));
 
 			        return managementApiToken.AccessToken;
 		        }
@@ -61,8 +73,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         public async Task UpdateUser(string authenticationProviderUserId, User user)
         {
             _logger.LogInformation($"Update user {authenticationProviderUserId} in auth0");
-
-            var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+           
+			var managementApiAccessToken = await GetAccessTokenForManagementAPI();
             try
             {
 	            using (var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _managementConnection))
@@ -76,7 +88,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			            LastName = user.LastName,
 			            FullName = $"{user.FirstName} {user.LastName}"
 		            };
-		            await managementApiClient.Users.UpdateAsync(authenticationProviderUserId, userUpdateRequest);
+		            await _retryPolicy.ExecuteAsync(async () => await managementApiClient.Users.UpdateAsync(authenticationProviderUserId, userUpdateRequest));
 	            }
             }
             catch (Exception e)
@@ -90,14 +102,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         public async Task DeleteUser(string authenticationProviderUserId)
         {
             _logger.LogInformation($"Delete user {authenticationProviderUserId} from auth0");
-
-            var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+			var managementApiAccessToken = await GetAccessTokenForManagementAPI();
 
             try
             {
 	            using (var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain, _managementConnection))
 	            {
-		            await managementApiClient.Users.DeleteAsync(authenticationProviderUserId);
+		            await _retryPolicy.ExecuteAsync(() => managementApiClient.Users.DeleteAsync(authenticationProviderUserId));
 	            }
             }
             catch (Exception e)
@@ -109,9 +120,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 		public async Task RevokeRefreshTokensForUser(string nameIdentifier)
         {
-	        _logger.LogInformation($"Revoke Refresh Tokens For User {nameIdentifier}");
-
-            var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+	        var managementApiAccessToken = await GetAccessTokenForManagementAPI();
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			GetAllRefreshTokensAndRevokeThem(nameIdentifier, managementApiAccessToken); //intentionally not awaiting so the logout succeeds, while refresh tokens are still deleted in the background.
@@ -137,7 +146,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				{
 					var pagination = new PaginationInfo(pageNumber, pageSize);
 
-					allDevices = await managementApiClient.DeviceCredentials.GetAllAsync(getDeviceCredentialsRequest, pagination);
+					allDevices = await _retryPolicy.ExecuteAsync(() => managementApiClient.DeviceCredentials.GetAllAsync(getDeviceCredentialsRequest, pagination));
 
 					await RevokeRefreshToken(managementApiClient, allDevices.Select(device => device.Id).ToList());
 
@@ -150,31 +159,18 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         {
 	        _logger.LogWarning($"Starting Revoking {refreshTokens.Count} Refresh Tokens");
 
-            foreach (var refreshToken in refreshTokens)
+			foreach (var refreshToken in refreshTokens)
 	        {
-		        await _retryPolicy.ExecuteAsync(async () => await managementApiClient.DeviceCredentials.DeleteAsync(refreshToken));
-		        _logger.LogWarning($"Refresh token: {refreshToken} revoked");
+				await _retryPolicy.ExecuteAsync(() => managementApiClient.DeviceCredentials.DeleteAsync(refreshToken));
+				_logger.LogWarning($"Refresh token: {refreshToken} revoked");
 			}
             _logger.LogWarning($"Finished Revoking {refreshTokens.Count} Refresh Tokens");
         }
 
-        private Polly.Retry.AsyncRetryPolicy GetAuth0RetryPolicy()
-        {
-	        return Policy
-		        .Handle<RateLimitApiException>(ex => ex.RateLimit.Remaining < 1 && ex.RateLimit.Reset.HasValue && ex.RateLimit.Reset.Value > DateTime.UtcNow)
-		        .WaitAndRetryAsync(
-			        retryCount: 3,
-			        sleepDurationProvider: (retryCount, exception, context) => (((RateLimitApiException)exception).RateLimit.Reset.Value - DateTime.UtcNow),
-			        onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"RateLimit for management api hit. Retry attempt no: {retryNumber}. DateTime.UtcNow: {DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} Sleeping till: {((RateLimitApiException)exception).RateLimit.Reset.Value:dd/MM/yyyy HH:mm:ss} so sleeping for: {timespan.TotalSeconds} seconds"))
-		        );
-        }
-
-
-		public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
+        public async Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount()
         {
 	        _logger.LogInformation($"Getting users from management api");
-
-	        var managementApiAccessToken = await GetAccessTokenForManagementAPI();
+			var managementApiAccessToken = await GetAccessTokenForManagementAPI();
 	        
 	        try
 	        {
@@ -183,7 +179,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			        var pagination = new PaginationInfo(pageNo: 0, perPage: 10, includeTotals: true);
 
 			        const string sortByCreatedDescending = "created_at:-1";
-			        var pagedUsers = await managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = sortByCreatedDescending,}, pagination);
+			      
+			        var pagedUsers = await _retryPolicy.ExecuteAsync(() => managementApiClient.Users.GetAllAsync(new GetUsersRequest {Sort = sortByCreatedDescending,}, pagination));
 
 			        var last10Users = pagedUsers.Select(user => new BasicUserInfo(nameIdentifier: user.UserId, emailAddress: user.Email)).ToList();
 
@@ -196,9 +193,29 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		        throw new Exception("Error when calling the Management API.", e);
 	        }
         }
-    }
 
+		//this function was moved from the verificationemailservice to here, as it belongs here.
+		public async Task<Auth0.ManagementApi.Models.Job> VerificationEmail(string authenticationProviderUserId)
+		{
+			if (string.IsNullOrWhiteSpace(authenticationProviderUserId))
+				throw new ArgumentNullException(nameof(authenticationProviderUserId));
 
-   
+			var managementApiAccessToken = await GetAccessTokenForManagementAPI();
 
+			try
+			{
+				using (var managementApiClient = new ManagementApiClient(managementApiAccessToken, AppSettings.ManagementAPI.Domain))
+				{
+					var sendVerificationEmail = await _retryPolicy.ExecuteAsync(() => managementApiClient.Jobs.SendVerificationEmailAsync(new VerifyEmailJobRequest{ UserId = authenticationProviderUserId }));
+
+					return sendVerificationEmail;
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e.Message);
+				throw new Exception("Error when calling the Management API.", e);
+			}
+		}
+	}
 }

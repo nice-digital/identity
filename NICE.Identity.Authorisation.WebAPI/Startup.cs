@@ -58,7 +58,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
-            services.AddTransient<IVerificationEmailService, VerificationEmailService>();
             services.AddTransient<IWebsitesService, WebsitesService>();
             services.AddTransient<IServicesService, ServicesService>();
             services.AddTransient<IEnvironmentsService, EnvironmentsService>();

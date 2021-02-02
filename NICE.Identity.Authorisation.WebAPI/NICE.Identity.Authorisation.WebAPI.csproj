@@ -44,10 +44,4 @@
     <ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Web.Helpers">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

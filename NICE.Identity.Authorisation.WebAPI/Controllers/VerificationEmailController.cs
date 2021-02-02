@@ -8,20 +8,20 @@ using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
-
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
 	public class VerificationEmailController : ControllerBase
     {
-        private readonly ILogger<VerificationEmailController> _logger;
-        private readonly IVerificationEmailService _verificationEmailService;
+	    private readonly IProviderManagementService _providerManagementService;
+	    private readonly ILogger<VerificationEmailController> _logger;
 
-        public VerificationEmailController(IVerificationEmailService verificationEmailService, ILogger<VerificationEmailController> logger)
+        public VerificationEmailController(IProviderManagementService providerManagementService, ILogger<VerificationEmailController> logger)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _verificationEmailService = verificationEmailService ?? throw new ArgumentNullException(nameof(verificationEmailService));
+	        _providerManagementService = providerManagementService;
+	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	        _providerManagementService = providerManagementService ?? throw new ArgumentNullException(nameof(providerManagementService));
         }
 
         [AllowAnonymous]
@@ -47,7 +47,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                var verificationEmailJob = await _verificationEmailService.VerificationEmail(verificationEmail.UserId);
+                var verificationEmailJob = await _providerManagementService.VerificationEmail(verificationEmail.UserId);
 
                 return Ok(verificationEmailJob);
             }
