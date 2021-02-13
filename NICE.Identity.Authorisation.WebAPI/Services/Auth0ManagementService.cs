@@ -40,9 +40,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				.WaitAndRetryAsync(
 					retryCount: 3,
 					sleepDurationProvider: (retryCount, exception, context) => (((RateLimitApiException)exception).RateLimit.Reset.Value - DateTime.UtcNow),
-					onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"RateLimit for management api hit. Retry attempt no: {retryNumber}. DateTime.UtcNow: {DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} Sleeping till: {((RateLimitApiException)exception).RateLimit.Reset.Value:dd/MM/yyyy HH:mm:ss} so sleeping for: {timespan.TotalSeconds} seconds"))
-				)
-				;
+					onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => 
+						_logger.LogWarning($"RateLimit for management api hit. Retry attempt no: {retryNumber}. DateTime.UtcNow: {DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} " +
+						                   $"Sleeping till: {((RateLimitApiException)exception).RateLimit.Reset.Value:dd/MM/yyyy HH:mm:ss} so sleeping for: {timespan.TotalSeconds} seconds"))
+				);
 		}
 
 		public async Task<string> GetAccessTokenForManagementAPI()
