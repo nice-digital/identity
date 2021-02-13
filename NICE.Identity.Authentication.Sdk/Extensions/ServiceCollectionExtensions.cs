@@ -47,11 +47,9 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 			if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 			{
-				ConfigurationOptions redisConfiguration =
-					StackExchange.Redis.ConfigurationOptions.Parse(
-						authConfiguration.RedisConfiguration.ConnectionString);
+				var redisConfiguration = authConfiguration.RedisConfiguration.ConnectionString.ToRedisConfiguration();
 
-				services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
+                services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
 				services.AddSingleton<IRedisCacheConnectionPoolManager, RedisCacheConnectionPoolManager>();
 				services.AddSingleton<ISerializer, NewtonsoftSerializer>();
 
