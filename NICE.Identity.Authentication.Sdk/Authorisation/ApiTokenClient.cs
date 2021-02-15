@@ -35,18 +35,20 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
         public async Task<string> GetAccessToken()
         {
-            var token = await _tokenStore.RetrieveAsync(TokenStoreKey);
-
+	        JwtToken token = null;
+            if (TokenStoreKey != null)
+	        {
+                token = await _tokenStore.RetrieveAsync(TokenStoreKey);
+            }
+            
             if (token != null)
             {
                 return token.AccessToken;
             }
-            else
-            {
-                var tokenFromIdentityProvider = await GetTokenFromIdentityProvider(_authConfiguration);
-                TokenStoreKey = await _tokenStore.StoreAsync(tokenFromIdentityProvider);
-                return tokenFromIdentityProvider.AccessToken;
-            }
+
+            var tokenFromIdentityProvider = await GetTokenFromIdentityProvider(_authConfiguration);
+            TokenStoreKey = await _tokenStore.StoreAsync(tokenFromIdentityProvider);
+            return tokenFromIdentityProvider.AccessToken;
         }
 
         private async Task<JwtToken> GetTokenFromIdentityProvider(IAuthConfiguration authConfiguration)
