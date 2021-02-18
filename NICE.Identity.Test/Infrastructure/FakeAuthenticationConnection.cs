@@ -11,6 +11,8 @@ namespace NICE.Identity.Test.Infrastructure
 	{
 		readonly object _accessTokenResponse; //object so it's castable to T
 
+		public int HitCount = 0;
+
 		public FakeAuthenticationConnection(AccessTokenResponse accessTokenResponse = null)
 		{
 			_accessTokenResponse = accessTokenResponse ?? new AccessTokenResponse { AccessToken = "token", ExpiresIn = 123, TokenType = "type" };
@@ -23,6 +25,7 @@ namespace NICE.Identity.Test.Infrastructure
 
 		public Task<T> SendAsync<T>(HttpMethod method, Uri uri, object body, IDictionary<string, string> headers = null)
 		{
+			HitCount++;
 			return Task.FromResult((T)_accessTokenResponse);
 		}
 
