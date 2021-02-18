@@ -99,7 +99,7 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 		[ConfigurationProperty("RedisEnabled", IsRequired = true)]
 		public bool RedisEnabled
 		{
-			get { return bool.Parse((string)this["RedisEnabled"]); }
+			get { return bool.Parse(this["RedisEnabled"].ToString()); }
 			set { this["RedisEnabled"] = value; }
 		}
 

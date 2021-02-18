@@ -43,7 +43,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.TryAddScoped<IAPIService, APIService>();
             services.TryAddScoped<IApiToken, ApiToken>();
             services.AddHttpContextAccessor();
-			services.AddSingleton<ApiTokenClient>();
+			services.AddSingleton<IApiTokenClient, ApiTokenClient>();
 
 			if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 			{

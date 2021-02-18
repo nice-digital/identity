@@ -51,7 +51,10 @@ namespace NICE.Identity.TestClient.NETFramework452
 			//AutoFAC DI
 			var builder = new ContainerBuilder();
 			builder.RegisterControllers(typeof(MvcApplication).Assembly);
-			builder.RegisterInstance(new ApiTokenClient(authConfiguration)); //authconfig added to DI here.
+
+			builder.RegisterInstance<IAuthConfiguration>(authConfiguration); 
+			builder.RegisterInstance(new ApiTokenClient(authConfiguration)); 
+
 			var container = builder.Build();
 			DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
 

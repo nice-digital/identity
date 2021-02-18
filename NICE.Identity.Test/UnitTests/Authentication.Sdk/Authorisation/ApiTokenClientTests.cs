@@ -68,9 +68,9 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
         public async Task GetAccessToken()
         {
             // Arrange
-            var tokenClient = new ApiTokenClient(_apiTokenStoreMock.Object, _clientFactoryMock.Object, _authConfiguration); 
+            var tokenClient = new ApiTokenClient(_apiTokenStoreMock.Object); 
             // Act
-            var accessToken = await tokenClient.GetAccessToken();
+            var accessToken = await tokenClient.GetAccessToken(_authConfiguration);
             // Assert
             Assert.Equal(_jwtTokenResponseMock.AccessToken, accessToken);
         }

@@ -147,8 +147,8 @@ namespace NICE.Identity.TestClient.Controllers
         [Authorize]
         public async Task<IActionResult> GetM2MToken()
         {
-
-	        var m2mToken = await _apiTokenClient.GetAccessToken();
+	        var authConfiguration = new AuthConfiguration(_configuration, "WebAppConfiguration");
+            var m2mToken = await _apiTokenClient.GetAccessToken(authConfiguration);
 
 	        ViewData["M2MToken"] = m2mToken;
 

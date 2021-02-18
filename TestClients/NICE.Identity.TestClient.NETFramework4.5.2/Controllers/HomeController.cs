@@ -18,15 +18,17 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
     public class HomeController : Controller
     {
 	    private readonly ApiTokenClient _apiTokenClient;
+	    private readonly IAuthConfiguration _authConfiguration;
 	    private readonly string _apiIdentifier;
         private readonly string _authorisationServiceUri;
         private readonly string _authDomain;
         //private readonly IHttpClientFactory _clientFactory;
        // private readonly IAPIService _apiService;
 
-        public HomeController(ApiTokenClient apiTokenClient)
+        public HomeController(ApiTokenClient apiTokenClient, IAuthConfiguration authConfiguration)
         {
 	        _apiTokenClient = apiTokenClient;
+	        _authConfiguration = authConfiguration;
 	        // _apiService = apiService;
             _apiIdentifier = ConfigurationManager.AppSettings["ApiIdentifier"];
            // _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
@@ -129,7 +131,7 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
         public async Task<ActionResult> GetM2MToken()
         {
 
-	        var m2mToken = await _apiTokenClient.GetAccessToken();
+	        var m2mToken = await _apiTokenClient.GetAccessToken(_authConfiguration);
 
 	        ViewData["M2MToken"] = m2mToken;
 
