@@ -21,6 +21,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Auth0.AuthenticationApi;
 using NICE.Identity.Authentication.Sdk.TokenStore;
 using NICE.Identity.Authentication.Sdk.Tracking;
 using StackExchange.Redis;
@@ -43,7 +44,8 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.TryAddScoped<IAPIService, APIService>();
             services.TryAddScoped<IApiToken, ApiToken>();
             services.AddHttpContextAccessor();
-			services.AddSingleton<IApiTokenClient, ApiTokenClient>();
+            services.AddSingleton<IAuthenticationConnection, HttpClientAuthenticationConnection>();
+            services.AddSingleton<IApiTokenClient, ApiTokenClient>();
 
 			if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
 			{

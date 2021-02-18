@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using System.Net.Http;
 using System.Web.Mvc;
 using Autofac;
 using Autofac.Integration.Mvc;
@@ -52,8 +53,9 @@ namespace NICE.Identity.TestClient.NETFramework452
 			var builder = new ContainerBuilder();
 			builder.RegisterControllers(typeof(MvcApplication).Assembly);
 
-			builder.RegisterInstance<IAuthConfiguration>(authConfiguration); 
-			builder.RegisterInstance(new ApiTokenClient(authConfiguration)); 
+			builder.RegisterInstance<IAuthConfiguration>(authConfiguration);
+
+			builder.Register(c => new HttpClient()).As<HttpClient>().SingleInstance();
 
 			var container = builder.Build();
 			DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

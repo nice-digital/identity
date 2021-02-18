@@ -6,6 +6,7 @@ using NICE.Identity.Authentication.Sdk.TokenStore;
 using Polly.Retry;
 using System;
 using System.Collections.Concurrent;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
@@ -31,6 +32,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 	public class ApiTokenClient : IApiTokenClient
 	{
+		private readonly IAuthenticationConnection _authenticationConnection;
 		private readonly IApiTokenStore _tokenStore;
 		private readonly AsyncRetryPolicy _retryPolicy;
 
@@ -40,16 +42,24 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		private static readonly ConcurrentDictionary<string, string> TokenStoreKeys = new ConcurrentDictionary<string, string>();
 
 #if NETSTANDARD2_0 || NETCOREAPP3_1
-        public ApiTokenClient(IApiTokenStore tokenStore)
+        public ApiTokenClient(IApiTokenStore tokenStore, IAuthenticationConnection authenticationConnection)
 		{
 			_tokenStore = tokenStore;
+			_authenticationConnection = authenticationConnection;
 			_retryPolicy = APIConfiguration.GetAuth0RetryPolicy();
 		}
 #else
-        public ApiTokenClient(IAuthConfiguration authConfiguration)
+		/// <summary>
+		/// This overload is for .net framework. The SDK doesn't populate the DI with IApiTokenStore AND IAuthenticationConnection like it does in ServiceCollectionExtensions. so instead we rely
+		/// on just the AuthConfiguration and the http client. if the httpclient is null, then a new one will be created and disposed in each request (which isn't great).
+		/// </summary>
+		/// <param name="authConfiguration"></param>
+		/// <param name="httpClient">optional, but you should pass it in and share it among connections, as long as the default behaviour isn't reconfigured.</param>
+		public ApiTokenClient(IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
-            _tokenStore = new RedisApiTokenStore(authConfiguration.RedisConfiguration.ConnectionString);
-            _retryPolicy = APIConfiguration.GetAuth0RetryPolicy();
+	        _tokenStore = new RedisApiTokenStore(authConfiguration.RedisConfiguration.ConnectionString);
+	        _authenticationConnection = new HttpClientAuthenticationConnection(httpClient); 
+			_retryPolicy = APIConfiguration.GetAuth0RetryPolicy();
         }
 #endif
 
@@ -90,7 +100,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         {
 	        try
 	        {
-		        using (var client = new AuthenticationApiClient(new Uri($"https://{domain}/")))
+		        using (var client = new AuthenticationApiClient(new Uri($"https://{domain}/"), _authenticationConnection))
 		        {
 			        var managementApiTokenRequest = new ClientCredentialsTokenRequest
 			        {
@@ -101,7 +111,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 			        var accessTokenResponse = await _retryPolicy.ExecuteAsync(() => client.GetTokenAsync(managementApiTokenRequest));
                     
-			        return new JwtToken()
+			        return new JwtToken
 			        {
 				        AccessToken = accessTokenResponse.AccessToken, 
 				        ExpiresIn = accessTokenResponse.ExpiresIn,
