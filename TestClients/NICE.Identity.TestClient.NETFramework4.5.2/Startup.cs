@@ -22,7 +22,13 @@ namespace NICE.Identity.TestClient.NETFramework452
 
 		public void Configuration(IAppBuilder app)
 		{
-			// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=316888
+			//here's an example of how to get configuration from a web.config file in a single section:
+			var authConfigurationWebConfig = new AuthConfiguration(IdAMWebConfigSection.GetConfig());
+
+
+			//alternatively you could get each property from the webconfig's appsetting's section, just like the redirecturi and postLogoutRedirectUri below.
+			//(all other fields below come from the secrets file in .net core project, just because this repo is public)
+
 			var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			var secretsPath = Path.Combine(appDataPath, @"Microsoft\UserSecrets\b69bc28e-14c9-4c24-bd25-232e24a55745\secrets.json");
 			var secretsFile = JObject.Parse(File.ReadAllText(secretsPath));
@@ -45,7 +51,7 @@ namespace NICE.Identity.TestClient.NETFramework452
 			//AutoFAC DI
 			var builder = new ContainerBuilder();
 			builder.RegisterControllers(typeof(MvcApplication).Assembly);
-			builder.RegisterInstance(new ApiTokenClient(authConfiguration));
+			builder.RegisterInstance(new ApiTokenClient(authConfiguration)); //authconfig added to DI here.
 			var container = builder.Build();
 			DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
 
@@ -54,7 +60,7 @@ namespace NICE.Identity.TestClient.NETFramework452
 			IdentityModelEventSource.ShowPII = true; 
 
 			
-			app.AddOwinAuthentication(authConfiguration);  //, redisConfig);
+			app.AddOwinAuthentication(authConfiguration); 
 		}
 	}
 }
