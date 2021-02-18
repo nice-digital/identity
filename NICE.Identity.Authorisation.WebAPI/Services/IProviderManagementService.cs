@@ -15,5 +15,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Task RevokeRefreshTokensForUser(string nameIdentifier);
 
         Task<(int totalUsersCount, List<BasicUserInfo> last10Users)> GetLastTenUsersAndTotalCount();
+
+        Task<Auth0.ManagementApi.Models.Job> VerificationEmail(string authenticationProviderUserId);
     }
 }

@@ -29,6 +29,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> RevokeRefreshTokensForUserAsync([FromBody] string nameIdentifier)
         {
+            if (string.IsNullOrEmpty(nameIdentifier))
+                throw new ArgumentNullException(nameof(nameIdentifier), "NameIdentifier cannot be blank or null.");
+
             try
             {
                 await _providerManagementService.RevokeRefreshTokensForUser(nameIdentifier);

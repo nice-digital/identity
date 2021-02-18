@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Auth0.ManagementApi;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 
 namespace NICE.Identity.Authorisation.WebAPI
@@ -57,7 +58,6 @@ namespace NICE.Identity.Authorisation.WebAPI
 
 			services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
-            services.AddTransient<IVerificationEmailService, VerificationEmailService>();
             services.AddTransient<IWebsitesService, WebsitesService>();
             services.AddTransient<IServicesService, ServicesService>();
             services.AddTransient<IEnvironmentsService, EnvironmentsService>();
@@ -69,6 +69,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IJobsService, JobsService>();
 			services.AddTransient<IUserSyncCheck, UserSyncCheck>();
 			services.AddTransient<IDuplicateCheck, DuplicateCheck>();
+			services.AddSingleton<IManagementConnection, HttpClientManagementConnection>();
 			services.AddHttpClient(); //this adds http client factory for use in DI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
