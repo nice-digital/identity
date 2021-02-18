@@ -53,9 +53,11 @@ namespace NICE.Identity.TestClient.NETFramework452
 			var builder = new ContainerBuilder();
 			builder.RegisterControllers(typeof(MvcApplication).Assembly);
 
-			builder.RegisterInstance<IAuthConfiguration>(authConfiguration);
+			builder.RegisterInstance<IAuthConfiguration>(authConfiguration).SingleInstance();
 
 			builder.Register(c => new HttpClient()).As<HttpClient>().SingleInstance();
+
+			builder.RegisterInstance<IApiTokenClient>(new ApiTokenClient(authConfiguration)).SingleInstance();
 
 			var container = builder.Build();
 			DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

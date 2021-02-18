@@ -17,7 +17,7 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
 {
     public class HomeController : Controller
     {
-	    private readonly ApiTokenClient _apiTokenClient;
+	    private readonly IApiTokenClient _apiTokenClient;
 	    private readonly IAuthConfiguration _authConfiguration;
 	    private readonly string _apiIdentifier;
         private readonly string _authorisationServiceUri;
@@ -25,7 +25,7 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
         //private readonly IHttpClientFactory _clientFactory;
        // private readonly IAPIService _apiService;
 
-        public HomeController(ApiTokenClient apiTokenClient, IAuthConfiguration authConfiguration)
+        public HomeController(IApiTokenClient apiTokenClient, IAuthConfiguration authConfiguration)
         {
 	        _apiTokenClient = apiTokenClient;
 	        _authConfiguration = authConfiguration;
