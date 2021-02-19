@@ -44,6 +44,7 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 				CookieHttpOnly = true,
 				CookieSecure = CookieSecureOption.Always,
                 CookieSameSite = SameSiteMode.None,
+				CookieName = AuthenticationConstants.CookieName,
 				LoginPath = new PathString("/Account/Login"),
 				Provider = new CookieAuthenticationProvider
 				{

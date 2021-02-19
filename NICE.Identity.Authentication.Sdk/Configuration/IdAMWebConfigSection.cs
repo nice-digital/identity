@@ -110,11 +110,14 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			set { this["RedisConnectionString"] = value; }
 		}
 
-		private string _defaultCallBackPath = "/signin-auth0";
 		[ConfigurationProperty("CallBackPath", IsRequired = false)]
 		public string CallBackPath
 		{
-			get { return (string)this["CallBackPath"] ?? _defaultCallBackPath; }
+			get
+			{
+				var callBackPath = (string)this["CallBackPath"];
+				return string.IsNullOrEmpty(callBackPath) ? null : callBackPath;
+			}
 			set { this["CallBackPath"] = value; }
 		}
 
