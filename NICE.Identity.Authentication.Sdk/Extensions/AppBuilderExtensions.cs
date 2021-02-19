@@ -11,6 +11,7 @@ using NICE.Identity.Authentication.Sdk.Domain;
 using Owin;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -18,6 +19,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Owin.Security.DataHandler;
 using Microsoft.Owin.Security.DataProtection;
+using Microsoft.Owin.Security.Jwt;
 using NICE.Identity.Authentication.Sdk.SessionStore;
 using NICE.Identity.Authentication.Sdk.Tracking;
 using Claim = System.Security.Claims.Claim;
@@ -27,6 +29,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class AppBuilderExtensions
 	{
+		/// <summary>
+		/// Use this extension to add authentication to a website, to be logged into by regular users (openidconnect).
+		/// </summary>
+		/// <param name="app"></param>
+		/// <param name="authConfiguration"></param>
+		/// <param name="httpClient"></param>
 		public static void AddOwinAuthentication(this IAppBuilder app, IAuthConfiguration authConfiguration, HttpClient httpClient = null) //, RedisConfiguration redisConfiguration)
 		{
 			var localHttpClient = httpClient ?? new HttpClient();
@@ -188,6 +196,31 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 					}
 				}
 			});
+		}
+
+		/// <summary>
+		/// This extension is here for APIs to secure routes using JWT's i.e. a machine to machine / bearer token / client_credentials grant.
+		/// </summary>
+		/// <param name="app"></param>
+		/// <param name="authConfiguration"></param>
+		/// <param name="httpClient"></param>
+		public static void AddOwinAuthenticationForAPI(this IAppBuilder app, IAuthConfiguration authConfiguration, HttpClient httpClient = null) 
+		{
+			var domain = $"https://{authConfiguration.TenantDomain}/";
+			var apiIdentifier = authConfiguration.MachineToMachineSettings.ApiIdentifier;
+
+			var keyResolver = new OpenIdConnectSigningKeyResolver(domain);
+			app.UseJwtBearerAuthentication(
+				new JwtBearerAuthenticationOptions
+				{
+					AuthenticationMode = AuthenticationMode.Active,
+					TokenValidationParameters = new TokenValidationParameters()
+					{
+						ValidAudience = apiIdentifier,
+						ValidIssuer = domain,
+						IssuerSigningKeyResolver = (token, securityToken, kid, parameters) => keyResolver.GetSigningKey(kid)
+					}
+				});
 		}
 	}
 }

@@ -37,6 +37,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Use this extension to add authentication to a website, to be logged into by regular users (openidconnect).
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="authConfiguration"></param>
+        /// <param name="allowNonSecureCookie"></param>
+        /// <param name="httpClient">if you don't pass this, a new one will be created</param>
+        /// <returns></returns>
         public static AuthenticationBuilder AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, bool allowNonSecureCookie = false, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
@@ -224,6 +232,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			return authenticationBuilder;
         }
 
+        /// <summary>
+        /// This extension is here for APIs to secure routes using JWT's i.e. a machine to machine / bearer token / client_credentials grant.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="authConfiguration"></param>
+        /// <param name="authorizationOptions"></param>
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
             services.TryAddSingleton(authConfig => authConfiguration);
