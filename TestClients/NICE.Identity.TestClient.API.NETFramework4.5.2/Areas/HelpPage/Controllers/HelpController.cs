@@ -1,6 +1,7 @@
 using System;
 using System.Web.Http;
 using System.Web.Mvc;
+using NICE.Identity.Authentication.Sdk.Attributes;
 using NICE.Identity.TestClient.API.NETFramework4._5._2.Areas.HelpPage.ModelDescriptions;
 using NICE.Identity.TestClient.API.NETFramework4._5._2.Areas.HelpPage.Models;
 
@@ -25,6 +26,7 @@ namespace NICE.Identity.TestClient.API.NETFramework4._5._2.Areas.HelpPage.Contro
 
         public HttpConfiguration Configuration { get; private set; }
 
+        [Authorise]
         public ActionResult Index()
         {
             ViewBag.DocumentationProvider = Configuration.Services.GetDocumentationProvider();

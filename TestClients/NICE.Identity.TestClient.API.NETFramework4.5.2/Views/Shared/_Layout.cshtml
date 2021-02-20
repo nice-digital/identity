@@ -19,12 +19,23 @@
                 @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-	                <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
-	                <li><a href="/api/Values">Values (performs a GET on an API controller)</a></li>
+	            <ul class="nav navbar-nav">
+		            <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
+		            <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
+		            <li>@Html.ActionLink("Get M2M Token", "GetM2MToken", "Home", new { area = "" }, null)</li>
+		            <li><a href="/api/Values">Values (performs a GET on an API controller)</a></li>
 	                
-                </ul>
+	            </ul>
+	            <ul class="nav navbar-nav navbar-right">
+		            @if (User.Identity.IsAuthenticated)
+		            {
+			            <li>@Html.ActionLink("Logout", "Logout", "Account")</li>
+		            }
+		            else
+		            {
+			            <li>@Html.ActionLink("Login", "Login", "Account")</li>
+		            }
+	            </ul>
             </div>
         </div>
     </div>

@@ -13,10 +13,14 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
 	public interface IApiTokenClient
 	{
-        /// <summary>
-        /// Use this overload to get an access token using the Application (clientid) in AuthConfiguration, from DI
-        /// </summary>
-        /// <returns></returns>
+#if NETFRAMEWORK
+		Task<string> GetAccessToken();
+#endif
+
+		/// <summary>
+		/// Use this overload to get an access token using the Application (clientid) in AuthConfiguration, from DI
+		/// </summary>
+		/// <returns></returns>
 		Task<string> GetAccessToken(IAuthConfiguration authConfiguration);
 
         /// <summary>
@@ -32,6 +36,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 	public class ApiTokenClient : IApiTokenClient
 	{
+		private readonly IAuthConfiguration _authConfiguration; //null for .net standard/core
 		private readonly IAuthenticationConnection _authenticationConnection;
 		private readonly IApiTokenStore _tokenStore;
 		private readonly AsyncRetryPolicy _retryPolicy;
@@ -48,7 +53,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 			_authenticationConnection = authenticationConnection;
 			_retryPolicy = APIConfiguration.GetAuth0RetryPolicy();
 		}
-#else
+#elif NETFRAMEWORK
 		/// <summary>
 		/// This overload is for .net framework. The SDK doesn't populate the DI with IApiTokenStore AND IAuthenticationConnection like it does in ServiceCollectionExtensions. so instead we rely
 		/// on just the AuthConfiguration and the http client. if the httpclient is null, then a new one will be created and disposed in each request (which isn't great).
@@ -57,13 +62,22 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		/// <param name="httpClient">optional, but you should pass it in and share it among connections, as long as the default behaviour isn't reconfigured.</param>
 		public ApiTokenClient(IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
+	        _authConfiguration = authConfiguration;
 	        _tokenStore = new RedisApiTokenStore(authConfiguration.RedisConfiguration.ConnectionString);
 	        _authenticationConnection = new HttpClientAuthenticationConnection(httpClient); 
 			_retryPolicy = APIConfiguration.GetAuth0RetryPolicy();
         }
 #endif
 
-        public async Task<string> GetAccessToken(IAuthConfiguration authConfiguration)
+
+#if NETFRAMEWORK
+		public async Task<string> GetAccessToken()
+		{
+			return await GetAccessToken(_authConfiguration);
+		}
+#endif
+
+		public async Task<string> GetAccessToken(IAuthConfiguration authConfiguration)
         {
 	        return await GetAccessToken(authConfiguration.TenantDomain, 
 										authConfiguration.WebSettings.ClientId,
