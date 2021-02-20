@@ -133,5 +133,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		{
 			return ((ClaimsPrincipal)principal).OrganisationsAssignedAsLead();
 		}
+
+		internal static string GrantType(this ClaimsPrincipal claimsPrincipal)
+		{
+			return claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type.Equals("gty"))?.Value ?? "";
+		}
+		internal static string GrantType(this IPrincipal principal)
+		{
+			return ((ClaimsPrincipal)principal).GrantType();
+		}
 	}
 }

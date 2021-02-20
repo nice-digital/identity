@@ -19,6 +19,8 @@
 
 		public const string JWTAuthenticationScheme = "Bearer";
 
+		public const string ClientCredentials = "client-credentials";
+
 		public static class Tokens
 		{
 			public const string IdToken = "id_token";

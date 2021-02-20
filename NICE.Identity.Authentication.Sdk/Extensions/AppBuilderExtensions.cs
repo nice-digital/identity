@@ -203,11 +203,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 		/// </summary>
 		/// <param name="app"></param>
 		/// <param name="authConfiguration"></param>
+		/// <param name="apiIdentifier">if null, the api identifier in the authconfiguration will be used. The auth configuration likely has the identifier for the identity api.</param>
 		/// <param name="httpClient"></param>
-		public static void AddOwinAuthenticationForAPI(this IAppBuilder app, IAuthConfiguration authConfiguration, HttpClient httpClient = null) 
+		public static void AddOwinAuthenticationForAPI(this IAppBuilder app, IAuthConfiguration authConfiguration, string apiIdentifier = null, HttpClient httpClient = null) 
 		{
 			var domain = $"https://{authConfiguration.TenantDomain}/";
-			var apiIdentifier = authConfiguration.MachineToMachineSettings.ApiIdentifier;
+			apiIdentifier = apiIdentifier ?? authConfiguration.MachineToMachineSettings.ApiIdentifier;
 
 			var keyResolver = new OpenIdConnectSigningKeyResolver(domain);
 			app.UseJwtBearerAuthentication(

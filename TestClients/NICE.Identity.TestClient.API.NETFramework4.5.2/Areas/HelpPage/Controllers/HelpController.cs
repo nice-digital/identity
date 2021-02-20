@@ -2,6 +2,7 @@ using System;
 using System.Web.Http;
 using System.Web.Mvc;
 using NICE.Identity.Authentication.Sdk.Attributes;
+using NICE.Identity.Authentication.Sdk.Attributes.Mvc;
 using NICE.Identity.TestClient.API.NETFramework4._5._2.Areas.HelpPage.ModelDescriptions;
 using NICE.Identity.TestClient.API.NETFramework4._5._2.Areas.HelpPage.Models;
 

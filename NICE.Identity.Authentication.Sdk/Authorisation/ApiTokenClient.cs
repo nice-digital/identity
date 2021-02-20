@@ -46,7 +46,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		/// <summary>
         /// This dictionary should contain the last token store key for each client id. the key is client id, the value is the token store key for redis (not the access token!)
         ///
-        /// It's static, so it's shared between all threads
+        /// It's static, so it's shared globally
         /// </summary>
 		private static readonly ConcurrentDictionary<string, string> TokenStoreKeys = new ConcurrentDictionary<string, string>();
 
