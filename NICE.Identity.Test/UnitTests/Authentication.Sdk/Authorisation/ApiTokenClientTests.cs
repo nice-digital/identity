@@ -48,46 +48,20 @@ namespace NICE.Identity.Test.UnitTests.Authentication.Sdk.Authorisation
                 "loginPath", "logoutPath", true, "localhost:6379");
         }
 
-        [Fact]
-        public async Task GetAccessToken()
-        {
-            // Arrange
-            var fakeAuthenticationConnection = FakeAuthenticationConnection.Get(new AccessTokenResponse {AccessToken = _jwtTokenResponseMock1.AccessToken});
-            var tokenClient = new ApiTokenClient(_apiTokenStoreMock.Object, fakeAuthenticationConnection); 
-            // Act
-            var accessToken = await tokenClient.GetAccessToken(_authConfiguration);
-            // Assert
-            Assert.Equal(_jwtTokenResponseMock1.AccessToken, accessToken);
-            Assert.Equal(1, fakeAuthenticationConnection.HitCount);
-        }
-
-        [Fact]
-        public async Task GetAccessTokenTwiceShouldOnlyHitTheAuthenticationAPIOnce()
-        {
-	        // Arrange
-	        var fakeAuthenticationConnection = FakeAuthenticationConnection.Get(new AccessTokenResponse { AccessToken = _jwtTokenResponseMock1.AccessToken });
-	        var tokenClient = new ApiTokenClient(_apiTokenStoreMock.Object, fakeAuthenticationConnection);
-	        // Act
-	        var accessToken = await tokenClient.GetAccessToken(_authConfiguration);
-	        var accessToken2 = await tokenClient.GetAccessToken(_authConfiguration);
-            // Assert
-            Assert.Equal(_jwtTokenResponseMock1.AccessToken, accessToken);
-            Assert.Equal(_jwtTokenResponseMock1.AccessToken, accessToken2);
-            Assert.Equal(1, fakeAuthenticationConnection.HitCount);
-        }
-
 		[Fact]
 		public async Task GetAccessTokenWithDifferentClientIdsReturnsHitsTheAPITwice()
 		{
 			// Arrange
 			var fakeAuthenticationConnection = FakeAuthenticationConnection.Get(new AccessTokenResponse { AccessToken = _jwtTokenResponseMock1.AccessToken });
-			var tokenClient = new ApiTokenClient(_apiTokenStoreMock.Object, fakeAuthenticationConnection);
+			var tokenClient = new ApiTokenClient(_authConfiguration, _apiTokenStoreMock.Object, fakeAuthenticationConnection);
 			// Act
-			await tokenClient.GetAccessToken(_authConfiguration);
-			await tokenClient.GetAccessToken(_authConfiguration);
+			var accessToken = await tokenClient.GetAccessToken();
+			var accessToken2 = await tokenClient.GetAccessToken(_authConfiguration);
 			await tokenClient.GetAccessToken(_authConfiguration.TenantDomain, "different client id", _authConfiguration.WebSettings.ClientSecret, _authConfiguration.MachineToMachineSettings.ApiIdentifier);
             // Assert
-			Assert.Equal(2, fakeAuthenticationConnection.HitCount);
+            Assert.Equal(_jwtTokenResponseMock1.AccessToken, accessToken);
+            Assert.Equal(_jwtTokenResponseMock1.AccessToken, accessToken2);
+            Assert.Equal(2, fakeAuthenticationConnection.HitCount);
         }
 	}
 }

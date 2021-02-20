@@ -13,12 +13,14 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
 	public interface IApiTokenClient
 	{
-#if NETFRAMEWORK
+		/// <summary>
+		/// This version relies on the AuthConfiguration passed in, in the constructor (likely in DI).
+		/// </summary>
+		/// <returns></returns>
 		Task<string> GetAccessToken();
-#endif
 
 		/// <summary>
-		/// Use this overload to get an access token using the Application (clientid) in AuthConfiguration, from DI
+		/// Use this overload to get a cached access token using the Application (clientid) in AuthConfiguration, passed in.
 		/// </summary>
 		/// <returns></returns>
 		Task<string> GetAccessToken(IAuthConfiguration authConfiguration);
@@ -36,19 +38,22 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 
 	public class ApiTokenClient : IApiTokenClient
 	{
-		private readonly IAuthConfiguration _authConfiguration; //null for .net standard/core
+		private readonly IAuthConfiguration _authConfiguration;
 		private readonly IAuthenticationConnection _authenticationConnection;
 		private readonly IApiTokenStore _tokenStore;
 		private readonly AsyncRetryPolicy _retryPolicy;
 
 		/// <summary>
         /// This dictionary should contain the last token store key for each client id. the key is client id, the value is the token store key for redis (not the access token!)
+        ///
+        /// It's static, so it's shared between all threads
         /// </summary>
-		private readonly ConcurrentDictionary<string, string> TokenStoreKeys = new ConcurrentDictionary<string, string>();
+		private static readonly ConcurrentDictionary<string, string> TokenStoreKeys = new ConcurrentDictionary<string, string>();
 
 #if NETSTANDARD2_0 || NETCOREAPP3_1
-        public ApiTokenClient(IApiTokenStore tokenStore, IAuthenticationConnection authenticationConnection)
+        public ApiTokenClient(IAuthConfiguration authConfiguration, IApiTokenStore tokenStore, IAuthenticationConnection authenticationConnection)
 		{
+			_authConfiguration = authConfiguration;
 			_tokenStore = tokenStore;
 			_authenticationConnection = authenticationConnection;
 			_retryPolicy = APIConfiguration.GetAuth0RetryPolicy();
@@ -69,13 +74,10 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         }
 #endif
 
-
-#if NETFRAMEWORK
 		public async Task<string> GetAccessToken()
 		{
 			return await GetAccessToken(_authConfiguration);
 		}
-#endif
 
 		public async Task<string> GetAccessToken(IAuthConfiguration authConfiguration)
         {
@@ -85,8 +87,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 										authConfiguration.MachineToMachineSettings.ApiIdentifier);
         }
 
-
-        public async Task<string> GetAccessToken(string domain, string clientId, string clientSecret, string apiIdentifier)
+		public async Task<string> GetAccessToken(string domain, string clientId, string clientSecret, string apiIdentifier)
         {
 	        JwtToken token = null;
             if (TokenStoreKeys.ContainsKey(clientId))
