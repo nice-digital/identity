@@ -40,7 +40,8 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Http
 
 		public override void OnAuthorization(HttpActionContext actionContext)
 		{
-			if (actionContext.RequestContext.Principal.GrantType().Equals(AuthenticationConstants.ClientCredentials))
+			var principal = actionContext.RequestContext.Principal;
+			if (principal.Identity.IsAuthenticated && principal.GrantType().Equals(AuthenticationConstants.ClientCredentials))
 			{
 				//if the granttype is client-credentials, then don't check the roles. so in this case the calling app has used the client_secret, to get an access token,
 				//then it's hitting an authorised route for an api call, but the authorize attribute has a role on it too.
