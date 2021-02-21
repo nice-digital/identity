@@ -14,6 +14,10 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 	public interface IApiTokenClient
 	{
 		/// <summary>
+		/// Gets a machine to machine token a.k.a JWT token a.k.a. Bearer token a.k.a client_credentials grant/flow access token
+		///
+		/// Then stores it in (redis) cache. The token is stored in redis until it expires. The default duration for this is 24 hours, but it can be configured to anything in hostedpages octo.
+		/// 
 		/// This version relies on the AuthConfiguration passed in, in the constructor (likely in DI).
 		/// </summary>
 		/// <returns></returns>
@@ -46,7 +50,9 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		/// <summary>
         /// This dictionary should contain the last token store key for each client id. the key is client id, the value is the token store key for redis (not the access token!)
         ///
-        /// It's static, so it's shared globally
+        /// The reason it's a dictionary is that some applications might need to communicate with more than one API. e.g. guidance-web hits APIs in: indev, publications, pathways + orchard
+        ///
+        /// static, so it's shared globally
         /// </summary>
 		private static readonly ConcurrentDictionary<string, string> TokenStoreKeys = new ConcurrentDictionary<string, string>();
 

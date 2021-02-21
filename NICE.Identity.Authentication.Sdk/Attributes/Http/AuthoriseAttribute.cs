@@ -9,7 +9,7 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Http
 	/// <summary>
 	/// The AuthorizeAttribute in the System.Web.Http namespace is for web controllers or (more usually) ApiController's.
 	///
-	/// the only difference between this attribute and the System.Web.Http.AuthorizeAttribute is that this attribute returns
+	/// the main difference between this attribute and the System.Web.Http.AuthorizeAttribute is that this attribute returns
 	/// 403's instead of a 401 if the user is logged in and doesn't have access.
 	///
 	/// The reason this is important for us, is that if a user is logged in but doesn't have the role, then a 401 will result in a challenge
