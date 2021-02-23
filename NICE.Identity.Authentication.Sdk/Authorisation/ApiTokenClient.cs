@@ -40,6 +40,13 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		Task<string> GetAccessToken(string domain, string clientId, string clientSecret, string apiIdentifier);
     }
 
+	/// <summary>
+	/// Provides a method (with overloads) to get an access token, and cache it in redis. Redis is mandatory for using this functionality.
+	///
+	/// In .net standard 2 / .net core 3.1, this interface is only added to DI when redis is enabled.
+	/// 
+	/// In .net framework where we don't add to DI, instantiating this class without redis enabled will throw an error at runtime.
+	/// </summary>
 	public class ApiTokenClient : IApiTokenClient
 	{
 		private readonly IAuthConfiguration _authConfiguration;
@@ -73,6 +80,11 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 		/// <param name="httpClient">optional, but you should pass it in and share it among connections, as long as the default behaviour isn't reconfigured.</param>
 		public ApiTokenClient(IAuthConfiguration authConfiguration, HttpClient httpClient = null)
         {
+			if (!authConfiguration.RedisConfiguration.Enabled)
+			{
+				throw new ApplicationException("A cache store needs to be supplied to cache the access token.");
+			}
+
 	        _authConfiguration = authConfiguration;
 	        _tokenStore = new RedisApiTokenStore(authConfiguration.RedisConfiguration.ConnectionString);
 	        _authenticationConnection = new HttpClientAuthenticationConnection(httpClient); 
