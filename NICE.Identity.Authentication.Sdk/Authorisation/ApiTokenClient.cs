@@ -54,7 +54,7 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
         ///
         /// static, so it's shared globally
         /// </summary>
-		private static readonly ConcurrentDictionary<string, string> TokenStoreKeys = new ConcurrentDictionary<string, string>();
+		protected static ConcurrentDictionary<string, string> TokenStoreKeys { get; set; } = new ConcurrentDictionary<string, string>();
 
 #if NETSTANDARD2_0 || NETCOREAPP3_1
         public ApiTokenClient(IAuthConfiguration authConfiguration, IApiTokenStore tokenStore, IAuthenticationConnection authenticationConnection)
