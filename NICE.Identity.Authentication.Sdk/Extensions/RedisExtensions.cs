@@ -44,6 +44,10 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 
 				Hosts = configurationOptions.EndPoints.Select(endpoint =>
 				{
+					if (endpoint is DnsEndPoint dnsEndpoint)
+					{
+						return new RedisHost { Host = dnsEndpoint.Host, Port = dnsEndpoint.Port };
+					}
 					var ipEndPoint = ParseIPEndPoint(endpoint.ToString());
 					return new RedisHost { Host = ipEndPoint.Address.ToString(), Port = ipEndPoint.Port };
 				}).ToArray()
