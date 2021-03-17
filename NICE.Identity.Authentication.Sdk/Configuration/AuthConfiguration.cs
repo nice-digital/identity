@@ -53,6 +53,25 @@ namespace NICE.Identity.Authentication.Sdk.Configuration
 			);
 		}
 #endif
+#if NETFRAMEWORK
+		public AuthConfiguration(IdAMWebConfigSection webConfigSection)
+		{
+			TenantDomain = webConfigSection.Domain;
+			WebSettings = new WebSettingsType(webConfigSection.ClientId, webConfigSection.ClientSecret, webConfigSection.RedirectUri, webConfigSection.PostLogoutRedirectUri, webConfigSection.AuthorisationServiceUri, webConfigSection.CallBackPath);
+			MachineToMachineSettings = new MachineToMachineSettingsType(webConfigSection.ApiIdentifier);
+			RolesWithAccessToUserProfiles = webConfigSection.RolesWithAccessToUserProfiles;
+
+			LoginPath = webConfigSection.LoginPath;
+			LogoutPath = webConfigSection.LogoutPath;
+			GoogleTrackingId = webConfigSection.GoogleTrackingId;
+
+			RedisConfiguration = new RedisConfig(
+				enabled: webConfigSection.RedisEnabled,
+				connectionString: webConfigSection.RedisConnectionString
+			);
+		}
+#endif
+
 		public AuthConfiguration(string tenantDomain, string clientId, string clientSecret, string redirectUri, string postLogoutRedirectUri, string apiIdentifier, string authorisationServiceUri, 
 			string googleTrackingId, string grantType = null, string callBackPath = "/signin-auth0", IEnumerable<string> rolesWithAccessToUserProfiles = null, string loginPath = null, string logoutPath = null,
 			bool redisEnabled = false, string redisConnectionString = null)

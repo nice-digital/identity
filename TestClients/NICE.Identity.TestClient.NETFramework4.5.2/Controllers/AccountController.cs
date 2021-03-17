@@ -17,6 +17,8 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
 					Dictionary = { { "register", goToRegisterPage.ToString().ToLower() } }
 				},
 				AuthenticationConstants.AuthenticationScheme);
+
+
 			return new HttpUnauthorizedResult();
 		}
 

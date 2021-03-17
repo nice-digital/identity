@@ -27,13 +27,15 @@ namespace NICE.Identity.TestClient.Controllers
 		private readonly IHttpClientFactory _clientFactory;
         private readonly IAPIService _apiService;
         private readonly IApiToken _apiToken;
+        private readonly ApiTokenClient _apiTokenClient;
 
-        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IApiToken apiToken)
+        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IApiToken apiToken, ApiTokenClient apiTokenClient)
         {
 	        _configuration = configuration;
 	        _clientFactory = clientFactory;
             _apiService = apiService;
             _apiToken = apiToken;
+            _apiTokenClient = apiTokenClient;
             _apiIdentifier = configuration.GetSection("WebAppConfiguration").GetSection("ApiIdentifier").Value;
             _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
 			_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
@@ -140,5 +142,19 @@ namespace NICE.Identity.TestClient.Controllers
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
+
+
+        [Authorize]
+        public async Task<IActionResult> GetM2MToken()
+        {
+	        var authConfiguration = new AuthConfiguration(_configuration, "WebAppConfiguration");
+            var m2mToken = await _apiTokenClient.GetAccessToken(authConfiguration);
+
+	        ViewData["M2MToken"] = m2mToken;
+
+
+            return View("M2MToken");
+        }
+
     }
 }

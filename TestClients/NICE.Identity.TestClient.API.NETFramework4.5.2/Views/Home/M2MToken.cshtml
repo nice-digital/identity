@@ -1,0 +1,9 @@
+﻿<div class="row">
+    <div class="col-md-6">
+        <h2>M2M Token</h2>
+        <p>@ViewBag.M2MToken</p>
+    </div>
+    <div class="col-md-6">
+        <p>each request to this page hits the sdk for a token. the first request will cache it in redis until it expires. subsequent requests will retrieve the cached token from redis.</p>
+    </div>
+</div>

@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using System.Net.Http;
+using System.Web.Mvc;
+using Autofac;
+using Autofac.Integration.Mvc;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
+using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.TestClient.NETFramework452;
@@ -15,12 +20,21 @@ namespace NICE.Identity.TestClient.NETFramework452
 {
 	public class Startup
 	{
+
 		public void Configuration(IAppBuilder app)
 		{
-			// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=316888
+			//here's an example of how to get configuration from a web.config file in a single section:
+			var authConfigurationWebConfig = new AuthConfiguration(IdAMWebConfigSection.GetConfig());
+
+
+			//alternatively you could get each property from the webconfig's appsetting's section, just like the redirecturi and postLogoutRedirectUri below.
+			//(all other fields below come from the secrets file in .net core project, just because this repo is public)
+
 			var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			var secretsPath = Path.Combine(appDataPath, @"Microsoft\UserSecrets\b69bc28e-14c9-4c24-bd25-232e24a55745\secrets.json");
 			var secretsFile = JObject.Parse(File.ReadAllText(secretsPath));
+
+			var redisConfig = secretsFile.SelectToken("WebAppConfiguration.RedisServiceConfiguration");
 
 			var authConfiguration = new AuthConfiguration(
 				tenantDomain: secretsFile.SelectToken("WebAppConfiguration")["Domain"].ToString(),
@@ -30,19 +44,30 @@ namespace NICE.Identity.TestClient.NETFramework452
 				postLogoutRedirectUri: ConfigurationManager.AppSettings["auth0:PostLogoutRedirectUri"],
 				apiIdentifier: secretsFile.SelectToken("WebAppConfiguration")["ApiIdentifier"].ToString(),
                 authorisationServiceUri: secretsFile.SelectToken("WebAppConfiguration")["AuthorisationServiceUri"].ToString(),
-				googleTrackingId: secretsFile.SelectToken("WebAppConfiguration")["GoogleTrackingId"].ToString()
-				);
+				googleTrackingId: secretsFile.SelectToken("WebAppConfiguration")["GoogleTrackingId"].ToString(),
+				redisEnabled: bool.Parse(redisConfig["Enabled"].ToString()),
+				redisConnectionString: redisConfig["ConnectionString"].ToString()
+			);
+			
+			//AutoFAC DI
+			var builder = new ContainerBuilder();
+			builder.RegisterControllers(typeof(MvcApplication).Assembly);
 
-			IdentityModelEventSource.ShowPII = true; //show more detail on some auth errors. only set to true for dev/debug.
+			builder.RegisterInstance<IAuthConfiguration>(authConfiguration).SingleInstance();
 
-			//var redisConfig = new RedisConfiguration
-			//{
-			//	IpConfig = secretsFile.SelectToken("RedisServiceConfiguration")["IpConfig"].ToString(),
-			//	Port = int.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Port"].ToString()),
-			//	Enabled = bool.Parse(secretsFile.SelectToken("RedisServiceConfiguration")["Enabled"].ToString())
-			//};
+			builder.Register(c => new HttpClient()).As<HttpClient>().SingleInstance();
 
-			app.AddOwinAuthentication(authConfiguration);  //, redisConfig);
+			builder.RegisterInstance<IApiTokenClient>(new ApiTokenClient(authConfiguration)).SingleInstance();
+
+			var container = builder.Build();
+			DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
+
+			//show more detail on some auth errors. only set to true for dev/debug.
+			IdentityModelEventSource.ShowPII = true; 
+
+			
+			app.AddOwinAuthentication(authConfiguration); 
 		}
 	}
 }

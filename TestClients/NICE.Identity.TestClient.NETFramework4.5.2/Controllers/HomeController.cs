@@ -9,21 +9,28 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Attributes;
+using NICE.Identity.Authentication.Sdk.Attributes.Mvc;
+using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authentication.Sdk.Domain;
 
 namespace NICE.Identity.TestClient.NETFramework452.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly string _apiIdentifier;
+	    private readonly IApiTokenClient _apiTokenClient;
+	    private readonly IAuthConfiguration _authConfiguration;
+	    private readonly string _apiIdentifier;
         private readonly string _authorisationServiceUri;
         private readonly string _authDomain;
         //private readonly IHttpClientFactory _clientFactory;
        // private readonly IAPIService _apiService;
 
-        public HomeController()
+        public HomeController(IApiTokenClient apiTokenClient, IAuthConfiguration authConfiguration)
         {
-           // _apiService = apiService;
+	        _apiTokenClient = apiTokenClient;
+	        _authConfiguration = authConfiguration;
+	        // _apiService = apiService;
             _apiIdentifier = ConfigurationManager.AppSettings["ApiIdentifier"];
            // _authorisationServiceUri = configuration.GetSection("WebAppConfiguration").GetSection("AuthorisationServiceUri").Value;
             //_authDomain = configuration.GetSection("WebAppConfiguration").GetSection("Domain").Value;
@@ -120,5 +127,17 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
         //{
         //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         //}
+
+        [Authorize]
+        public async Task<ActionResult> GetM2MToken()
+        {
+
+	        var m2mToken = await _apiTokenClient.GetAccessToken(_authConfiguration);
+
+	        ViewData["M2MToken"] = m2mToken;
+
+
+	        return View("M2MToken");
+        }
     }
 }

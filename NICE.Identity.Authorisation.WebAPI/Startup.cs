@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Auth0.AuthenticationApi;
 using Auth0.ManagementApi;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
 

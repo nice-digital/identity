@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NICE.Identity.Authentication.Sdk.Extensions;
 
 namespace NICE.Identity.Authentication.Sdk.Authorisation
 {
@@ -34,9 +35,10 @@ namespace NICE.Identity.Authentication.Sdk.Authorisation
 				return;
 	        }
 
-			//if the granttype is client-credentials, then ... (todo: explanation)
-			var grantTypeClaim = context.User.Claims.FirstOrDefault(claim => claim.Type.Equals("gty"));
-			if (grantTypeClaim != null && grantTypeClaim.Value.Equals("client-credentials"))
+			//if the granttype is client-credentials, then always succeed. this just ignores the roles on the authorize attribute just for M2M access token, where they've already used the client_secret
+			//if we want to make it more complicated later, we can set up scopes for different apis. as it is though, this makes all api calls equal.
+			//the equivalent .net framework code is in Http.AuthoriseAttribute.cs
+			if (context.User.GrantType().Equals(AuthenticationConstants.ClientCredentials))
 			{
 				context.Succeed(requirement);
 				return;

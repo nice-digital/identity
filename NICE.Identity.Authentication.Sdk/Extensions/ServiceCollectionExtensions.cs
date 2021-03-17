@@ -21,8 +21,10 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-//using NICE.Identity.Authentication.Sdk.TokenStore;
+using Auth0.AuthenticationApi;
+using NICE.Identity.Authentication.Sdk.TokenStore;
 using NICE.Identity.Authentication.Sdk.Tracking;
+using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 using StackExchange.Redis.Extensions.Core.Implementations;
@@ -35,6 +37,14 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 {
 	public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Use this extension to add authentication to a website, to be logged into by regular users (openidconnect).
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="authConfiguration"></param>
+        /// <param name="allowNonSecureCookie"></param>
+        /// <param name="httpClient">if you don't pass this, a new one will be created</param>
+        /// <returns></returns>
         public static AuthenticationBuilder AddAuthentication(this IServiceCollection services, IAuthConfiguration authConfiguration, bool allowNonSecureCookie = false, HttpClient httpClient = null)
         {
             services.AddSingleton(authConfig => authConfiguration);
@@ -42,25 +52,24 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
             services.TryAddScoped<IAPIService, APIService>();
             services.TryAddScoped<IApiToken, ApiToken>();
             services.AddHttpContextAccessor();
-            //services.AddSingleton<ApiTokenClient>();
+            services.AddSingleton<IAuthenticationConnection, HttpClientAuthenticationConnection>();
+            services.AddSingleton<IApiTokenClient, ApiTokenClient>();
 
-            //if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
-            //{
-            //    var redisConfiguration =
-            //        StackExchange.Redis.ConfigurationOptions.Parse(
-            //            authConfiguration.RedisConfiguration.ConnectionString); 
+			if (authConfiguration.RedisConfiguration != null && authConfiguration.RedisConfiguration.Enabled)
+			{
+				var redisConfiguration = authConfiguration.RedisConfiguration.ConnectionString.ToRedisConfiguration();
 
-            //    services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
-            //    services.AddSingleton<IRedisCacheConnectionPoolManager, RedisCacheConnectionPoolManager>();
-            //    services.AddSingleton<ISerializer, NewtonsoftSerializer>();
+                services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
+				services.AddSingleton<IRedisCacheConnectionPoolManager, RedisCacheConnectionPoolManager>();
+				services.AddSingleton<ISerializer, NewtonsoftSerializer>();
 
-            //    services.AddSingleton((provider) => provider.GetRequiredService<IRedisCacheClient>().GetDbFromConfiguration());
+				services.AddSingleton((provider) => provider.GetRequiredService<IRedisCacheClient>().GetDbFromConfiguration());
 
-            //    services.AddSingleton(redisConfiguration);
-            //   // services.AddSingleton<IApiTokenStore, RedisApiTokenStore>();
-            //}
-            
-	        services.AddHttpClient(); //this adds http client factory for use in DI services like RoleRequirementHandler
+				services.AddSingleton(redisConfiguration);
+				services.AddSingleton<IApiTokenStore, RedisApiTokenStore>();
+			}
+
+			services.AddHttpClient(); //this adds http client factory for use in DI services like RoleRequirementHandler
 			var localClient = httpClient ?? new HttpClient(); //this http client is used by this extension method only
 
 			// Add authentication services
@@ -223,6 +232,12 @@ namespace NICE.Identity.Authentication.Sdk.Extensions
 			return authenticationBuilder;
         }
 
+        /// <summary>
+        /// This extension is here for APIs to secure routes using JWT's i.e. a machine to machine / bearer token / client_credentials grant.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="authConfiguration"></param>
+        /// <param name="authorizationOptions"></param>
         public static void AddAuthorisation(this IServiceCollection services, IAuthConfiguration authConfiguration, Action<AuthorizationOptions> authorizationOptions = null)
         {
             services.TryAddSingleton(authConfig => authConfiguration);

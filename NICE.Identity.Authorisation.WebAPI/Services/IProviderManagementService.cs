@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IProviderManagementService
-    {
+	{
+		Task<string> GetAccessTokenForManagementAPI();
+
         Task UpdateUser(string authenticationProviderUserId, User user);
 
         Task DeleteUser(string authenticationProviderUserId);
-
-        Task<string> GetAccessTokenForManagementAPI();
 
         Task RevokeRefreshTokensForUser(string nameIdentifier);
 

@@ -1,18 +1,15 @@
-using Auth0.AuthenticationApi;
-using Auth0.AuthenticationApi.Models;
-using Auth0.Core.Exceptions;
 using Auth0.ManagementApi;
 using Auth0.ManagementApi.Models;
 using Auth0.ManagementApi.Paging;
 using Microsoft.Extensions.Logging;
+using NICE.Identity.Authentication.Sdk.Authorisation;
+using NICE.Identity.Authentication.Sdk.Configuration;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
-using Polly;
 using Polly.Retry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
 
@@ -22,53 +19,24 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         private readonly ILogger<Auth0ManagementService> _logger;
         private readonly IManagementConnection _managementConnection;
-        private readonly HttpClient _httpClient;
+        private readonly IApiTokenClient _apiTokenClient;
         private readonly AsyncRetryPolicy _retryPolicy;
 
-		public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IHttpClientFactory httpClientFactory, IManagementConnection managementConnection)
+		public Auth0ManagementService(ILogger<Auth0ManagementService> logger, IManagementConnection managementConnection, IApiTokenClient apiTokenClient)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	        _httpClient = httpClientFactory.CreateClient();
 	        _managementConnection = managementConnection;
-	        _retryPolicy = GetAuth0RetryPolicy();
+	        _apiTokenClient = apiTokenClient;
+	        _retryPolicy = APIConfiguration.GetAuth0RetryPolicy(_logger);
         }
-
-		private Polly.Retry.AsyncRetryPolicy GetAuth0RetryPolicy()
-		{
-			return Policy
-				.Handle<RateLimitApiException>(ex => ex.RateLimit.Remaining < 5 && ex.RateLimit.Reset.HasValue && ex.RateLimit.Reset.Value > DateTime.UtcNow) 
-				.WaitAndRetryAsync(
-					retryCount: 3,
-					sleepDurationProvider: (retryCount, exception, context) => (((RateLimitApiException)exception).RateLimit.Reset.Value - DateTime.UtcNow),
-					onRetryAsync: (exception, timespan, retryNumber, context) => Task.Run(() => _logger.LogWarning($"RateLimit for management api hit. Retry attempt no: {retryNumber}. DateTime.UtcNow: {DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} Sleeping till: {((RateLimitApiException)exception).RateLimit.Reset.Value:dd/MM/yyyy HH:mm:ss} so sleeping for: {timespan.TotalSeconds} seconds"))
-				)
-				;
-		}
-
+		
 		public async Task<string> GetAccessTokenForManagementAPI()
-        {
-			try
-	        {
-		        using (var client = new AuthenticationApiClient(new Uri($"https://{AppSettings.ManagementAPI.Domain}/")))
-		        {
-			        var managementApiTokenRequest = new ClientCredentialsTokenRequest
-			        {
-				        ClientId = AppSettings.ManagementAPI.ClientId,
-				        ClientSecret = AppSettings.ManagementAPI.ClientSecret,
-				        Audience = AppSettings.ManagementAPI.ApiIdentifier
-			        };
-
-			        var managementApiToken = await _retryPolicy.ExecuteAsync(() => client.GetTokenAsync(managementApiTokenRequest));
-
-			        return managementApiToken.AccessToken;
-		        }
-	        }
-	        catch (Exception e)
-	        {
-		        _logger.LogError(e.Message);
-		        throw new Exception("Error in GetAccessTokenForManagementAPI when calling the Management API.", e);
-	        }
-        }
+		{
+			return await _apiTokenClient.GetAccessToken(AppSettings.ManagementAPI.Domain,
+				AppSettings.ManagementAPI.ClientId,
+				AppSettings.ManagementAPI.ClientSecret,
+				AppSettings.ManagementAPI.ApiIdentifier);
+		}
 
         public async Task UpdateUser(string authenticationProviderUserId, User user)
         {

@@ -1,0 +1,6 @@
+@using NICE.Identity.TestClient.API.NETFramework4._5._2.Areas.HelpPage.ModelDescriptions
+@model CollectionModelDescription
+@if (Model.ElementDescription is ComplexTypeModelDescription)
+{
+    @Html.DisplayFor(m => m.ElementDescription)
+}

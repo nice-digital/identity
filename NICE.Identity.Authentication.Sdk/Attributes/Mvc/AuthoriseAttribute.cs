@@ -2,7 +2,7 @@
 using System.Net;
 using System.Web.Mvc;
 
-namespace NICE.Identity.Authentication.Sdk.Attributes
+namespace NICE.Identity.Authentication.Sdk.Attributes.Mvc
 {
 	/// <summary>
 	/// This authorise attribute subclass is used by regular .net framework controllers (i.e. not api controllers).
