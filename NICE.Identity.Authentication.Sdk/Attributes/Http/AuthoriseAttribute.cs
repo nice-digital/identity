@@ -1,8 +1,13 @@
 ﻿#if NETFRAMEWORK
-using System.Web.Http.Controllers;
-using System.Net.Http;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authentication.Sdk.Extensions;
+using System;
+using System.Configuration;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Web.Http.Controllers;
 
 namespace NICE.Identity.Authentication.Sdk.Attributes.Http
 {
@@ -15,6 +20,9 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Http
 	/// The reason this is important for us, is that if a user is logged in but doesn't have the role, then a 401 will result in a challenge
 	/// which redirects to the login page, back to the requested page and you get the 401 again and a nasty redirect loop.
 	/// returning the proper 403 prevents this loop.
+	///
+	/// If the client application has an appSetting matching the one in: Constants.AppSettings.PermissionDeniedRedirectPath
+	/// Then this attribute will redirect to that path. The client application will then be in charge of handling the 403 - by splashing up an error page perhaps.
 	/// </summary>
 	public class AuthoriseAttribute : System.Web.Http.AuthorizeAttribute
 	{
@@ -30,7 +38,7 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Http
 		{
 			if (actionContext.RequestContext.Principal.Identity.IsAuthenticated)
 			{
-				actionContext.Response = new HttpResponseMessage(System.Net.HttpStatusCode.Forbidden);
+				actionContext.Response = GetPermissionDeniedHttpResponseMessage(actionContext.Request);
 			}
 			else
 			{
@@ -51,6 +59,20 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Http
 			}
 
 			base.OnAuthorization(actionContext);
+		}
+
+		private static HttpResponseMessage GetPermissionDeniedHttpResponseMessage(HttpRequestMessage httpRequestMessage)
+		{
+			var permissionDeniedRedirectPath = ConfigurationManager.AppSettings[Constants.AppSettings.PermissionDeniedRedirectPath];
+
+			if (!string.IsNullOrEmpty(permissionDeniedRedirectPath))
+			{
+				var response = httpRequestMessage.CreateResponse(HttpStatusCode.Redirect);
+				response.Headers.Location = new Uri(new Uri(httpRequestMessage.RequestUri.GetLeftPart(System.UriPartial.Authority)), permissionDeniedRedirectPath);
+				return response;
+			}
+
+			return new HttpResponseMessage(HttpStatusCode.Forbidden);
 		}
 	}
 }

@@ -27,5 +27,10 @@
         {
 			public const string tempCid = "http://nice.org.uk/tempCid";
 		}
+
+		public static class AppSettings
+		{
+			public const string PermissionDeniedRedirectPath = "PermissionDeniedRedirectPath";
+		}
 	}
 }
