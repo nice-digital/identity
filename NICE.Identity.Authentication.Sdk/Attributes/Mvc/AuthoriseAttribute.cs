@@ -1,6 +1,9 @@
 ﻿#if NETFRAMEWORK
+using System.Configuration;
 using System.Net;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace NICE.Identity.Authentication.Sdk.Attributes.Mvc
 {
@@ -13,6 +16,9 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Mvc
 	/// The reason this is important for us, is that if a user is logged in but doesn't have the role, then a 401 will result in a challenge
 	/// which redirects to the login page, back to the requested page and you get the 401 again and a nasty redirect loop.
 	/// returning the proper 403 prevents this loop.
+	///
+	/// If the client application has an appSetting matching the one in: Constants.AppSettings.PermissionDeniedRedirectPath
+	/// Then this attribute will redirect to that path. The client application will then be in charge of handling the 403 - by splashing up an error page perhaps.
 	/// </summary>
 	public class AuthoriseAttribute : System.Web.Mvc.AuthorizeAttribute
 	{
@@ -24,14 +30,27 @@ namespace NICE.Identity.Authentication.Sdk.Attributes.Mvc
 
 		protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
 		{
+			
 			if (filterContext.HttpContext.User.Identity.IsAuthenticated)
 			{
-				filterContext.Result = new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+				filterContext.Result = GetPermissionDeniedActionResult(filterContext.RequestContext.HttpContext.Request);
 			}
 			else
 			{
 				base.HandleUnauthorizedRequest(filterContext);
 			}
+		}
+
+		private static ActionResult GetPermissionDeniedActionResult(HttpRequestBase httpRequest)
+		{
+			var permissionDeniedRedirectPath = ConfigurationManager.AppSettings[Constants.AppSettings.PermissionDeniedRedirectPath];
+
+			if (!string.IsNullOrEmpty(permissionDeniedRedirectPath))
+			{
+				return new RedirectResult(permissionDeniedRedirectPath);
+			}
+
+			return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
 		}
 	}
 }
