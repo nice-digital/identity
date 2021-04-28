@@ -5,11 +5,13 @@
  IdAM is currently used in the following services:
  
  * [Identity management](https://github.com/nice-digital/identity-management)
+ * [Consultation comments](https://github.com/nice-digital/consultations)
+ * EPPI
+ * [Indev](https://github.com/nice-digital/indev) 
  
  It is in the process of being added to:
  
- * [Consultation comments](https://github.com/nice-digital/consultations)
- * EPPI
+ * TBC
  
  
 ### Browser support
