@@ -45,8 +45,9 @@ namespace NICE.Identity.Authentication.Sdk.Authentication
 
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var userId = context.User.Claims.Single(claim => claim.Type.Equals(ClaimTypes.NameIdentifier)).Value;
-            await _apiService.RevokeRefreshTokensForUser(userId);
+            //temporarily removing to see if it resolves the indev p2 logout issue. If it does we could implement this feature in the new profile page/site, by having a button which signs you out of all other sessions.
+            //var userId = context.User.Claims.Single(claim => claim.Type.Equals(ClaimTypes.NameIdentifier)).Value;
+            //await _apiService.RevokeRefreshTokensForUser(userId);
         }
     }
 }
