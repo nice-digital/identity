@@ -27,9 +27,9 @@ namespace NICE.Identity.TestClient.Controllers
 		private readonly IHttpClientFactory _clientFactory;
         private readonly IAPIService _apiService;
         private readonly IApiToken _apiToken;
-        private readonly ApiTokenClient _apiTokenClient;
+        private readonly IApiTokenClient _apiTokenClient;
 
-        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IApiToken apiToken, ApiTokenClient apiTokenClient)
+        public HomeController(IConfiguration configuration, IHttpClientFactory clientFactory, IAPIService apiService, IApiToken apiToken, IApiTokenClient apiTokenClient)
         {
 	        _configuration = configuration;
 	        _clientFactory = clientFactory;
