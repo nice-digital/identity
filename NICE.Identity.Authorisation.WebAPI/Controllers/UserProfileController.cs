@@ -34,7 +34,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
         
 		/// <summary>
-		/// get list of all users
+		/// gets own profile details
 		/// </summary>
 		/// <returns></returns>
 		[HttpGet("")]
@@ -59,31 +59,48 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		}
 
 		/// <summary>
-		/// get list of all users
+		/// updates user details
 		/// </summary>
 		/// <returns></returns>
 		[HttpPost("")]
 		[ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
-		public async Task<IActionResult> GetOwnUserProfile(User user)
+		public async Task<IActionResult> GetOwnUserProfile(string nameIdentifier, string firstName, string lastName, string emailAddress)
 		{
 			try
 			{
-				var nameIdentifier = GetNameIdentifierFromUser();
+				if (string.IsNullOrEmpty(nameIdentifier))
+					return StatusCode(500, new ProblemDetails { Status = 500, Title = $"Invalid identifier" });
 
-				if (string.IsNullOrEmpty(nameIdentifier) || !nameIdentifier.Equals(user.NameIdentifier))
+				if (string.IsNullOrEmpty(firstName))
+					return StatusCode(500, new ProblemDetails { Status = 500, Title = $"Invalid firstName" });
+
+				if (string.IsNullOrEmpty(lastName))
+					return StatusCode(500, new ProblemDetails { Status = 500, Title = $"Invalid lastName" });
+
+				if (string.IsNullOrEmpty(emailAddress))
+					return StatusCode(500, new ProblemDetails { Status = 500, Title = $"Invalid emailAddress" });
+
+
+				var nameIdentifierFromToken = GetNameIdentifierFromUser();
+
+				if (string.IsNullOrEmpty(nameIdentifierFromToken) || !nameIdentifier.Equals(nameIdentifierFromToken, StringComparison.OrdinalIgnoreCase))
 				{
 					return StatusCode(500, new ProblemDetails { Status = 500, Title = $"Invalid user" });
 				}
 
-				var userIdToUpdate = _usersService.GetUser(nameIdentifier)?.UserId;
-				if (!userIdToUpdate.HasValue)
+				var userToUpdate = _usersService.GetUser(nameIdentifier);
+				if (userToUpdate == null)
 				{
 					return StatusCode(500, new ProblemDetails { Status = 500, Title = $"Unable to get user when updating own profile" });
 				}
 
-				var updatedUser = await _usersService.UpdateUser(userIdToUpdate.Value, user); //todo: more security here.
+				userToUpdate.FirstName = firstName;
+				userToUpdate.LastName = lastName;
+				userToUpdate.EmailAddress = emailAddress;
+
+				var updatedUser = await _usersService.UpdateUser(userToUpdate.UserId.Value, userToUpdate); 
 				return Ok(updatedUser);
 			}
 			catch (Exception e)
