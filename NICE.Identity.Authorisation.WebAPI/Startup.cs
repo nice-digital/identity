@@ -141,7 +141,7 @@ namespace NICE.Identity.Authorisation.WebAPI
                     {
                         builder
 	                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-	                        .WithOrigins("https://*.nice.org.uk")
+	                        .WithOrigins("https://*.nice.org.uk", "https://local-identityadmin.nice.org.uk:44300")
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials()
