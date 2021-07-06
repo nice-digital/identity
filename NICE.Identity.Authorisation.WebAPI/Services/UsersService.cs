@@ -29,6 +29,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
         Task<int> DeleteAllUsers();
+        Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
 	}
 
 	public class UsersService : IUsersService
@@ -36,14 +37,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		private readonly IdentityContext _context;
 		private readonly ILogger<UsersService> _logger;
 		private readonly IProviderManagementService _providerManagementService;
+		private readonly IEmailService _emailService;
 
-		public UsersService(IdentityContext context, ILogger<UsersService> logger,
-			IProviderManagementService providerManagementService)
+		public UsersService(IdentityContext context, ILogger<UsersService> logger, IProviderManagementService providerManagementService, IEmailService emailService)
 		{
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_providerManagementService = providerManagementService ??
 			                             throw new ArgumentNullException(nameof(providerManagementService));
+			_emailService = emailService;
 		}
 
 		public User CreateUser(User user)
@@ -394,7 +396,33 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public async Task<int> DeleteAllUsers()
         {
-	        return await _context.DeleteAllUsers();
+			return await _context.DeleteAllUsers();
         }
-	}
+
+        public async Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
+        {
+	        var allUsersWithPendingRegistrationsOverAge = _context.GetPendingUsersOverAge(daysToKeepPendingRegistration).ToList();
+
+	        var uniqueEmailAddresses = allUsersWithPendingRegistrationsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
+	        if (uniqueEmailAddresses.Count()  != allUsersWithPendingRegistrationsOverAge.Count())
+	        {
+                _logger.LogWarning("Pending registrations exist for the same email address.");
+	        }
+            
+            //1. send notification to the email addresses: uniqueEmailAddresses
+            if (notify)
+            {
+	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
+            }
+
+            //2. delete user accounts: allUsersWithPendingRegistrationsOverAge
+            var usersDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
+
+            if (usersDeleted != allUsersWithPendingRegistrationsOverAge.Count)
+            {
+	            _logger.LogError("users deleted returned different value than the retrieved number of users");
+            }
+        }
+
+    }
 }

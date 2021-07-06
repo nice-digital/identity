@@ -121,10 +121,27 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 			");
 		}
 
-        #endregion
+        public IEnumerable<User> GetPendingUsersOverAge(int daysToKeepPendingRegistration)
+        {
+	        var dateToKeepRegistrationsFrom = DateTime.Now.AddDays(-daysToKeepPendingRegistration);
+
+	        return Users.Where(u => !u.HasVerifiedEmailAddress &&
+	                                u.InitialRegistrationDate.HasValue && u.InitialRegistrationDate.Value <= dateToKeepRegistrationsFrom);
+        }
+
+        public async Task<int> DeleteUsers(IEnumerable<User> users)
+        {
+	        foreach (var user in users)
+	        {
+		        Users.Remove(user);
+	        }
+	        return await SaveChangesAsync();
+        }
+
+        #endregion Users
 
         #region Websites Methods
-        
+
         public List<Website> GetWebsites()
         {
             return Websites.Include(w => w.Environment).ToList();
@@ -185,7 +202,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		}
 
 		#endregion
-
-
-	}
+    }
 }
