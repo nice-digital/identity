@@ -554,9 +554,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        context.UserRoles.First(ur => ur.User.UserId == user.UserId).Role.Name.ShouldBe("TestRole1");
         }
 
-        //DeleteRegistrationsOlderThan
-
-        [Fact]
+		[Fact]
         public async Task TestPendingRegistrationDeletion()
         {
 	        //Arrange
