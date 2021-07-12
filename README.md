@@ -5,12 +5,9 @@
  IdAM is currently used in the following services:
  
  * [Identity management](https://github.com/nice-digital/identity-management)
- 
- It is in the process of being added to:
- 
  * [Consultation comments](https://github.com/nice-digital/consultations)
  * EPPI
- 
+  
  
 ### Browser support
 
@@ -21,7 +18,7 @@
 - Safari: (Current - 1) and Current
 
 ### Technical stack
-- [.NET Core 2.2](https://github.com/dotnet/core) on the server
+- [.NET Core 3.1](https://github.com/dotnet/core) on the server
     - [xUnit.net](https://xunit.github.io/) for .NET unit tests
     - [Shouldly](https://github.com/shouldly/shouldly) for .NET assertions
     - [KDiff](http://kdiff3.sourceforge.net/) for diffing approvals tests
