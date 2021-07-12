@@ -401,6 +401,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public async Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
         {
+            _logger.LogWarning($"DeleteRegistrationsOlderThan - Deleting Registrations Older Than {daysToKeepPendingRegistration} days. Notify via email: {notify}"); //extra logging here in order to verify that the scheduled task is running via kibana.
+
 	        var allUsersWithPendingRegistrationsOverAge = _context.GetPendingUsersOverAge(daysToKeepPendingRegistration).ToList();
 
 	        var uniqueEmailAddresses = allUsersWithPendingRegistrationsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
@@ -422,6 +424,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             {
 	            _logger.LogError("users deleted returned different value than the retrieved number of users");
             }
+            _logger.LogWarning($"DeleteRegistrationsOlderThan - Users deleted: {usersDeleted}");
         }
 
     }
