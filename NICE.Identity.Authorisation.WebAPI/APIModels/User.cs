@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -8,7 +11,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public User(int userId, string nameIdentifier, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider, IEnumerable<int> hasAccessToServiceIds)
         {
             UserId = userId;
             NameIdentifier = nameIdentifier;
@@ -24,6 +27,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             AcceptedTerms = acceptedTerms;
             IsMigrated = isMigrated;
             IsInAuthenticationProvider = isInAuthenticationProvider;
+            HasAccessToServiceIds = hasAccessToServiceIds;
         }
 
         public User(DataModels.User user)
@@ -41,7 +45,17 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsStaffMember = user.IsStaffMember;
             IsMigrated = user.IsMigrated;
             IsInAuthenticationProvider = user.IsInAuthenticationProvider;
-		}
+
+            if (user.UserRoles != null)
+            {
+	            var servicesTheUserHasAccessTo = new List<int>();
+
+                var roles = user.UserRoles.Select(ur => ur.Role).ToList();
+                servicesTheUserHasAccessTo.AddRange(roles.Select(role => role.Website.ServiceId).Distinct());
+
+                HasAccessToServiceIds = servicesTheUserHasAccessTo;
+            }
+        }
 
         public int? UserId { get; set; }
 		public string NameIdentifier { get; set; }
@@ -57,5 +71,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 		public bool? AcceptedTerms { get; set; }
 		public bool? IsMigrated { get; set; }
 		public bool? IsInAuthenticationProvider { get; set; }
-	}
+
+		public IEnumerable<int> HasAccessToServiceIds { get; set; } = new List<int>();
+    }
 }

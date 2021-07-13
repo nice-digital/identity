@@ -45,6 +45,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ToList();
         }
 
+        public List<User> FindUsers(string filter)
+        {
+	        return Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
+	                                         || (u.LastName != null && EF.Functions.Like(u.LastName, $"%{filter}%"))
+	                                         || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
+	                                         || (u.EmailAddress != null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
+	                                         || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%")))
+
+		        .Include(users => users.UserRoles)
+		        .ThenInclude(userRoles => userRoles.Role)
+		        .ThenInclude(website => website.Website)
+
+                .OrderByDescending(user => user.UserId)
+		        .ToList();
+        }
+
 		public User CreateUser(User user, bool importing = false)
         {
 			var foundUser = Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, user.NameIdentifier));
@@ -127,7 +143,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         
         public List<Website> GetWebsites()
         {
-            return Websites.Include(w => w.Environment).ToList();
+            return Websites
+		            .Include(w => w.Environment)
+		            .OrderBy(website => website.Environment.Order)
+		            .ThenBy(website => website.Host)
+		            .ToList();
         }
 
         public Website GetWebsite(int websiteId)

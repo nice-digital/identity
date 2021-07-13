@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NICE.Identity.Authorisation.WebAPI;
+using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Xunit;
 using Xunit.Sdk;
 
@@ -203,6 +204,57 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.Users.Count().ShouldBe(2);
             usersFilterNotFound.Count().ShouldBe(0);
             usersFilterNotFound.ShouldNotBe(null);
+        }
+
+        private void AddUsersWithAndWithoutRoles(IdentityContext context)
+        {
+	        context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test" });
+	        context.Services.Add(new DataModels.Service() { ServiceId = 1, Name = "Service" });
+	        context.Websites.Add(new DataModels.Website()
+	        {
+		        WebsiteId = 1,
+		        EnvironmentId = 1,
+		        ServiceId = 1,
+		        Host = "test.nice.org.uk"
+	        });
+	        context.Roles.Add(new DataModels.Role() { RoleId = 1, WebsiteId = 1, Name = "TestRole" });
+	        context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "user with role" });
+	        context.UserRoles.Add(new DataModels.UserRole() { UserRoleId = 1, RoleId = 1, UserId = 1 });
+
+	        context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "user without role" });
+
+            context.SaveChanges();
+        }
+
+        [Fact]
+        public void Get_users_returns_users_without_roles()
+        {
+	        //Arrange
+	        var context = GetContext();
+	        AddUsersWithAndWithoutRoles(context);
+
+            //Act
+            var usersFound = context.FindUsers("");
+
+            //Assert
+            usersFound.Count().ShouldBe(2);
+        }
+
+        [Fact]
+        public void Users_with_roles_populate_Service_Ids_in_model()
+        {
+	        //Arrange
+	        var context = GetContext();
+	        AddUsersWithAndWithoutRoles(context);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+
+            //Act
+            var usersFound = userService.GetUsers("user");
+            
+	        //Assert
+	        usersFound.Count().ShouldBe(2);
+	        usersFound.Single(u => u.UserId == 1).HasAccessToServiceIds.Single().ShouldBe(1);
+	        usersFound.Single(u => u.UserId == 2).HasAccessToServiceIds.Count().ShouldBe(0);
         }
 
         [Fact]
