@@ -129,13 +129,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	                                u.InitialRegistrationDate.HasValue && u.InitialRegistrationDate.Value <= dateToKeepRegistrationsFrom);
         }
 
-        public async Task<int> DeleteUsers(IEnumerable<User> users)
+        public async Task<int> DeleteUsers(IList<User> users)
         {
-	        foreach (var user in users)
-	        {
-		        Users.Remove(user);
-	        }
-	        return await SaveChangesAsync();
+            //before removing a user, we also need to remove the UserAcceptedTermsVersion, Job and UserRole for the user, if they exist.
+
+            var userIds = users.Select(user => user.UserId);
+
+            var userRolesForUsers = UserRoles.Where(ur => userIds.Contains(ur.UserId));
+            var jobsForUsers = Jobs.Where(job => userIds.Contains(job.UserId));
+            var acceptedTermsForUsers = UserAcceptedTermsVersions.Where(uatv => userIds.Contains(uatv.UserId));
+
+            UserRoles.RemoveRange(userRolesForUsers);
+            Jobs.RemoveRange(jobsForUsers);
+            UserAcceptedTermsVersions.RemoveRange(acceptedTermsForUsers);
+            Users.RemoveRange(users);
+            
+            return await SaveChangesAsync();
         }
 
         #endregion Users

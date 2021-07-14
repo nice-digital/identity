@@ -410,20 +410,21 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        {
                 _logger.LogWarning("Pending registrations exist for the same email address.");
 	        }
-            
-            //1. send notification to the email addresses: uniqueEmailAddresses
+
+	        //1. delete user accounts: allUsersWithPendingRegistrationsOverAge
+	        var usersDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
+
+	        if (usersDeleted != allUsersWithPendingRegistrationsOverAge.Count)
+	        {
+		        _logger.LogError("users deleted returned different value than the retrieved number of users");
+	        }
+
+            //2. send notification to the email addresses: uniqueEmailAddresses
             if (notify)
             {
 	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
             }
 
-            //2. delete user accounts: allUsersWithPendingRegistrationsOverAge
-            var usersDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
-
-            if (usersDeleted != allUsersWithPendingRegistrationsOverAge.Count)
-            {
-	            _logger.LogError("users deleted returned different value than the retrieved number of users");
-            }
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Users deleted: {usersDeleted}");
         }
 

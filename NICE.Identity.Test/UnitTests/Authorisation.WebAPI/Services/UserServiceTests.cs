@@ -574,16 +574,24 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        userService.CreateUser(new ApiModels.User
 	        {
 		        NameIdentifier = user2NameIdentifier,
-		        FirstName = "FirstName2",
-		        LastName = "LastName2",
+		        FirstName = "User to be deleted",
+		        LastName = "",
 		        EmailAddress = "user2@example.com",
 		        HasVerifiedEmailAddress = false
 	        });
-            context.Users.First(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = DateTime.Now.AddDays(-31);
+            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = DateTime.Now.AddDays(-31);
+            context.SaveChanges();
+            //now add some related data to test that related entities are deleted too.
+            var userToBeDeleted = context.Users.Single(u => u.NameIdentifier == user2NameIdentifier);
+            const int organisationId = 1;
+            context.Organisations.Add(new DataModels.Organisation(organisationId, "org 1"));
+            context.Jobs.Add(new DataModels.Job(){ IsLead = false, OrganisationId = organisationId, UserId = userToBeDeleted.UserId });
+            context.TermsVersions.Add(new DataModels.TermsVersion() {TermsVersionId = 1, VersionDate = DateTime.Now});
+            context.UserAcceptedTermsVersions.Add(new DataModels.UserAcceptedTermsVersion(){ TermsVersionId = 1, UserAcceptedDate = DateTime.Now, UserId = userToBeDeleted.UserId });
             context.SaveChanges();
 
-	        //Act
-	        await userService.DeleteRegistrationsOlderThan(notify: false, daysToKeepPendingRegistration: 30);
+            //Act
+            await userService.DeleteRegistrationsOlderThan(notify: false, daysToKeepPendingRegistration: 30);
 
 	        //Assert
 	        context.Users.Count().ShouldBe(1);
