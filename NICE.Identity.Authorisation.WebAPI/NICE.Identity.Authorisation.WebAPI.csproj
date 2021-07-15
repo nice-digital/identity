@@ -45,4 +45,13 @@
     <ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Emails\account_removal.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Emails\account_removal.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
