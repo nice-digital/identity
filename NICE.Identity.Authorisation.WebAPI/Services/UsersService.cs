@@ -405,6 +405,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 	        var allUsersWithPendingRegistrationsOverAge = _context.GetPendingUsersOverAge(daysToKeepPendingRegistration).ToList();
 
+	        if (!allUsersWithPendingRegistrationsOverAge.Any())
+	        {
+		        _logger.LogWarning("DeleteRegistrationsOlderThan - No records found to delete. exiting");
+		        return;
+	        }
+
 	        var uniqueEmailAddresses = allUsersWithPendingRegistrationsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
 	        if (uniqueEmailAddresses.Count()  != allUsersWithPendingRegistrationsOverAge.Count())
 	        {
@@ -412,20 +418,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
 
 	        //1. delete user accounts: allUsersWithPendingRegistrationsOverAge
-	        var usersDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
-
-	        if (usersDeleted != allUsersWithPendingRegistrationsOverAge.Count)
-	        {
-		        _logger.LogError("users deleted returned different value than the retrieved number of users");
-	        }
-
-            //2. send notification to the email addresses: uniqueEmailAddresses
+	        var recordsDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
+            
+            //2. send notification to the email addresses, one email per email address.
             if (notify)
             {
 	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
             }
 
-            _logger.LogWarning($"DeleteRegistrationsOlderThan - Users deleted: {usersDeleted}");
+            _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
     }

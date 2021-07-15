@@ -33,7 +33,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 			toEmailAddresses = toEmailAddresses.Select(e => e.Trim()).Distinct().ToList();
 			
-			var useAllowList = AppSettings.EmailConfig.Allowlist.Any();
+			var useAllowList = (AppSettings.EmailConfig.Allowlist != null && AppSettings.EmailConfig.Allowlist.Any());
 			if (useAllowList)
 			{
 				toEmailAddresses = toEmailAddresses.Where(emailAddress => AppSettings.EmailConfig.Allowlist.Contains(emailAddress, StringComparer.OrdinalIgnoreCase)).ToList();
