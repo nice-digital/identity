@@ -72,6 +72,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             websites.Count.ShouldBe(2);
             websites[0].Host.ShouldBe("test1-host.nice.org.uk");
             websites[1].Host.ShouldBe("test2-host.nice.org.uk");
+            websites[0].Service.Name.ShouldBe("Test Service");
         }
         
         [Fact]

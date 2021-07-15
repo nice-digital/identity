@@ -145,6 +145,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
             return Websites
 		            .Include(w => w.Environment)
+                    .Include(website => website.Service)
 		            .OrderBy(website => website.Environment.Order)
 		            .ThenBy(website => website.Host)
 		            .ToList();
