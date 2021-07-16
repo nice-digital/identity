@@ -419,8 +419,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 	        //1. delete user accounts: allUsersWithPendingRegistrationsOverAge
 	        var recordsDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
-            
-            //2. send notification to the email addresses, one email per email address.
+
+	        //2. delete user account in auth0
+            foreach (var user in allUsersWithPendingRegistrationsOverAge)
+            {
+	            await _providerManagementService.DeleteUser(user.NameIdentifier);
+            }
+
+            //3. send notification to the email addresses, one email per email address.
             if (notify)
             {
 	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
