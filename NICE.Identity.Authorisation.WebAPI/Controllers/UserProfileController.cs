@@ -13,24 +13,28 @@ using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
 {
 	[Route("api/[controller]")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //can't add the UserAdministration policy at this level as the find users and find roles actions don't need it.
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] 
 	[ApiController]
     public class UserProfileController : ControllerBase
     {
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<UserProfileController> _logger;
         private readonly IUsersService _usersService;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserProfileController(IUsersService usersService, ILogger<UsersController> logger)
+		private const string NameIdentifierClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+		public UserProfileController(IUsersService usersService, ILogger<UserProfileController> logger, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
-        }
+			_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+		}
 
         private string GetNameIdentifierFromUser()
         {
-	        var claimsPrincipal = HttpContext?.User; //todo: switch to using httpcontextaccessor..
+			var claimsPrincipal = _httpContextAccessor.HttpContext.User; 
 
-	        return claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+	        return claimsPrincipal.Claims.FirstOrDefault(c => c.Type == NameIdentifierClaimType)?.Value;
         }
         
 		/// <summary>
