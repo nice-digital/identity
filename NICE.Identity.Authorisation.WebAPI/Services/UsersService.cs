@@ -86,14 +86,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 		public IList<User> GetUsers(string filter = null)
 		{
-			if (!string.IsNullOrEmpty(filter))
-			{
-				return _context.FindUsers(filter)
-								.Select(user => new User(user))
-								.ToList();
-
-			}
-            return _context.Users.OrderByDescending(user => user.UserId).Select(user => new User(user)).ToList();
+			return _context.FindUsers(filter)
+							.Select(user => new User(user))
+							.ToList();
 		}
 
 		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)

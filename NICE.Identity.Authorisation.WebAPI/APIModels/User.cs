@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
@@ -11,7 +10,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public User(int userId, string nameIdentifier, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider, IEnumerable<int> hasAccessToServiceIds)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, string email, bool allowContactMe, bool hasVerifiedEmailAddress, bool isLockedOut, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool isStaffMember, bool acceptedTerms, bool isMigrated, bool isInAuthenticationProvider, IEnumerable<int> hasAccessToWebsiteIds)
         {
             UserId = userId;
             NameIdentifier = nameIdentifier;
@@ -27,7 +26,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             AcceptedTerms = acceptedTerms;
             IsMigrated = isMigrated;
             IsInAuthenticationProvider = isInAuthenticationProvider;
-            HasAccessToServiceIds = hasAccessToServiceIds;
+            HasAccessToWebsiteIds = hasAccessToWebsiteIds;
         }
 
         public User(DataModels.User user)
@@ -48,12 +47,12 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 
             if (user.UserRoles != null)
             {
-	            var servicesTheUserHasAccessTo = new List<int>();
+	            var websitesTheUserHasAccessTo = new List<int>();
 
                 var roles = user.UserRoles.Select(ur => ur.Role).ToList();
-                servicesTheUserHasAccessTo.AddRange(roles.Select(role => role.Website.ServiceId).Distinct());
+                websitesTheUserHasAccessTo.AddRange(roles.Select(role => role.WebsiteId).Distinct());
 
-                HasAccessToServiceIds = servicesTheUserHasAccessTo;
+                HasAccessToWebsiteIds = websitesTheUserHasAccessTo;
             }
         }
 
@@ -72,6 +71,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 		public bool? IsMigrated { get; set; }
 		public bool? IsInAuthenticationProvider { get; set; }
 
-		public IEnumerable<int> HasAccessToServiceIds { get; set; } = new List<int>();
+		public IEnumerable<int> HasAccessToWebsiteIds { get; set; } = new List<int>();
     }
 }

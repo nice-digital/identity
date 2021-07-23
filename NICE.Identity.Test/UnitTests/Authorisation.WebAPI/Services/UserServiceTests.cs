@@ -253,8 +253,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             
 	        //Assert
 	        usersFound.Count().ShouldBe(2);
-	        usersFound.Single(u => u.UserId == 1).HasAccessToServiceIds.Single().ShouldBe(1);
-	        usersFound.Single(u => u.UserId == 2).HasAccessToServiceIds.Count().ShouldBe(0);
+	        usersFound.Single(u => u.UserId == 1).HasAccessToWebsiteIds.Single().ShouldBe(1);
+	        usersFound.Single(u => u.UserId == 2).HasAccessToWebsiteIds.Count().ShouldBe(0);
         }
 
         [Fact]
