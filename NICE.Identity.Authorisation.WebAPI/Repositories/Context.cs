@@ -143,14 +143,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         #region Websites Methods
         
-        public List<Website> GetWebsites()
+        public List<Website> FindWebsites(string filter)
         {
-            return Websites
-		            .Include(w => w.Environment)
-                    .Include(website => website.Service)
-		            .OrderBy(website => website.Environment.Order)
-		            .ThenBy(website => website.Host)
-		            .ToList();
+            filter ??= "";
+
+            return Websites.Where(w => (w.Host != null && EF.Functions.Like(w.Host, $"%{filter}%"))
+                                       || (w.Service.Name != null && EF.Functions.Like(w.Service.Name, $"%{filter}%")))
+                .Include(w => w.Environment)
+                .Include(w => w.Service)
+                .OrderBy(w => w.Environment.Order)
+                .ThenBy(w => w.Host)
+                .ToList();
         }
 
         public Website GetWebsite(int websiteId)
