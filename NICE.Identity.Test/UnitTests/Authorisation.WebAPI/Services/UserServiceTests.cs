@@ -227,7 +227,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Get_users_returns_users_without_roles()
+        public void Find_users_returns_all_users_when_unfiltered()
         {
 	        //Arrange
 	        var context = GetContext();
