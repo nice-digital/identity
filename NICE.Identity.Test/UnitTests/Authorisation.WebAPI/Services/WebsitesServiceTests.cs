@@ -72,8 +72,51 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             websites.Count.ShouldBe(2);
             websites[0].Host.ShouldBe("test1-host.nice.org.uk");
             websites[1].Host.ShouldBe("test2-host.nice.org.uk");
+            websites[0].Service.Name.ShouldBe("Test Service");
         }
-        
+
+        [Fact]
+        public void Get_websites_with_filters()
+        {
+            //Arrange
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+            TestData.AddService(ref context, 1, "Test Service");
+            TestData.AddService(ref context, 2, "Other Service");
+            TestData.AddEnvironment(ref context, 1, "Dev");
+            TestData.AddEnvironment(ref context, 2, "Test");
+            websitesService.CreateWebsite(new Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 1,
+                Host = "test1-host.nice.org.uk"
+            });
+            websitesService.CreateWebsite(new Website()
+            {
+                ServiceId = 1,
+                EnvironmentId = 2,
+                Host = "test2-host.nice.org.uk"
+            });
+            websitesService.CreateWebsite(new Website()
+            {
+                ServiceId = 2,
+                EnvironmentId = 2,
+                Host = "test3-host.nice.org.uk"
+            });
+
+            //Act
+            var websitesFilterByServiceName = websitesService.GetWebsites("Test Service");
+            var websitesFilterByHostName = websitesService.GetWebsites("test2");
+
+            //Assert
+            websitesFilterByServiceName.Count.ShouldBe(2);
+            websitesFilterByServiceName[0].Host.ShouldBe("test1-host.nice.org.uk");
+            websitesFilterByServiceName[1].Host.ShouldBe("test2-host.nice.org.uk");
+
+            websitesFilterByHostName.Count.ShouldBe(1);
+            websitesFilterByHostName[0].Host.ShouldBe("test2-host.nice.org.uk");
+        }
+
         [Fact]
         public void Get_website()
         {

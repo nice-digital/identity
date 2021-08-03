@@ -47,15 +47,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
-
-                entity.HasData(new Environment[] {
-                    new Environment(1, "Local", 10),
-                    new Environment(2, "Dev", 20),
-                    new Environment(3, "Test", 30),
-                    new Environment(4, "Alpha", 40),
-                    new Environment(5, "Beta", 50),
-                    new Environment(6, "Live", 60),
-                });
             });
 
             modelBuilder.Entity<Role>(entity =>

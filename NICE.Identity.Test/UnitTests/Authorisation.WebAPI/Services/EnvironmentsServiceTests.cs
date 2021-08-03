@@ -41,20 +41,20 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Get_environments()
+        public void Get_environments_and_test_order()
         {
             //Arrange
             var context = GetContext();
             var environmentsService = new EnvironmentsService(context, _logger.Object);
             environmentsService.CreateEnvironment(new ApiModels.Environment()
             {
-                Name = "Training1",
-                Order = 0
+	            Name = "Training2",
+	            Order = 2
             });
             environmentsService.CreateEnvironment(new ApiModels.Environment()
             {
-                Name = "Training2",
-                Order = 0
+                Name = "Training1",
+                Order = 1
             });
 
             //Act
