@@ -27,6 +27,41 @@
 		<li>Roles json: @ViewData["Roles"]</li>
 	</ul>
 </p>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<p>
+	Start Ajax poll now with cross domain2: true
+	<input type="button" id="butAjaxify"/><br/>
+	<div id="ajaxOutput"></div>
+</p>
+<script>
+	callAuthenticatedEndpointRepeatedly = function() {
+		$.ajax(
+			{
+				type: "GET",
+				url: "/Home/AuthenticatedData",
+				crossDomain: true,
+				dataType: 'json',
+				contentType: 'application/json',
+				xhrFields: {
+					withCredentials: true
+				},
+				headers: {
+					"accept": "application/json",
+					"Access-Control-Allow-Origin":"*"
+				},
+				timeout: 30000,
+				success: function (data) { $("#ajaxOutput").html("<p>" + JSON.stringify(data) + "</p>"); window.setTimeout(callAuthenticatedEndpointRepeatedly, 5000); },
+				error: function (XMLHttpRequest, textStatus, errorThrown) { $("#ajaxOutput").html('Timeout contacting server..'); window.setTimeout(callAuthenticatedEndpointRepeatedly, 1000); }
+			});
+	};
+
+	$('#butAjaxify').click(function () {
+		callAuthenticatedEndpointRepeatedly();
+	});
+
+</script>
+
+
 
 <p>
 	<a href="@Url.Action("GetM2MToken", "Home")">Get Machine to Machine (client credentials) token.</a>

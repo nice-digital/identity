@@ -80,6 +80,14 @@ namespace NICE.Identity.TestClient.NETFramework452.Controllers
         }
 
         [Authorise]
+        public async Task<JsonResult> AuthenticatedData()
+        {
+	        var someData = new {serverTime = DateTime.Now.ToString("u")};
+
+	        return Json(someData, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorise]
         public async Task<ActionResult> ApiData()
         {
 	        var claimsIdentity = (ClaimsPrincipal)User;
