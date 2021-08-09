@@ -41,12 +41,14 @@
 				url: "/Home/AuthenticatedData",
 				crossDomain: true,
 				dataType: 'json',
-				contentType: 'application/json',
-				xhrFields: {
-					withCredentials: true
-				},
+				async: false,
+				//contentType: 'application/json',
+				//xhrFields: {
+				//	withCredentials: true
+				//},
 				headers: {
 					"accept": "application/json",
+					"Access-Control-Request-Headers": "x-requested-with",
 					"Access-Control-Allow-Origin":"*"
 				},
 				timeout: 30000,
