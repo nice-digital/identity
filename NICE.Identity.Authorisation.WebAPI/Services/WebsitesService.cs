@@ -12,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         Website CreateWebsite(Website website);
         Website GetWebsite(int websiteId);
-        List<Website> GetWebsites();
+        List<Website> GetWebsites(string filter);
         Website UpdateWebsite(int websiteId, Website website);
         int DeleteWebsite(int websiteId);
     }
@@ -48,9 +48,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<Website> GetWebsites()
+        public List<Website> GetWebsites(string filter = null)
         {
-            return _context.GetWebsites().ConvertAll(website => new Website(website));
+            return _context.FindWebsites(filter)
+                .Select(website => new Website(website))
+                .ToList(); ;
         }
 
         public Website GetWebsite(int websiteId)
