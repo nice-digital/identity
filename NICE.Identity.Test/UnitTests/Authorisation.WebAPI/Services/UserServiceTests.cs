@@ -246,7 +246,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        //Arrange
 	        var context = GetContext();
 	        AddUsersWithAndWithoutRoles(context);
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
 
             //Act
             var usersFound = userService.GetUsers("user");
