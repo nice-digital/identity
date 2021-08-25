@@ -46,7 +46,7 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="3.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Redis">
@@ -66,7 +66,7 @@
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
-	    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.2" />
+	    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
 	    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.1.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.1.2" />
