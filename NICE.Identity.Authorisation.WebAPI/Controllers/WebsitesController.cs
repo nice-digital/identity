@@ -66,11 +66,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(typeof(List<Website>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetWebsites()
+        public IActionResult GetWebsites([FromQuery(Name = "q")] string filter)
         {
             try
             {
-                return Ok(_websitesService.GetWebsites());
+                return Ok(_websitesService.GetWebsites(filter));
             }
             catch (Exception e)
             {

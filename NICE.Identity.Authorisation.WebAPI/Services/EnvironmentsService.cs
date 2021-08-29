@@ -52,7 +52,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Environments
 
         public List<Environment> GetEnvironments()
         {
-            return _context.Environments.Select(e => new Environment(e)).ToList();
+            return _context.Environments.OrderBy(e => e.Order).Select(e => new Environment(e)).ToList();
         }
 
         public Environment UpdateEnvironment(int environmentId, Environment environment)

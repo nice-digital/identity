@@ -59,6 +59,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return _context.Services
                 .Include(s => s.Websites)
                 .ThenInclude(w => w.Environment)
+                .OrderBy(service => service.Name)
                 .Select(service => new Service(service))
                 .ToList();
         }
