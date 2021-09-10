@@ -141,7 +141,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public IEnumerable<User> GetPendingUsersOverAge(int daysToKeepPendingRegistration)
         {
-	        var dateToKeepRegistrationsFrom = DateTime.Now.AddDays(-daysToKeepPendingRegistration);
+	        var dateToKeepRegistrationsFrom = DateTime.UtcNow.AddDays(-daysToKeepPendingRegistration);
 
 	        return Users.Where(u => !u.HasVerifiedEmailAddress &&
 	                                u.InitialRegistrationDate.HasValue && u.InitialRegistrationDate.Value <= dateToKeepRegistrationsFrom);
