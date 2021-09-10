@@ -11,16 +11,19 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
 
         public static ManagementAPIConfig ManagementAPI { get; private set; }
         public static EnvironmentConfig EnvironmentConfig { get; private set; }
+        public static EmailConfig EmailConfig { get; private set; }
 
-		public static void Configure(IServiceCollection services, IConfiguration configuration)
+        public static void Configure(IServiceCollection services, IConfiguration configuration)
          {
              services.Configure<ManagementAPIConfig>(configuration.GetSection("Auth0ManagementApiConfiguration"));
              services.Configure<EnvironmentConfig>(configuration.GetSection("Environment"));
-			
-             var sp = services.BuildServiceProvider();
+             services.Configure<EmailConfig>(configuration.GetSection("Email"));
+
+            var sp = services.BuildServiceProvider();
 
              ManagementAPI = sp.GetService<IOptions<ManagementAPIConfig>>().Value;
              EnvironmentConfig = sp.GetService<IOptions<EnvironmentConfig>>().Value;
-		}
+             EmailConfig = sp.GetService<IOptions<EmailConfig>>().Value;
+        }
     }
 }
