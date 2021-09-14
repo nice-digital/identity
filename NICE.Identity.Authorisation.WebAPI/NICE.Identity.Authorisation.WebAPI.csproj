@@ -26,6 +26,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="3.1.2" />
     <PackageReference Include="Auth0.AuthenticationApi" Version="7.5.0" />
     <PackageReference Include="Auth0.ManagementApi" Version="7.5.0" />
+    <PackageReference Include="MailKit" Version="2.13.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.8">
@@ -46,6 +47,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Emails\account_removal.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Emails\account_removal.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

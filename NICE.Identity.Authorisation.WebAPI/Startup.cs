@@ -71,6 +71,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IUserSyncCheck, UserSyncCheck>();
 			services.AddTransient<IDuplicateCheck, DuplicateCheck>();
 			services.AddSingleton<IManagementConnection, HttpClientManagementConnection>();
+			services.AddTransient<IEmailService, EmailService>();
 			services.AddHttpClient(); //this adds http client factory for use in DI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
@@ -141,7 +142,7 @@ namespace NICE.Identity.Authorisation.WebAPI
                     {
                         builder
 	                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-	                        .WithOrigins("https://*.nice.org.uk")
+	                        .WithOrigins("https://*.nice.org.uk", "https://local-identityadmin.nice.org.uk:44300")
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials()

@@ -30,6 +30,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
         Task<int> DeleteAllUsers();
+        Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
 	}
 
 	public class UsersService : IUsersService
@@ -37,14 +38,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		private readonly IdentityContext _context;
 		private readonly ILogger<UsersService> _logger;
 		private readonly IProviderManagementService _providerManagementService;
+		private readonly IEmailService _emailService;
 
-		public UsersService(IdentityContext context, ILogger<UsersService> logger,
-			IProviderManagementService providerManagementService)
+		public UsersService(IdentityContext context, ILogger<UsersService> logger, IProviderManagementService providerManagementService, IEmailService emailService)
 		{
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_providerManagementService = providerManagementService ??
 			                             throw new ArgumentNullException(nameof(providerManagementService));
+			_emailService = emailService;
 		}
 
 		public User CreateUser(User user)
@@ -392,7 +394,44 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public async Task<int> DeleteAllUsers()
         {
-	        return await _context.DeleteAllUsers();
+			return await _context.DeleteAllUsers();
         }
-	}
+
+        public async Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
+        {
+            _logger.LogWarning($"DeleteRegistrationsOlderThan - Deleting Registrations Older Than {daysToKeepPendingRegistration} days. Notify via email: {notify}"); //extra logging here in order to verify that the scheduled task is running via kibana.
+
+	        var allUsersWithPendingRegistrationsOverAge = _context.GetPendingUsersOverAge(daysToKeepPendingRegistration).ToList();
+
+	        if (!allUsersWithPendingRegistrationsOverAge.Any())
+	        {
+		        _logger.LogWarning("DeleteRegistrationsOlderThan - No records found to delete. exiting");
+		        return;
+	        }
+
+	        var uniqueEmailAddresses = allUsersWithPendingRegistrationsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
+	        if (uniqueEmailAddresses.Count()  != allUsersWithPendingRegistrationsOverAge.Count())
+	        {
+                _logger.LogWarning("Pending registrations exist for the same email address.");
+	        }
+
+	        //1. delete user accounts: allUsersWithPendingRegistrationsOverAge
+	        var recordsDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
+
+	        //2. delete user account in auth0
+            foreach (var user in allUsersWithPendingRegistrationsOverAge)
+            {
+	            await _providerManagementService.DeleteUser(user.NameIdentifier);
+            }
+
+            //3. send notification to the email addresses, one email per email address.
+            if (notify)
+            {
+	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
+            }
+
+            _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
+        }
+
+    }
 }
