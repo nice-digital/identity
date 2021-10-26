@@ -135,8 +135,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		            .HasMaxLength(320);
 
 	            entity.Property(e => e.ArchivedByUserId)
-                    .IsRequired()
-                    .HasColumnName("ArchivedByUserID");
+		            .HasColumnName("ArchivedByUserID");
 
 	            entity.Property(e => e.ArchivedDateUTC)
 		            .IsRequired();
@@ -152,7 +151,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		            .WithMany(p => p.ArchivedUserEmailHistory)
 		            .HasForeignKey(d => d.ArchivedByUserId)
 		            .OnDelete(DeleteBehavior.Restrict)
-		            .HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users");
+					.HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users");
             });
 
 

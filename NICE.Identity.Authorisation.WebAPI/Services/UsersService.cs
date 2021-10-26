@@ -84,7 +84,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		{
 			var user = _context.Users
 				.Include(u => u.UserEmailHistory)
-				.Where((u => u.UserId == userId)).FirstOrDefault();
+					.ThenInclude(u => u.ArchivedByUser)
+				.Where(u => u.UserId.Equals(userId))
+				.FirstOrDefault();
+			
 			return user != null ? new User(user) : null;
 		}
 

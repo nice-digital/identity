@@ -28,7 +28,10 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 
 		[JsonIgnore]
 		public User User { get; set; }
+
 		[JsonIgnore]
 		public User ArchivedByUser { get; set; }
+
+		public string ArchivedByUserDisplayName => ArchivedByUser?.DisplayName;
 	}
 }
