@@ -19,6 +19,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         public virtual DbSet<Service> Services { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserEmailHistory> UserEmailHistory { get; set; }
         public virtual DbSet<Website> Websites { get; set; }
         public virtual DbSet<TermsVersion> TermsVersions { get; set; }
         public virtual DbSet<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
@@ -114,6 +115,47 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
                 entity.HasAlternateKey(c => new { c.UserId, c.RoleId }).HasName("IX_UserRoles_UserID_RoleID");
             });
+
+
+            modelBuilder.Entity<UserEmailHistory>(entity =>
+            {
+	            entity.ToTable("UserEmailHistory");
+
+	            entity.HasKey(e => e.UserEmailHistoryId);
+
+	            entity.Property(e => e.UserEmailHistoryId)
+		            .HasColumnName("UserEmailHistoryID");
+
+	            entity.Property(e => e.UserId)
+		            .IsRequired()
+		            .HasColumnName("UserID");
+
+	            entity.Property(e => e.EmailAddress)
+		            .IsRequired()
+		            .HasMaxLength(320);
+
+	            entity.Property(e => e.ArchivedByUserId)
+                    .IsRequired()
+                    .HasColumnName("ArchivedByUserID");
+
+	            entity.Property(e => e.ArchivedDateUTC)
+		            .IsRequired();
+
+	            entity.HasOne(d => d.User)
+		            .WithMany(p => p.UserEmailHistory)
+		            .HasForeignKey(d => d.UserId)
+		            .IsRequired()
+		            .OnDelete(DeleteBehavior.ClientSetNull)
+		            .HasConstraintName("FK_UserEmailHistory_User_Users");
+
+	            entity.HasOne(d => d.ArchivedByUser)
+		            .WithMany(p => p.ArchivedUserEmailHistory)
+		            .HasForeignKey(d => d.ArchivedByUserId)
+		            .IsRequired()
+		            .OnDelete(DeleteBehavior.Restrict)
+		            .HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users");
+            });
+
 
             modelBuilder.Entity<User>(entity =>
             {
