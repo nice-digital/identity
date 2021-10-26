@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
@@ -25,7 +26,9 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 		public int? ArchivedByUserId { get; set; }
 		public DateTime? ArchivedDateUTC { get; set; }
 
+		[JsonIgnore]
 		public User User { get; set; }
+		[JsonIgnore]
 		public User ArchivedByUser { get; set; }
 	}
 }

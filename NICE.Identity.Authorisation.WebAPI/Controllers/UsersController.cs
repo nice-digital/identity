@@ -123,12 +123,40 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			}
 		}
 
-		/// <summary>
-		/// get list of all users given in the nameIdentifiers parameter
-		/// </summary>
-		/// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
-		/// <returns></returns>
-		[HttpPost(Constants.AuthorisationURLs.FindUsersRoute)]
+		///// <summary>
+		///// get user with id
+		///// </summary>
+		///// <param name="userId"></param>
+		///// <returns></returns>
+		//[HttpGet(Constants.AuthorisationURLs.UserWithAuditRoute + "{userId:int}")]
+		//[ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+		//[ProducesResponseType(StatusCodes.Status404NotFound)]
+		//[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		//[Produces("application/json")]
+		//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+		//public IActionResult GetUserWithAudit(int userId)
+		//{
+		//	try
+		//	{
+		//		var user = _usersService.GetUserWithAudit(userId);
+		//		if (user != null)
+		//		{
+		//			return Ok(user);
+		//		}
+		//		return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+		//	}
+		//}
+
+        /// <summary>
+        /// get list of all users given in the nameIdentifiers parameter
+        /// </summary>
+        /// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
+        /// <returns></returns>
+        [HttpPost(Constants.AuthorisationURLs.FindUsersRoute)]
 		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]

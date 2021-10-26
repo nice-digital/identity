@@ -82,6 +82,5 @@ namespace NICE.Identity.Test.Infrastructure
         {
 	        throw new NotImplementedException();
         }
-
 	}
 }

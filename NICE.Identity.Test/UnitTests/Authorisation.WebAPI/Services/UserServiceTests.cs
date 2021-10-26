@@ -658,5 +658,82 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        context.Users.Single().NameIdentifier.ShouldBe(user1NameIdentifier);
         }
 
+        [Fact]
+        public async Task GetUserWithSingleEmailAuditRecord()
+        {
+	        //Arrange
+	        const string originalEmailAddress = "original@example.com";
+	        const string updatedEmailAddress = "updated@example.com";
+            const string adminNameIdentifier = "admin";
+            const string userNameIdentifier = "user";
+            var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+	        var adminUser = new ApiModels.User { NameIdentifier = adminNameIdentifier, EmailAddress = "admin@example.com"};
+	        var createdAdminUser = userService.CreateUser(adminUser);
+
+            var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
+	        var createdUser = userService.CreateUser(user);
+	        createdUser.EmailAddress = updatedEmailAddress;
+	        var updatedUser = await userService.UpdateUser(createdUser.UserId.Value, createdUser, adminNameIdentifier);
+
+            //Act
+            var userWithAudit = userService.GetUser(updatedUser.UserId.Value);
+
+            //Assert
+            userWithAudit.EmailAddress.ShouldBe(updatedEmailAddress);
+            var emailHistoryRecord = userWithAudit.UserEmailHistory.Single();
+            
+            emailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+            emailHistoryRecord.EmailAddress.ShouldBe(originalEmailAddress);
+
+            emailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
+            emailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
+        }
+
+        [Fact]
+        public async Task GetUserWithMultipleEmailAuditRecord()
+        {
+	        //Arrange
+	        const string originalEmailAddress = "original@example.com";
+	        const string updatedEmailAddress1 = "updated@example.com";
+	        const string updatedEmailAddress2 = "second.update@example.com";
+            const string adminNameIdentifier = "admin";
+	        const string userNameIdentifier = "user";
+	        var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+	        var adminUser = new ApiModels.User { NameIdentifier = adminNameIdentifier, EmailAddress = "admin@example.com" };
+	        var createdAdminUser = userService.CreateUser(adminUser);
+
+	        var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
+	        var createdUser = userService.CreateUser(user);
+	        createdUser.EmailAddress = updatedEmailAddress1;
+	        var updatedUser = await userService.UpdateUser(createdUser.UserId.Value, createdUser, adminNameIdentifier);
+	        updatedUser.EmailAddress = updatedEmailAddress2;
+	        updatedUser = await userService.UpdateUser(createdUser.UserId.Value, updatedUser, adminNameIdentifier);
+
+            //Act
+            var userWithAudit = userService.GetUser(updatedUser.UserId.Value);
+
+	        //Assert
+	        userWithAudit.EmailAddress.ShouldBe(updatedEmailAddress2);
+	        userWithAudit.UserEmailHistory.Count().ShouldBe(2);
+	        var firstEmailHistoryRecord = userWithAudit.UserEmailHistory.First();
+	        var secondEmailHistoryRecord = userWithAudit.UserEmailHistory.Skip(1).First();
+
+	        firstEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+	        firstEmailHistoryRecord.EmailAddress.ShouldBe(originalEmailAddress);
+
+	        firstEmailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
+	        firstEmailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
+
+	        secondEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+	        secondEmailHistoryRecord.EmailAddress.ShouldBe(updatedEmailAddress1);
+
+	        secondEmailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
+	        secondEmailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
+        }
+
     }
 }

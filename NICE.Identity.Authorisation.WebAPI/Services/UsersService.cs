@@ -82,7 +82,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 		public User GetUser(int userId)
 		{
-			var user = _context.Users.Where((u => u.UserId == userId)).FirstOrDefault();
+			var user = _context.Users
+				.Include(u => u.UserEmailHistory)
+				.Where((u => u.UserId == userId)).FirstOrDefault();
 			return user != null ? new User(user) : null;
 		}
 
@@ -451,5 +453,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
-    }
+	}
 }
