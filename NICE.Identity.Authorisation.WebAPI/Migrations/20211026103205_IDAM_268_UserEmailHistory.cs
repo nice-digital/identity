@@ -15,7 +15,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<int>(nullable: false),
                     EmailAddress = table.Column<string>(maxLength: 320, nullable: false),
-                    ArchivedByUserID = table.Column<int>(nullable: false),
+                    ArchivedByUserID = table.Column<int>(nullable: true),
                     ArchivedDateUTC = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>

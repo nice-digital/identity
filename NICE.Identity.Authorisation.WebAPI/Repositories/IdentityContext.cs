@@ -151,7 +151,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            entity.HasOne(d => d.ArchivedByUser)
 		            .WithMany(p => p.ArchivedUserEmailHistory)
 		            .HasForeignKey(d => d.ArchivedByUserId)
-		            .IsRequired()
 		            .OnDelete(DeleteBehavior.Restrict)
 		            .HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users");
             });

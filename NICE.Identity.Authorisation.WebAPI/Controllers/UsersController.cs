@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
@@ -193,7 +194,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(await _usersService.UpdateUser(userId, user));
+	            var nameIdentifierOfUserUpdatingRecord = User.NameIdentifier(); //this could be null if the user is updated when calling the api via postman + client credentials grant. it will be not null when using the identity management site.
+
+                return Ok(await _usersService.UpdateUser(userId, user, nameIdentifierOfUserUpdatingRecord));
             }
             catch (Exception e)
             {

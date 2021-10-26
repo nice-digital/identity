@@ -21,7 +21,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		IList<User> GetUsers(string filter);
 		IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
-		Task<User> UpdateUser(int userId, User user);
+		Task<User> UpdateUser(int userId, User user, string nameIdentifierOfUserUpdatingRecord);
         Task<int> DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
         UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
@@ -108,7 +108,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					.Select(role => role.Role.Name));
 		}
 
-		public async Task<User> UpdateUser(int userId, User user)
+		/// <summary>
+		/// UpdateUser
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="user"></param>
+		/// <param name="nameIdentifierOfUserUpdatingRecord">this could be null if the user is updated when calling the api via postman + client credentials grant. it will be not null when using the identity management site.</param>
+		/// <returns></returns>
+		public async Task<User> UpdateUser(int userId, User user, string nameIdentifierOfUserUpdatingRecord)
 		{
 			try
 			{
@@ -117,9 +124,27 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				if (userToUpdate == null)
 					throw new Exception($"User not found {userId.ToString()}");
 
-				userToUpdate.UpdateFromApiModel(user);
+				var emailAddressUpdated = !userToUpdate.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase);
+				if  (emailAddressUpdated)
+				{
+					int? userIdOfUserUpdatingRecord = null;
+					if (!string.IsNullOrEmpty(nameIdentifierOfUserUpdatingRecord))
+					{
+						userIdOfUserUpdatingRecord = _context.Users.FirstOrDefault(u => u.NameIdentifier.Equals(nameIdentifierOfUserUpdatingRecord, StringComparison.OrdinalIgnoreCase))?.UserId;
+					}
 
-                if (userToUpdate.IsInAuthenticationProvider)
+					var emailArchiveRecord = new UserEmailHistory(userId, userToUpdate.EmailAddress, userIdOfUserUpdatingRecord, DateTime.UtcNow);
+
+					_context.UserEmailHistory.Add(emailArchiveRecord);
+				}
+
+				userToUpdate.UpdateFromApiModel(user);
+				if (emailAddressUpdated)
+				{
+					userToUpdate.HasVerifiedEmailAddress = false; //todo: send an email to the user to revalidate the new email address.
+				}
+
+				if (userToUpdate.IsInAuthenticationProvider)
                 {
                     await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
                 }

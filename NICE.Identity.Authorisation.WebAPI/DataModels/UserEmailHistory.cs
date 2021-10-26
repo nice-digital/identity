@@ -7,6 +7,17 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
 	public class UserEmailHistory
 	{
+		public UserEmailHistory()
+		{
+		}
+
+		public UserEmailHistory(int? userId, string emailAddress, int? archivedByUserId, DateTime? archivedDateUtc)
+		{
+			UserId = userId;
+			EmailAddress = emailAddress;
+			ArchivedByUserId = archivedByUserId;
+			ArchivedDateUTC = archivedDateUtc;
+		}
 
 		public int UserEmailHistoryId { get; set; }
 		public int? UserId { get; set; }

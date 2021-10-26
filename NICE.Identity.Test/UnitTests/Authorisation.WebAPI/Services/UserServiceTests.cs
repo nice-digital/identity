@@ -261,19 +261,27 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         public async Task Update_user_that_already_exists()
         {
             //Arrange
+            var originalEmailAddress = "original.email.address@email.com";
+            var changedEmailAddress = "changed.email.address@email.com";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
-            var user = new ApiModels.User(){ EmailAddress = "existing.user@email.com", FirstName = "Joe"};
+            var user = new ApiModels.User(){ EmailAddress = originalEmailAddress, FirstName = "Joe"};
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
             var userToUpdate = userService.GetUser(createdUserId.Value);
             userToUpdate.FirstName = "John";
-            var updatedUser = await userService.UpdateUser(createdUserId.Value, userToUpdate);
+            userToUpdate.EmailAddress = changedEmailAddress;
+            var updatedUser = await userService.UpdateUser(createdUserId.Value, userToUpdate, null);
 
             //Assert
             context.Users.ToList().Count.ShouldBe(1);
+            context.UserEmailHistory.ToList().Count.ShouldBe(1);
             updatedUser.FirstName.ShouldBe("John");
+            updatedUser.EmailAddress.ShouldBe(changedEmailAddress);
+            var emailRecord = context.UserEmailHistory.Single();
+            emailRecord.UserId.ShouldBe(updatedUser.UserId);
+            emailRecord.EmailAddress.ShouldBe(originalEmailAddress);
         }
 
         [Fact]
@@ -291,7 +299,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             };
 
             //Act + Assert
-            Assert.ThrowsAsync<NullReferenceException>(async () => await userService.UpdateUser(nonExistingUserId, userToUpdate));
+            Assert.ThrowsAsync<NullReferenceException>(async () => await userService.UpdateUser(nonExistingUserId, userToUpdate, null));
             context.Users.Count().ShouldBe(0);
         }
 
