@@ -757,5 +757,53 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        //Assert
 	        usersFound.Single().EmailAddress.ShouldBe(updatedEmailAddress);
         }
+
+        [Fact]
+        public void Updating_email_address_to_an_existing_current_email_address_throws_exception()
+        {
+	        //Arrange
+	        const string user1Email = "user1s.email@example.com";
+	        var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+	        
+	        var user1 = new ApiModels.User { NameIdentifier = "user1", EmailAddress = user1Email };
+	        userService.CreateUser(user1);
+
+	        var user2 = new ApiModels.User { NameIdentifier = "user2", EmailAddress = "user2s.email@example.com" };
+	        var createdUser2 = userService.CreateUser(user2);
+
+	        createdUser2.EmailAddress = user1Email;
+
+            //Act + Assert
+            Assert.ThrowsAsync<ApplicationException>(async() => await userService.UpdateUser(createdUser2.UserId.Value, createdUser2, null));
+            context.Users.Count(u => u.EmailAddress.Equals(user1Email)).ShouldBe(1);
+        }
+
+        [Fact]
+        public async Task Updating_email_address_to_an_previous_email_of_same_user_works()
+        {
+	        //Arrange
+	        const string firstEmail = "first.email@example.com";
+	        const string secondEmail = "second.email@example.com";
+
+            var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+
+	        var userModel = new ApiModels.User { NameIdentifier = "user1", EmailAddress = firstEmail };
+	        var createdUser = userService.CreateUser(userModel);
+
+	        createdUser.EmailAddress = secondEmail;
+	        var updatedUser = await userService.UpdateUser(createdUser.UserId.Value, createdUser, null);
+
+	        updatedUser.EmailAddress = firstEmail;
+
+            //Act
+            var updatedAgainUser = await userService.UpdateUser(updatedUser.UserId.Value, updatedUser, null);
+
+            //Assert
+            updatedAgainUser.EmailAddress.ShouldBe(firstEmail);
+        }
     }
 }

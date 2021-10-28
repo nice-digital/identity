@@ -132,6 +132,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				var emailAddressUpdated = !userToUpdate.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase);
 				if  (emailAddressUpdated)
 				{
+					//todo: verify email address isn't in use
+					var usersWithMatchingEmailAddress = _context.FindUsers(user.EmailAddress);
+					if (usersWithMatchingEmailAddress.Any())
+					{
+						if (usersWithMatchingEmailAddress.Count > 1)
+						{
+							throw new ApplicationException("Multiple users found with same email address."); //shouldn't be possible
+						}
+
+						var userWithMatchingEmailAddress = usersWithMatchingEmailAddress.Single();
+						if (!userWithMatchingEmailAddress.NameIdentifier.Equals(userToUpdate.NameIdentifier, StringComparison.OrdinalIgnoreCase))
+						{
+							throw new ApplicationException("You cannot set your email address to an email address registered by another user");
+						}
+
+						//currently we're allowing you to set your email address to a previous one in your history only. if that decision changes, this would be the place to implement it.
+					}
+
+
 					int? userIdOfUserUpdatingRecord = null;
 					if (!string.IsNullOrEmpty(nameIdentifierOfUserUpdatingRecord))
 					{
