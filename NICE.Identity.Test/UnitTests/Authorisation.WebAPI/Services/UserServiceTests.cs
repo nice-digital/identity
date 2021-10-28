@@ -735,5 +735,27 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        secondEmailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
         }
 
+        [Fact]
+        public async Task Find_users_finds_users_based_on_old_emails()
+        {
+            //Arrange
+            const string originalEmailAddress = "original@example.com";
+            const string updatedEmailAddress = "updated@example.com";
+            const string adminNameIdentifier = "admin";
+            const string userNameIdentifier = "user";
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            
+            var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
+            var createdUser = userService.CreateUser(user);
+            createdUser.EmailAddress = updatedEmailAddress;
+            await userService.UpdateUser(createdUser.UserId.Value, createdUser, adminNameIdentifier);
+
+            //Act
+            var usersFound = context.FindUsers(originalEmailAddress);
+
+	        //Assert
+	        usersFound.Single().EmailAddress.ShouldBe(updatedEmailAddress);
+        }
     }
 }

@@ -146,12 +146,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				userToUpdate.UpdateFromApiModel(user);
 				if (emailAddressUpdated)
 				{
-					userToUpdate.HasVerifiedEmailAddress = false; //todo: send an email to the user to revalidate the new email address.
+					userToUpdate.HasVerifiedEmailAddress = false;
 				}
 
 				if (userToUpdate.IsInAuthenticationProvider)
                 {
                     await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+
+                    if (emailAddressUpdated)
+                    {
+	                    await _providerManagementService.VerificationEmail(userToUpdate.NameIdentifier);
+                    }
                 }
 
 				_context.SaveChanges();
