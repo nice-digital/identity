@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -147,6 +148,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 							throw new ApplicationException("You cannot set your email address to an email address registered by another user");
 						}
 
+						if (userToUpdate.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase) &&
+						    !user.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase))
+						{
+							throw new ApplicationException($"An email address ending with '{Constants.Email.StaffEmailAddressEndsWith}' cannot be changed to an email address not ending in that.");
+						}
+
 						//currently we're allowing you to set your email address to a previous one in your history only. if that decision changes, this would be the place to implement it.
 					}
 
@@ -154,7 +161,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					int? userIdOfUserUpdatingRecord = null;
 					if (!string.IsNullOrEmpty(nameIdentifierOfUserUpdatingRecord))
 					{
-						userIdOfUserUpdatingRecord = _context.Users.FirstOrDefault(u => u.NameIdentifier.Equals(nameIdentifierOfUserUpdatingRecord, StringComparison.OrdinalIgnoreCase))?.UserId;
+						userIdOfUserUpdatingRecord = _context.Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, nameIdentifierOfUserUpdatingRecord))?.UserId;
 					}
 
 					var emailArchiveRecord = new UserEmailHistory(userId, userToUpdate.EmailAddress, userIdOfUserUpdatingRecord, DateTime.UtcNow);

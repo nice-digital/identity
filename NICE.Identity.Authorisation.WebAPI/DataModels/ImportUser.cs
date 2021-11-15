@@ -1,6 +1,7 @@
 ﻿using NICE.Identity.Authentication.Sdk.Domain;
 using System;
 using System.Collections.Generic;
+using NICE.Identity.Authentication.Sdk;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
@@ -46,7 +47,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 				IsMigrated = true,
 				HasVerifiedEmailAddress = true,
 				IsLockedOut = false,
-				IsStaffMember = EmailAddress.Contains("@nice.org.uk", StringComparison.OrdinalIgnoreCase),
+				IsStaffMember = EmailAddress.Contains(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase),
 				IsInAuthenticationProvider = false
 		};
 	}
