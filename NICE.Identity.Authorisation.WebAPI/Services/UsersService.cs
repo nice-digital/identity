@@ -134,7 +134,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				if  (emailAddressUpdated)
 				{
 					//todo: verify email address isn't in use
-					var usersWithMatchingEmailAddress = _context.FindUsers(user.EmailAddress);
+					var usersWithMatchingEmailAddress = _context.Users.Where(u => EF.Functions.Like(u.EmailAddress, user.EmailAddress)).ToList();
 					if (usersWithMatchingEmailAddress.Any())
 					{
 						if (usersWithMatchingEmailAddress.Count > 1)
@@ -145,18 +145,16 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 						var userWithMatchingEmailAddress = usersWithMatchingEmailAddress.Single();
 						if (!userWithMatchingEmailAddress.NameIdentifier.Equals(userToUpdate.NameIdentifier, StringComparison.OrdinalIgnoreCase))
 						{
-							throw new ApplicationException("You cannot set your email address to an email address registered by another user");
+							throw new ApplicationException("Email address is already in use");
 						}
-
-						if (userToUpdate.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase) &&
-						    !user.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase))
-						{
-							throw new ApplicationException($"An email address ending with '{Constants.Email.StaffEmailAddressEndsWith}' cannot be changed to an email address not ending in that.");
-						}
-
 						//currently we're allowing you to set your email address to a previous one in your history only. if that decision changes, this would be the place to implement it.
 					}
 
+					if (userToUpdate.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase) &&
+					    !user.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase))
+					{
+						throw new ApplicationException($"A staff email address ending with '{Constants.Email.StaffEmailAddressEndsWith}' cannot be changed to a non-staff email address.");
+					}
 
 					int? userIdOfUserUpdatingRecord = null;
 					if (!string.IsNullOrEmpty(nameIdentifierOfUserUpdatingRecord))
@@ -190,8 +188,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
-				throw new Exception($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
+				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e} - {e.ToString()}");
+				throw;
 			}
 		}
 
