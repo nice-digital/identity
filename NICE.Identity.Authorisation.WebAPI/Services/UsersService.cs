@@ -139,13 +139,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					{
 						if (usersWithMatchingEmailAddress.Count > 1)
 						{
-							throw new ApplicationException("Multiple users found with same email address."); //shouldn't be possible
+							throw new ValidationException("Multiple users found with same email address."); //shouldn't be possible
 						}
 
 						var userWithMatchingEmailAddress = usersWithMatchingEmailAddress.Single();
 						if (!userWithMatchingEmailAddress.NameIdentifier.Equals(userToUpdate.NameIdentifier, StringComparison.OrdinalIgnoreCase))
 						{
-							throw new ApplicationException("Email address is already in use");
+							throw new ValidationException("Email address is already in use");
 						}
 						//currently we're allowing you to set your email address to a previous one in your history only. if that decision changes, this would be the place to implement it.
 					}
@@ -153,7 +153,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					if (userToUpdate.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase) &&
 					    !user.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase))
 					{
-						throw new ApplicationException($"A staff email address ending with '{Constants.Email.StaffEmailAddressEndsWith}' cannot be changed to a non-staff email address.");
+						throw new ValidationException($"A staff email address ending with '{Constants.Email.StaffEmailAddressEndsWith}' cannot be changed to a non-staff email address.");
 					}
 
 					int? userIdOfUserUpdatingRecord = null;

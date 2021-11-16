@@ -194,9 +194,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-	            var nameIdentifierOfUserUpdatingRecord = User.NameIdentifier(); //this could be null if the user is updated when calling the api via postman + client credentials grant. it will be not null when using the identity management site.
+	            var nameIdentifierOfUserUpdatingRecord =
+		            User.NameIdentifier(); //this could be null if the user is updated when calling the api via postman + client credentials grant. it will be not null when using the identity management site.
 
-                return Ok(await _usersService.UpdateUser(userId, user, nameIdentifierOfUserUpdatingRecord));
+	            return Ok(await _usersService.UpdateUser(userId, user, nameIdentifierOfUserUpdatingRecord));
+            }
+            catch (ValidationException ve)
+            {
+	            return StatusCode(500, new ProblemDetails { Status = 422, Title=$"{ve.Message}" }); //http 422 is "Unprocessable Content". using it here to tell the front-end to show a validation message rather than a big error screen.
             }
             catch (Exception e)
             {
