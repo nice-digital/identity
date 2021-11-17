@@ -178,6 +178,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [HttpPut("{userId}", Name = "UpdateUser")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
@@ -201,7 +202,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             }
             catch (ValidationException ve)
             {
-	            return StatusCode(500, new ProblemDetails { Status = 422, Title=$"{ve.Message}" }); //http 422 is "Unprocessable Content". using it here to tell the front-end to show a validation message rather than a big error screen.
+	            return StatusCode((int)HttpStatusCode.UnprocessableEntity, new ProblemDetails { Status = (int)HttpStatusCode.UnprocessableEntity, Title=$"{ve.Message}" }); //using http status code 422 to tell the front-end to show a validation message rather than a big error screen.
             }
             catch (Exception e)
             {
