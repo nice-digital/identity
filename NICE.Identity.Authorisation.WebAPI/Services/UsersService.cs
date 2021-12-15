@@ -130,7 +130,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				if (userToUpdate == null)
 					throw new Exception($"User not found {userId.ToString()}");
 
-				var emailAddressUpdated = !userToUpdate.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase);
+				var emailAddressUpdated = (user.EmailAddress != null) && !userToUpdate.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase);
 				if  (emailAddressUpdated)
 				{
 					//todo: verify email address isn't in use
