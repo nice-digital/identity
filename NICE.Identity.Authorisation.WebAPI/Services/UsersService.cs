@@ -125,7 +125,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		{
 			try
 			{
-				var userToUpdate = _context.Users.Find(userId);
+                var userToUpdate = _context.GetUser(userId);
 
 				if (userToUpdate == null)
 					throw new Exception($"User not found {userId.ToString()}");
