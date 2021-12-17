@@ -28,8 +28,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
             var result = Users.Where(users => users.UserId.Equals(userId))
                 .Include(users => users.UserRoles)
-                .ThenInclude(userRoles => userRoles.Role)
-                .ThenInclude(website => website.Website)
+                    .ThenInclude(userRoles => userRoles.Role)
+                    .ThenInclude(website => website.Website)
+                .Include(email => email.UserEmailHistory)
                 .ToList();
 
             return !result.Any() ? null : result.Single();
