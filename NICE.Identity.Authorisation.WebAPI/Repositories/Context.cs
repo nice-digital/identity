@@ -31,6 +31,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                     .ThenInclude(userRoles => userRoles.Role)
                     .ThenInclude(website => website.Website)
                 .Include(email => email.UserEmailHistory)
+                    .ThenInclude(archived => archived.ArchivedByUser)
                 .ToList();
 
             return !result.Any() ? null : result.Single();
