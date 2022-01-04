@@ -9,7 +9,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
     public interface IOrganisationsService
     {
-        List<Organisation> GetOrganisations();
+        List<Organisation> GetOrganisations(string filter);
         Organisation GetOrganisation(int organisationId);
         Organisation CreateOrganisation(Organisation organisation);
         Organisation UpdateOrganisation(int organisationId, Organisation organisation);
@@ -46,9 +46,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<Organisation> GetOrganisations()
+        public List<Organisation> GetOrganisations(string filter = null)
         {
-            return _context.Organisations.Select(organisation => new Organisation(organisation)).ToList();
+            return _context.FindOrganisations(filter)
+                    .Select(organisation => new Organisation(organisation))
+                    .ToList();
         }
 
         public Organisation GetOrganisation(int organisationId)
