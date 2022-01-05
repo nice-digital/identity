@@ -66,6 +66,33 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
+        public void Get_organisations_with_filter()
+        {
+            //Arrange
+            var context = GetContext();
+            var organisationService = new OrganisationsService(context, _logger.Object);
+            organisationService.CreateOrganisation(new ApiModels.Organisation
+            {
+                Name = "Organisation1",
+            });
+            organisationService.CreateOrganisation(new ApiModels.Organisation
+            {
+                Name = "Organisation2",
+            });
+
+            //Act
+            var organisation1FilterByName = organisationService.GetOrganisations("Organisation1");
+            var organisation2FilterByName = organisationService.GetOrganisations("Organisation2");
+
+            //Assert
+            organisation1FilterByName[0].Name.ShouldBe("Organisation1");
+            organisation1FilterByName.Count.ShouldBe(1);
+
+            organisation2FilterByName[0].Name.ShouldBe("Organisation2");
+            organisation2FilterByName.Count.ShouldBe(1);
+        }
+
+        [Fact]
         public void Get_Organisation()
         {
             //Arrange
