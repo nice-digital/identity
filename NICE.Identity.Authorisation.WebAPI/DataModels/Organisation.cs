@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NICE.Identity.Authorisation.WebAPI.DataModels
 {
@@ -7,15 +8,14 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public Organisation()
         {
         }
-
         public Organisation(int organisationId, string name)
         {
             OrganisationId = organisationId;
             Name = name;
         }
-
-        public  int OrganisationId { get; set; }
+        public int OrganisationId { get; set; }
         public string Name { get; set; }
+        public DateTime? DateAdded { get; set; }
         public ICollection<OrganisationRole> OrganisationRoles { get; set; }
         public ICollection<Job> Jobs { get; set; }
 
@@ -23,6 +23,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         {
             OrganisationId = organisation?.OrganisationId ?? OrganisationId;
             Name = organisation?.Name ?? Name;
+            DateAdded = DateTime.Now;
         }
     }
 }

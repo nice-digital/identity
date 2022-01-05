@@ -68,6 +68,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             filter ??= "";
 
             return Organisations.Where(w => (w.Name != null && EF.Functions.Like(w.Name, $"%{filter}%")))
+                .Select(x => new Organisation
+                {
+                    OrganisationId = x.OrganisationId,
+                    Name = x.Name,
+                    DateAdded = x.DateAdded != null ? x.DateAdded : new DateTime(2021, 12, 1)
+                })
                 .OrderBy(w => w.Name)
                 .ToList();
         }
