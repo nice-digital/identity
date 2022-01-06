@@ -68,7 +68,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             filter ??= "";
 
             return Organisations.Where(w => (w.Name != null && EF.Functions.Like(w.Name, $"%{filter}%")))
-                .Select(x => new Organisation
+                .Select(x => new Organisation()
                 {
                     OrganisationId = x.OrganisationId,
                     Name = x.Name,

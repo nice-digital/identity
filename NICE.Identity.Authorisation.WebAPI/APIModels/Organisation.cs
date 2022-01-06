@@ -9,13 +9,6 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public Organisation(int organisationId, string name, DateTime dateAdded)
-        {
-            OrganisationId = organisationId;
-            Name = name;
-            DateAdded = dateAdded;
-        }
-
         public Organisation(DataModels.Organisation organisation)
         {
             OrganisationId = organisation.OrganisationId;

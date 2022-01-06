@@ -34,7 +34,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             try
             {
                 var organisationToCreate = new DataModels.Organisation();
-                organisationToCreate.UpdateFromApiModel(organisation);
+                organisationToCreate.UpdateFromApiModel(organisation, DateTime.UtcNow);
                 var createdOrganisation = _context.Organisations.Add(organisationToCreate);
                 _context.SaveChanges();
                 return new Organisation(createdOrganisation.Entity);

@@ -19,11 +19,11 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public ICollection<OrganisationRole> OrganisationRoles { get; set; }
         public ICollection<Job> Jobs { get; set; }
 
-        public void UpdateFromApiModel(ApiModels.Organisation organisation)
+        public void UpdateFromApiModel(ApiModels.Organisation organisation, DateTime? dateAdded = null)
         {
             OrganisationId = organisation?.OrganisationId ?? OrganisationId;
             Name = organisation?.Name ?? Name;
-            DateAdded = DateTime.Now;
+            DateAdded = dateAdded ?? organisation?.DateAdded;
         }
     }
 }
