@@ -9,23 +9,23 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
         {
         }
 
-        public Organisation(int organisationId, string name, DateTime datedAdded)
+        public Organisation(int organisationId, string name, DateTime dateAdded)
         {
             OrganisationId = organisationId;
             Name = name;
-            DatedAdded = DatedAdded;
+            DateAdded = dateAdded;
         }
 
         public Organisation(DataModels.Organisation organisation)
         {
             OrganisationId = organisation.OrganisationId;
             Name = organisation.Name;
-            DatedAdded = organisation.DateAdded;
+            DateAdded = organisation.DateAdded;
         }
 
         [JsonPropertyName("id")]
         public int? OrganisationId { get; set; }
         public string Name { get; set; }
-        public DateTime? DatedAdded { get; set; }
+        public DateTime? DateAdded { get; set; }
     }
 }

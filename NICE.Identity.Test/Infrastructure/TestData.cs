@@ -75,8 +75,8 @@ namespace NICE.Identity.Test.Infrastructure
 			AddWebsite(ref context);
 			AddRole(ref context);
 			AddUserRole(ref context);
-			AddUser(ref context);
             AddTermsVersion(ref context);
+			AddUser(ref context);
             AddUserAcceptedTermsVersion(ref context);
 			AddJob(ref context);
 			AddOrganisation(ref context);
