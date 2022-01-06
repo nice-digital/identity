@@ -38,6 +38,44 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.HasKey("EnvironmentId");
 
                     b.ToTable("Environments");
+
+                    b.HasData(
+                        new
+                        {
+                            EnvironmentId = 1,
+                            Name = "Local",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 2,
+                            Name = "Dev",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 3,
+                            Name = "Test",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 4,
+                            Name = "Alpha",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 5,
+                            Name = "Beta",
+                            Order = 0
+                        },
+                        new
+                        {
+                            EnvironmentId = 6,
+                            Name = "Live",
+                            Order = 0
+                        });
                 });
 
             modelBuilder.Entity("NICE.Identity.Authorisation.WebAPI.DataModels.Job", b =>
