@@ -301,5 +301,19 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        //Assert
 	        organisation.Count().ShouldBe(0);
         }
+
+        [Fact]
+        public void Update_Organisation_Error_When_Adding_Duplicate()
+        {
+            //Arrange
+            var context = GetContext();
+            var organisationService = new OrganisationsService(context, _logger.Object);
+
+            organisationService.CreateOrganisation(new ApiModels.Organisation {Name = "NICE"});
+            organisationService.CreateOrganisation(new ApiModels.Organisation { Name = "ExistingOrg" });
+
+            //Act + Assert
+            Should.Throw<Exception>(() => organisationService.UpdateOrganisation(1, new ApiModels.Organisation() { Name = "existingOrg" }));
+        }
     }
 }
