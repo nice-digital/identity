@@ -34,7 +34,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             try
             {
                 var organisationToCreate = new DataModels.Organisation();
-                organisationToCreate.UpdateFromApiModel(organisation, DateTime.UtcNow);
+                organisationToCreate.UpdateFromApiModel(organisation, true);
                 var createdOrganisation = _context.Organisations.Add(organisationToCreate);
                 _context.SaveChanges();
                 return new Organisation(createdOrganisation.Entity);
@@ -67,7 +67,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 if (organisationToUpdate == null)
                     throw new Exception($"Organisation not found {organisationId.ToString()}");
 
-                organisationToUpdate.UpdateFromApiModel(organisation);
+                organisationToUpdate.UpdateFromApiModel(organisation, false);
                 _context.SaveChanges();
                 return new Organisation(organisationToUpdate);
             }

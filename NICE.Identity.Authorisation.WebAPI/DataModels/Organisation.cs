@@ -15,15 +15,15 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         }
         public int OrganisationId { get; set; }
         public string Name { get; set; }
-        public DateTime? DateAdded { get; set; }
+        public DateTime? DateAdded { get; set; } = DateTime.UtcNow;
         public ICollection<OrganisationRole> OrganisationRoles { get; set; }
         public ICollection<Job> Jobs { get; set; }
 
-        public void UpdateFromApiModel(ApiModels.Organisation organisation, DateTime? dateAdded = null)
+        public void UpdateFromApiModel(ApiModels.Organisation organisation, bool create)
         {
             OrganisationId = organisation?.OrganisationId ?? OrganisationId;
             Name = organisation?.Name ?? Name;
-            DateAdded = dateAdded ?? organisation?.DateAdded;
+            DateAdded = create ? DateAdded : organisation.DateAdded;
         }
     }
 }
