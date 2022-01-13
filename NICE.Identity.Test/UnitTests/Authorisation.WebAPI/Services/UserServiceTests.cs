@@ -261,19 +261,27 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         public async Task Update_user_that_already_exists()
         {
             //Arrange
+            var originalEmailAddress = "original.email.address@email.com";
+            var changedEmailAddress = "changed.email.address@email.com";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
-            var user = new ApiModels.User(){ EmailAddress = "existing.user@email.com", FirstName = "Joe"};
+            var user = new ApiModels.User(){ EmailAddress = originalEmailAddress, FirstName = "Joe"};
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
             var userToUpdate = userService.GetUser(createdUserId.Value);
             userToUpdate.FirstName = "John";
-            var updatedUser = await userService.UpdateUser(createdUserId.Value, userToUpdate);
+            userToUpdate.EmailAddress = changedEmailAddress;
+            var updatedUser = await userService.UpdateUser(createdUserId.Value, userToUpdate, null);
 
             //Assert
             context.Users.ToList().Count.ShouldBe(1);
+            context.UserEmailHistory.ToList().Count.ShouldBe(1);
             updatedUser.FirstName.ShouldBe("John");
+            updatedUser.EmailAddress.ShouldBe(changedEmailAddress);
+            var emailRecord = context.UserEmailHistory.Single();
+            emailRecord.UserId.ShouldBe(updatedUser.UserId);
+            emailRecord.EmailAddress.ShouldBe(originalEmailAddress);
         }
 
         [Fact]
@@ -291,7 +299,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             };
 
             //Act + Assert
-            Assert.ThrowsAsync<NullReferenceException>(async () => await userService.UpdateUser(nonExistingUserId, userToUpdate));
+            Assert.ThrowsAsync<NullReferenceException>(async () => await userService.UpdateUser(nonExistingUserId, userToUpdate, null));
             context.Users.Count().ShouldBe(0);
         }
 
@@ -650,5 +658,152 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        context.Users.Single().NameIdentifier.ShouldBe(user1NameIdentifier);
         }
 
+        [Fact]
+        public async Task GetUserWithSingleEmailAuditRecord()
+        {
+	        //Arrange
+	        const string originalEmailAddress = "original@example.com";
+	        const string updatedEmailAddress = "updated@example.com";
+            const string adminNameIdentifier = "admin";
+            const string userNameIdentifier = "user";
+            var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+	        var adminUser = new ApiModels.User { NameIdentifier = adminNameIdentifier, EmailAddress = "admin@example.com"};
+	        var createdAdminUser = userService.CreateUser(adminUser);
+
+            var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
+	        var createdUser = userService.CreateUser(user);
+	        createdUser.EmailAddress = updatedEmailAddress;
+	        var updatedUser = await userService.UpdateUser(createdUser.UserId.Value, createdUser, adminNameIdentifier);
+
+            //Act
+            var userWithAudit = userService.GetUser(updatedUser.UserId.Value);
+
+            //Assert
+            userWithAudit.EmailAddress.ShouldBe(updatedEmailAddress);
+            var emailHistoryRecord = userWithAudit.UserEmailHistory.Single();
+            
+            emailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+            emailHistoryRecord.EmailAddress.ShouldBe(originalEmailAddress);
+
+            emailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
+            emailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
+        }
+
+        [Fact]
+        public async Task GetUserWithMultipleEmailAuditRecord()
+        {
+	        //Arrange
+	        const string originalEmailAddress = "original@example.com";
+	        const string updatedEmailAddress1 = "updated@example.com";
+	        const string updatedEmailAddress2 = "second.update@example.com";
+            const string adminNameIdentifier = "admin";
+	        const string userNameIdentifier = "user";
+	        var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+	        var adminUser = new ApiModels.User { NameIdentifier = adminNameIdentifier, EmailAddress = "admin@example.com" };
+	        var createdAdminUser = userService.CreateUser(adminUser);
+
+	        var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
+	        var createdUser = userService.CreateUser(user);
+	        createdUser.EmailAddress = updatedEmailAddress1;
+	        var updatedUser = await userService.UpdateUser(createdUser.UserId.Value, createdUser, adminNameIdentifier);
+	        updatedUser.EmailAddress = updatedEmailAddress2;
+	        updatedUser = await userService.UpdateUser(createdUser.UserId.Value, updatedUser, adminNameIdentifier);
+
+            //Act
+            var userWithAudit = userService.GetUser(updatedUser.UserId.Value);
+
+	        //Assert
+	        userWithAudit.EmailAddress.ShouldBe(updatedEmailAddress2);
+	        userWithAudit.UserEmailHistory.Count().ShouldBe(2);
+	        var firstEmailHistoryRecord = userWithAudit.UserEmailHistory.First();
+	        var secondEmailHistoryRecord = userWithAudit.UserEmailHistory.Skip(1).First();
+
+	        firstEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+	        firstEmailHistoryRecord.EmailAddress.ShouldBe(originalEmailAddress);
+
+	        firstEmailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
+	        firstEmailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
+
+	        secondEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+	        secondEmailHistoryRecord.EmailAddress.ShouldBe(updatedEmailAddress1);
+
+	        secondEmailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
+	        secondEmailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
+        }
+
+        [Fact]
+        public async Task Find_users_finds_users_based_on_old_emails()
+        {
+            //Arrange
+            const string originalEmailAddress = "original@example.com";
+            const string updatedEmailAddress = "updated@example.com";
+            const string adminNameIdentifier = "admin";
+            const string userNameIdentifier = "user";
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            
+            var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
+            var createdUser = userService.CreateUser(user);
+            createdUser.EmailAddress = updatedEmailAddress;
+            await userService.UpdateUser(createdUser.UserId.Value, createdUser, adminNameIdentifier);
+
+            //Act
+            var usersFound = context.FindUsers(originalEmailAddress);
+
+	        //Assert
+	        usersFound.Single().EmailAddress.ShouldBe(updatedEmailAddress);
+        }
+
+        [Fact]
+        public void Updating_email_address_to_an_existing_current_email_address_throws_exception()
+        {
+	        //Arrange
+	        const string user1Email = "user1s.email@example.com";
+	        var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+	        
+	        var user1 = new ApiModels.User { NameIdentifier = "user1", EmailAddress = user1Email };
+	        userService.CreateUser(user1);
+
+	        var user2 = new ApiModels.User { NameIdentifier = "user2", EmailAddress = "user2s.email@example.com" };
+	        var createdUser2 = userService.CreateUser(user2);
+
+	        createdUser2.EmailAddress = user1Email;
+
+            //Act + Assert
+            Assert.ThrowsAsync<ApplicationException>(async() => await userService.UpdateUser(createdUser2.UserId.Value, createdUser2, null));
+            context.Users.Count(u => u.EmailAddress.Equals(user1Email)).ShouldBe(1);
+        }
+
+        [Fact]
+        public async Task Updating_email_address_to_an_previous_email_of_same_user_works()
+        {
+	        //Arrange
+	        const string firstEmail = "first.email@example.com";
+	        const string secondEmail = "second.email@example.com";
+
+            var context = GetContext();
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+
+	        var userModel = new ApiModels.User { NameIdentifier = "user1", EmailAddress = firstEmail };
+	        var createdUser = userService.CreateUser(userModel);
+
+	        createdUser.EmailAddress = secondEmail;
+	        var updatedUser = await userService.UpdateUser(createdUser.UserId.Value, createdUser, null);
+
+	        updatedUser.EmailAddress = firstEmail;
+
+            //Act
+            var updatedAgainUser = await userService.UpdateUser(updatedUser.UserId.Value, updatedUser, null);
+
+            //Assert
+            updatedAgainUser.EmailAddress.ShouldBe(firstEmail);
+        }
     }
 }

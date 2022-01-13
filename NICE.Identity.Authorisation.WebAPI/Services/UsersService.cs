@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -21,7 +22,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		IList<User> GetUsers(string filter);
 		IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
-		Task<User> UpdateUser(int userId, User user);
+		Task<User> UpdateUser(int userId, User user, string nameIdentifierOfUserUpdatingRecord);
         Task<int> DeleteUser(int userId);
 		void ImportUsers(IList<ImportUser> usersToImport);
         UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId);
@@ -82,7 +83,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 		public User GetUser(int userId)
 		{
-			var user = _context.Users.Where((u => u.UserId == userId)).FirstOrDefault();
+			var user = _context.Users
+				.Include(u => u.UserEmailHistory)
+					.ThenInclude(u => u.ArchivedByUser)
+				.Where(u => u.UserId.Equals(userId))
+				.FirstOrDefault();
+			
 			return user != null ? new User(user) : null;
 		}
 
@@ -108,20 +114,73 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					.Select(role => role.Role.Name));
 		}
 
-		public async Task<User> UpdateUser(int userId, User user)
+		/// <summary>
+		/// UpdateUser
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="user"></param>
+		/// <param name="nameIdentifierOfUserUpdatingRecord">this could be null if the user is updated when calling the api via postman + client credentials grant. it will be not null when using the identity management site.</param>
+		/// <returns></returns>
+		public async Task<User> UpdateUser(int userId, User user, string nameIdentifierOfUserUpdatingRecord)
 		{
 			try
 			{
-				var userToUpdate = _context.Users.Find(userId);
+                var userToUpdate = _context.GetUser(userId);
 
 				if (userToUpdate == null)
 					throw new Exception($"User not found {userId.ToString()}");
 
-				userToUpdate.UpdateFromApiModel(user);
+				var emailAddressUpdated = (user.EmailAddress != null) && !userToUpdate.EmailAddress.Equals(user.EmailAddress, StringComparison.OrdinalIgnoreCase);
+				if  (emailAddressUpdated)
+				{
+					//todo: verify email address isn't in use
+					var usersWithMatchingEmailAddress = _context.Users.Where(u => EF.Functions.Like(u.EmailAddress, user.EmailAddress)).ToList();
+					if (usersWithMatchingEmailAddress.Any())
+					{
+						if (usersWithMatchingEmailAddress.Count > 1)
+						{
+							throw new ValidationException("Multiple users found with same email address."); //shouldn't be possible
+						}
 
-                if (userToUpdate.IsInAuthenticationProvider)
+						var userWithMatchingEmailAddress = usersWithMatchingEmailAddress.Single();
+						if (!userWithMatchingEmailAddress.NameIdentifier.Equals(userToUpdate.NameIdentifier, StringComparison.OrdinalIgnoreCase))
+						{
+							throw new ValidationException("Email address is already in use");
+						}
+						//currently we're allowing you to set your email address to a previous one in your history only. if that decision changes, this would be the place to implement it.
+					}
+
+					if (userToUpdate.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase) &&
+					    !user.EmailAddress.EndsWith(Constants.Email.StaffEmailAddressEndsWith, StringComparison.OrdinalIgnoreCase))
+					{
+						throw new ValidationException($"A staff email address ending with '{Constants.Email.StaffEmailAddressEndsWith}' cannot be changed to a non-staff email address.");
+					}
+
+					int? userIdOfUserUpdatingRecord = null;
+					if (!string.IsNullOrEmpty(nameIdentifierOfUserUpdatingRecord))
+					{
+						userIdOfUserUpdatingRecord = _context.Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, nameIdentifierOfUserUpdatingRecord))?.UserId;
+					}
+
+					var emailArchiveRecord = new UserEmailHistory(userId, userToUpdate.EmailAddress, userIdOfUserUpdatingRecord, DateTime.UtcNow);
+
+					_context.UserEmailHistory.Add(emailArchiveRecord);
+				}
+
+				userToUpdate.UpdateFromApiModel(user);
+				if (emailAddressUpdated)
+				{
+					userToUpdate.HasVerifiedEmailAddress = false;
+				}
+
+				if (userToUpdate.IsInAuthenticationProvider)
                 {
                     await _providerManagementService.UpdateUser(userToUpdate.NameIdentifier, userToUpdate);
+
+                    if (emailAddressUpdated)
+                    {
+	                    await _providerManagementService.VerificationEmail(userToUpdate.NameIdentifier);
+                    }
                 }
 
 				_context.SaveChanges();
@@ -129,8 +188,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
-				throw new Exception($"Failed to update user {userId.ToString()} - exception: {e} - {e.InnerException}");
+				_logger.LogError($"Failed to update user {userId.ToString()} - exception: {e} - {e.ToString()}");
+				throw;
 			}
 		}
 
@@ -143,9 +202,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
                 var userRolesToDelete = _context.UserRoles.Where(u => u.UserId == userId);
                 var userAcceptedTermsVersionToDelete = _context.UserAcceptedTermsVersions.Where(u => u.UserId == userId);
+				var userEmailHistoryToDelete = _context.UserEmailHistory.Where(ueh => ueh.UserId.HasValue && ueh.UserId.Value.Equals(userId));
 
                 _context.UserRoles.RemoveRange(userRolesToDelete);
                 _context.UserAcceptedTermsVersions.RemoveRange(userAcceptedTermsVersionToDelete);
+				_context.UserEmailHistory.RemoveRange(userEmailHistoryToDelete);
                 _context.Users.RemoveRange(userToDelete);
 
                 if (userToDelete.IsInAuthenticationProvider)
@@ -426,5 +487,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
-    }
+	}
 }
