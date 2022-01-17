@@ -56,7 +56,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             organisationService.CreateOrganisation(new ApiModels.Organisation { Name = "ExistingOrg" });
 
             //Act + Assert
-            Should.Throw<Exception>(() => organisationService.CreateOrganisation(new ApiModels.Organisation() { Name = "existingOrg" }));
+            Should.Throw<Exception>(() => organisationService.CreateOrganisation(new ApiModels.Organisation() { Name = "existingOrg" }))
+                .Message.ShouldBe("Failed to create organisation existingOrg - exception: Cannot add existingOrg, that organisation already exists");
         }
 
         [Fact]
@@ -326,7 +327,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             organisationService.CreateOrganisation(new ApiModels.Organisation { Name = "ExistingOrg" });
 
             //Act + Assert
-            Should.Throw<Exception>(() => organisationService.UpdateOrganisation(1, new ApiModels.Organisation() { Name = "existingOrg" }));
+            Should.Throw<Exception>(() => organisationService.UpdateOrganisation(1, new ApiModels.Organisation() { Name = "existingOrg" }))
+                .Message.ShouldBe("Failed to update organisation 1 - exception: Cannot add existingOrg, that organisation already exists");
         }
     }
 }
