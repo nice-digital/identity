@@ -47,6 +47,19 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
+        public void Create_organisation_errors_when_already_exists()
+        {
+            //Arrange
+            var context = GetContext();
+            var organisationService = new OrganisationsService(context, _logger.Object);
+
+            organisationService.CreateOrganisation(new ApiModels.Organisation { Name = "ExistingOrg" });
+
+            //Act + Assert
+            Should.Throw<Exception>(() => organisationService.CreateOrganisation(new ApiModels.Organisation() { Name = "existingOrg" }));
+        }
+
+        [Fact]
         public void Get_Organisations()
         {
             //Arrange
