@@ -31,12 +31,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public Organisation CreateOrganisation(Organisation organisation)
         {
-
-            if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
-                throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
-
             try
             {
+                if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
+                    throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
+
                 var organisationToCreate = new DataModels.Organisation();
                 organisationToCreate.UpdateFromApiModel(organisation, DateTime.UtcNow);
                 var createdOrganisation = _context.Organisations.Add(organisationToCreate);
