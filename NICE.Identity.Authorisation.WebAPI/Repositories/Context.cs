@@ -49,27 +49,35 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public List<User> FindUsers(string filter)
         {
-	        filter ??= "";
-            
-	        var userIdsWithMatchingEmailHistory = 
-		        UserEmailHistory
-			        .Where(ueh => EF.Functions.Like(ueh.EmailAddress, $"%{filter}%"))
-			        .Select(ueh => ueh.UserId.Value)
-			        .ToList();
+            filter ??= "";
 
-	        return Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
-	                                || (u.LastName != null && EF.Functions.Like(u.LastName, $"%{filter}%"))
-	                                || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
-	                                || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%"))
-	                                || (u.EmailAddress != null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
-	                                || (userIdsWithMatchingEmailHistory.Contains(u.UserId)))
+            var userIdsWithMatchingEmailHistory =
+                UserEmailHistory
+                    .Where(ueh => EF.Functions.Like(ueh.EmailAddress, $"%{filter}%"))
+                    .Select(ueh => ueh.UserId.Value)
+                    .ToList();
 
-		        .Include(users => users.UserRoles)
-					.ThenInclude(userRoles => userRoles.Role)
-						.ThenInclude(website => website.Website)
+            return Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
+                                    || (u.LastName != null && EF.Functions.Like(u.LastName, $"%{filter}%"))
+                                    || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
+                                    || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%"))
+                                    || (u.EmailAddress != null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
+                                    || (userIdsWithMatchingEmailHistory.Contains(u.UserId)))
 
-					.OrderByDescending(user => user.UserId)
-		        .ToList();
+                .Include(users => users.UserRoles)
+                    .ThenInclude(userRoles => userRoles.Role)
+                        .ThenInclude(website => website.Website)
+
+                    .OrderByDescending(user => user.UserId)
+                .ToList();
+        }
+
+        internal IEnumerable<User> GetUsersByOrganisationId(int organisationId)
+        {
+            return Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
+                           .Include(users => users)
+                            .Select(x => x.User)
+                           .ToList();
         }
 
 		public User CreateUser(User user, bool importing = false)

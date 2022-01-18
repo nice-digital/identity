@@ -31,7 +31,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
         Task<int> DeleteAllUsers();
         Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
-	}
+
+        IList<User> GetUsersByOrganisationId(int organisationId);
+    }
 
 	public class UsersService : IUsersService
 	{
@@ -487,5 +489,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
+		public IList<User> GetUsersByOrganisationId(int organisationId)
+		{
+			return _context.GetUsersByOrganisationId(organisationId)
+								.Select(user => new User(user))
+								.ToList();
+		}
 	}
+
 }
