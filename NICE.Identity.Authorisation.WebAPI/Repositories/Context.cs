@@ -46,6 +46,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ThenInclude(website => website.Website)
 		        .ToList();
         }
+        internal IEnumerable<User> GetUsersByOrganisationId(int organisationId)
+        {
+            return Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
+                           .Include(users => users)
+                            .Select(x => x.User)
+                           .ToList();
+        }
 
         public List<User> FindUsers(string filter)
         {
