@@ -10,7 +10,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
             migrationBuilder.AddColumn<DateTime>(
                 name: "DateAdded",
                 table: "Organisations",
-                nullable: true);
+                nullable: false,
+                defaultValueSql: "GetDate()");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
