@@ -67,11 +67,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(typeof(List<Organisation>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetOrganisations()
+        public IActionResult GetOrganisations([FromQuery(Name = "q")] string filter)
         {
             try
             {
-                return Ok(_organisationService.GetOrganisations());
+                return Ok(_organisationService.GetOrganisations(filter));
             }
             catch (Exception e)
             {

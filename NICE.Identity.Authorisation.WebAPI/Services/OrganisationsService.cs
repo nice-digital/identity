@@ -9,7 +9,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
     public interface IOrganisationsService
     {
-        List<Organisation> GetOrganisations();
+        List<Organisation> GetOrganisations(string filter);
         Organisation GetOrganisation(int organisationId);
         Organisation CreateOrganisation(Organisation organisation);
         Organisation UpdateOrganisation(int organisationId, Organisation organisation);
@@ -33,8 +33,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         {
             try
             {
+                if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
+                    throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
+
                 var organisationToCreate = new DataModels.Organisation();
-                organisationToCreate.UpdateFromApiModel(organisation);
+                organisationToCreate.UpdateFromApiModel(organisation, true);
                 var createdOrganisation = _context.Organisations.Add(organisationToCreate);
                 _context.SaveChanges();
                 return new Organisation(createdOrganisation.Entity);
@@ -46,9 +49,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<Organisation> GetOrganisations()
+        public List<Organisation> GetOrganisations(string filter = null)
         {
-            return _context.Organisations.Select(organisation => new Organisation(organisation)).ToList();
+            return _context.FindOrganisations(filter)
+                    .Select(organisation => new Organisation(organisation))
+                    .ToList();
         }
 
         public Organisation GetOrganisation(int organisationId)
@@ -65,7 +70,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 if (organisationToUpdate == null)
                     throw new Exception($"Organisation not found {organisationId.ToString()}");
 
-                organisationToUpdate.UpdateFromApiModel(organisation);
+                if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
+                    throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
+
+                organisationToUpdate.UpdateFromApiModel(organisation, false);
                 _context.SaveChanges();
                 return new Organisation(organisationToUpdate);
             }
