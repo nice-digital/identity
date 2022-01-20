@@ -4,7 +4,9 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
+using System.Data;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 
@@ -228,6 +230,47 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             deletedJobResponse.ShouldBe(0);
             context.Jobs.Count().ShouldBe(1);
+        }
+
+        [Fact]
+        public void Delete_All_Jobs_For_Organisation()
+        {
+            //Arrange
+            var context = GetContext();
+            var jobsService = new JobsService(context, _logger.Object);
+
+            var deletedOrgId = 1;
+
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
+            jobsService.CreateJob(new ApiModels.Job() 
+            {
+                UserId = 1,
+                OrganisationId = deletedOrgId,
+                IsLead = true
+            });
+
+            jobsService.CreateJob(new ApiModels.Job()
+            {
+                UserId = 2,
+                OrganisationId = deletedOrgId,
+                IsLead = true
+            });
+
+            jobsService.CreateJob(new ApiModels.Job()
+            {
+                UserId = 1,
+                OrganisationId = 2,
+                IsLead = true
+            });
+
+            //Act
+            jobsService.DeleteAllJobsForOrganisation(deletedOrgId);
+
+            //Assert
+            var modifiedCount = context.ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted).Count();
+
+            modifiedCount.ShouldBe(2);
         }
     }
 }
