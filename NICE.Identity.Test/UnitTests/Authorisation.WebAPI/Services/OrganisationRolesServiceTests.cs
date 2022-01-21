@@ -4,6 +4,7 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 
@@ -160,6 +161,44 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             deletedOrganisationRoleResponse.ShouldBe(0);
             context.OrganisationRoles.Count().ShouldBe(1);
+        }
+
+        [Fact]
+        public void Delete_All_Jobs_For_Organisation()
+        {
+            //Arrange
+            var context = GetContext();
+            var organisationRolesService = new OrganisationRolesService(context, _logger.Object);
+
+            var deletedOrgId = 1;
+
+            TestData.AddUser(ref context);
+            TestData.AddOrganisation(ref context);
+            organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
+            {
+                OrganisationId = deletedOrgId,
+                RoleId = 1
+            });
+
+            organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
+            {
+                OrganisationId = deletedOrgId,
+                RoleId = 2
+            });
+
+            organisationRolesService.CreateOrganisationRole(new ApiModels.OrganisationRole()
+            {
+                OrganisationId = 2,
+                RoleId = 1
+            });
+
+            //Act
+            organisationRolesService.DeleteAllOrganisationRolesForOrganisation(deletedOrgId);
+
+            //Assert
+            var modifiedCount = context.ChangeTracker.Entries().Count(x => x.State == EntityState.Deleted);
+
+            modifiedCount.ShouldBe(2);
         }
     }
 }

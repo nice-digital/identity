@@ -4,7 +4,6 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System;
-using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -268,7 +267,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             jobsService.DeleteAllJobsForOrganisation(deletedOrgId);
 
             //Assert
-            var modifiedCount = context.ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted).Count();
+            var modifiedCount = context.ChangeTracker.Entries().Count(x => x.State == EntityState.Deleted);
 
             modifiedCount.ShouldBe(2);
         }

@@ -15,11 +15,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
     {
         private readonly Mock<ILogger<OrganisationsService>> _logger;
         private readonly Mock<IJobsService> _jobService;
+        private readonly Mock<IOrganisationRolesService> _organisationRolesService;
 
         public OrganisationsServiceTests()
         {
             _logger = new Mock<ILogger<OrganisationsService>>();
             _jobService = new Mock<IJobsService>();
+            _organisationRolesService = new Mock<IOrganisationRolesService>();
         }
 
         [Fact]
@@ -27,7 +29,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             var expectedDateAdded = DateTime.UtcNow;
             //Act
             var createdOrganisation = organisationService.CreateOrganisation(new ApiModels.Organisation()
@@ -53,7 +55,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 
             organisationService.CreateOrganisation(new ApiModels.Organisation { Name = "ExistingOrg" });
 
@@ -67,7 +69,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             organisationService.CreateOrganisation(new ApiModels.Organisation
             {
                 Name = "Organisation1",
@@ -91,7 +93,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             organisationService.CreateOrganisation(new ApiModels.Organisation
             {
                 Name = "Organisation1",
@@ -118,7 +120,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             var createdOrganisationId = organisationService.CreateOrganisation(new ApiModels.Organisation
             {
                 Name = "Organisation",
@@ -137,7 +139,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             organisationService.CreateOrganisation(new ApiModels.Organisation() { Name = "Organisation" });
 
             //Act
@@ -152,7 +154,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 
             var createdOrganisation = organisationService.CreateOrganisation(new ApiModels.Organisation
             {
@@ -179,7 +181,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 
             var createdOrganisation = organisationService.CreateOrganisation(new ApiModels.Organisation
             {
@@ -204,7 +206,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             var organisationToUpdate = new ApiModels.Organisation() { Name = "Updated Organisation" };
 
             //Act + Assert
@@ -216,7 +218,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             var createdOrganisation = organisationService.CreateOrganisation(new ApiModels.Organisation
             {
                 Name = "Organisation1",
@@ -239,7 +241,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
             organisationService.CreateOrganisation(new ApiModels.Organisation
             {
                 Name = "Organisation",
@@ -258,7 +260,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
 	        //Arrange
 	        var context = GetContext();
-	        var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+	        var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 	        var organisationName = "Organisation";
 	        var createdOrganisationId = organisationService.CreateOrganisation(new ApiModels.Organisation
 	        {
@@ -278,7 +280,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
 	        //Arrange
 	        var context = GetContext();
-	        var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+	        var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 	        var organisationName1 = "Organisation1";
 	        var createdOrganisationId1 = organisationService.CreateOrganisation(new ApiModels.Organisation
 	        {
@@ -304,7 +306,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
 	        //Arrange
 	        var context = GetContext();
-	        var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+	        var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 	        var organisationName = "Organisation";
 	        var createdOrganisationId = organisationService.CreateOrganisation(new ApiModels.Organisation
 	        {
@@ -323,7 +325,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object);
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
 
             organisationService.CreateOrganisation(new ApiModels.Organisation {Name = "NICE"});
             organisationService.CreateOrganisation(new ApiModels.Organisation { Name = "ExistingOrg" });
