@@ -14,6 +14,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Job GetJob(int jobId);
         Job UpdateJob(int jobId, Job job);
         int DeleteJob(int jobId);
+        void DeleteAllJobsForOrganisation(int organisationId);
     }
 
     public class JobsService : IJobsService
@@ -88,6 +89,30 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             {
                 _logger.LogError($"Failed to delete job {jobId.ToString()} - exception: {e.Message}");
                 throw new Exception($"Failed to delete job {jobId.ToString()} - exception: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Delete all jobs relating to an organisation
+        /// </summary>
+        /// <param name="organisationId"></param>
+        /// <returns></returns>
+        public void DeleteAllJobsForOrganisation(int organisationId)
+        {
+            try
+            {
+                var jobToDelete = _context.Jobs.Where((j => j.OrganisationId == organisationId)).ToList();
+
+                foreach (var job in jobToDelete)
+                {
+                    _context.Jobs.RemoveRange(job);
+                }
+                // SaveChanges() is done in the DeleteOrganisation method to avoid foreign key constraints
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete jobs for organisation {organisationId.ToString()} - exception: {e.Message}");
+                throw new Exception($"Failed to delete jobs for organisation  {organisationId.ToString()} - exception: {e.Message}");
             }
         }
     }

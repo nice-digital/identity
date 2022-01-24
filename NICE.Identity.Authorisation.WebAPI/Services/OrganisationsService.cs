@@ -22,11 +22,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         private readonly IdentityContext _context;
         private readonly ILogger<OrganisationsService> _logger;
+        private readonly IJobsService _jobsService;
+        private readonly IOrganisationRolesService _organisationRolesService;
 
-        public OrganisationsService(IdentityContext context, ILogger<OrganisationsService> logger)
+        public OrganisationsService(IdentityContext context, ILogger<OrganisationsService> logger, IJobsService jobsService, IOrganisationRolesService organisationRolesService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _jobsService = jobsService;
+            _organisationRolesService = organisationRolesService;
         }
 
         public Organisation CreateOrganisation(Organisation organisation)
@@ -91,7 +95,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 var organisationToDelete = _context.Organisations.Find(organisationId);
                 if (organisationToDelete == null)
                     return 0;
+
                 _context.Organisations.RemoveRange(organisationToDelete);
+                _jobsService.DeleteAllJobsForOrganisation(organisationId);
+                _organisationRolesService.DeleteAllOrganisationRolesForOrganisation(organisationId);
+                
+                
                 return _context.SaveChanges();
             }
             catch (Exception e)
