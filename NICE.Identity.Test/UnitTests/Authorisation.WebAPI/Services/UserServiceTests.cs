@@ -258,6 +258,36 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
+        public void Get_users_by_organisation_id()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+
+            var user1 = new ApiModels.User { UserId = 1, NameIdentifier = "auth|user1", EmailAddress = "user1@example.com" };
+            var createdUser1 = userService.CreateUser(user1);
+
+            var Joblogger = new Mock<ILogger<JobsService>>();
+            var jobsService = new JobsService(context, Joblogger.Object);
+            TestData.AddOrganisation(ref context);
+
+            var createdJob = jobsService.CreateJob(new ApiModels.Job()
+            {
+                UserId = 1,
+                OrganisationId = 1,
+                IsLead = true
+            });
+
+            //Act
+            var users = userService.GetUsersByOrganisationId(1);
+
+            //Assert
+            context.Users.Count().ShouldBe(1);
+            users.Count().ShouldBe(1);
+            users.First(u => u.UserId == createdUser1.UserId).NameIdentifier.ShouldBe("auth|user1");
+        }
+
+        [Fact]
         public async Task Update_user_that_already_exists()
         {
             //Arrange
