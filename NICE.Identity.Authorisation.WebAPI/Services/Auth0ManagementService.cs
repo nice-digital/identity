@@ -162,7 +162,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	        }
         }
 
-		//this function was moved from the verificationemailservice to here, as it belongs here.
+		/// <summary>
+		/// VerificationEmail - this function was moved from the verificationemailservice to here.
+		/// </summary>
+		/// <param name="authenticationProviderUserId">this is the NameIdentifier of the User - not the UserId.</param>
+		/// <returns></returns>
 		public async Task<Auth0.ManagementApi.Models.Job> VerificationEmail(string authenticationProviderUserId)
 		{
 			if (string.IsNullOrWhiteSpace(authenticationProviderUserId))
