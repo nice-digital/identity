@@ -267,6 +267,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var user1 = new ApiModels.User { UserId = 1, NameIdentifier = "auth|user1", EmailAddress = "user1@example.com" };
             var createdUser1 = userService.CreateUser(user1);
 
+            var user2 = new ApiModels.User { UserId = 2, NameIdentifier = "auth|user2", EmailAddress = "user2@example.com" };
+            var createdUser2 = userService.CreateUser(user2);
+
             var Joblogger = new Mock<ILogger<JobsService>>();
             var jobsService = new JobsService(context, Joblogger.Object);
             TestData.AddOrganisation(ref context);
@@ -282,7 +285,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var users = userService.GetUsersByOrganisationId(1);
 
             //Assert
-            context.Users.Count().ShouldBe(1);
+            context.Users.Count().ShouldBe(2);
             users.Count().ShouldBe(1);
             users.First(u => u.UserId == createdUser1.UserId).NameIdentifier.ShouldBe("auth|user1");
         }
