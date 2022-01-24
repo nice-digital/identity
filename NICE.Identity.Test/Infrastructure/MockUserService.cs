@@ -86,10 +86,5 @@ namespace NICE.Identity.Test.Infrastructure
 		{
 			throw new NotImplementedException();
 		}
-
-        public IList<User> GetUsersByOrganisationId(int organisationId)
-        {
-            throw new NotImplementedException();
-        }
 	}
 }
