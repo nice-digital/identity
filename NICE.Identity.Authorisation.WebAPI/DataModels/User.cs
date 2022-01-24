@@ -60,6 +60,8 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public bool IsInAuthenticationProvider { get; set; }
 
 		public ICollection<UserRole> UserRoles { get; set; }
+		public ICollection<UserEmailHistory> UserEmailHistory { get; set; }
+		public ICollection<UserEmailHistory> ArchivedUserEmailHistory { get; set; }
         public ICollection<TermsVersion> UserCreatedTermsVersions { get; set; }
         public ICollection<UserAcceptedTermsVersion> UserAcceptedTermsVersions { get; set; }
         public ICollection<Job> Jobs { get; set; }

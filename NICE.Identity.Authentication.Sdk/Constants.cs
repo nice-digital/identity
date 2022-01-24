@@ -32,5 +32,10 @@
 		{
 			public const string PermissionDeniedRedirectPath = "PermissionDeniedRedirectPath";
 		}
+
+		public static class Email
+		{
+			public const string StaffEmailAddressEndsWith = "@nice.org.uk";
+		}
 	}
 }

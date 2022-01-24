@@ -28,8 +28,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         {
             var result = Users.Where(users => users.UserId.Equals(userId))
                 .Include(users => users.UserRoles)
-                .ThenInclude(userRoles => userRoles.Role)
-                .ThenInclude(website => website.Website)
+                    .ThenInclude(userRoles => userRoles.Role)
+                    .ThenInclude(website => website.Website)
+                .Include(email => email.UserEmailHistory)
+                    .ThenInclude(archived => archived.ArchivedByUser)
                 .ToList();
 
             return !result.Any() ? null : result.Single();
@@ -48,18 +50,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         public List<User> FindUsers(string filter)
         {
 	        filter ??= "";
+            
+	        var userIdsWithMatchingEmailHistory = 
+		        UserEmailHistory
+			        .Where(ueh => EF.Functions.Like(ueh.EmailAddress, $"%{filter}%"))
+			        .Select(ueh => ueh.UserId.Value)
+			        .ToList();
 
 	        return Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
 	                                || (u.LastName != null && EF.Functions.Like(u.LastName, $"%{filter}%"))
 	                                || (u.FirstName != null && u.LastName != null && EF.Functions.Like(u.FirstName + " " + u.LastName, $"%{filter}%"))
+	                                || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%"))
 	                                || (u.EmailAddress != null && EF.Functions.Like(u.EmailAddress, $"%{filter}%"))
-	                                || (u.NameIdentifier != null && EF.Functions.Like(u.NameIdentifier, $"%{filter}%")))
+	                                || (userIdsWithMatchingEmailHistory.Contains(u.UserId)))
 
 		        .Include(users => users.UserRoles)
-		        .ThenInclude(userRoles => userRoles.Role)
-		        .ThenInclude(website => website.Website)
+					.ThenInclude(userRoles => userRoles.Role)
+						.ThenInclude(website => website.Website)
 
-                .OrderByDescending(user => user.UserId)
+					.OrderByDescending(user => user.UserId)
 		        .ToList();
         }
 
