@@ -283,7 +283,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             var createdJob2 = jobsService.CreateJob(new ApiModels.Job()
             {
-                UserId = 1,
+                UserId = 2,
                 OrganisationId = 2,
                 IsLead = true
             });
