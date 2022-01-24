@@ -177,31 +177,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public void Update_organisation_with_null_value_for_dateAdded()
-        {
-            //Arrange
-            var context = GetContext();
-            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
-
-            var createdOrganisation = organisationService.CreateOrganisation(new ApiModels.Organisation
-            {
-                Name = "Organisation",
-            });
-            createdOrganisation.DateAdded = null;
-            var createdOrganisationId = createdOrganisation.OrganisationId.GetValueOrDefault();
-
-            //Act
-            var updatedOrganisation = createdOrganisation;
-            updatedOrganisation.Name = "Organisation Updated";
-            updatedOrganisation = organisationService.UpdateOrganisation(createdOrganisationId, updatedOrganisation);
-            var organisation = organisationService.GetOrganisation(createdOrganisationId);
-
-            //Assert
-            //dateAdded column for records prior to the dateAdded column should remain null
-            updatedOrganisation.DateAdded.ShouldBe(null);
-        }
-
-        [Fact]
         public void Update_organisation_that_does_not_exist()
         {
             //Arrange

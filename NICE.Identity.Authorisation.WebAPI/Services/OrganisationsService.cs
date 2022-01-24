@@ -41,7 +41,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
 
                 var organisationToCreate = new DataModels.Organisation();
-                organisationToCreate.UpdateFromApiModel(organisation, true);
+                organisationToCreate.UpdateFromApiModel(organisation);
                 var createdOrganisation = _context.Organisations.Add(organisationToCreate);
                 _context.SaveChanges();
                 return new Organisation(createdOrganisation.Entity);
@@ -77,7 +77,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
                     throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
 
-                organisationToUpdate.UpdateFromApiModel(organisation, false);
+                organisationToUpdate.UpdateFromApiModel(organisation);
                 _context.SaveChanges();
                 return new Organisation(organisationToUpdate);
             }
