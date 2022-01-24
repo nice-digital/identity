@@ -23,7 +23,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         {
             OrganisationId = organisation?.OrganisationId ?? OrganisationId;
             Name = organisation?.Name ?? Name;
-            DateAdded = create ? DateAdded : organisation.DateAdded;
+            DateAdded = organisation?.DateAdded ?? DateAdded;
         }
     }
 }
