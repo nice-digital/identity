@@ -42,7 +42,7 @@ namespace NICE.Identity.Test.Infrastructure
 		{
 			throw new NotImplementedException();
 		}
-		
+
 		public Task<int> DeleteUser(int userId)
 		{
 			throw new NotImplementedException();
@@ -53,36 +53,42 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-        public UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId)
-        {
-            throw new NotImplementedException();
-        }
+		public UserRolesByWebsite GetRolesForUserByWebsite(int userId, int websiteId)
+		{
+			throw new NotImplementedException();
+		}
 
-        public async Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
-        {
-            throw new NotImplementedException();
-        }
+		public async Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite)
+		{
+			throw new NotImplementedException();
+		}
 
-        public IList<UserRole> GetRolesForUser(int userId)
-        {
-            throw new NotImplementedException();
-        }
+		public IList<UserRole> GetRolesForUser(int userId)
+		{
+			throw new NotImplementedException();
+		}
 
-        public IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
-        {
-            throw new NotImplementedException();
-        }
+		public IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate)
+		{
+			throw new NotImplementedException();
+		}
 
-        public Task<int> DeleteAllUsers()
-        {
-	        throw new NotImplementedException();
-        }
+		public Task<int> DeleteAllUsers()
+		{
+			throw new NotImplementedException();
+		}
 
-        public Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
-        {
-	        throw new NotImplementedException();
-        }
-        Task<User> UpdateUser(int userId, User user)
+		public Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
+		{
+			throw new NotImplementedException();
+		}
+
+		Task<User> UpdateUser(int userId, User user)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IList<User> GetUsersByOrganisationId(int organisationId)
 		{
 			throw new NotImplementedException();
 		}
