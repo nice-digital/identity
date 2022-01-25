@@ -209,6 +209,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         public Website GetWebsite(int websiteId)
         {
             return Websites.Include(w => w.Environment)
+                .Include(w => w.Service)
                 .Where((w => w.WebsiteId == websiteId))
                 .FirstOrDefault();
         }
