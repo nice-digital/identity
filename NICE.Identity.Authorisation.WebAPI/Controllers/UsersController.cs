@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authentication.Sdk.Domain;
+using NICE.Identity.Authentication.Sdk.Extensions;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
@@ -122,12 +123,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 			}
 		}
 
-		/// <summary>
-		/// get list of all users given in the nameIdentifiers parameter
-		/// </summary>
-		/// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
-		/// <returns></returns>
-		[HttpPost(Constants.AuthorisationURLs.FindUsersRoute)]
+        /// <summary>
+        /// get list of all users given in the nameIdentifiers parameter
+        /// </summary>
+        /// <param name="nameIdentifiers">this was the auth0UserId, now it's the "Name identifier"</param>
+        /// <returns></returns>
+        [HttpPost(Constants.AuthorisationURLs.FindUsersRoute)]
 		[ProducesResponseType(typeof(List<UserDetails>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		[Produces("application/json")]
@@ -177,6 +178,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [HttpPut("{userId}", Name = "UpdateUser")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
@@ -193,7 +195,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 
             try
             {
-                return Ok(await _usersService.UpdateUser(userId, user));
+	            var nameIdentifierOfUserUpdatingRecord =
+		            User.NameIdentifier(); //this could be null if the user is updated when calling the api via postman + client credentials grant. it will be not null when using the identity management site.
+
+	            return Ok(await _usersService.UpdateUser(userId, user, nameIdentifierOfUserUpdatingRecord));
+            }
+            catch (ValidationException ve)
+            {
+	            return StatusCode((int)HttpStatusCode.UnprocessableEntity, new ProblemDetails { Status = (int)HttpStatusCode.UnprocessableEntity, Title=$"{ve.Message}" }); //using http status code 422 to tell the front-end to show a validation message rather than a big error screen.
             }
             catch (Exception e)
             {

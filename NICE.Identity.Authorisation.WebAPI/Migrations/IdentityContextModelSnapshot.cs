@@ -274,6 +274,42 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.ToTable("UserAcceptedTermsVersion");
                 });
 
+            modelBuilder.Entity("NICE.Identity.Authorisation.WebAPI.DataModels.UserEmailHistory", b =>
+                {
+                    b.Property<int>("UserEmailHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("UserEmailHistoryID")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("ArchivedByUserId")
+                        .IsRequired()
+                        .HasColumnName("ArchivedByUserID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ArchivedDateUTC")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(320)")
+                        .HasMaxLength(320);
+
+                    b.Property<int?>("UserId")
+                        .IsRequired()
+                        .HasColumnName("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserEmailHistoryId");
+
+                    b.HasIndex("ArchivedByUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserEmailHistory");
+                });
+
             modelBuilder.Entity("NICE.Identity.Authorisation.WebAPI.DataModels.UserRole", b =>
                 {
                     b.Property<int>("UserRoleId")
@@ -389,6 +425,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .WithMany("UserAcceptedTermsVersions")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_UserAcceptedTermsVersion_User")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NICE.Identity.Authorisation.WebAPI.DataModels.UserEmailHistory", b =>
+                {
+                    b.HasOne("NICE.Identity.Authorisation.WebAPI.DataModels.User", "ArchivedByUser")
+                        .WithMany("ArchivedUserEmailHistory")
+                        .HasForeignKey("ArchivedByUserId")
+                        .HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NICE.Identity.Authorisation.WebAPI.DataModels.User", "User")
+                        .WithMany("UserEmailHistory")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK_UserEmailHistory_User_Users")
                         .IsRequired();
                 });
 
