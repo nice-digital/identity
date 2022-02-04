@@ -6,7 +6,9 @@ using NICE.Identity.Authorisation.WebAPI.Services;
 using NICE.Identity.Test.Infrastructure;
 using Shouldly;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
+using DataModels = NICE.Identity.Authorisation.WebAPI.DataModels;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
@@ -273,6 +275,42 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             deletedWebsiteResponse.ShouldBe(0);
+        }
+
+        [Fact]
+        public async Task Get_Users_And_Roles_For_Website()
+        {
+            //Arrange
+            var websiteId = 1;
+            var context = GetContext();
+            var websitesService = new WebsitesService(context, _logger.Object);
+
+            context.Users.Add(new DataModels.User() { NameIdentifier = "user1", EmailAddress = "first.email@example.com" });
+            context.Users.Add(new DataModels.User() { NameIdentifier = "user2", EmailAddress = "second.email@example.com" });
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test" });
+            context.Services.Add(new DataModels.Service() { ServiceId = 1, Name = "Service" });
+            context.Websites.Add(new DataModels.Website() { WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"});
+            context.Roles.Add(new DataModels.Role() { RoleId = 1, WebsiteId = 1, Name = "TestRole1" });
+            context.Roles.Add(new DataModels.Role() { RoleId = 2, WebsiteId = 1, Name = "TestRole2" });
+            context.UserRoles.Add(new DataModels.UserRole() { RoleId = 1, UserId = 1 });
+            context.UserRoles.Add(new DataModels.UserRole() { RoleId = 2, UserId = 1 });
+            context.UserRoles.Add(new DataModels.UserRole() { RoleId = 2, UserId = 2 });
+            context.SaveChanges();
+
+            //Act
+            var usersAndRoles = websitesService.GetRolesAndUsersForWebsite(websiteId);
+
+            //Assert
+            usersAndRoles.Count().ShouldBe(2);
+
+            usersAndRoles.First().NameIdentifier.ShouldBe("user1");
+            usersAndRoles.First().Roles.Count().ShouldBe(2);
+            usersAndRoles.First().Roles.First().Name.ShouldBe("TestRole1");
+            usersAndRoles.First().Roles.Last().Name.ShouldBe("TestRole2");
+
+            usersAndRoles.Last().NameIdentifier.ShouldBe("user2");
+            usersAndRoles.Last().Roles.Count().ShouldBe(1);
+            usersAndRoles.Last().Roles.First().Name.ShouldBe("TestRole2");
         }
     }
 }

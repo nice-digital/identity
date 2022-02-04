@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.APIModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -15,6 +16,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         List<Website> GetWebsites(string filter);
         Website UpdateWebsite(int websiteId, Website website);
         int DeleteWebsite(int websiteId);
+        IList<UserAndRoleByWebsite> GetRolesAndUsersForWebsite(int websiteId);
     }
 
     public class WebsitesService: IWebsitesService
@@ -95,6 +97,48 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 _logger.LogError($"Failed to delete website {websiteId.ToString()} - exception: {e.Message}");
                 throw new Exception($"Failed to delete website {websiteId.ToString()} - exception: {e.Message}");
             }
+        }
+
+        /// <summary>
+        /// Gets a list of users and their roles for a website
+        /// </summary>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        public IList<UserAndRoleByWebsite> GetRolesAndUsersForWebsite(int websiteId)
+        {
+            var usersAndRoles = (from ws in _context.Websites
+                join r in _context.Roles on ws.WebsiteId equals r.WebsiteId
+                join us in _context.UserRoles on r.RoleId equals us.RoleId
+                join u in _context.Users on us.UserId equals u.UserId
+                select new
+                {
+                    u.UserId,
+                    u.NameIdentifier,
+                    u.FirstName,
+                    u.LastName,
+                    u.DisplayName,
+                    u.IsStaffMember,
+                    u.EmailAddress,
+                    r.RoleId,
+                    RoleName = r.Name,
+                    RoleDescription = r.Description
+                }).ToList();
+
+            var groupedUsersAndRoles = usersAndRoles.GroupBy(u => u.UserId)
+                .Select(group => new UserAndRoleByWebsite
+                {
+                    UserId = group.Key,
+                    NameIdentifier = usersAndRoles.First().NameIdentifier,
+                    FirstName = usersAndRoles.First().FirstName,
+                    LastName = usersAndRoles.First().LastName,
+                    DisplayName = usersAndRoles.First().DisplayName,
+                    EmailAddress = usersAndRoles.First().EmailAddress,
+                    IsStaffMember = usersAndRoles.First().IsStaffMember,
+                    Roles = group.Select(r => new Role(r.RoleId, websiteId, r.RoleName, r.RoleDescription)).ToList()
+                })
+                .ToList();
+
+            return groupedUsersAndRoles;
         }
     }
 }
