@@ -13,6 +13,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         List<OrganisationRole> GetOrganisationRoles();
         OrganisationRole GetOrganisationRole(int organisationRoleId);
         int DeleteOrganisationRole(int organisationRoleId);
+        void DeleteAllOrganisationRolesForOrganisation(int organisationId);
     }
 
     public class OrganisationRolesService : IOrganisationRolesService
@@ -68,6 +69,30 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             {
                 _logger.LogError($"Failed to delete organisation role {organisationRoleId.ToString()} - exception: {e.Message}");
                 throw new Exception($"Failed to delete organisation role {organisationRoleId.ToString()} - exception: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Delete all organisation roles relating to an organisation
+        /// </summary>
+        /// <param name="organisationId"></param>
+        /// <returns></returns>
+        public void DeleteAllOrganisationRolesForOrganisation(int organisationId)
+        {
+            try
+            {
+                var organisationRolesToDelete = _context.OrganisationRoles.Where((j => j.OrganisationId == organisationId)).ToList();
+
+                foreach (var organisationRole in organisationRolesToDelete)
+                {
+                    _context.OrganisationRoles.RemoveRange(organisationRole);
+                }
+                // SaveChanges() is done in the DeleteOrganisation method to avoid foreign key constraints
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete organisation role for organisation {organisationId.ToString()} - exception: {e.Message}");
+                throw new Exception($"Failed to delete organisation role for organisation  {organisationId.ToString()} - exception: {e.Message}");
             }
         }
     }

@@ -9,7 +9,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
     public interface IOrganisationsService
     {
-        List<Organisation> GetOrganisations();
+        List<Organisation> GetOrganisations(string filter);
         Organisation GetOrganisation(int organisationId);
         Organisation CreateOrganisation(Organisation organisation);
         Organisation UpdateOrganisation(int organisationId, Organisation organisation);
@@ -22,17 +22,24 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
     {
         private readonly IdentityContext _context;
         private readonly ILogger<OrganisationsService> _logger;
+        private readonly IJobsService _jobsService;
+        private readonly IOrganisationRolesService _organisationRolesService;
 
-        public OrganisationsService(IdentityContext context, ILogger<OrganisationsService> logger)
+        public OrganisationsService(IdentityContext context, ILogger<OrganisationsService> logger, IJobsService jobsService, IOrganisationRolesService organisationRolesService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _jobsService = jobsService;
+            _organisationRolesService = organisationRolesService;
         }
 
         public Organisation CreateOrganisation(Organisation organisation)
         {
             try
             {
+                if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
+                    throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
+
                 var organisationToCreate = new DataModels.Organisation();
                 organisationToCreate.UpdateFromApiModel(organisation);
                 var createdOrganisation = _context.Organisations.Add(organisationToCreate);
@@ -46,9 +53,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
         }
 
-        public List<Organisation> GetOrganisations()
+        public List<Organisation> GetOrganisations(string filter = null)
         {
-            return _context.Organisations.Select(organisation => new Organisation(organisation)).ToList();
+            return _context.FindOrganisations(filter)
+                    .Select(organisation => new Organisation(organisation))
+                    .ToList();
         }
 
         public Organisation GetOrganisation(int organisationId)
@@ -64,6 +73,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 var organisationToUpdate = _context.Organisations.Find(organisationId);
                 if (organisationToUpdate == null)
                     throw new Exception($"Organisation not found {organisationId.ToString()}");
+
+                if (_context.Organisations.Any(o => o.Name.ToLower() == organisation.Name.ToLower()))
+                    throw new Exception($"Cannot add {organisation.Name}, that organisation already exists");
 
                 organisationToUpdate.UpdateFromApiModel(organisation);
                 _context.SaveChanges();
@@ -83,7 +95,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 var organisationToDelete = _context.Organisations.Find(organisationId);
                 if (organisationToDelete == null)
                     return 0;
+
                 _context.Organisations.RemoveRange(organisationToDelete);
+                _jobsService.DeleteAllJobsForOrganisation(organisationId);
+                _organisationRolesService.DeleteAllOrganisationRolesForOrganisation(organisationId);
+                
+                
                 return _context.SaveChanges();
             }
             catch (Exception e)
