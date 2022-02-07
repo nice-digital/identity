@@ -1,23 +1,35 @@
 ﻿using System.Collections.Generic;
-using System.Data.SqlTypes;
-using Auth0.ManagementApi.Models;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
 
 namespace NICE.Identity.Authorisation.WebAPI.APIModels
 {
-
     public class UserAndRoleByWebsite
     {
         public UserAndRoleByWebsite()
         {
         }
 
-        public int? UserId { get; set; }
-        public string NameIdentifier { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string DisplayName { get; set; }
-        public bool IsStaffMember { get; set; }
-        public string EmailAddress { get; set; }
-        public List<NICE.Identity.Authorisation.WebAPI.ApiModels.Role> Roles { get; set; }
+        public int WebsiteId { get; set; }
+        public int ServiceId { get; set; }
+        public int EnvironmentId { get; set; }
+        public List<UserAndRoles> UsersAndRoles { get; set; }
+        public Service Service { get; set; }
+        public Website Website { get; set; }
+        public Environment Environment { get; set; }
+    }
+
+    public class UserAndRoles
+    {
+        public UserAndRoles(int userId, User user, List<UserRoleDetailed> roles)
+        {
+            UserId = userId;
+            User = user;
+            Roles = roles;
+        }
+
+        public int UserId { get; set; }
+        public User User { get; set; }
+        public List<UserRoleDetailed> Roles { get; set; }
     }
 }

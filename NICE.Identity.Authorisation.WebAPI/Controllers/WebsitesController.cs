@@ -170,11 +170,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-        public IActionResult GetUsersAndRolesForWebsite(int websiteId)
+        public IActionResult GetUsersAndRolesForWebsite(int id)
         {
             try
             {
-                var userAndRolesByWebsite = _websitesService.GetRolesAndUsersForWebsite(websiteId);
+                var userAndRolesByWebsite = _websitesService.GetRolesAndUsersForWebsite(id);
                 if (userAndRolesByWebsite != null)
                 {
                     return Ok(userAndRolesByWebsite);

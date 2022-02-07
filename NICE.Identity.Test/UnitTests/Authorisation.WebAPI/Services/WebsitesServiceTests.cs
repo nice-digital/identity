@@ -287,30 +287,39 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             context.Users.Add(new DataModels.User() { NameIdentifier = "user1", EmailAddress = "first.email@example.com" });
             context.Users.Add(new DataModels.User() { NameIdentifier = "user2", EmailAddress = "second.email@example.com" });
+            context.Users.Add(new DataModels.User() { NameIdentifier = "user3", EmailAddress = "third.email@example.com" });
             context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test" });
             context.Services.Add(new DataModels.Service() { ServiceId = 1, Name = "Service" });
             context.Websites.Add(new DataModels.Website() { WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"});
+            context.Websites.Add(new DataModels.Website() { WebsiteId = 2, EnvironmentId = 1, ServiceId = 1, Host = "dev.nice.org.uk" });
             context.Roles.Add(new DataModels.Role() { RoleId = 1, WebsiteId = 1, Name = "TestRole1" });
             context.Roles.Add(new DataModels.Role() { RoleId = 2, WebsiteId = 1, Name = "TestRole2" });
+            context.Roles.Add(new DataModels.Role() { RoleId = 3, WebsiteId = 2, Name = "TestRole3" });
             context.UserRoles.Add(new DataModels.UserRole() { RoleId = 1, UserId = 1 });
             context.UserRoles.Add(new DataModels.UserRole() { RoleId = 2, UserId = 1 });
             context.UserRoles.Add(new DataModels.UserRole() { RoleId = 2, UserId = 2 });
+            context.UserRoles.Add(new DataModels.UserRole() { RoleId = 3, UserId = 2 });
+            context.UserRoles.Add(new DataModels.UserRole() { RoleId = 3, UserId = 3 });
             context.SaveChanges();
 
             //Act
             var usersAndRoles = websitesService.GetRolesAndUsersForWebsite(websiteId);
 
             //Assert
-            usersAndRoles.Count().ShouldBe(2);
+            usersAndRoles.Website.Host.ShouldBe("test.nice.org.uk");
+            usersAndRoles.Service.Name.ShouldBe("Service");
+            usersAndRoles.Environment.Name.ShouldBe("Test");
 
-            usersAndRoles.First().NameIdentifier.ShouldBe("user1");
-            usersAndRoles.First().Roles.Count().ShouldBe(2);
-            usersAndRoles.First().Roles.First().Name.ShouldBe("TestRole1");
-            usersAndRoles.First().Roles.Last().Name.ShouldBe("TestRole2");
+            usersAndRoles.UsersAndRoles.Count.ShouldBe(2);
 
-            usersAndRoles.Last().NameIdentifier.ShouldBe("user2");
-            usersAndRoles.Last().Roles.Count().ShouldBe(1);
-            usersAndRoles.Last().Roles.First().Name.ShouldBe("TestRole2");
+            usersAndRoles.UsersAndRoles.First().User.NameIdentifier.ShouldBe("user1");
+            usersAndRoles.UsersAndRoles.First().Roles.Count.ShouldBe(2);
+            usersAndRoles.UsersAndRoles.First().Roles.First().Name.ShouldBe("TestRole1");
+            usersAndRoles.UsersAndRoles.First().Roles.Last().Name.ShouldBe("TestRole2");
+
+            usersAndRoles.UsersAndRoles.Last().User.NameIdentifier.ShouldBe("user2");
+            usersAndRoles.UsersAndRoles.Last().Roles.Count.ShouldBe(1);
+            usersAndRoles.UsersAndRoles.Last().Roles.First().Name.ShouldBe("TestRole2");
         }
     }
 }
