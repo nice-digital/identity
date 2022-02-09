@@ -135,10 +135,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     {
                         userRoleDetailed.Add(new UserRoleDetailed(role.Role.RoleId, true, role.Role.Name, role.Role.Description));
                     }
+
+                    userRoleDetailed = userRoleDetailed.OrderBy(r => r.Name).ToList();
                 }
 
                 userAndRoles.Add(new UserAndRoles(user.UserId, new User(user), userRoleDetailed));
             }
+
+            userAndRoles = userAndRoles.OrderBy(u => u.User.FirstName).ThenBy(l => l.User.LastName).ToList();
             
             var userAndRoleByWebsite = new UserAndRoleByWebsite()
             {
@@ -158,7 +162,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     Name = website.Environment.Name
                 }
             };
-
+            
             return userAndRoleByWebsite;
         }
     }
