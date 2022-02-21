@@ -29,8 +29,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         Task<UserRolesByWebsite> UpdateRolesForUserByWebsite(int userId, int websiteId, UserRolesByWebsite userRolesByWebsite);
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
-        Task<int> DeleteAllUsers();
-        Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
+		Task<int> DeleteAllUsers();
+		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
+		IList<User> GetUsersByOrganisationId(int organisationId);
 	}
 
 	public class UsersService : IUsersService
@@ -97,6 +98,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return _context.FindUsers(filter)
 							.Select(user => new User(user))
 							.ToList();
+		}
+		public IList<User> GetUsersByOrganisationId(int organisationId)
+		{
+			return _context.GetUsersByOrganisationId(organisationId)
+								.Select(user => new User(user))
+								.ToList();
 		}
 
 		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)

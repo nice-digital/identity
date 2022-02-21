@@ -67,11 +67,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(typeof(List<Organisation>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        public IActionResult GetOrganisations()
+        public IActionResult GetOrganisations([FromQuery(Name = "q")] string filter)
         {
             try
             {
-                return Ok(_organisationService.GetOrganisations());
+                return Ok(_organisationService.GetOrganisations(filter));
             }
             catch (Exception e)
             {
@@ -154,7 +154,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             try
             {
                 _organisationService.DeleteOrganisation(id);
-                return Ok();
+                // In .NET Core 3.0 the OK / 200 object result returns no content instead of empty JSON.
+                // In HTTP a OK / 200 response always needs a payload.
+                // Invoking it with an empty object as a parameter will return an empty JSON object as the payload.
+                return Ok(new object());
             }
             catch (Exception e)
             {

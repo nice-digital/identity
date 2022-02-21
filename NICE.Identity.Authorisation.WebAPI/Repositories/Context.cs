@@ -46,6 +46,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ThenInclude(website => website.Website)
 		        .ToList();
         }
+        internal IEnumerable<User> GetUsersByOrganisationId(int organisationId)
+        {
+            return Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
+                           .Include(users => users)
+                            .Select(x => x.User)
+                           .ToList();
+        }
 
         public List<User> FindUsers(string filter)
         {
@@ -72,7 +79,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		        .ToList();
         }
 
-		public User CreateUser(User user, bool importing = false)
+        internal IEnumerable<Organisation> FindOrganisations(string filter)
+        {
+            filter ??= "";
+
+            return Organisations.Where(w => (w.Name != null && EF.Functions.Like(w.Name, $"%{filter}%")))
+                .Select(x => new Organisation()
+                {
+                    OrganisationId = x.OrganisationId,
+                    Name = x.Name,
+                    DateAdded = x.DateAdded != null ? x.DateAdded : new DateTime(2021, 12, 1)
+                })
+                .OrderBy(w => w.Name)
+                .ToList();
+        }
+
+        public User CreateUser(User user, bool importing = false)
         {
 			var foundUser = Users.FirstOrDefault(u => EF.Functions.Like(u.NameIdentifier, user.NameIdentifier));
             if (foundUser != null)
