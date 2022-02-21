@@ -17,6 +17,7 @@ namespace NICE.Identity.Authorisation.WebAPI.APIModels
         public Service Service { get; set; }
         public Website Website { get; set; }
         public Environment Environment { get; set; }
+        public List<Role> AllRoles { get; set; }
     }
 
     public class UserAndRoles

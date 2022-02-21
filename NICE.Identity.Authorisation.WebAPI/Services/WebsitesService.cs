@@ -118,6 +118,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 .Where(r => r.WebsiteId == websiteId)
                 .ToList();
 
+            var allRoles = new List<ApiModels.Role>();
+            foreach (var role in roles)
+            {
+                allRoles.Add(new ApiModels.Role(role));
+            }
+
             var rolesForWebsite = roles.Select(r => r.RoleId).ToList();
             
             var users = _context.Users
@@ -160,7 +166,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 {
                     EnvironmentId = website.Environment.EnvironmentId,
                     Name = website.Environment.Name
-                }
+                },
+                AllRoles = allRoles
             };
             
             return userAndRoleByWebsite;
