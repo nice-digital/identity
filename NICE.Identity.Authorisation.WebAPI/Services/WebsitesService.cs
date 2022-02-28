@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.APIModels;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 
 namespace NICE.Identity.Authorisation.WebAPI.Services
@@ -15,6 +16,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         List<Website> GetWebsites(string filter);
         Website UpdateWebsite(int websiteId, Website website);
         int DeleteWebsite(int websiteId);
+        UserAndRoleByWebsite GetRolesAndUsersForWebsite(int websiteId);
     }
 
     public class WebsitesService: IWebsitesService
@@ -95,6 +97,80 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 _logger.LogError($"Failed to delete website {websiteId.ToString()} - exception: {e.Message}");
                 throw new Exception($"Failed to delete website {websiteId.ToString()} - exception: {e.Message}");
             }
+        }
+
+        /// <summary>
+        /// Gets a list of users and their roles for a website
+        /// </summary>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        public UserAndRoleByWebsite GetRolesAndUsersForWebsite(int websiteId)
+        {
+            var website = _context.Websites
+                .Include(w => w.Service)
+                .Include(w => w.Environment)
+                .FirstOrDefault(w => w.WebsiteId == websiteId);
+
+            if (website == null)
+                return null;
+
+            var roles = _context.Roles
+                .Where(r => r.WebsiteId == websiteId)
+                .ToList();
+
+            var allRoles = new List<ApiModels.Role>();
+            foreach (var role in roles)
+            {
+                allRoles.Add(new ApiModels.Role(role));
+            }
+
+            var rolesForWebsite = roles.Select(r => r.RoleId).ToList();
+            
+            var users = _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(u => u.Role)
+                .Where(u => u.UserRoles.Any(ur => rolesForWebsite.Contains(ur.RoleId)));
+
+            var userAndRoles = new List<UserAndRoles>();
+            foreach (var user in users)
+            {
+                var userRoleDetailed = new List<UserRoleDetailed>();
+                foreach (var role in user.UserRoles)
+                {
+                    if (rolesForWebsite.Contains(role.Role.RoleId))
+                    {
+                        userRoleDetailed.Add(new UserRoleDetailed(role.Role.RoleId, true, role.Role.Name, role.Role.Description));
+                    }
+
+                    userRoleDetailed = userRoleDetailed.OrderBy(r => r.Name).ToList();
+                }
+
+                userAndRoles.Add(new UserAndRoles(user.UserId, new User(user), userRoleDetailed));
+            }
+
+            userAndRoles = userAndRoles.OrderBy(u => u.User.FirstName).ThenBy(l => l.User.LastName).ToList();
+            
+            var userAndRoleByWebsite = new UserAndRoleByWebsite()
+            {
+                WebsiteId = website.WebsiteId,
+                ServiceId = website.ServiceId,
+                EnvironmentId = website.EnvironmentId,
+                UsersAndRoles = userAndRoles,
+                Website = new Website(website),
+                Service = new Service()
+                {
+                    ServiceId = website.Service.ServiceId,
+                    Name = website.Service.Name
+                },
+                Environment = new ApiModels.Environment()
+                {
+                    EnvironmentId = website.Environment.EnvironmentId,
+                    Name = website.Environment.Name
+                },
+                AllRoles = allRoles
+            };
+            
+            return userAndRoleByWebsite;
         }
     }
 }

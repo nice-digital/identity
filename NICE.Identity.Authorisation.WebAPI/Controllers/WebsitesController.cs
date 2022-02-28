@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NICE.Identity.Authentication.Sdk.Authorisation;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.APIModels;
 using NICE.Identity.Authorisation.WebAPI.Services;
 
 namespace NICE.Identity.Authorisation.WebAPI.Controllers
@@ -155,6 +156,34 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
             catch (Exception e)
             {
                 return StatusCode(500, new ProblemDetails {Status = 500, Title = $"{e.Message}"});
+            }
+        }
+
+        /// <summary>
+        /// gets list of users and their roles for the specified website
+        /// </summary>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/usersandrolesbywebsite")]
+        [ProducesResponseType(typeof(UserAndRoleByWebsite), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public IActionResult GetUsersAndRolesForWebsite(int id)
+        {
+            try
+            {
+                var userAndRolesByWebsite = _websitesService.GetRolesAndUsersForWebsite(id);
+                if (userAndRolesByWebsite != null)
+                {
+                    return Ok(userAndRolesByWebsite);
+                }
+                return NotFound(new ProblemDetails { Status = 404, Title = "User not found" });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
             }
         }
     }
