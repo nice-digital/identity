@@ -19,6 +19,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	{
 		User CreateUser(User user);
 		User GetUser(int userId);
+		User GetUser(string nameIdentifier);
 		IList<User> GetUsers(string filter);
 		IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers);
 		Dictionary<string, IEnumerable<string>> FindRoles(IEnumerable<string> nameIdentifiers, string host);
@@ -93,7 +94,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return user != null ? new User(user) : null;
 		}
 
-		public IList<User> GetUsers(string filter = null)
+		public User GetUser(string nameIdentifier)
+		{
+			var user = _context.Users.Where((u => u.NameIdentifier.Equals(nameIdentifier))).FirstOrDefault();
+			return user != null ? new User(user) : null;
+		}
+
+        public IList<User> GetUsers(string filter = null)
 		{
 			return _context.FindUsers(filter)
 							.Select(user => new User(user))
