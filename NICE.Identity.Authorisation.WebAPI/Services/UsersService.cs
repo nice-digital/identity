@@ -106,6 +106,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 								.ToList();
 		}
 
+        public UserAndJobForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
+        {
+            return _context.GetUsersAndJobsByOrganisationId(organisationId);
+        }
+
 		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)
 		{
 			return _context.Users.Where(user => nameIdentifiers.Contains(user.NameIdentifier)).Select(user =>

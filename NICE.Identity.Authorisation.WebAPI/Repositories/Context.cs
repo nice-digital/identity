@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
+using Organisation = NICE.Identity.Authorisation.WebAPI.DataModels.Organisation;
+using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
+using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
+using UserRole = NICE.Identity.Authorisation.WebAPI.DataModels.UserRole;
+using Website = NICE.Identity.Authorisation.WebAPI.DataModels.Website;
 
 namespace NICE.Identity.Authorisation.WebAPI.Repositories
 {
@@ -53,6 +59,34 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                             .Select(x => x.User)
                            .ToList();
         }
+
+        internal UserAndJobForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
+        {
+            var jobs = Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
+                .Include(u => u.User)
+                .Include(o => o.Organisation)
+                .ToList();
+
+            
+            var usersAndJobs = new List<UserAndJobId>();
+            foreach (var job in jobs)
+            {
+                var userAndJobId = new UserAndJobId();
+                userAndJobId.UserId = job.UserId;
+                userAndJobId.User = new ApiModels.User(job.User);
+                userAndJobId.JobId = job.JobId;
+
+                usersAndJobs.Add(userAndJobId);
+            }
+
+            var usersForOrganisation = new UserAndJobForOrganisation();
+            usersForOrganisation.OrganisationId = organisationId;
+            usersForOrganisation.Organisation = new ApiModels.Organisation(jobs.FirstOrDefault().Organisation);
+            usersForOrganisation.Users = usersAndJobs;
+
+            return usersForOrganisation;
+        }
+
 
         public List<User> FindUsers(string filter)
         {

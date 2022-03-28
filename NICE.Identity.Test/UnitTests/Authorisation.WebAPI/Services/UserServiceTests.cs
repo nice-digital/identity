@@ -845,5 +845,36 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             updatedAgainUser.EmailAddress.ShouldBe(firstEmail);
         }
+
+        [Fact]
+        public void Get_users_and_jobs_for_an_organisation()
+        {
+            //Arrange
+            var organisationId = 1;
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            
+            context.Organisations.Add(new DataModels.Organisation() { OrganisationId = organisationId, Name = "My Organisation" });
+
+            context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "auth|alice" });
+            context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "auth|bob" });
+
+            context.Jobs.Add(new DataModels.Job() { UserId = 1, OrganisationId = 1 });
+            context.Jobs.Add(new DataModels.Job() { UserId = 2, OrganisationId = 1 });
+
+            context.SaveChanges();
+
+            //Act
+            var orgAndUsers = userService.GetUsersAndJobsByOrganisationId(organisationId);
+
+            //Assert
+            orgAndUsers.OrganisationId.ShouldBe(1);
+            orgAndUsers.Users.Count.ShouldBe(2);
+            orgAndUsers.Users.FirstOrDefault().UserId.ShouldBe(1);
+            orgAndUsers.Users.FirstOrDefault().User.NameIdentifier.ShouldBe("auth|alice");
+
+            orgAndUsers.Users.LastOrDefault().UserId.ShouldBe(2);
+            orgAndUsers.Users.LastOrDefault().User.NameIdentifier.ShouldBe("auth|bob");
+        }
     }
 }
