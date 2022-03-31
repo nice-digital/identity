@@ -93,7 +93,7 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-        public UserAndJobForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
+        public UsersAndJobIdsForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
         {
             throw new NotImplementedException();
         }

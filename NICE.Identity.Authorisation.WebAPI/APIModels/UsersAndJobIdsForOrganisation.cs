@@ -5,7 +5,7 @@ using System.Linq;
 namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 {
 
-    public class UserAndJobForOrganisation
+    public class UsersAndJobIdsForOrganisation
     {
         public int OrganisationId { get; set; }
         public Organisation Organisation { get; set; }

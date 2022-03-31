@@ -32,7 +32,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		Task<int> DeleteAllUsers();
 		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
 		IList<User> GetUsersByOrganisationId(int organisationId);
-        UserAndJobForOrganisation GetUsersAndJobsByOrganisationId(int organisationId);
+        UsersAndJobIdsForOrganisation GetUsersAndJobsByOrganisationId(int organisationId);
     }
 
 	public class UsersService : IUsersService
@@ -107,9 +107,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 								.ToList();
 		}
 
-        public UserAndJobForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
+        public UsersAndJobIdsForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
         {
-            return _context.GetUsersAndJobsByOrganisationId(organisationId);
+            return _context.GetUsersAndJobIdsByOrganisationId(organisationId);
         }
 
 		public IList<UserDetails> FindUsers(IEnumerable<string> nameIdentifiers)

@@ -60,7 +60,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                            .ToList();
         }
 
-        internal UserAndJobForOrganisation GetUsersAndJobsByOrganisationId(int organisationId)
+        internal UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId)
         {
             var jobs = Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
                 .Include(u => u.User)
@@ -79,7 +79,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 usersAndJobs.Add(userAndJobId);
             }
 
-            var usersForOrganisation = new UserAndJobForOrganisation();
+            var usersForOrganisation = new UsersAndJobIdsForOrganisation();
             usersForOrganisation.OrganisationId = organisationId;
             usersForOrganisation.Organisation = new ApiModels.Organisation(jobs.FirstOrDefault().Organisation);
             usersForOrganisation.Users = usersAndJobs;

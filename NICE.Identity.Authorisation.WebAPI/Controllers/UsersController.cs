@@ -431,7 +431,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// get users and job Id by organisation id
+        /// get users and job Ids by organisation id
         /// </summary>
         /// <param name="organisationId"></param>
         /// <returns></returns>
@@ -441,7 +441,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-        public IActionResult GetUsersAndJobIdByOrganisationId(int organisationId)
+        public IActionResult GetUsersAndJobIdsByOrganisationId(int organisationId)
         {
             try
             {
