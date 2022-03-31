@@ -855,12 +855,17 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
             
             context.Organisations.Add(new DataModels.Organisation() { OrganisationId = organisationId, Name = "My Organisation" });
+            context.Organisations.Add(new DataModels.Organisation() { OrganisationId = 2, Name = "Another org" });
 
             context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "auth|alice" });
             context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "auth|bob" });
+            context.Users.Add(new DataModels.User() { UserId = 3, NameIdentifier = "auth|carol" });
 
             context.Jobs.Add(new DataModels.Job() { UserId = 1, OrganisationId = 1 });
             context.Jobs.Add(new DataModels.Job() { UserId = 2, OrganisationId = 1 });
+
+            context.Jobs.Add(new DataModels.Job() { UserId = 2, OrganisationId = 2 });
+            context.Jobs.Add(new DataModels.Job() { UserId = 3, OrganisationId = 2 });
 
             context.SaveChanges();
 
