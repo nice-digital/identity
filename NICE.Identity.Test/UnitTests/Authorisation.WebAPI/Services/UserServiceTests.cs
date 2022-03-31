@@ -870,7 +870,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.SaveChanges();
 
             //Act
-            var orgAndUsers = userService.GetUsersAndJobsByOrganisationId(organisationId);
+            var orgAndUsers = userService.GetUsersAndJobIdsByOrganisationId(organisationId);
 
             //Assert
             orgAndUsers.OrganisationId.ShouldBe(1);

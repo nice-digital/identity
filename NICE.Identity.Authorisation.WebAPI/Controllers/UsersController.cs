@@ -435,7 +435,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// </summary>
         /// <param name="organisationId"></param>
         /// <returns></returns>
-        [HttpGet("usersandjobIdbyorganisation/{organisationId:int}")]
+        [HttpGet("usersandjobIdsbyorganisation/{organisationId:int}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -445,7 +445,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                var user = _usersService.GetUsersAndJobsByOrganisationId(organisationId);
+                var user = _usersService.GetUsersAndJobIdsByOrganisationId(organisationId);
                 if (user != null)
                 {
                     return Ok(user);
