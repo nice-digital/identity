@@ -62,14 +62,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         internal UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId)
         {
-            var jobs = Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
-                .Include(u => u.User)
-                .Include(o => o.Organisation)
+            var organisation = Organisations.Where(org => org.OrganisationId.Equals(organisationId))
+                .Include(j => j.Jobs)
+                .ThenInclude(u => u.User)
                 .ToList();
 
-            
             var usersAndJobs = new List<UserAndJobId>();
-            foreach (var job in jobs)
+            foreach (var job in organisation.FirstOrDefault().Jobs)
             {
                 var userAndJobId = new UserAndJobId();
                 userAndJobId.UserId = job.UserId;
@@ -81,7 +80,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
             var usersForOrganisation = new UsersAndJobIdsForOrganisation();
             usersForOrganisation.OrganisationId = organisationId;
-            usersForOrganisation.Organisation = new ApiModels.Organisation(jobs.FirstOrDefault().Organisation);
+            usersForOrganisation.Organisation = new ApiModels.Organisation(organisation.FirstOrDefault());
             usersForOrganisation.Users = usersAndJobs;
 
             return usersForOrganisation;
