@@ -53,7 +53,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         public Job GetJob(int jobId)
         {
             var job = _context.Jobs.Where((j => j.JobId == jobId)).FirstOrDefault();
-            return job != null ? new Job(job) : null;
+            return job != null ? new Job(job) : new Job();
         }
 
         public Job UpdateJob(int jobId, Job job)
