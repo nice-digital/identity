@@ -122,9 +122,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var job = jobsService.GetJob(9999);
 
             //Assert
-            job.OrganisationId.ShouldBe(null);
-            job.UserId.ShouldBe(null);
-            job.IsLead.ShouldBe(null);
+            job.ShouldBeNull();
         }
 
         [Fact]
