@@ -104,6 +104,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		{
 			return _context.GetUsersByOrganisationId(organisationId)
 								.Select(user => new User(user))
+                                .OrderBy(u => u.FirstName)
+                                .ThenBy(u => u.LastName)
 								.ToList();
 		}
 
