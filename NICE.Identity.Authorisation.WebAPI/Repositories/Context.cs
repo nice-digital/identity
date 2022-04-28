@@ -81,7 +81,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             var usersForOrganisation = new UsersAndJobIdsForOrganisation();
             usersForOrganisation.OrganisationId = organisationId;
             usersForOrganisation.Organisation = new ApiModels.Organisation(organisation.FirstOrDefault());
-            usersForOrganisation.Users = usersAndJobs;
+            usersForOrganisation.Users = usersAndJobs.OrderBy(u => u.User.FirstName).ThenBy(u => u.User.LastName).ToList();
 
             return usersForOrganisation;
         }
