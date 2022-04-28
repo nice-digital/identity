@@ -74,7 +74,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 if (organisationToUpdate == null)
                     throw new Exception($"Organisation not found {organisationId.ToString()}");
 
-                if (_context.Organisations.Any(organisation.Name.Equals))
+                //if (_context.Organisations.Any(organisation.Name.Equals))
+                if (organisationToUpdate.Name == organisation.Name)
                     throw new Exception($"Cannot update {organisation.Name}, that organisation name has not changed");
 
                 organisationToUpdate.UpdateFromApiModel(organisation);

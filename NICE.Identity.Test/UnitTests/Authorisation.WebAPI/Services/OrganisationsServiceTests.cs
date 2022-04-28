@@ -295,21 +295,20 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        organisation.Count().ShouldBe(0);
         }
 
-        //[Fact]
-        //public void Update_Organisation_Error_When_No_Change_To_Organisation_Name()
-        //{
-        //    //Arrange
-        //    var context = GetContext();
-        //    var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
-        //    var orgName = "ExistingOrg";
+        [Fact]
+        public void Update_Organisation_Error_When_No_Change_To_Organisation_Name()
+        {
+            //Arrange
+            var context = GetContext();
+            var organisationService = new OrganisationsService(context, _logger.Object, _jobService.Object, _organisationRolesService.Object);
+            var orgName = "ExistingOrg";
 
-        //    organisationService.CreateOrganisation(new ApiModels.Organisation {Name = "NICE"});
-        //    organisationService.CreateOrganisation(new ApiModels.Organisation { Name = orgName });
+            organisationService.CreateOrganisation(new ApiModels.Organisation { Name = orgName });
 
-        //    //Act + Assert
-        //    Should.Throw<Exception>(() => organisationService.UpdateOrganisation(1, new ApiModels.Organisation() { Name = orgName }))
-        //        .Message.ShouldBe("Failed to update organisation 1 - exception: Cannot update ExistingOrg, that organisation name has not changed");
-        //}
+            //Act + Assert
+            Should.Throw<Exception>(() => organisationService.UpdateOrganisation(1, new ApiModels.Organisation() { Name = orgName }))
+                .Message.ShouldBe("Failed to update organisation 1 - exception: Cannot update ExistingOrg, that organisation name has not changed");
+        }
 
         [Fact]
         public void Update_Organisation_Can_Change_Case_Of_Organisations_Name()
