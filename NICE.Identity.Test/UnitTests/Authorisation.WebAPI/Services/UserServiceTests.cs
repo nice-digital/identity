@@ -874,12 +874,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             //Assert
             orgAndUsers.OrganisationId.ShouldBe(1);
-            orgAndUsers.Users.Count.ShouldBe(2);
-            orgAndUsers.Users.FirstOrDefault().UserId.ShouldBe(1);
-            orgAndUsers.Users.FirstOrDefault().User.NameIdentifier.ShouldBe("auth|alice");
+            orgAndUsers.UsersAndJobIds.Count.ShouldBe(2);
+            orgAndUsers.UsersAndJobIds.FirstOrDefault().UserId.ShouldBe(1);
+            orgAndUsers.UsersAndJobIds.FirstOrDefault().User.NameIdentifier.ShouldBe("auth|alice");
 
-            orgAndUsers.Users.LastOrDefault().UserId.ShouldBe(2);
-            orgAndUsers.Users.LastOrDefault().User.NameIdentifier.ShouldBe("auth|bob");
+            orgAndUsers.UsersAndJobIds.LastOrDefault().UserId.ShouldBe(2);
+            orgAndUsers.UsersAndJobIds.LastOrDefault().User.NameIdentifier.ShouldBe("auth|bob");
         }
     }
 }

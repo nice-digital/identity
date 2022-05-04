@@ -9,7 +9,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
     {
         public int OrganisationId { get; set; }
         public Organisation Organisation { get; set; }
-        public List<UserAndJobId> Users { get; set; }
+        public List<UserAndJobId> UsersAndJobIds { get; set; }
     }
 
     public class UserAndJobId

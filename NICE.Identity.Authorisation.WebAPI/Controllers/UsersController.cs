@@ -445,10 +445,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                var user = _usersService.GetUsersAndJobIdsByOrganisationId(organisationId);
-                if (user != null)
+                var usersAndJobIdsForOrganisation = _usersService.GetUsersAndJobIdsByOrganisationId(organisationId);
+                if (usersAndJobIdsForOrganisation != null)
                 {
-                    return Ok(user);
+                    return Ok(usersAndJobIdsForOrganisation);
                 }
                 return NotFound(new ProblemDetails { Status = 404, Title = "Organisation not found" });
             }
