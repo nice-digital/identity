@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
+using Organisation = NICE.Identity.Authorisation.WebAPI.DataModels.Organisation;
+using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
+using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
+using UserRole = NICE.Identity.Authorisation.WebAPI.DataModels.UserRole;
+using Website = NICE.Identity.Authorisation.WebAPI.DataModels.Website;
 
 namespace NICE.Identity.Authorisation.WebAPI.Repositories
 {
@@ -53,6 +59,33 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                             .Select(x => x.User)
                            .ToList();
         }
+
+        internal UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId)
+        {
+            var organisation = Organisations.Where(org => org.OrganisationId.Equals(organisationId))
+                .Include(j => j.Jobs)
+                .ThenInclude(u => u.User)
+                .ToList();
+
+            var usersAndJobs = new List<UserAndJobId>();
+            foreach (var job in organisation.FirstOrDefault().Jobs)
+            {
+                var userAndJobId = new UserAndJobId();
+                userAndJobId.UserId = job.UserId;
+                userAndJobId.User = new ApiModels.User(job.User);
+                userAndJobId.JobId = job.JobId;
+
+                usersAndJobs.Add(userAndJobId);
+            }
+
+            var usersForOrganisation = new UsersAndJobIdsForOrganisation();
+            usersForOrganisation.OrganisationId = organisationId;
+            usersForOrganisation.Organisation = new ApiModels.Organisation(organisation.FirstOrDefault());
+            usersForOrganisation.UsersAndJobIds = usersAndJobs.OrderBy(u => u.User.FirstName).ThenBy(u => u.User.LastName).ToList();
+
+            return usersForOrganisation;
+        }
+
 
         public List<User> FindUsers(string filter)
         {

@@ -845,5 +845,41 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             updatedAgainUser.EmailAddress.ShouldBe(firstEmail);
         }
+
+        [Fact]
+        public void Get_users_and_jobs_for_an_organisation()
+        {
+            //Arrange
+            var organisationId = 1;
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            
+            context.Organisations.Add(new DataModels.Organisation() { OrganisationId = organisationId, Name = "My Organisation" });
+            context.Organisations.Add(new DataModels.Organisation() { OrganisationId = 2, Name = "Another org" });
+
+            context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "auth|alice" });
+            context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "auth|bob" });
+            context.Users.Add(new DataModels.User() { UserId = 3, NameIdentifier = "auth|carol" });
+
+            context.Jobs.Add(new DataModels.Job() { UserId = 1, OrganisationId = 1 });
+            context.Jobs.Add(new DataModels.Job() { UserId = 2, OrganisationId = 1 });
+
+            context.Jobs.Add(new DataModels.Job() { UserId = 2, OrganisationId = 2 });
+            context.Jobs.Add(new DataModels.Job() { UserId = 3, OrganisationId = 2 });
+
+            context.SaveChanges();
+
+            //Act
+            var orgAndUsers = userService.GetUsersAndJobIdsByOrganisationId(organisationId);
+
+            //Assert
+            orgAndUsers.OrganisationId.ShouldBe(1);
+            orgAndUsers.UsersAndJobIds.Count.ShouldBe(2);
+            orgAndUsers.UsersAndJobIds.FirstOrDefault().UserId.ShouldBe(1);
+            orgAndUsers.UsersAndJobIds.FirstOrDefault().User.NameIdentifier.ShouldBe("auth|alice");
+
+            orgAndUsers.UsersAndJobIds.LastOrDefault().UserId.ShouldBe(2);
+            orgAndUsers.UsersAndJobIds.LastOrDefault().User.NameIdentifier.ShouldBe("auth|bob");
+        }
     }
 }

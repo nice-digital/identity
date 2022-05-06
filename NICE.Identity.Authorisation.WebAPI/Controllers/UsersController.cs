@@ -429,5 +429,33 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
             }
         }
+
+        /// <summary>
+        /// get users and job Ids by organisation id
+        /// </summary>
+        /// <param name="organisationId"></param>
+        /// <returns></returns>
+        [HttpGet("usersandjobIdsbyorganisation/{organisationId:int}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public IActionResult GetUsersAndJobIdsByOrganisationId(int organisationId)
+        {
+            try
+            {
+                var usersAndJobIdsForOrganisation = _usersService.GetUsersAndJobIdsByOrganisationId(organisationId);
+                if (usersAndJobIdsForOrganisation != null)
+                {
+                    return Ok(usersAndJobIdsForOrganisation);
+                }
+                return NotFound(new ProblemDetails { Status = 404, Title = "Organisation not found" });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
     }
 }
