@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.API.NETFramework4.5.2", "TestClients\NICE.Identity.TestClient.API.NETFramework4.5.2\NICE.Identity.TestClient.API.NETFramework4.5.2.csproj", "{D9AB2EDE-A2B5-481B-B74D-9EF150CAACAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NICE.Identity.TestClient.NETFramework4.6.1.Console", "TestClients\NICE.Identity.TestClient.NETFramework4.6.1.Console\NICE.Identity.TestClient.NETFramework4.6.1.Console.csproj", "{8EA1C838-6862-44BC-A15C-644D8AA28D1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{D9AB2EDE-A2B5-481B-B74D-9EF150CAACAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9AB2EDE-A2B5-481B-B74D-9EF150CAACAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9AB2EDE-A2B5-481B-B74D-9EF150CAACAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EA1C838-6862-44BC-A15C-644D8AA28D1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EA1C838-6862-44BC-A15C-644D8AA28D1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EA1C838-6862-44BC-A15C-644D8AA28D1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EA1C838-6862-44BC-A15C-644D8AA28D1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{4C555E13-A02C-4529-AAFF-7DCAE97774AD} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 		{25E1ECC1-4F6A-4F39-84F5-D4DF5BD97F9F} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 		{D9AB2EDE-A2B5-481B-B74D-9EF150CAACAA} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
+		{8EA1C838-6862-44BC-A15C-644D8AA28D1B} = {F4E8055D-7337-4CB9-BCEA-AC4BFF5EADBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03D45238-C53B-4C50-8057-FFBBF8579DC1}
