@@ -502,5 +502,40 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
-	}
+        public async Task DeleteInActiveAccountsOlderThan(bool notify, int yearsToKeepInActiveAcounts)
+        {
+            _logger.LogWarning($"DeleteInActiveAccountsOlderThan - Deleting Inactive Accounts Older Than {yearsToKeepInActiveAcounts} years."); //extra logging here in order to verify that the scheduled task is running via kibana.
+            
+            var allUsersWithInActiveAccountsOverAge = _context.GetInActiveUsersOverAge(yearsToKeepInActiveAcounts).ToList();
+
+            if (!allUsersWithInActiveAccountsOverAge.Any())
+            {
+                _logger.LogWarning("DeleteInActiveAccountsOlderThan - No records found to delete. exiting");
+                return;
+            }
+
+            var uniqueEmailAddresses = allUsersWithInActiveAccountsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
+            if (uniqueEmailAddresses.Count() != allUsersWithInActiveAccountsOverAge.Count())
+            {
+                _logger.LogWarning("Inactive accounts exist for the same email address.");
+            }
+
+            //1. delete user accounts: allUsersWithInActiveAccountsOverAge
+            var recordsDeleted = await _context.DeleteUsers(allUsersWithInActiveAccountsOverAge);
+
+            //2. delete user account in auth0
+            foreach (var user in allUsersWithInActiveAccountsOverAge)
+            {
+                await _providerManagementService.DeleteUser(user.NameIdentifier);
+            }
+
+            //3. send notification to the email addresses, one email per email address.
+            if (notify)
+                _emailService.SendInActiveAccountRemovalNotifications(uniqueEmailAddresses);
+
+            _logger.LogWarning($"DeleteInActiveAccountsOlderThan - Total records deleted: {recordsDeleted}");
+
+        }
+
+    }
 }

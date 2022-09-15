@@ -317,5 +317,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		}
 
 		#endregion
+
+        public IEnumerable<User> GetInActiveUsersOverAge(int yearsToKeepInActiveAcounts)
+        {
+            var dateToKeepRegistrationsFrom = DateTime.UtcNow.AddYears(-yearsToKeepInActiveAcounts);
+
+            return Users.Where(u => u.HasVerifiedEmailAddress &&
+                                    u.InitialRegistrationDate.HasValue && u.InitialRegistrationDate.Value <= dateToKeepRegistrationsFrom);
+        }
     }
 }

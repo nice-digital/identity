@@ -699,6 +699,51 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
+        public async Task TestInActiveAccounts()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            const string user1NameIdentifier = "auth|user1";
+            const string user2NameIdentifier = "auth|user2";
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = user1NameIdentifier,
+                FirstName = "FirstName1",
+                LastName = "LastName1",
+                EmailAddress = "user1@example.com",
+                HasVerifiedEmailAddress = true
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = user2NameIdentifier,
+                FirstName = "User to be deleted",
+                LastName = "",
+                EmailAddress = "user2@example.com",
+                HasVerifiedEmailAddress = true
+            });
+            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = DateTime.UtcNow.AddYears(-3);
+            context.SaveChanges();
+            //now add some related data to test that related entities are deleted too.
+            var userToBeDeleted = context.Users.Single(u => u.NameIdentifier == user2NameIdentifier);
+            const int organisationId = 1;
+            context.Organisations.Add(new DataModels.Organisation(organisationId, "org 1"));
+            context.Jobs.Add(new DataModels.Job() { IsLead = false, OrganisationId = organisationId, UserId = userToBeDeleted.UserId });
+            context.TermsVersions.Add(new DataModels.TermsVersion() { TermsVersionId = 1, VersionDate = DateTime.Now });
+            context.UserAcceptedTermsVersions.Add(new DataModels.UserAcceptedTermsVersion() { TermsVersionId = 1, UserAcceptedDate = DateTime.Now, UserId = userToBeDeleted.UserId });
+            context.SaveChanges();
+
+            //Act
+            await userService.DeleteInActiveAccountsOlderThan(notify: false, yearsToKeepInActiveAcounts: 3);
+
+            //Assert
+            context.Users.Count().ShouldBe(1);
+            context.Users.Single().NameIdentifier.ShouldBe(user1NameIdentifier);
+            context.Jobs.Count().ShouldBe(0);
+        }
+
+        [Fact]
         public async Task GetUserWithSingleEmailAuditRecord()
         {
 	        //Arrange
