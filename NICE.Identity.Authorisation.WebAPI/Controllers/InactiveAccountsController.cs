@@ -13,13 +13,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	[Route("api/[controller]")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
 	[ApiController]
-    public class DeleteInActiveAccountsController : ControllerBase
+    public class InactiveAccountsController : ControllerBase
     {
-        private readonly ILogger<DeleteInActiveAccountsController> _logger;
+        private readonly ILogger<InactiveAccountsController> _logger;
         private readonly IUsersService _usersService;
         private const int yearsToKeepInActiveAccounts = 3;
 
-        public DeleteInActiveAccountsController(ILogger<DeleteInActiveAccountsController> logger, IUsersService usersService)
+        public InactiveAccountsController(ILogger<InactiveAccountsController> logger, IUsersService usersService)
         {
 	        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	        _usersService = usersService;
