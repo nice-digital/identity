@@ -1,0 +1,290 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "1c8ab4c8-737e-4ac8-b0aa-172772600e2f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 140,
+                    "y": 240
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "e0264643-8852-4291-801d-f5c7c130afbf": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 240
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "3b057f1b-f5e7-45ed-91ed-6b725bf34e8c": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 430,
+                    "y": 240
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "dc3629ad-7329-4766-ac0b-0f65b2620da9": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 130
+                },
+                "z": 0,
+                "embeds": [],
+                "dependson": [
+                    "7a161e3d-12f1-45e9-89f9-3c593c393f96"
+                ]
+            },
+            "7a161e3d-12f1-45e9-89f9-3c593c393f96": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 260,
+                    "y": 140
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "dc3629ad-7329-4766-ac0b-0f65b2620da9"
+                ]
+            }
+        }
+    },
+    "Resources": {
+        "ConnectionToAuthForToken": {
+            "Type": "AWS::Events::Connection",
+            "Properties": {
+                "AuthorizationType": "OAUTH_CLIENT_CREDENTIALS",
+                "AuthParameters": {
+                    "OAuthParameters": {
+                        "ClientParameters": {
+                            "ClientID": {
+                                "Ref": "ClientID"
+                            },
+                            "ClientSecret": {
+                                "Ref": "ClientSecret"
+                            }
+                        },
+                        "AuthorizationEndpoint": {
+                            "Ref": "AuthorizationEndpoint"
+                        },
+                        "HttpMethod": "POST",
+                        "OAuthHttpParameters": {
+                            "BodyParameters": [
+                                {
+                                    "Key": "audience",
+                                    "Value": {
+                                        "Ref": "Audience"
+                                    },
+                                    "IsValueSecret": false
+                                },
+                                {
+                                    "Key": "grant_type",
+                                    "Value": "client_credentials",
+                                    "IsValueSecret": false
+                                }
+                            ]
+                        }
+                    },
+                    "InvocationHttpParameters": {}
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "1c8ab4c8-737e-4ac8-b0aa-172772600e2f"
+                }
+            }
+        },
+        "APIDestinationToIDAMAPIDeleteInactiveAccounts": {
+            "Type": "AWS::Events::ApiDestination",
+            "Properties": {
+                "ConnectionArn": {
+                    "Fn::GetAtt": [
+                        "ConnectionToAuthForToken",
+                        "Arn"
+                    ]
+                },
+                "Description": "The IDAM API to hit to delete inactive accounts",
+                "InvocationEndpointDeleteInactiveAccounts": {
+                    "Ref": "InvocationEndpointDeleteInactiveAccounts"
+                },
+                "HttpMethod": "DELETE",
+                "InvocationRateLimitPerSecond": 1
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "e0264643-8852-4291-801d-f5c7c130afbf"
+                }
+            },
+            "DependsOn": [
+                "ConnectionToAuthForToken"
+            ]
+        },
+        "DeleteOldInactiveAccountsInIDAMRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "Delete inactive accounts in IDAM",
+                "ScheduleExpression": {
+                    "Ref": "CronSchedule"
+                },
+                "Targets": [
+                    {
+                        "Id": "IDAM_API_Target",
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "APIDestinationToIDAMAPIDeleteInactiveAccounts",
+                                "Arn"
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "RoleForIDAMInactiveAccountsRule",
+                                "Arn"
+                            ]
+                        },
+                        "HttpParameters": {
+                            "PathParameterValues": [],
+                            "HeaderParameters": {},
+                            "QueryStringParameters": {}
+                        },
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 1
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "3b057f1b-f5e7-45ed-91ed-6b725bf34e8c"
+                }
+            },
+            "DependsOn": [
+                "APIDestinationToIDAMAPIDeleteInactiveAccounts"
+            ]
+        },
+        "RoleForIDAMInactiveAccountsRule": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "Description": "Role for running the Api Destination to delete inactive accounts",
+                "Path": "/service-role/"
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "dc3629ad-7329-4766-ac0b-0f65b2620da9"
+                }
+            }
+        },
+        "PolicyToWriteEventForIDAMInactiveAccounts": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "PolicyForIDAMInactiveAccounts",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "events:InvokeApiDestination"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "APIDestinationToIDAMAPIDeleteInactiveAccounts",
+                                        "Arn"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "RoleForIDAMInactiveAccountsRule"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "7a161e3d-12f1-45e9-89f9-3c593c393f96"
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "ClientID": {
+            "NoEcho": "false",
+            "Description": "client_id to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "40"
+        },
+        "ClientSecret": {
+            "NoEcho": "true",
+            "Description": "client_secret to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "100"
+        },
+        "AuthorizationEndpoint": {
+            "NoEcho": "false",
+            "Description": "AuthorizationEndpoint to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "100"
+        },
+        "Audience": {
+            "NoEcho": "false",
+            "Description": "audience to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "100"
+        },
+        "InvocationEndpointDeleteInactiveAccounts": {
+            "NoEcho": "false",
+            "Description": "IDAM API endpoint to hit",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "CronSchedule": {
+            "Default": "cron(0 8 * * ? *)",
+            "NoEcho": "false",
+            "Description": "Schedule to hit the API",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        }
+    }
+}
