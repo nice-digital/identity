@@ -723,7 +723,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 EmailAddress = "user2@example.com",
                 HasVerifiedEmailAddress = true
             });
-            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = DateTime.UtcNow.AddYears(-3);
+            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).LastLoggedInDate = DateTime.UtcNow.AddYears(-3);
             context.SaveChanges();
             //now add some related data to test that related entities are deleted too.
             var userToBeDeleted = context.Users.Single(u => u.NameIdentifier == user2NameIdentifier);

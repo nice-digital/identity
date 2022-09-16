@@ -320,10 +320,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 
         public IEnumerable<User> GetInActiveUsersOverAge(int yearsToKeepInActiveAcounts)
         {
-            var dateToKeepRegistrationsFrom = DateTime.UtcNow.AddYears(-yearsToKeepInActiveAcounts);
+            var dateToKeepAccountsFrom = DateTime.UtcNow.AddYears(-yearsToKeepInActiveAcounts);
 
             return Users.Where(u => u.HasVerifiedEmailAddress &&
-                                    u.InitialRegistrationDate.HasValue && u.InitialRegistrationDate.Value <= dateToKeepRegistrationsFrom);
+                                    u.LastLoggedInDate.HasValue && u.LastLoggedInDate.Value <= dateToKeepAccountsFrom);
         }
     }
 }
