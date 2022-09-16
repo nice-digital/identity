@@ -31,7 +31,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 		Task<int> DeleteAllUsers();
 		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
-		IList<User> GetUsersByOrganisationId(int organisationId);
+        Task DeleteInActiveAccountsOlderThan(bool notify, int yearsToKeepPendingRegistration);
+        IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
     }
 
