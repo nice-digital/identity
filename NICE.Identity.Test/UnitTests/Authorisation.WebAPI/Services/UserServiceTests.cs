@@ -713,7 +713,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 FirstName = "FirstName1",
                 LastName = "LastName1",
                 EmailAddress = "user1@example.com",
-                HasVerifiedEmailAddress = true
+                HasVerifiedEmailAddress = true,
+                LastLoggedInDate = DateTime.UtcNow
             });
             userService.CreateUser(new ApiModels.User
             {
@@ -721,7 +722,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 FirstName = "User to be deleted",
                 LastName = "",
                 EmailAddress = "user2@example.com",
-                HasVerifiedEmailAddress = true
+                HasVerifiedEmailAddress = true,
+                LastLoggedInDate = DateTime.UtcNow.AddYears(-3)
             });
             context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).LastLoggedInDate = DateTime.UtcNow.AddYears(-3);
             context.SaveChanges();
