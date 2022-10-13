@@ -699,13 +699,14 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         }
 
         [Fact]
-        public async Task TestInActiveAccounts()
+        public async Task TestInactiveAccounts()
         {
             //Arrange
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
             const string user1NameIdentifier = "auth|user1";
             const string user2NameIdentifier = "auth|user2";
+            const string user3NameIdentifier = "auth|user3";
 
             userService.CreateUser(new ApiModels.User
             {
@@ -716,12 +717,24 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 HasVerifiedEmailAddress = true,
                 LastLoggedInDate = DateTime.UtcNow
             });
+
+
             userService.CreateUser(new ApiModels.User
             {
                 NameIdentifier = user2NameIdentifier,
                 FirstName = "User to be deleted",
                 LastName = "",
                 EmailAddress = "user2@example.com",
+                HasVerifiedEmailAddress = true,
+                LastLoggedInDate = DateTime.UtcNow.AddYears(-3)
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = user3NameIdentifier,
+                FirstName = "User not to be deleted",
+                LastName = "",
+                EmailAddress = "user3@nice.org.uk",
                 HasVerifiedEmailAddress = true,
                 LastLoggedInDate = DateTime.UtcNow.AddYears(-3)
             });
@@ -737,11 +750,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.SaveChanges();
 
             //Act
-            await userService.DeleteInActiveAccountsOlderThan(notify: false, yearsToKeepInActiveAcounts: 3);
+            await userService.DeleteInactiveAccountsOlderThan(notify: false, yearsToKeepInactiveAcounts: 3);
 
             //Assert
-            context.Users.Count().ShouldBe(1);
-            context.Users.Single().NameIdentifier.ShouldBe(user1NameIdentifier);
+            context.Users.Count().ShouldBe(2);
+            context.Users.Where(u => u.NameIdentifier == user1NameIdentifier).ShouldNotBeNull();
+            context.Users.Where(u => u.NameIdentifier == user3NameIdentifier).ShouldNotBeNull();
             context.Jobs.Count().ShouldBe(0);
         }
 

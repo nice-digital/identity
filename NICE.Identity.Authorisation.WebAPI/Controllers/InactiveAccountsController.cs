@@ -17,7 +17,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     {
         private readonly ILogger<InactiveAccountsController> _logger;
         private readonly IUsersService _usersService;
-        private const int yearsToKeepInActiveAccounts = 3;
+        private const int yearsToKeepInactiveAccounts = 3;
 
         public InactiveAccountsController(ILogger<InactiveAccountsController> logger, IUsersService usersService)
         {
@@ -38,7 +38,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 		{
 			try
 			{
-				await _usersService.DeleteInActiveAccountsOlderThan(notify: true, yearsToKeepInActiveAccounts);
+				await _usersService.DeleteInactiveAccountsOlderThan(notify: true, yearsToKeepInactiveAccounts);
 				return Ok();
 			}
 			catch (Exception e)

@@ -12,23 +12,23 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public interface IEmailService
 	{
 		void SendPendingAccountRemovalNotifications(IList<string> toEmailAddresses);
-        void SendInActiveAccountRemovalNotifications(IList<string> toEmailAddresses);
+        void SendInactiveAccountRemovalNotifications(IList<string> toEmailAddresses);
 }
 
 	public class EmailService : IEmailService
 	{
 		private readonly string _notificationEmailHTMLPath;
 		private readonly string _notificationEmailTextPath;
-        private readonly string _inActiveNotificationEmailHTMLPath;
-        private readonly string _inActiveNotificationEmailTextPath;
+        private readonly string _inactiveNotificationEmailHTMLPath;
+        private readonly string _inactiveNotificationEmailTextPath;
 
 public EmailService(IWebHostEnvironment webHostEnvironment)
 		{
 			var pathToEmails = Path.Combine(webHostEnvironment.ContentRootPath, "Emails");
 			_notificationEmailHTMLPath = Path.Combine(pathToEmails, "account_removal.html");
 			_notificationEmailTextPath = Path.Combine(pathToEmails, "account_removal.txt");
-            _inActiveNotificationEmailHTMLPath = Path.Combine(pathToEmails, "inactive_account_removal.html");
-            _inActiveNotificationEmailTextPath = Path.Combine(pathToEmails, "inactive_account_removal.txt");
+            _inactiveNotificationEmailHTMLPath = Path.Combine(pathToEmails, "inactive_account_removal.html");
+            _inactiveNotificationEmailTextPath = Path.Combine(pathToEmails, "inactive_account_removal.txt");
 }
 
 		public void SendPendingAccountRemovalNotifications(IList<string> toEmailAddresses)
@@ -60,7 +60,7 @@ public EmailService(IWebHostEnvironment webHostEnvironment)
 		}
 
 
-        public void SendInActiveAccountRemovalNotifications(IList<string> toEmailAddresses)
+        public void SendInactiveAccountRemovalNotifications(IList<string> toEmailAddresses)
         {
             if (toEmailAddresses == null || !toEmailAddresses.Any())
                 return;
@@ -79,8 +79,8 @@ public EmailService(IWebHostEnvironment webHostEnvironment)
             }
 
             var bodyBuilder = new BodyBuilder();
-            bodyBuilder.HtmlBody = File.ReadAllText(_inActiveNotificationEmailHTMLPath);
-            bodyBuilder.TextBody = File.ReadAllText(_inActiveNotificationEmailTextPath);
+            bodyBuilder.HtmlBody = File.ReadAllText(_inactiveNotificationEmailHTMLPath);
+            bodyBuilder.TextBody = File.ReadAllText(_inactiveNotificationEmailTextPath);
             var messageBody = bodyBuilder.ToMessageBody();
 
             const string subject = "Inactive account removal";

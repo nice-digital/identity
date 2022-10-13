@@ -31,7 +31,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 		Task<int> DeleteAllUsers();
 		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
-        Task DeleteInActiveAccountsOlderThan(bool notify, int yearsToKeepPendingRegistration);
+        Task DeleteInactiveAccountsOlderThan(bool notify, int yearsToKeepPendingRegistration);
         IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
     }
@@ -503,38 +503,38 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
-        public async Task DeleteInActiveAccountsOlderThan(bool notify, int yearsToKeepInActiveAcounts)
+        public async Task DeleteInactiveAccountsOlderThan(bool notify, int yearsToKeepInactiveAcounts)
         {
-            _logger.LogWarning($"DeleteInActiveAccountsOlderThan - Deleting Inactive Accounts Older Than {yearsToKeepInActiveAcounts} years."); //extra logging here in order to verify that the scheduled task is running via kibana.
+            _logger.LogWarning($"DeleteInActiveAccountsOlderThan - Deleting Inactive Accounts Older Than {yearsToKeepInactiveAcounts} years."); //extra logging here in order to verify that the scheduled task is running via kibana.
             
-            var allUsersWithInActiveAccountsOverAge = _context.GetInActiveUsersOverAge(yearsToKeepInActiveAcounts).ToList();
+            var allUsersWithInactiveAccountsOverAge = _context.GetInActiveUsersOverAge(yearsToKeepInactiveAcounts).ToList();
 
-            if (!allUsersWithInActiveAccountsOverAge.Any())
+            if (!allUsersWithInactiveAccountsOverAge.Any())
             {
                 _logger.LogWarning("DeleteInActiveAccountsOlderThan - No records found to delete. exiting");
                 return;
             }
 
-            var uniqueEmailAddresses = allUsersWithInActiveAccountsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
-            if (uniqueEmailAddresses.Count() != allUsersWithInActiveAccountsOverAge.Count())
+            var uniqueEmailAddresses = allUsersWithInactiveAccountsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
+            if (uniqueEmailAddresses.Count() != allUsersWithInactiveAccountsOverAge.Count())
             {
                 _logger.LogWarning("Inactive accounts exist for the same email address.");
             }
 
             //1. delete user accounts: allUsersWithInActiveAccountsOverAge
-            var recordsDeleted = await _context.DeleteUsers(allUsersWithInActiveAccountsOverAge);
+            var recordsDeleted = await _context.DeleteUsers(allUsersWithInactiveAccountsOverAge);
 
             //2. delete user account in auth0
-            foreach (var user in allUsersWithInActiveAccountsOverAge)
+            foreach (var user in allUsersWithInactiveAccountsOverAge)
             {
                 await _providerManagementService.DeleteUser(user.NameIdentifier);
             }
 
             //3. send notification to the email addresses, one email per email address.
             if (notify)
-                _emailService.SendInActiveAccountRemovalNotifications(uniqueEmailAddresses);
+                _emailService.SendInactiveAccountRemovalNotifications(uniqueEmailAddresses);
 
-            _logger.LogWarning($"DeleteInActiveAccountsOlderThan - Total records deleted: {recordsDeleted}");
+            _logger.LogWarning($"DeleteInactiveAccountsOlderThan - Total records deleted: {recordsDeleted}");
 
         }
 
