@@ -239,6 +239,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            UserAcceptedTermsVersions.RemoveRange(acceptedTermsForUsers);
             }
 
+            IQueryable<UserEmailHistory> userEmailHistory = UserEmailHistory.Where(ueh=> userIds.Contains(ueh.UserId.GetValueOrDefault()));
+            if (userEmailHistory.Any())
+            {
+                UserEmailHistory.RemoveRange(userEmailHistory);
+            }
+
             Users.RemoveRange(users);
             
             return await SaveChangesAsync();
