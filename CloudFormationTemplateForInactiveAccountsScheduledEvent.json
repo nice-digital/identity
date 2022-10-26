@@ -125,8 +125,8 @@
                     ]
                 },
                 "Description": "The IDAM API to hit to delete inactive accounts",
-                "InvocationEndpointDeleteInactiveAccounts": {
-                    "Ref": "InvocationEndpointDeleteInactiveAccounts"
+                "InvocationEndpoint": {
+                    "Ref": "InvocationEndpoint"
                 },
                 "HttpMethod": "DELETE",
                 "InvocationRateLimitPerSecond": 1
@@ -271,7 +271,7 @@
             "MinLength": "10",
             "MaxLength": "100"
         },
-        "InvocationEndpointDeleteInactiveAccounts": {
+        "InvocationEndpoint": {
             "NoEcho": "false",
             "Description": "IDAM API endpoint to hit",
             "Type": "String",
