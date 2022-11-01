@@ -83,7 +83,12 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		Task<User> UpdateUser(int userId, User user)
+        public Task DeleteInactiveAccountsOlderThan(bool notify, int yearsToKeepPendingRegistration)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<User> UpdateUser(int userId, User user)
 		{
 			throw new NotImplementedException();
 		}

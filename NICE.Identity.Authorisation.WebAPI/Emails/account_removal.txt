@@ -3,7 +3,8 @@
 
 Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.
 
-We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the NICE website.
+We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the NICE website:
+https://accounts.nice.org.uk/register?wa=wsignin1.0&wtrealm=https%3A%2F%2Fwww.nice.org.uk&wctx=rm%3D0%26id%3Dpassive%26ru%3Dhttps%253a%252f%252fwww.nice.org.uk%252f&ReturnUrl=https%3A%2F%2Fwww.nice.org.uk%2F
 
 If you need help you can contact us here: https://www.nice.org.uk/get-involved/contact-us
 

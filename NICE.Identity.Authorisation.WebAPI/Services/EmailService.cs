@@ -12,19 +12,24 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 	public interface IEmailService
 	{
 		void SendPendingAccountRemovalNotifications(IList<string> toEmailAddresses);
-	}
+        void SendInactiveAccountRemovalNotifications(IList<string> toEmailAddresses);
+}
 
 	public class EmailService : IEmailService
 	{
 		private readonly string _notificationEmailHTMLPath;
 		private readonly string _notificationEmailTextPath;
+        private readonly string _inactiveNotificationEmailHTMLPath;
+        private readonly string _inactiveNotificationEmailTextPath;
 
-		public EmailService(IWebHostEnvironment webHostEnvironment)
+public EmailService(IWebHostEnvironment webHostEnvironment)
 		{
 			var pathToEmails = Path.Combine(webHostEnvironment.ContentRootPath, "Emails");
 			_notificationEmailHTMLPath = Path.Combine(pathToEmails, "account_removal.html");
 			_notificationEmailTextPath = Path.Combine(pathToEmails, "account_removal.txt");
-		}
+            _inactiveNotificationEmailHTMLPath = Path.Combine(pathToEmails, "inactive_account_removal.html");
+            _inactiveNotificationEmailTextPath = Path.Combine(pathToEmails, "inactive_account_removal.txt");
+}
 
 		public void SendPendingAccountRemovalNotifications(IList<string> toEmailAddresses)
 		{
@@ -54,13 +59,41 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			SendEmail(toEmailAddresses, subject, messageBody);
 		}
 
-		/// <summary>
-		/// SendEmail using MailKit (because Microsoft's SMTPClient is deprecated and they recommend MailKit.
-		/// </summary>
-		/// <param name="toEmailAddresses">this is a list of single recipients, one email per address i.e.  it's NOT sending a single email to multiple recipients</param>
-		/// <param name="subject"></param>
-		/// <param name="body">in MimeEntity format - so it can include HTML and Text only versions - and text only is good for accessibility.</param>
-		private static void SendEmail(IEnumerable<string> toEmailAddresses, string subject, MimeEntity body)
+
+        public void SendInactiveAccountRemovalNotifications(IList<string> toEmailAddresses)
+        {
+            if (toEmailAddresses == null || !toEmailAddresses.Any())
+                return;
+
+            toEmailAddresses = toEmailAddresses.Select(e => e.Trim()).Distinct().ToList();
+
+            var useAllowList = (AppSettings.EmailConfig.Allowlist != null && AppSettings.EmailConfig.Allowlist.Any());
+            if (useAllowList)
+            {
+                toEmailAddresses = toEmailAddresses.Where(emailAddress => AppSettings.EmailConfig.Allowlist.Contains(emailAddress, StringComparer.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!toEmailAddresses.Any())
+            {
+                return;
+            }
+
+            var bodyBuilder = new BodyBuilder();
+            bodyBuilder.HtmlBody = File.ReadAllText(_inactiveNotificationEmailHTMLPath);
+            bodyBuilder.TextBody = File.ReadAllText(_inactiveNotificationEmailTextPath);
+            var messageBody = bodyBuilder.ToMessageBody();
+
+            const string subject = "Inactive account removal";
+
+            SendEmail(toEmailAddresses, subject, messageBody);
+        }
+/// <summary>
+        /// SendEmail using MailKit (because Microsoft's SMTPClient is deprecated and they recommend MailKit.
+        /// </summary>
+        /// <param name="toEmailAddresses">this is a list of single recipients, one email per address i.e.  it's NOT sending a single email to multiple recipients</param>
+        /// <param name="subject"></param>
+        /// <param name="body">in MimeEntity format - so it can include HTML and Text only versions - and text only is good for accessibility.</param>
+        private static void SendEmail(IEnumerable<string> toEmailAddresses, string subject, MimeEntity body)
 		{
 			using (var client = new SmtpClient())
 			{

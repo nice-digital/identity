@@ -50,6 +50,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Emails\inactive_account_removal.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Emails\inactive_account_removal.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Emails\account_removal.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -239,6 +239,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            UserAcceptedTermsVersions.RemoveRange(acceptedTermsForUsers);
             }
 
+            IQueryable<UserEmailHistory> userEmailHistory = UserEmailHistory.Where(ueh=> userIds.Contains(ueh.UserId.GetValueOrDefault()));
+            if (userEmailHistory.Any())
+            {
+                UserEmailHistory.RemoveRange(userEmailHistory);
+            }
+
             Users.RemoveRange(users);
             
             return await SaveChangesAsync();
@@ -317,5 +323,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 		}
 
 		#endregion
+
+        public IEnumerable<User> GetInActiveUsersOverAge(int yearsToKeepInactiveAcounts)
+        {
+            var dateToKeepAccountsFrom = DateTime.UtcNow.AddYears(-yearsToKeepInactiveAcounts);
+
+            return Users.Where(u => u.HasVerifiedEmailAddress &&
+                                    u.LastLoggedInDate.HasValue && u.LastLoggedInDate.Value <= dateToKeepAccountsFrom
+                                    && !u.EmailAddress.Contains("@nice.org.uk"));
+        }
     }
 }
