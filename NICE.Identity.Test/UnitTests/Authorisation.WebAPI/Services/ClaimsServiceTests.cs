@@ -26,7 +26,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             _logger = new Mock<ILogger<ClaimsService>>();
             _usersService = new MockUserService();
 			_identityContext = GetContext();
-
+            
             _sut = new ClaimsService(_identityContext, _logger.Object, _usersService);
         }
 
@@ -85,5 +85,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             organisations.Single().OrganisationName.Equals(leadOrganisationName);
         }
+
     }
 }

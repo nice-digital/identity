@@ -7,5 +7,7 @@
 		public string HealthCheckPublicAPIEndpoint { get; set; } = "healthcheckapi-local";
 		public string HealthCheckPrivateAPIEndpoint { get; set; } = "healthcheckapi-private";
 		public string HealthCheckPrivateAPIKey { get; set; }
-	}
+		public int MonthsUntilDormantAccountsDeleted { get; set; } = 36;
+
+    }
 }

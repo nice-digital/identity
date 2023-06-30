@@ -26,6 +26,9 @@ using System.Reflection;
 using Auth0.AuthenticationApi;
 using Auth0.ManagementApi;
 using IdentityContext = NICE.Identity.Authorisation.WebAPI.Repositories.IdentityContext;
+using MailKit;
+using MailKit.Net.Smtp;
+using Auth0.ManagementApi.Models;
 
 namespace NICE.Identity.Authorisation.WebAPI
 {
@@ -57,7 +60,7 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddDbContext<IdentityContext>(options =>
 				options.UseSqlServer(sqlConnectionString));
 
-			services.AddTransient<IClaimsService, ClaimsService>();
+            services.AddTransient<IClaimsService, ClaimsService>();
 			services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IWebsitesService, WebsitesService>();
             services.AddTransient<IServicesService, ServicesService>();
@@ -72,7 +75,8 @@ namespace NICE.Identity.Authorisation.WebAPI
 			services.AddTransient<IDuplicateCheck, DuplicateCheck>();
 			services.AddSingleton<IManagementConnection, HttpClientManagementConnection>();
 			services.AddTransient<IEmailService, EmailService>();
-			services.AddHttpClient(); //this adds http client factory for use in DI
+            services.AddTransient<ISmtpClient, SmtpClient>();
+            services.AddHttpClient(); //this adds http client factory for use in DI
 
 			services.AddRouting(options => options.LowercaseUrls = true);
 

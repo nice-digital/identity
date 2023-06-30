@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
+using Polly;
 using Organisation = NICE.Identity.Authorisation.WebAPI.DataModels.Organisation;
 using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
@@ -168,27 +169,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             SaveChanges();
             return user;
         }
-
-        /// <summary>
-        /// The fields updated on login are the LastLoggedInDate, IsLockedOut, IsInAuthenticationProvider and HasVerifiedEmail address
-        ///
-        /// IsLockedOut and IsInAuthentication provider are set to false and true respectively, as the user is logging in from auth0, so that must be the case.
-        ///
-        /// likewise HasVerifiedEmail is set here as again, they'd be unable to login without verifying.
-        /// Also, currently when the user clicks on the activate link in the email, it updates the auth0 db, but doesn't update our database - hence our db is potentially out of sync on this property
-        /// until the user logs in, and we can't make it sync with our db currentl without exposing our api directly to the user, which we don't want to do.
-        /// todo: when the profile site is up, handle the activate link in there, then redirect to confirmation page on s3. a page on the profile site can hit the api server side.
-        /// </summary>
-        /// <param name="user"></param>
-		public void UpdateFieldsDueToLogin(User user)
-		{
-			user.LastLoggedInDate = DateTime.UtcNow;
-			user.IsLockedOut = false;
-			user.IsInAuthenticationProvider = true;
-			user.HasVerifiedEmailAddress = true; 
-			Users.Update(user);
-			SaveChanges();
-		}
 
         /// <summary>
         /// This delete all users method is temporary. it also can only be called on non-production environments, by an admin.

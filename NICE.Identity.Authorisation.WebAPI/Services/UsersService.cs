@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Auth0.ManagementApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
+using NICE.Identity.Authorisation.WebAPI.Factories;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
@@ -33,6 +36,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
 		IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
+        Task UpdateFieldsDueToLogin(string userToUpdateIdentifier);
+        Task DeleteDormantAccounts(DateTime BaseDate);
+        Task SendPendingDeletionEmails(DateTime BaseDate);
     }
 
 	public class UsersService : IUsersService
@@ -496,11 +502,138 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             //3. send notification to the email addresses, one email per email address.
             if (notify)
             {
-	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
+				allUsersWithPendingRegistrationsOverAge.ForEach(x =>
+				{
+                    try
+                    {
+                        _emailService.SendEmail<DeleteRegistrationsOlderThanNotificationEmail>(x);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError($"Failed to send delete registrations older than notification email - exception: {e}");
+                    }
+                    
+
+                });
+
             }
 
             _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
-	}
+        public async Task SendPendingDeletionEmails(DateTime BaseDate)
+        {
+            try {
+				
+                _logger.LogWarning($"SendPendingDeletionEmails - Sending emails to users pending deletion");
+
+                var cutoffDate = BaseDate.AddMonths(-AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted);
+			    var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
+
+				var users = await _context.Users
+										  .Where(x => !x.isPendingDeletion
+												   && !x.EmailAddress.EndsWith("@nice.org.uk")
+												   && x.LastLoggedInDate <= pendingCutOffDate
+                                                   && x.LastLoggedInDate > cutoffDate
+                                                   && !x.IsMigrated
+                                                )
+										  .ToListAsync();
+			
+				users.ForEach(x =>
+				{
+                    x.isPendingDeletion = true;
+
+                    try
+                    {
+                        _emailService.SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
+                    }
+                    catch (Exception e)
+                    {
+                        x.isPendingDeletion = false;
+                        _logger.LogError($"Failed to send pending deletion email - exception: {e}");
+                    }
+
+                });
+
+                _context.SaveChanges();
+
+
+			}
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to send pending deletion emails - exception: {e.ToString()}");
+                throw new Exception($"Failed to send pending deletion emails - exception: {e.ToString()}", e);
+			}
+		}
+
+        public async Task DeleteDormantAccounts(DateTime BaseDate)
+        {
+            try
+            {
+
+                _logger.LogWarning($"DeleteDormantAccounts - Deleting dormant accounts");
+
+                var cutoffDate = BaseDate.AddMonths(-AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted);
+
+                var users = await _context.Users
+                                          .Where(x => (x.LastLoggedInDate <= cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate <= cutoffDate)) 
+                                                      && !x.EmailAddress.EndsWith("@nice.org.uk"))
+                                          .ToListAsync();
+
+                var emailUserList = new List<DataModels.User>();
+
+                users.ForEach(x =>
+                {
+                    if (x.LastLoggedInDate != null || (x.LastLoggedInDate == null && !x.IsMigrated))
+                    {
+                        try
+                        {
+                            _emailService.SendEmail<DormantAccountRemovalNotificationEmailGenerator>(x);
+
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError($"Failed to send dormant account removal notification email - exception: {e}");
+                        }
+                    }
+
+                });
+
+                var recordsDeleted = await _context.DeleteUsers(users);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete dormant accounts - exception: {e.ToString()}");
+                throw new Exception($"Failed to delete dormant accounts - exception: {e.ToString()}", e);
+            }
+        }
+
+        /// <summary>
+        /// The fields updated on login are the LastLoggedInDate, IsLockedOut, IsInAuthenticationProvider and HasVerifiedEmail address
+        ///
+        /// IsLockedOut and IsInAuthentication provider are set to false and true respectively, as the user is logging in from auth0, so that must be the case.
+        ///
+        /// likewise HasVerifiedEmail is set here as again, they'd be unable to login without verifying.
+        /// Also, currently when the user clicks on the activate link in the email, it updates the auth0 db, but doesn't update our database - hence our db is potentially out of sync on this property
+        /// until the user logs in, and we can't make it sync with our db currentl without exposing our api directly to the user, which we don't want to do.
+        /// todo: when the profile site is up, handle the activate link in there, then redirect to confirmation page on s3. a page on the profile site can hit the api server side.
+        /// </summary>
+        /// <param name="userToUpdateIdentifier"></param>
+        public async Task UpdateFieldsDueToLogin(string userToUpdateIdentifier)
+        {
+            var user = _context.Users.SingleOrDefault(x => x.NameIdentifier == userToUpdateIdentifier);
+
+            user.LastLoggedInDate = DateTime.UtcNow;
+            user.IsLockedOut = false;
+            user.IsInAuthenticationProvider = true;
+            user.HasVerifiedEmailAddress = true;
+            user.isPendingDeletion = false;
+
+            _context.Users.Update(user);
+
+            await _context.SaveChangesAsync();
+            
+        }
+    }
 }

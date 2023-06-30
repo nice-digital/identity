@@ -202,6 +202,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<bool>("AllowContactMe")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("DormantAccountWarningSent")
+                        .HasColumnType("bit");
+
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(320)")
@@ -283,7 +286,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("ArchivedByUserId")
-                        .IsRequired()
                         .HasColumnName("ArchivedByUserID")
                         .HasColumnType("int");
 
@@ -434,8 +436,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .WithMany("ArchivedUserEmailHistory")
                         .HasForeignKey("ArchivedByUserId")
                         .HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NICE.Identity.Authorisation.WebAPI.DataModels.User", "User")
                         .WithMany("UserEmailHistory")

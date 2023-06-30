@@ -25,9 +25,10 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 	        IsStaffMember = user.IsStaffMember.HasValue && user.IsStaffMember.Value;
 	        IsMigrated = user.IsMigrated.HasValue && user.IsMigrated.Value;
 	        IsInAuthenticationProvider = user.IsInAuthenticationProvider.HasValue && user.IsInAuthenticationProvider.Value;
+            isPendingDeletion = user.isPendingDeletion.HasValue && user.isPendingDeletion.Value;
         }
 
-        public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider, bool dormantAccountWarningSent)
         {
             UserId = userId;
             NameIdentifier = nameIdentifier;
@@ -43,6 +44,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             UserRoles = new HashSet<UserRole>();
             IsMigrated = isMigrated;
             IsInAuthenticationProvider = isInAuthenticationProvider;
+            isPendingDeletion = dormantAccountWarningSent;
         }
 
         public int UserId { get; set; }
@@ -58,6 +60,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public bool IsStaffMember { get; set; }
         public bool IsMigrated { get; set; }
         public bool IsInAuthenticationProvider { get; set; }
+        public bool isPendingDeletion { get; set; }
 
 		public ICollection<UserRole> UserRoles { get; set; }
 		public ICollection<UserEmailHistory> UserEmailHistory { get; set; }

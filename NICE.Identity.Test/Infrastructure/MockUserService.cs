@@ -97,5 +97,20 @@ namespace NICE.Identity.Test.Infrastructure
         {
             throw new NotImplementedException();
         }
+
+        public Task UpdateFieldsDueToLogin(string userToUpdateIdentifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteDormantAccounts(DateTime BaseDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SendPendingDeletionEmails(DateTime BaseDate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

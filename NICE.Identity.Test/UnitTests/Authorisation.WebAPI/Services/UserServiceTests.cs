@@ -13,6 +13,7 @@ using NICE.Identity.Authorisation.WebAPI;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Xunit;
 using Xunit.Sdk;
+using MailKit.Net.Smtp;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
@@ -20,20 +21,25 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
     {
         private readonly Mock<ILogger<UsersService>> _logger;
         private readonly Mock<IProviderManagementService> _providerManagementService;
+        private readonly Mock<IEmailService> _emailService;
 
         public UserServiceTests()
         {
             _logger = new Mock<ILogger<UsersService>>();
             _providerManagementService = new Mock<IProviderManagementService>();
+            _emailService = new Mock<IEmailService>();
+
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted = 36;
+
         }
 
         [Fact]
-        public void Create_user_where_user_email_exists_but_name_identifier_is_different_and_existing_user_is_migrated_does_not_create_new_user() 
+        public void Create_user_where_user_email_exists_but_name_identifier_is_different_and_existing_user_is_migrated_does_not_create_new_user()
         {
             //Arrange
             const string existingUserEmail = "existing.user@email.com";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             context.Users.Add(new DataModels.User {NameIdentifier = "some name identifier", EmailAddress = existingUserEmail, IsMigrated = true, IsInAuthenticationProvider = false});
             context.SaveChanges();
 
@@ -51,7 +57,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        //Arrange
 	        const string existingUserEmail = "existing.user@email.com";
 	        var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 	        context.Users.Add(new DataModels.User { NameIdentifier = "some name identifier", EmailAddress = existingUserEmail, IsMigrated = false, IsInAuthenticationProvider = true });
 	        context.SaveChanges();
 
@@ -69,7 +75,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.Users.Add(new DataModels.User { NameIdentifier = nameIdentifier });
             context.SaveChanges();
 
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             var userToInsert = new ApiModels.User { NameIdentifier = nameIdentifier };
 
             //Act + Assert
@@ -84,7 +90,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string email = "singleuser@example.com";
             const string nameIdentifier = "user|toget";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             var user = new ApiModels.User { NameIdentifier = nameIdentifier, EmailAddress = email };
             var createdUserId = userService.CreateUser(user).UserId;
 
@@ -101,7 +107,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             
             var user1 = new ApiModels.User { NameIdentifier = "auth|user1", EmailAddress = "user1@example.com" };
             var user2 = new ApiModels.User { NameIdentifier = "auth|user2", EmailAddress = "user2@example.com" };
@@ -123,7 +129,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             
             userService.CreateUser(new ApiModels.User 
             {
@@ -179,7 +185,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             
             userService.CreateUser(new ApiModels.User
             {
@@ -246,7 +252,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        //Arrange
 	        var context = GetContext();
 	        AddUsersWithAndWithoutRoles(context);
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 
             //Act
             var usersFound = userService.GetUsers("user");
@@ -262,7 +268,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 
             var user1 = new ApiModels.User { UserId = 1, NameIdentifier = "auth|user1", EmailAddress = "user1@example.com" };
             var createdUser1 = userService.CreateUser(user1);
@@ -304,7 +310,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var originalEmailAddress = "original.email.address@email.com";
             var changedEmailAddress = "changed.email.address@email.com";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             var user = new ApiModels.User(){ EmailAddress = originalEmailAddress, FirstName = "Joe"};
             var createdUserId = userService.CreateUser(user).UserId;
 
@@ -330,7 +336,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             const int nonExistingUserId = 987;
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             var userToUpdate = new ApiModels.User()
             {
                 UserId = nonExistingUserId, 
@@ -350,7 +356,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string newUserEmailAddress = "usertodelete@example.com";
             const string nameIdentifier = "user|todelete";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             var user = new ApiModels.User { NameIdentifier = nameIdentifier, EmailAddress = newUserEmailAddress };
             var createdUser = userService.CreateUser(user);
 
@@ -368,7 +374,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             TestData.AddEnvironment(ref context, 1);
             TestData.AddService(ref context, 1);
             TestData.AddWebsite(ref context, 1, 1, 1);
@@ -392,7 +398,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             TestData.AddEnvironment(ref context, 1);
             TestData.AddService(ref context, 1);
             TestData.AddWebsite(ref context, 1, 1, 1);
@@ -444,7 +450,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             TestData.AddEnvironment(ref context, 1);
             TestData.AddService(ref context, 1);
             TestData.AddWebsite(ref context, 1, 1, 1);
@@ -469,7 +475,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1});
             context.Services.Add(new DataModels.Service(){ServiceId = 1});
             context.Websites.Add(new DataModels.Website(){WebsiteId = 1, ServiceId = 1, EnvironmentId = 1});
@@ -496,7 +502,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Dev"});
             context.Environments.Add(new DataModels.Environment() { EnvironmentId = 2, Name = "Test"});
             context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
@@ -524,7 +530,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test"});
             context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
             context.Websites.Add(new DataModels.Website()
@@ -548,7 +554,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
             //Arrange
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test"});
             context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service"});
             context.Websites.Add(new DataModels.Website()
@@ -588,7 +594,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        var context = GetContext();
 	        var existingEmailAddress = "existing.user.account@nice.org.uk";
 	        var existingFirstName = "Phil";
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 	        context.Users.Add(new DataModels.User() { EmailAddress = existingEmailAddress, FirstName = existingFirstName, LastName = "Connors"});
             context.SaveChanges();
 
@@ -617,7 +623,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        var context = GetContext();
 	        var existingEmailAddress = "existing.user.account@nice.org.uk";
 	        var existingFirstName = "Phil";
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 	        context.Users.Add(new DataModels.User() { EmailAddress = existingEmailAddress, FirstName = existingFirstName, LastName = "Connors" });
 	        context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test" });
 	        context.Services.Add(new DataModels.Service() { ServiceId = 1, Name = "Service" });
@@ -659,7 +665,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
         {
 	        //Arrange
 	        var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 	        const string user1NameIdentifier = "auth|user1";
 	        const string user2NameIdentifier = "auth|user2";
 
@@ -707,7 +713,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string adminNameIdentifier = "admin";
             const string userNameIdentifier = "user";
             var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 
 	        var adminUser = new ApiModels.User { NameIdentifier = adminNameIdentifier, EmailAddress = "admin@example.com"};
 	        var createdAdminUser = userService.CreateUser(adminUser);
@@ -741,7 +747,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string adminNameIdentifier = "admin";
 	        const string userNameIdentifier = "user";
 	        var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 
 	        var adminUser = new ApiModels.User { NameIdentifier = adminNameIdentifier, EmailAddress = "admin@example.com" };
 	        var createdAdminUser = userService.CreateUser(adminUser);
@@ -784,7 +790,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             const string adminNameIdentifier = "admin";
             const string userNameIdentifier = "user";
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             
             var user = new ApiModels.User { NameIdentifier = userNameIdentifier, EmailAddress = originalEmailAddress };
             var createdUser = userService.CreateUser(user);
@@ -804,7 +810,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        //Arrange
 	        const string user1Email = "user1s.email@example.com";
 	        var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 
 	        
 	        var user1 = new ApiModels.User { NameIdentifier = "user1", EmailAddress = user1Email };
@@ -828,7 +834,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        const string secondEmail = "second.email@example.com";
 
             var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
 
 
 	        var userModel = new ApiModels.User { NameIdentifier = "user1", EmailAddress = firstEmail };
@@ -846,13 +852,14 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             updatedAgainUser.EmailAddress.ShouldBe(firstEmail);
         }
 
+
         [Fact]
         public void Get_users_and_jobs_for_an_organisation()
         {
             //Arrange
             var organisationId = 1;
             var context = GetContext();
-            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, null);
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             
             context.Organisations.Add(new DataModels.Organisation() { OrganisationId = organisationId, Name = "My Organisation" });
             context.Organisations.Add(new DataModels.Organisation() { OrganisationId = 2, Name = "Another org" });
@@ -880,6 +887,45 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             orgAndUsers.UsersAndJobIds.LastOrDefault().UserId.ShouldBe(2);
             orgAndUsers.UsersAndJobIds.LastOrDefault().User.NameIdentifier.ShouldBe("auth|bob");
+        }
+
+        [Fact]
+        public async Task Update_user_details_due_to_login()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
+
+            var userToUpdateIdentifier = "auth|UserToUpdate_436efae7-812d-453f-be4f-7af991ba77b6";
+
+            userService.CreateUser(new ApiModels.User
+            {
+                IsLockedOut = true,
+                IsInAuthenticationProvider = false,
+                HasVerifiedEmailAddress = false,
+                NameIdentifier = userToUpdateIdentifier,
+                FirstName = "User",
+                LastName = "ToUpdate",
+                EmailAddress = "UserToUpdate@example.com",
+                isPendingDeletion = true,
+                LastLoggedInDate = DateTime.SpecifyKind(new DateTime(2020, 1, 1), DateTimeKind.Utc)
+            });
+
+            context.SaveChanges();
+
+            //Act
+            await userService.UpdateFieldsDueToLogin(userToUpdateIdentifier);
+
+            //Assert
+            var user = context.FindUsers(userToUpdateIdentifier)
+                .Single();
+
+            user.IsLockedOut.ShouldBeFalse();
+            user.IsInAuthenticationProvider.ShouldBeTrue();
+            user.HasVerifiedEmailAddress.ShouldBeTrue();
+            user.isPendingDeletion.ShouldBeFalse();
+            user.LastLoggedInDate.Value.ShouldBe(DateTime.UtcNow, TimeSpan.FromSeconds(10));
+
         }
     }
 }

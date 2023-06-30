@@ -16,12 +16,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	public class ClaimsController : ControllerBase
 	{
 		private readonly IClaimsService _claimsService;
-		private readonly ILogger<ClaimsController> _logger;
+        private readonly IUsersService _usersService;
+        private readonly ILogger<ClaimsController> _logger;
 
-		public ClaimsController(IClaimsService claimsService, ILogger<ClaimsController> logger)
+		public ClaimsController(IClaimsService claimsService, IUsersService usersService, ILogger<ClaimsController> logger)
 	    {
 		    _claimsService = claimsService ?? throw new ArgumentNullException(nameof(claimsService));
-		    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		// GET api/claims/someuserid
@@ -29,15 +31,19 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	    public async Task<ActionResult<IEnumerable<ApiModels.Claim[]>>> Get(string authenticationProviderUserId)
 	    {
 	        try
-	        {
-	            var result = _claimsService.GetClaims(HttpUtility.UrlDecode(authenticationProviderUserId));
+            {
+
+                await _usersService.UpdateFieldsDueToLogin(HttpUtility.UrlDecode(authenticationProviderUserId));
+
+                var result = _claimsService.GetClaims(HttpUtility.UrlDecode(authenticationProviderUserId));
 
 	            if (result == null)
 	            {
 	                return StatusCode(404, "User not found");
 	            }
 
-	            return Ok(result);
+
+                return Ok(result);
 	        }
 	        catch (Exception e)
 	        {
