@@ -25,7 +25,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
             IsStaffMember = user.IsStaffMember;
             IsMigrated = user.IsMigrated;
             IsInAuthenticationProvider = user.IsInAuthenticationProvider;
-            isPendingDeletion = user.isPendingDeletion;
+            IsMarkedForDeletion = user.IsMarkedForDeletion;
 
             UserEmailHistory = user.UserEmailHistory;
 
@@ -54,7 +54,7 @@ namespace NICE.Identity.Authorisation.WebAPI.ApiModels
 		public bool? AcceptedTerms { get; set; }
 		public bool? IsMigrated { get; set; }
         public bool? IsInAuthenticationProvider { get; set; }
-        public bool? isPendingDeletion { get; set; }
+        public bool? IsMarkedForDeletion { get; set; }
 
         public IEnumerable<int> HasAccessToWebsiteIds { get; set; } = new List<int>();
 

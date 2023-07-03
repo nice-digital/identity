@@ -38,7 +38,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
         Task UpdateFieldsDueToLogin(string userToUpdateIdentifier);
         Task DeleteDormantAccounts(DateTime BaseDate);
-        Task SendPendingDeletionEmails(DateTime BaseDate);
+        Task MarkAccountsForDeletion(DateTime BaseDate);
     }
 
 	public class UsersService : IUsersService
@@ -480,7 +480,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
 	        if (!allUsersWithPendingRegistrationsOverAge.Any())
 	        {
-		        _logger.LogWarning("DeleteRegistrationsOlderThan - No records found to delete. exiting");
+		        _logger.LogWarning("DeleteRegistrationsOlderThan - No registrations found to delete. exiting");
 		        return;
 	        }
 
@@ -518,38 +518,44 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
             }
 
-            _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
+            _logger.LogWarning($"DeleteRegistrationsOlderThan - Total registrations deleted : {recordsDeleted}");
         }
 
-        public async Task SendPendingDeletionEmails(DateTime BaseDate)
+        public async Task MarkAccountsForDeletion(DateTime BaseDate)
         {
             try {
 				
-                _logger.LogWarning($"SendPendingDeletionEmails - Sending emails to users pending deletion");
+                _logger.LogWarning($"MarkAccountsForDeletion - Marking accounts for deletion");
 
                 var cutoffDate = BaseDate.AddMonths(-AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted);
 			    var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
 
 				var users = await _context.Users
-										  .Where(x => !x.isPendingDeletion
+										  .Where(x => !x.IsMarkedForDeletion
 												   && !x.EmailAddress.EndsWith("@nice.org.uk")
 												   && x.LastLoggedInDate <= pendingCutOffDate
                                                    && x.LastLoggedInDate > cutoffDate
-                                                   && !x.IsMigrated
                                                 )
 										  .ToListAsync();
-			
-				users.ForEach(x =>
+
+                if (!users.Any())
+                {
+                    _logger.LogWarning("MarkAccountsForDeletion - No accounts found to mark for deletion. exiting");
+                    return;
+                }
+
+                users.ForEach(x =>
 				{
-                    x.isPendingDeletion = true;
+                    x.IsMarkedForDeletion = true;
 
                     try
                     {
-                        _emailService.SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
+                        if (!x.IsMigrated)
+                            _emailService.SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
                     }
                     catch (Exception e)
                     {
-                        x.isPendingDeletion = false;
+                        x.IsMarkedForDeletion = false;
                         _logger.LogError($"Failed to send pending deletion email - exception: {e}");
                     }
 
@@ -557,12 +563,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 _context.SaveChanges();
 
+                var totalMarkedForDeletion = 0;
 
-			}
+                if (users != null)
+                    totalMarkedForDeletion = users.Where(x => x.IsMarkedForDeletion).Count();
+
+                _logger.LogWarning($"MarkAccountsPendingDeletion - Total accounts marked for deletion : {totalMarkedForDeletion}");
+            }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to send pending deletion emails - exception: {e.ToString()}");
-                throw new Exception($"Failed to send pending deletion emails - exception: {e.ToString()}", e);
+                _logger.LogError($"Failed to mark accounts for deletion - exception: {e}");
+                throw new Exception($"Failed to mark accounts for deletion - exception: {e}", e);
 			}
 		}
 
@@ -579,6 +590,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                                           .Where(x => (x.LastLoggedInDate <= cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate <= cutoffDate)) 
                                                       && !x.EmailAddress.EndsWith("@nice.org.uk"))
                                           .ToListAsync();
+
+                if (!users.Any())
+                {
+                    _logger.LogWarning("DeleteDormantAccounts - No accounts found for deletion. exiting");
+                    return;
+                }
 
                 var emailUserList = new List<DataModels.User>();
 
@@ -601,11 +618,25 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 var recordsDeleted = await _context.DeleteUsers(users);
 
+                users.ForEach (x =>
+                {
+                    try
+                    {
+                        if (x.IsInAuthenticationProvider)
+                            _providerManagementService.DeleteUser(x.NameIdentifier);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError($"Failed to remove deleted user from Auth0 tenant. Email:{x.EmailAddress} Name:{x.NameIdentifier} - exception: {e}");
+                    }
+                });
+
+                _logger.LogWarning($"DeleteDormantAccounts - Total accounts deleted : {recordsDeleted}");
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to delete dormant accounts - exception: {e.ToString()}");
-                throw new Exception($"Failed to delete dormant accounts - exception: {e.ToString()}", e);
+                _logger.LogError($"Failed to delete dormant accounts - exception: {e}");
+                throw new Exception($"Failed to delete dormant accounts - exception: {e}", e);
             }
         }
 
@@ -628,7 +659,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             user.IsLockedOut = false;
             user.IsInAuthenticationProvider = true;
             user.HasVerifiedEmailAddress = true;
-            user.isPendingDeletion = false;
+            user.IsMarkedForDeletion = false;
 
             _context.Users.Update(user);
 

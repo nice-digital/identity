@@ -108,7 +108,7 @@ namespace NICE.Identity.Test.Infrastructure
             throw new NotImplementedException();
         }
 
-        public Task SendPendingDeletionEmails(DateTime BaseDate)
+        public Task MarkAccountsForDeletion(DateTime BaseDate)
         {
             throw new NotImplementedException();
         }

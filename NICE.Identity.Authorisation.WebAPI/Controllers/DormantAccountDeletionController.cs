@@ -37,7 +37,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                await _usersService.SendPendingDeletionEmails(DateTime.Now);
+                await _usersService.MarkAccountsForDeletion(DateTime.Now);
                 await _usersService.DeleteDormantAccounts(DateTime.Now);
 
                 return Ok();

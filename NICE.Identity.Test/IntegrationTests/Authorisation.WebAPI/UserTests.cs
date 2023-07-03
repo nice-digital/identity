@@ -131,7 +131,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 FirstName = "Nice",
                 LastName = "Employee",
                 EmailAddress = "NiceEmployee@nice.org.uk",
-                isPendingDeletion = false,
+                IsMarkedForDeletion = false,
                 LastLoggedInDate = insidePendingDeletionWindowDate
             });
             userService.CreateUser(new ApiModels.User
@@ -140,7 +140,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 FirstName = "AlreadyPending",
                 LastName = "Deletion",
                 EmailAddress = "AlreadyPendingDeletion@example.com",
-                isPendingDeletion = true,
+                IsMarkedForDeletion = true,
                 LastLoggedInDate = insidePendingDeletionWindowDate
             });
             userService.CreateUser(new ApiModels.User
@@ -149,7 +149,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 FirstName = "Pending",
                 LastName = "Deletion",
                 EmailAddress = "PendingDeletion@example.com",
-                isPendingDeletion = false,
+                IsMarkedForDeletion = false,
                 LastLoggedInDate = insidePendingDeletionWindowDate
             });
             userService.CreateUser(new ApiModels.User
@@ -158,7 +158,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 FirstName = "NotPending",
                 LastName = "Deletion",
                 EmailAddress = "NotPendingDeletion@example.com",
-                isPendingDeletion = false,
+                IsMarkedForDeletion = false,
                 LastLoggedInDate = beforePendingDeletionWindowDate
             });
             userService.CreateUser(new ApiModels.User
@@ -167,7 +167,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 FirstName = "BeyondPending",
                 LastName = "DeletionWindow",
                 EmailAddress = "BeyondPendingDeletionWindow@example.com",
-                isPendingDeletion = false,
+                IsMarkedForDeletion = false,
                 LastLoggedInDate = beyondPendingDeletionWindowDate
             });
             userService.CreateUser(new ApiModels.User
@@ -176,7 +176,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 FirstName = "MigratedUser",
                 LastName = "InsideWindow",
                 EmailAddress = "MigratedUserInsideWindow@example.com",
-                isPendingDeletion = false,
+                IsMarkedForDeletion = false,
                 IsMigrated = true,
                 LastLoggedInDate = insidePendingDeletionWindowDate
             });
@@ -187,7 +187,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             {
 
                 //Act
-                await userService.SendPendingDeletionEmails(baseDate);
+                await userService.MarkAccountsForDeletion(baseDate);
 
                 //Assert Emails
                 emailServer.ReceivedEmail
@@ -223,33 +223,33 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 //Assert Flags
                 context.FindUsers(niceEmployeeIdentifier)
                     .Single()
-                    .isPendingDeletion
+                    .IsMarkedForDeletion
                     .ShouldBe(false);
 
                 context.FindUsers(alreadyPendingIdentifier)
                     .Single()
-                    .isPendingDeletion
+                    .IsMarkedForDeletion
                     .ShouldBe(true);
 
                 context.FindUsers(pendingDeletionIdentifier)
                     .Single()
-                    .isPendingDeletion
+                    .IsMarkedForDeletion
                     .ShouldBe(true);
 
                 context.FindUsers(notPendingDeletion)
                     .Single()
-                    .isPendingDeletion
+                    .IsMarkedForDeletion
                     .ShouldBe(false);
 
                 context.FindUsers(beyondPendingDeletionWindowIdentifier)
                     .Single()
-                    .isPendingDeletion
+                    .IsMarkedForDeletion
                     .ShouldBe(false);
 
                 context.FindUsers(migratedUserIdentifier)
                     .Single()
-                    .isPendingDeletion
-                    .ShouldBe(false);
+                    .IsMarkedForDeletion
+                    .ShouldBe(true);
             }
         }
 

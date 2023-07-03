@@ -37,7 +37,7 @@
 
 ### Getting Started
 
-Solution is only tested in Visual Studio 2019. ymmv in other IDE's.
+Solution is only tested in Visual Studio 2019. Your experience may differ in other IDE's.
 
 Install [NPM Task Runner Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner) 
 
@@ -48,10 +48,35 @@ Install [Node.js](https://nodejs.org/en/download/)
 In Visual Studio, go to Tools > Options > Projects and Solutions > Web Package Management 
 add the path to the Node installation at the top of the list. It'll be either `C:\Program Files\nodejs` or `C:\Program Files (x86)\nodejs` depending on whether you installed the x64 or x86 version of Node.js.
 
+Change the dropdown next to the green play button to "NICE.RoleManagement.WebAPI", you might also need to disable IIS Express.
+
+#### Database
+
+You will need a copy of the test database, try to aquire this from another developer. If you are unable to do so, you can run the entity framework codefirst migrations. This will generate a barebones database. 
+
+If you want to connect to the API with the front end (identity-management) You will need to add a record to the Users table with your Auth0|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx username in the NameIdentifier field. You can Then associate yourself with every role in the roles table using the "UserRoles" table. You can pick and choose the specific roles for Identity Admin if you want to be a bit more delicate.
+
+#### Redis server
+
+This application uses a data store called Redis to capture and store Tokens from Auth0. You will need to run a local version of Redis using WSL in a command prompt or Chocolatey. Go to [https://redis.io/docs/getting-started/](https://redis.io/docs/getting-started/) to get started, the instructions are well written.
+
 #### Secrets.json
 
 The application's uses appsettings.json to store configuration. However, since this is a public repository, confidential configuration information (e.g. db connection string) is stored in secrets.json
 In order to run the application correctly (with it having access to a database), you'll need to acquire (from another dev) or create a secrets.json file with the correct configuration information in. For more  information see: [https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio)
+
+If you are creating from scratch, the key sections are:
+ - ConnectionStrings (The database connection for the roles database)
+ - Logging (The RabbitMQ server to send logs to)
+ - IdentityApiConfiguration (see below...)
+ - Auth0ManagementApiConfiguration (see below...)
+ - Email (settings for the smtp server used by the emailing functionality)
+
+**IdentityApiConfiguration** The Identity API itself needs to authenticate and authorise people who are using it. So like any other implementation (Consultations/EPPI/etc...) it needs to be set up with a link to an application in Auth0, there should be one called "Identity Admin"
+
+**Auth0ManagementApiConfiguration** The Identity API also needs the ability to edit/update/delete users in Auth0. This needs elevated privileges and is done through a different endpoint, that appears by default (and is not deletable) on the tenant. It will be called "API Explorer Application".
+
+If you have access to the Auth0 tenant, you can get the client IDs and secrets from **Applications > Applications** on the left hand menu.
 
 #### Nuget sources
 

@@ -907,7 +907,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 FirstName = "User",
                 LastName = "ToUpdate",
                 EmailAddress = "UserToUpdate@example.com",
-                isPendingDeletion = true,
+                IsMarkedForDeletion = true,
                 LastLoggedInDate = DateTime.SpecifyKind(new DateTime(2020, 1, 1), DateTimeKind.Utc)
             });
 
@@ -923,7 +923,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             user.IsLockedOut.ShouldBeFalse();
             user.IsInAuthenticationProvider.ShouldBeTrue();
             user.HasVerifiedEmailAddress.ShouldBeTrue();
-            user.isPendingDeletion.ShouldBeFalse();
+            user.IsMarkedForDeletion.ShouldBeFalse();
             user.LastLoggedInDate.Value.ShouldBe(DateTime.UtcNow, TimeSpan.FromSeconds(10));
 
         }

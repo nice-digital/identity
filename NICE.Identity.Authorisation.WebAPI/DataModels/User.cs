@@ -25,7 +25,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 	        IsStaffMember = user.IsStaffMember.HasValue && user.IsStaffMember.Value;
 	        IsMigrated = user.IsMigrated.HasValue && user.IsMigrated.Value;
 	        IsInAuthenticationProvider = user.IsInAuthenticationProvider.HasValue && user.IsInAuthenticationProvider.Value;
-            isPendingDeletion = user.isPendingDeletion.HasValue && user.isPendingDeletion.Value;
+            IsMarkedForDeletion = user.IsMarkedForDeletion.HasValue && user.IsMarkedForDeletion.Value;
         }
 
         public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider, bool dormantAccountWarningSent)
@@ -44,7 +44,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             UserRoles = new HashSet<UserRole>();
             IsMigrated = isMigrated;
             IsInAuthenticationProvider = isInAuthenticationProvider;
-            isPendingDeletion = dormantAccountWarningSent;
+            IsMarkedForDeletion = dormantAccountWarningSent;
         }
 
         public int UserId { get; set; }
@@ -60,7 +60,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
         public bool IsStaffMember { get; set; }
         public bool IsMigrated { get; set; }
         public bool IsInAuthenticationProvider { get; set; }
-        public bool isPendingDeletion { get; set; }
+        public bool IsMarkedForDeletion { get; set; }
 
 		public ICollection<UserRole> UserRoles { get; set; }
 		public ICollection<UserEmailHistory> UserEmailHistory { get; set; }
@@ -95,6 +95,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
 			IsStaffMember = user.IsStaffMember ?? IsStaffMember;
 			IsMigrated = user.IsMigrated ?? IsMigrated;
 			IsInAuthenticationProvider = user.IsInAuthenticationProvider ?? IsInAuthenticationProvider;
+            IsMarkedForDeletion = user.IsMarkedForDeletion ?? IsMarkedForDeletion;
         }
     }
 }

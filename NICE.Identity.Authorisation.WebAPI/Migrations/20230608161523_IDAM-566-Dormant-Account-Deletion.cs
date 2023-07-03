@@ -7,7 +7,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "isPendingDeletion",
+                name: "IsMarkedForDeletion",
                 table: "Users",
                 nullable: false,
                 defaultValue: false);
@@ -16,7 +16,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "isPendingDeletion",
+                name: "IsMarkedForDeletion",
                 table: "Users");
         }
     }
