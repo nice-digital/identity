@@ -65,7 +65,7 @@ This application uses a data store called Redis to capture and store Tokens from
 The application's uses appsettings.json to store configuration. However, since this is a public repository, confidential configuration information (e.g. db connection string) is stored in secrets.json
 In order to run the application correctly (with it having access to a database), you'll need to acquire (from another dev) or create a secrets.json file with the correct configuration information in. For more  information see: [https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio)
 
-If you are creating from scratch, the key sections are:
+The key sections are:
  - ConnectionStrings (The database connection for the roles database)
  - Logging (The RabbitMQ server to send logs to)
  - IdentityApiConfiguration (see below...)
