@@ -202,9 +202,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<bool>("AllowContactMe")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("DormantAccountWarningSent")
-                        .HasColumnType("bit");
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(320)")
@@ -224,6 +221,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsLockedOut")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMarkedForDeletion")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsMigrated")
@@ -298,8 +298,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnType("nvarchar(320)")
                         .HasMaxLength(320);
 
-                    b.Property<int?>("UserId")
-                        .IsRequired()
+                    b.Property<int>("UserId")
                         .HasColumnName("UserID")
                         .HasColumnType("int");
 

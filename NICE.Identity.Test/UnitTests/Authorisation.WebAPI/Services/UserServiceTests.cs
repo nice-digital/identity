@@ -29,7 +29,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             _providerManagementService = new Mock<IProviderManagementService>();
             _emailService = new Mock<IEmailService>();
 
-            Identity.Authorisation.WebAPI.Configuration.AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted = 36;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted = 36;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.DaysToKeepPendingRegistrations = 30;
 
         }
 
@@ -326,7 +327,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             updatedUser.FirstName.ShouldBe("John");
             updatedUser.EmailAddress.ShouldBe(changedEmailAddress);
             var emailRecord = context.UserEmailHistory.Single();
-            emailRecord.UserId.ShouldBe(updatedUser.UserId);
+            emailRecord.UserId.ShouldBe(updatedUser.UserId.Value);
             emailRecord.EmailAddress.ShouldBe(originalEmailAddress);
         }
 
@@ -669,6 +670,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        const string user1NameIdentifier = "auth|user1";
 	        const string user2NameIdentifier = "auth|user2";
 
+            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
+
             userService.CreateUser(new ApiModels.User
 	        {
 		        NameIdentifier = user1NameIdentifier,
@@ -685,7 +688,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 		        EmailAddress = "user2@example.com",
 		        HasVerifiedEmailAddress = false
 	        });
-            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = DateTime.Now.AddDays(-31);
+            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = baseDate.AddDays(-31);
             context.SaveChanges();
             //now add some related data to test that related entities are deleted too.
             var userToBeDeleted = context.Users.Single(u => u.NameIdentifier == user2NameIdentifier);
@@ -697,7 +700,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.SaveChanges();
 
             //Act
-            await userService.DeleteRegistrationsOlderThan(notify: false, daysToKeepPendingRegistration: 30);
+            await userService.DeletePendingRegistrations(baseDate);
 
 	        //Assert
 	        context.Users.Count().ShouldBe(1);
@@ -730,7 +733,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             userWithAudit.EmailAddress.ShouldBe(updatedEmailAddress);
             var emailHistoryRecord = userWithAudit.UserEmailHistory.Single();
             
-            emailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+            emailHistoryRecord.UserId.ShouldBe(createdUser.UserId.Value);
             emailHistoryRecord.EmailAddress.ShouldBe(originalEmailAddress);
 
             emailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
@@ -768,13 +771,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        var firstEmailHistoryRecord = userWithAudit.UserEmailHistory.First();
 	        var secondEmailHistoryRecord = userWithAudit.UserEmailHistory.Skip(1).First();
 
-	        firstEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+	        firstEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId.Value);
 	        firstEmailHistoryRecord.EmailAddress.ShouldBe(originalEmailAddress);
 
 	        firstEmailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);
 	        firstEmailHistoryRecord.ArchivedByUser.NameIdentifier.ShouldBe(adminNameIdentifier);
 
-	        secondEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId);
+	        secondEmailHistoryRecord.UserId.ShouldBe(createdUser.UserId.Value);
 	        secondEmailHistoryRecord.EmailAddress.ShouldBe(updatedEmailAddress1);
 
 	        secondEmailHistoryRecord.ArchivedByUserId.ShouldBe(createdAdminUser.UserId);

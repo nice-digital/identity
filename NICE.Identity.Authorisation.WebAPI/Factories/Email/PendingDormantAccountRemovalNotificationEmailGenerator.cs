@@ -12,18 +12,22 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
         private readonly string _subject;
         private readonly string _htmlBody;
         private readonly string _textBody;
+        private readonly string _tabs;
+        private readonly string _tabsLevelTwo;
 
         public PendingDormantAccountRemovalNotificationEmailGenerator(string HTMLTemplate, string TextTemplate) : base(HTMLTemplate, TextTemplate)
         {
+            _tabs = "\t\t\t\t\t\t\t\t\t\t\t";
+            _tabsLevelTwo = _tabs + "\t\t";
 
             _title = "Your dormant NICE Account will be deleted soon";
             _subject = "Pending dormant account deletion";
             _htmlBody = "\r\n" +
-                        "\t\t\t\t\t\t\t\t\t\t\tYour NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
-                        "\t\t\t\t\t\t\t\t\t\t\t<br /><br />\r\n" +
-                        "\t\t\t\t\t\t\t\t\t\t\tWe must delete inactive accounts in line with our data retention policy and to comply with GDPR. We cannot retain your details if you have not used the account to interact with NICE for 3 years or longer.\r\n" +
-                        "\t\t\t\t\t\t\t\t\t\t\t<br /><br />\r\n" +
-                        "\t\t\t\t\t\t\t\t\t\t\tIf you wish to retain your NICE account, you must sign-in within 30 calendar days from today on the <a href=\"https://www.nice.org.uk\">NICE website</a>." +
+                        $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
+                        $"{_tabs}<br /><br />\r\n" +
+                        $"{_tabs}We must delete inactive accounts in line with our data retention policy and to comply with GDPR. We cannot retain your details if you have not used the account to interact with NICE for 3 years or longer.\r\n" +
+                        $"{_tabs}<br /><br />\r\n" +
+                        $"{_tabs}If you wish to retain your NICE account, you must sign-in within 30 calendar days from today on the <a href=\"https://www.nice.org.uk\">NICE website</a>." +
                         "<%%%SERVICELIST%%%>";
             _textBody = "Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
                         "\r\n" +
@@ -50,10 +54,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
                 {
                     var htmlStringBuilder = new StringBuilder();
                     htmlStringBuilder.Append(" Otherwise, you may lose access to the following NICE systems:\r\n");
-                    htmlStringBuilder.Append("\t\t\t\t\t\t\t\t\t\t\t<br /><br />\r\n");
-                    htmlStringBuilder.Append("\t\t\t\t\t\t\t\t\t\t\t<ul>\r\n");
-                    serviceNames.ForEach(x => htmlStringBuilder.Append($"\t\t\t\t\t\t\t\t\t\t\t\t\t<li>{x}</li>\r\n"));
-                    htmlStringBuilder.Append("\t\t\t\t\t\t\t\t\t\t\t</ul>\r\n");
+                    htmlStringBuilder.Append($"{_tabs}<br /><br />\r\n");
+                    htmlStringBuilder.Append(_tabs + "<ul>\r\n");
+                    serviceNames.ForEach(x => htmlStringBuilder.Append($"{_tabsLevelTwo}<li>{x}</li>\r\n"));
+                    htmlStringBuilder.Append($"{_tabs}</ul>\r\n");
 
                     var textStringBuilder = new StringBuilder();
                     textStringBuilder.Append(" Otherwise, you may lose access to the following NICE systems:\r\n");

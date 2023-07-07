@@ -457,5 +457,98 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
             }
         }
+
+        /// <summary>
+        /// This endpoint is intended to be hit once per day at 8am, by a scheduled event.
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("DeleteAllOverAgeWithNotification")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> DeleteAllOverAgeWithNotification()
+        {
+            try
+            {
+                await _usersService.DeletePendingRegistrations(DateTime.Now);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Delete dormant accounts
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("DeleteDormantAccounts")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> DeleteDormantAccounts()
+        {
+            try
+            {
+                await _usersService.DeleteDormantAccounts(DateTime.Now);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Delete dormant accounts
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("MarkAccountsForDeletion")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> MarkAccountsForDeletion()
+        {
+            try
+            {
+                await _usersService.MarkAccountsForDeletion(DateTime.Now);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Runs all the data retention policy processes in a single api call
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("UserAccountDeletion")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> UserAccountDeletion()
+        {
+            try
+            {
+                await _usersService.MarkAccountsForDeletion(DateTime.Now);
+                await _usersService.DeletePendingRegistrations(DateTime.Now);
+                await _usersService.DeleteDormantAccounts(DateTime.Now);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
     }
 }

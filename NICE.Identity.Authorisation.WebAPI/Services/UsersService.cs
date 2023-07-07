@@ -33,7 +33,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 		Task<int> DeleteAllUsers();
-		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
+		Task DeletePendingRegistrations(DateTime BaseDate);
 		IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
         Task UpdateFieldsDueToLogin(string userToUpdateIdentifier);
@@ -223,7 +223,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
                 var userRolesToDelete = _context.UserRoles.Where(u => u.UserId == userId);
                 var userAcceptedTermsVersionToDelete = _context.UserAcceptedTermsVersions.Where(u => u.UserId == userId);
-				var userEmailHistoryToDelete = _context.UserEmailHistory.Where(ueh => ueh.UserId.HasValue && ueh.UserId.Value.Equals(userId));
+				var userEmailHistoryToDelete = _context.UserEmailHistory.Where(ueh => ueh.UserId.Equals(userId));
 
                 _context.UserRoles.RemoveRange(userRolesToDelete);
                 _context.UserAcceptedTermsVersions.RemoveRange(userAcceptedTermsVersionToDelete);
@@ -472,15 +472,20 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return await _context.DeleteAllUsers();
         }
 
-        public async Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
+        public async Task DeletePendingRegistrations(DateTime BaseDate)
         {
-            _logger.LogWarning($"DeleteRegistrationsOlderThan - Deleting Registrations Older Than {daysToKeepPendingRegistration} days. Notify via email: {notify}"); //extra logging here in order to verify that the scheduled task is running via kibana.
+            _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.GeneralConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
+            
+            var dateToKeepRegistrationsFrom = BaseDate.AddDays(-AppSettings.GeneralConfig.DaysToKeepPendingRegistrations);
 
-	        var allUsersWithPendingRegistrationsOverAge = _context.GetPendingUsersOverAge(daysToKeepPendingRegistration).ToList();
+            var allUsersWithPendingRegistrationsOverAge = _context.Users.Where(u => !u.HasVerifiedEmailAddress &&
+                                                                                    u.InitialRegistrationDate.HasValue && 
+                                                                                    u.InitialRegistrationDate.Value < dateToKeepRegistrationsFrom)
+                                                                        .ToList();
 
 	        if (!allUsersWithPendingRegistrationsOverAge.Any())
 	        {
-		        _logger.LogWarning("DeleteRegistrationsOlderThan - No registrations found to delete. exiting");
+		        _logger.LogWarning("DeletePendingRegistrations - No registrations found to delete. exiting");
 		        return;
 	        }
 
@@ -500,25 +505,21 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             }
 
             //3. send notification to the email addresses, one email per email address.
-            if (notify)
+            allUsersWithPendingRegistrationsOverAge.ForEach(x =>
             {
-				allUsersWithPendingRegistrationsOverAge.ForEach(x =>
-				{
-                    try
-                    {
-                        _emailService.SendEmail<DeleteRegistrationsOlderThanNotificationEmail>(x);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError($"Failed to send delete registrations older than notification email - exception: {e}");
-                    }
-                    
+                try
+                {
+                    _emailService.SendEmail<DeletePendingRegistrationsNotificationEmail>(x);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Failed to send delete registrations older than notification email - exception: {e}");
+                }
 
-                });
 
-            }
+            });
 
-            _logger.LogWarning($"DeleteRegistrationsOlderThan - Total registrations deleted : {recordsDeleted}");
+            _logger.LogWarning($"DeletePendingRegistrations - Total registrations deleted : {recordsDeleted}");
         }
 
         public async Task MarkAccountsForDeletion(DateTime BaseDate)
@@ -527,13 +528,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				
                 _logger.LogWarning($"MarkAccountsForDeletion - Marking accounts for deletion");
 
-                var cutoffDate = BaseDate.AddMonths(-AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted);
+                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted);
 			    var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
 
 				var users = await _context.Users
 										  .Where(x => !x.IsMarkedForDeletion
 												   && !x.EmailAddress.EndsWith("@nice.org.uk")
-												   && x.LastLoggedInDate <= pendingCutOffDate
+												   && x.LastLoggedInDate < pendingCutOffDate
                                                    && x.LastLoggedInDate > cutoffDate
                                                 )
 										  .ToListAsync();
@@ -584,10 +585,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 _logger.LogWarning($"DeleteDormantAccounts - Deleting dormant accounts");
 
-                var cutoffDate = BaseDate.AddMonths(-AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted);
+                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted);
 
                 var users = await _context.Users
-                                          .Where(x => (x.LastLoggedInDate <= cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate <= cutoffDate)) 
+                                          .Where(x => (x.LastLoggedInDate < cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate < cutoffDate)) 
                                                       && !x.EmailAddress.EndsWith("@nice.org.uk"))
                                           .ToListAsync();
 
@@ -613,7 +614,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                             _logger.LogError($"Failed to send dormant account removal notification email - exception: {e}");
                         }
                     }
-
                 });
 
                 var recordsDeleted = await _context.DeleteUsers(users);

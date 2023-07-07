@@ -1,5 +1,4 @@
-﻿using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using System.Reflection;

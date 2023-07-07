@@ -10,7 +10,7 @@ using NICE.Identity.Authorisation.WebAPI.Repositories;
 namespace NICE.Identity.Authorisation.WebAPI.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20230608161523_IDAM-566-Dormant-Account-Deletion")]
+    [Migration("20230706125818_IDAM-566-Dormant-Account-Deletion")]
     partial class IDAM566DormantAccountDeletion
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -204,9 +204,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<bool>("AllowContactMe")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("DormantAccountWarningSent")
-                        .HasColumnType("bit");
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(320)")
@@ -226,6 +223,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsLockedOut")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMarkedForDeletion")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsMigrated")
@@ -300,8 +300,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnType("nvarchar(320)")
                         .HasMaxLength(320);
 
-                    b.Property<int?>("UserId")
-                        .IsRequired()
+                    b.Property<int>("UserId")
                         .HasColumnName("UserID")
                         .HasColumnType("int");
 

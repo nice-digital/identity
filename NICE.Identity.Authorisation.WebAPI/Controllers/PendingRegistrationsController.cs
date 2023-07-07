@@ -25,48 +25,30 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
 	        _usersService = usersService;
         }
 
-        /// <summary>
-		/// This endpoint is intended to be hit once per day at 8am, by a scheduled event.
-		/// </summary>
-		/// <returns></returns>
-		[HttpDelete("DeleteAllOverAgeWithNotification")]
-		[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		[Produces("application/json")]
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public async Task<IActionResult> DeleteAllOverAgeWithNotification()
-		{
-			try
-			{
-				await _usersService.DeleteRegistrationsOlderThan(notify: true, daysToKeepPendingRegistration);
-				return Ok();
-			}
-			catch (Exception e)
-			{
-				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
-			}
-		}
+        //THIS WHOLE CONTROLLER CAN BE DELETED AT SOME POINT, WHEN THE CRON JOB NO LONGER POINTS TO THIS ENDPOINT
+        //THIS CALL HAS BEEN MOVED TO THE USERS SERVICE BUT IS JUST HERE SO EVERYTHING WORKS IN THE INTERIM
+        //DO NOT MAKE CALLS TO THIS ENDPOINT, DELETE PENDING REGISTRATIONS HAS BEEN MOVED TO THE USERS CONTROLLER
 
-		/// <summary>
-		/// This endpoint should only be hit manually once, to clear out the old notifications.
-		/// </summary>
-		/// <returns></returns>
-		[HttpDelete("DeleteAllOverAgeWithoutNotification")]
-		[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		[Produces("application/json")]
-		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-		public async Task<IActionResult> DeleteAllOverAgeWithoutNotification()
-		{
-			try
-			{
-				await _usersService.DeleteRegistrationsOlderThan(notify: false, daysToKeepPendingRegistration);
-				return Ok();
-			}
-			catch (Exception e)
-			{
-				return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
-			}
-		}
+        /// <summary>
+        /// This endpoint is intended to be hit once per day at 8am, by a scheduled event.
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("DeleteAllOverAgeWithNotification")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> DeleteAllOverAgeWithNotification()
+        {
+            try
+            {
+                await _usersService.DeletePendingRegistrations(DateTime.Now);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
 	}
 }

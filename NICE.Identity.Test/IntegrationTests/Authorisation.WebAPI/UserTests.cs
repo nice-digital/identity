@@ -1,6 +1,4 @@
 ﻿using MailKit.Net.Smtp;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NICE.Identity.Authorisation.WebAPI.Services;
@@ -11,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-using DataModels = NICE.Identity.Authorisation.WebAPI.DataModels;
 using ApiModels = NICE.Identity.Authorisation.WebAPI.ApiModels;
 
 namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
@@ -37,17 +34,20 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Port = _localSmtpPort;
             Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.SenderAddress = "sender@example.com";
 
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted = 36;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.DaysToKeepPendingRegistrations = 30;
+
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task delete_registrations_older_than(bool notify)
+        [Fact]
+        public async Task delete_pending_registrations()
         {
             //Arrange
             var context = GetContext();
             var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, new SmtpClient());
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
+
+            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
 
             const string user1NameIdentifier = "auth|user1";
             const string user2NameIdentifier = "auth|user2";
@@ -69,25 +69,18 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 HasVerifiedEmailAddress = false
             });
 
-            context.Users.Single(u => u.NameIdentifier == user1NameIdentifier).InitialRegistrationDate = DateTime.Now.AddDays(-30);
-            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = DateTime.Now.AddDays(-31);
+            context.Users.Single(u => u.NameIdentifier == user1NameIdentifier).InitialRegistrationDate = baseDate.AddDays(-30);
+            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = baseDate.AddDays(-31);
 
             context.SaveChanges();
 
             using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
             {
                 //Act
-                await userService.DeleteRegistrationsOlderThan(notify, daysToKeepPendingRegistration: 30);
+                await userService.DeletePendingRegistrations(baseDate);
 
                 //Assert
-                if (notify)
-                {
-                    emailServer.ReceivedEmailCount.ShouldBe(1);
-                }
-                else
-                {
-                    emailServer.ReceivedEmailCount.ShouldBe(0);
-                }
+                emailServer.ReceivedEmailCount.ShouldBe(1);
 
                 context.Users
                     .Where(x => x.NameIdentifier == user1NameIdentifier)
@@ -103,7 +96,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
         }
 
         [Fact]
-        public async Task send_pending_dormant_account_notification_emails()
+        public async Task mark_accounts_for_deletion()
         {
 
             //Arrange
@@ -112,11 +105,11 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
             var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted;
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted;
             
             var beforePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(31);
-            var insidePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(30);
-            var beyondPendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant);
+            var insidePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
+            var beyondPendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(-1);
 
             var niceEmployeeIdentifier = "auth|niceEmployee_" + Guid.NewGuid();
             var alreadyPendingIdentifier = "auth|AlreadyPendingDeletion_" + Guid.NewGuid();
@@ -262,15 +255,13 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
             var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.EnvironmentConfig.MonthsUntilDormantAccountsDeleted;
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted;
             
             var thisDateWillTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(-1);
-            var thisDateWillTriggerDeletionExact = baseDate.AddMonths(-monthsTillDormant);
             var thisDateWillNotTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
 
             var niceEmployeeDontDeleteIdentifier = "auth|EmployeeDontDeleteIdentifier_" + Guid.NewGuid();
             var triggerDeletionIdentifier = "auth|TriggerDeletion_" + Guid.NewGuid();
-            var triggerDeletionExactIdentifier = "auth|TriggerDeletionExact_" + Guid.NewGuid();
             var notTriggerDeletionIdentifier = "auth|NotTriggerDeletion_" + Guid.NewGuid();
             var triggerDeletionLastLoginDateNullMigratedIdentifier = "auth|TriggerDeletionLastLoginDateNullMigrated_" + Guid.NewGuid();
             var triggerDeletionLastLoginDateNullNotMigratedIdentifier = "auth|TriggerDeletionLastLoginDateNullNotMigrated_" + Guid.NewGuid();
@@ -293,15 +284,6 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 LastName = "Deletion",
                 EmailAddress = "TriggerDeletion@example.com",
                 LastLoggedInDate = thisDateWillTriggerDeletion
-            });
-
-            userService.CreateUser(new ApiModels.User
-            {
-                NameIdentifier = triggerDeletionExactIdentifier,
-                FirstName = "Trigger",
-                LastName = "Deletion Exact",
-                EmailAddress = "TriggerDeletionExact@example.com",
-                LastLoggedInDate = thisDateWillTriggerDeletionExact
             });
 
             userService.CreateUser(new ApiModels.User
@@ -374,11 +356,6 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                     .ShouldBe(1);
 
                 emailServer.ReceivedEmail
-                    .Where(x => x.ToAddresses.Where(x => x.ToString() == "TriggerDeletionExact@example.com").Count() == 1)
-                    .Count()
-                    .ShouldBe(1);
-
-                emailServer.ReceivedEmail
                     .Where(x => x.ToAddresses.Where(x => x.ToString() == "NotTriggerDeletion@example.com").Count() == 1)
                     .Count()
                     .ShouldBe(0);
@@ -409,10 +386,6 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                     .ShouldNotBeNull();
 
                 context.FindUsers(triggerDeletionIdentifier)
-                    .SingleOrDefault()
-                    .ShouldBeNull();
-
-                context.FindUsers(triggerDeletionExactIdentifier)
                     .SingleOrDefault()
                     .ShouldBeNull();
 

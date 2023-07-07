@@ -48,7 +48,7 @@ Install [Node.js](https://nodejs.org/en/download/)
 In Visual Studio, go to Tools > Options > Projects and Solutions > Web Package Management 
 add the path to the Node installation at the top of the list. It'll be either `C:\Program Files\nodejs` or `C:\Program Files (x86)\nodejs` depending on whether you installed the x64 or x86 version of Node.js.
 
-Change the dropdown next to the green play button to "NICE.RoleManagement.WebAPI", you might also need to disable IIS Express.
+If you do not want to run the WebAPI from the command line (so not using IIS Express), you need to change the dropdown next to the green play button to "NICE.RoleManagement.WebAPI". You might also need to disable you local IIS server so as to free up port 80.
 
 #### Database
 
@@ -65,7 +65,7 @@ This application uses a data store called Redis to capture and store Tokens from
 The application's uses appsettings.json to store configuration. However, since this is a public repository, confidential configuration information (e.g. db connection string) is stored in secrets.json
 In order to run the application correctly (with it having access to a database), you'll need to acquire (from another dev) or create a secrets.json file with the correct configuration information in. For more  information see: [https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio)
 
-If you are creating from scratch, the key sections are:
+The key sections are:
  - ConnectionStrings (The database connection for the roles database)
  - Logging (The RabbitMQ server to send logs to)
  - IdentityApiConfiguration (see below...)

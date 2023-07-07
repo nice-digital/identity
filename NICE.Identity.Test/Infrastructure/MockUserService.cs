@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
@@ -78,7 +79,7 @@ namespace NICE.Identity.Test.Infrastructure
 			throw new NotImplementedException();
 		}
 
-		public Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
+		public Task DeletePendingRegistrations(DateTime baseDate)
 		{
 			throw new NotImplementedException();
 		}

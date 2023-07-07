@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
-using Polly;
 using Organisation = NICE.Identity.Authorisation.WebAPI.DataModels.Organisation;
 using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
 using User = NICE.Identity.Authorisation.WebAPI.DataModels.User;
@@ -95,7 +94,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	        var userIdsWithMatchingEmailHistory = 
 		        UserEmailHistory
 			        .Where(ueh => EF.Functions.Like(ueh.EmailAddress, $"%{filter}%"))
-			        .Select(ueh => ueh.UserId.Value)
+			        .Select(ueh => ueh.UserId)
 			        .ToList();
 
 	        return Users.Where(u => (u.FirstName != null && EF.Functions.Like(u.FirstName, $"%{filter}%"))
@@ -183,14 +182,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 			");
 		}
 
-        public IEnumerable<User> GetPendingUsersOverAge(int daysToKeepPendingRegistration)
-        {
-	        var dateToKeepRegistrationsFrom = DateTime.UtcNow.AddDays(-daysToKeepPendingRegistration);
-
-	        return Users.Where(u => !u.HasVerifiedEmailAddress &&
-	                                u.InitialRegistrationDate.HasValue && u.InitialRegistrationDate.Value <= dateToKeepRegistrationsFrom);
-        }
-
         public async Task<int> DeleteUsers(IList<User> users)
         {
             //before removing a user, we also need to remove the UserAcceptedTermsVersion, Job and UserRole for the user, if they exist.
@@ -199,7 +190,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
 	            return 0;
             }
 
-            var userIds = users.Select(user => user.UserId);
+            var userIds = users.Select(user => user.UserId).ToList();
 
             var userRolesForUsers = UserRoles.Where(ur => userIds.Contains(ur.UserId));
             if (userRolesForUsers.Any())
@@ -217,6 +208,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
             if (acceptedTermsForUsers.Any())
             {
 	            UserAcceptedTermsVersions.RemoveRange(acceptedTermsForUsers);
+            }
+
+            var userEmailHistories = UserEmailHistory.Where(ueh => userIds.Contains(ueh.UserId));
+            if (userEmailHistories.Any()) {
+                UserEmailHistory.RemoveRange(userEmailHistories);
             }
 
             Users.RemoveRange(users);

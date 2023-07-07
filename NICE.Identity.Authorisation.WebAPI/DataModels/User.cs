@@ -28,7 +28,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             IsMarkedForDeletion = user.IsMarkedForDeletion.HasValue && user.IsMarkedForDeletion.Value;
         }
 
-        public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider, bool dormantAccountWarningSent)
+        public User(int userId, string nameIdentifier, string firstName, string lastName, bool acceptedTerms, bool allowContactMe, DateTime? initialRegistrationDate, DateTime? lastLoggedInDate, bool hasVerifiedEmailAddress, string emailAddress, bool isLockedOut, bool isStaffMember, bool isMigrated, bool isInAuthenticationProvider, bool isMarkedForDeletion)
         {
             UserId = userId;
             NameIdentifier = nameIdentifier;
@@ -44,7 +44,7 @@ namespace NICE.Identity.Authorisation.WebAPI.DataModels
             UserRoles = new HashSet<UserRole>();
             IsMigrated = isMigrated;
             IsInAuthenticationProvider = isInAuthenticationProvider;
-            IsMarkedForDeletion = dormantAccountWarningSent;
+            IsMarkedForDeletion = isMarkedForDeletion;
         }
 
         public int UserId { get; set; }
