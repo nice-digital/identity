@@ -528,7 +528,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 				
                 _logger.LogWarning($"MarkAccountsForDeletion - Marking accounts for deletion");
 
-                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted);
+                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
 			    var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
 
 				var users = await _context.Users
@@ -585,7 +585,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 _logger.LogWarning($"DeleteDormantAccounts - Deleting dormant accounts");
 
-                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted);
+                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
 
                 var users = await _context.Users
                                           .Where(x => (x.LastLoggedInDate < cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate < cutoffDate)) 
@@ -597,8 +597,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                     _logger.LogWarning("DeleteDormantAccounts - No accounts found for deletion. exiting");
                     return;
                 }
-
-                var emailUserList = new List<DataModels.User>();
 
                 users.ForEach(x =>
                 {

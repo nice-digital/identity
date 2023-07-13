@@ -2,7 +2,7 @@
 {
     public class GeneralConfig
     {
-        public int MonthsUntilDormantAccountsDeleted { get; set; } = 36;
         public int DaysToKeepPendingRegistrations { get; set; } = 30;
+        public int MonthsToKeepDormantAccounts { get; set; } = 36;
     }
 }

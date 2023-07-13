@@ -16,7 +16,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
 
         public static void Configure(IServiceCollection services, IConfiguration configuration)
         {
-
             services.Configure<ManagementAPIConfig>(configuration.GetSection("Auth0ManagementApiConfiguration"));
             services.Configure<EnvironmentConfig>(configuration.GetSection("Environment"));
             services.Configure<EmailConfig>(configuration.GetSection("Email"));
@@ -28,7 +27,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Configuration
             EnvironmentConfig = sp.GetService<IOptions<EnvironmentConfig>>().Value;
             EmailConfig = sp.GetService<IOptions<EmailConfig>>().Value;
             GeneralConfig = sp.GetService<IOptions<GeneralConfig>>().Value;
-             
         }
     }
 }

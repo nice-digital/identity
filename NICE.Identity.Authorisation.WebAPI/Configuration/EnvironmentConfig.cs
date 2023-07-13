@@ -7,6 +7,5 @@
 		public string HealthCheckPublicAPIEndpoint { get; set; } = "healthcheckapi-local";
 		public string HealthCheckPrivateAPIEndpoint { get; set; } = "healthcheckapi-private";
 		public string HealthCheckPrivateAPIKey { get; set; }
-
     }
 }

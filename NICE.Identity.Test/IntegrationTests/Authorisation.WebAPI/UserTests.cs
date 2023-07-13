@@ -34,7 +34,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Port = _localSmtpPort;
             Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.SenderAddress = "sender@example.com";
 
-            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted = 36;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts = 36;
             Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.DaysToKeepPendingRegistrations = 30;
 
         }
@@ -105,7 +105,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
             var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted;
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts;
             
             var beforePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(31);
             var insidePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
@@ -255,7 +255,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
             var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted;
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts;
             
             var thisDateWillTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(-1);
             var thisDateWillNotTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(1);

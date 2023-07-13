@@ -29,7 +29,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             _providerManagementService = new Mock<IProviderManagementService>();
             _emailService = new Mock<IEmailService>();
 
-            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsUntilDormantAccountsDeleted = 36;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts = 36;
             Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.DaysToKeepPendingRegistrations = 30;
 
         }
