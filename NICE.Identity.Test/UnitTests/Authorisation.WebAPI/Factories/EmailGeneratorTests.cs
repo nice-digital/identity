@@ -64,7 +64,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                 EmailAddress = "EmailGenerationUser@example.com"
             });
 
-            var emailGenerator = new DeletePendingRegistrationsNotificationEmail(_htmlTemplate, _textTemplate);
+            var emailGenerator = new DeletePendingRegistrationNotificationEmail(_htmlTemplate, _textTemplate);
             var user = context.FindUsers(emailGenerationUser).Single();
 
             //Act

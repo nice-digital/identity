@@ -271,7 +271,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
                 EF.Functions.Like(r.Name, roleName));
 		}
 
-
 		public int AddUsersToRole(IEnumerable<User> users, int roleId)
 		{
 			var userRolesAdded = 0;

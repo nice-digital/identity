@@ -33,12 +33,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 		Task<int> DeleteAllUsers();
-		Task DeletePendingRegistrations(DateTime BaseDate);
 		IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
         Task UpdateFieldsDueToLogin(string userToUpdateIdentifier);
-        Task DeleteDormantAccounts(DateTime BaseDate);
-        Task MarkAccountsForDeletion(DateTime BaseDate);
+        void DeletePendingRegistrations(DateTime BaseDate);
+        void MarkAccountsForDeletion(DateTime BaseDate);
+        void DeleteDormantAccounts(DateTime BaseDate);
     }
 
 	public class UsersService : IUsersService
@@ -224,10 +224,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
                 var userRolesToDelete = _context.UserRoles.Where(u => u.UserId == userId);
                 var userAcceptedTermsVersionToDelete = _context.UserAcceptedTermsVersions.Where(u => u.UserId == userId);
 				var userEmailHistoryToDelete = _context.UserEmailHistory.Where(ueh => ueh.UserId.Equals(userId));
+                var userJobsToDelete = _context.Jobs.Where(ueh => ueh.UserId.Equals(userId));
 
                 _context.UserRoles.RemoveRange(userRolesToDelete);
                 _context.UserAcceptedTermsVersions.RemoveRange(userAcceptedTermsVersionToDelete);
 				_context.UserEmailHistory.RemoveRange(userEmailHistoryToDelete);
+                _context.Jobs.RemoveRange(userJobsToDelete);
                 _context.Users.RemoveRange(userToDelete);
 
                 if (userToDelete.IsInAuthenticationProvider)
@@ -472,104 +474,37 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return await _context.DeleteAllUsers();
         }
 
-        public async Task DeletePendingRegistrations(DateTime BaseDate)
+        public void DeletePendingRegistrations(DateTime BaseDate)
         {
-            _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.GeneralConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
-            
-            var dateToKeepRegistrationsFrom = BaseDate.AddDays(-AppSettings.GeneralConfig.DaysToKeepPendingRegistrations);
-
-            var allUsersWithPendingRegistrationsOverAge = _context.Users.Where(u => !u.HasVerifiedEmailAddress &&
-                                                                                    u.InitialRegistrationDate.HasValue && 
-                                                                                    u.InitialRegistrationDate.Value < dateToKeepRegistrationsFrom)
-                                                                        .ToList();
-
-	        if (!allUsersWithPendingRegistrationsOverAge.Any())
-	        {
-		        _logger.LogWarning("DeletePendingRegistrations - No registrations found to delete. exiting");
-		        return;
-	        }
-
-	        var uniqueEmailAddresses = allUsersWithPendingRegistrationsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
-	        if (uniqueEmailAddresses.Count()  != allUsersWithPendingRegistrationsOverAge.Count())
-	        {
-                _logger.LogWarning("Pending registrations exist for the same email address.");
-	        }
-
-	        //1. delete user accounts: allUsersWithPendingRegistrationsOverAge
-	        var recordsDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
-
-	        //2. delete user account in auth0
-            foreach (var user in allUsersWithPendingRegistrationsOverAge)
+            try
             {
-	            await _providerManagementService.DeleteUser(user.NameIdentifier);
+
+                _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.GeneralConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
+
+                var users = GetUsersPendingRegistrationToDelete(BaseDate);
+                _emailService.SendPendingRegistrationDeletedEmail(users.ToList());
+                DeleteUsers(users.ToList());
+
+                _logger.LogWarning($"DeletePendingRegistrations - Total registrations deleted : {users.Count()}");
             }
-
-            //3. send notification to the email addresses, one email per email address.
-            allUsersWithPendingRegistrationsOverAge.ForEach(x =>
+            catch (Exception e)
             {
-                try
-                {
-                    _emailService.SendEmail<DeletePendingRegistrationsNotificationEmail>(x);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError($"Failed to send delete registrations older than notification email - exception: {e}");
-                }
-
-
-            });
-
-            _logger.LogWarning($"DeletePendingRegistrations - Total registrations deleted : {recordsDeleted}");
+                _logger.LogError($"Failed to delete pending registrations - exception: {e}");
+                throw new Exception($"Failed to delete pending registrations - exception: {e}", e);
+            }
         }
 
-        public async Task MarkAccountsForDeletion(DateTime BaseDate)
+        public void MarkAccountsForDeletion(DateTime BaseDate)
         {
             try {
 				
                 _logger.LogWarning($"MarkAccountsForDeletion - Marking accounts for deletion");
 
-                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
-			    var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
+                var users = GetUsersToMarkForDeletion(BaseDate);
+                MarkUsersForDeletion(users.ToList());
+                _emailService.SendMarkedForDeletionEmail(users.ToList());
 
-				var users = await _context.Users
-										  .Where(x => !x.IsMarkedForDeletion
-												   && !x.EmailAddress.EndsWith("@nice.org.uk")
-												   && x.LastLoggedInDate < pendingCutOffDate
-                                                   && x.LastLoggedInDate > cutoffDate
-                                                )
-										  .ToListAsync();
-
-                if (!users.Any())
-                {
-                    _logger.LogWarning("MarkAccountsForDeletion - No accounts found to mark for deletion. exiting");
-                    return;
-                }
-
-                users.ForEach(x =>
-				{
-                    x.IsMarkedForDeletion = true;
-
-                    try
-                    {
-                        if (!x.IsMigrated)
-                            _emailService.SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
-                    }
-                    catch (Exception e)
-                    {
-                        x.IsMarkedForDeletion = false;
-                        _logger.LogError($"Failed to send pending deletion email - exception: {e}");
-                    }
-
-                });
-
-                _context.SaveChanges();
-
-                var totalMarkedForDeletion = 0;
-
-                if (users != null)
-                    totalMarkedForDeletion = users.Where(x => x.IsMarkedForDeletion).Count();
-
-                _logger.LogWarning($"MarkAccountsPendingDeletion - Total accounts marked for deletion : {totalMarkedForDeletion}");
+                _logger.LogWarning($"MarkAccountsPendingDeletion - Total accounts marked for deletion : {users.Count()}");
             }
             catch (Exception e)
             {
@@ -578,64 +513,91 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 		}
 
-        public async Task DeleteDormantAccounts(DateTime BaseDate)
+        public void DeleteDormantAccounts(DateTime BaseDate)
         {
             try
             {
-
                 _logger.LogWarning($"DeleteDormantAccounts - Deleting dormant accounts");
 
-                var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
+                var users = GetUsersWithDormantAccountsToDelete(BaseDate);
+                _emailService.SendDormantAccountDeletedEmail(users.ToList());
+                DeleteUsers(users.ToList());
 
-                var users = await _context.Users
-                                          .Where(x => (x.LastLoggedInDate < cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate < cutoffDate)) 
-                                                      && !x.EmailAddress.EndsWith("@nice.org.uk"))
-                                          .ToListAsync();
-
-                if (!users.Any())
-                {
-                    _logger.LogWarning("DeleteDormantAccounts - No accounts found for deletion. exiting");
-                    return;
-                }
-
-                users.ForEach(x =>
-                {
-                    if (x.LastLoggedInDate != null || (x.LastLoggedInDate == null && !x.IsMigrated))
-                    {
-                        try
-                        {
-                            _emailService.SendEmail<DormantAccountRemovalNotificationEmailGenerator>(x);
-
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogError($"Failed to send dormant account removal notification email - exception: {e}");
-                        }
-                    }
-                });
-
-                var recordsDeleted = await _context.DeleteUsers(users);
-
-                users.ForEach (x =>
-                {
-                    try
-                    {
-                        if (x.IsInAuthenticationProvider)
-                            _providerManagementService.DeleteUser(x.NameIdentifier);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError($"Failed to remove deleted user from Auth0 tenant. Email:{x.EmailAddress} Name:{x.NameIdentifier} - exception: {e}");
-                    }
-                });
-
-                _logger.LogWarning($"DeleteDormantAccounts - Total accounts deleted : {recordsDeleted}");
+                _logger.LogWarning($"DeleteDormantAccounts - Total accounts deleted : {users.Count()}");
             }
             catch (Exception e)
             {
                 _logger.LogError($"Failed to delete dormant accounts - exception: {e}");
                 throw new Exception($"Failed to delete dormant accounts - exception: {e}", e);
             }
+        }
+
+        public List<DataModels.User> GetUsersPendingRegistrationToDelete(DateTime BaseDate)
+        {
+            var dateToKeepRegistrationsFrom = BaseDate.AddDays(-AppSettings.GeneralConfig.DaysToKeepPendingRegistrations);
+
+            var users = _context.Users.Where(u => !u.HasVerifiedEmailAddress &&
+                                                  u.InitialRegistrationDate.HasValue &&
+                                                  u.InitialRegistrationDate.Value < dateToKeepRegistrationsFrom)
+                                      .ToList();
+
+            if (!users.Any())
+            {
+                _logger.LogWarning("DeletePendingRegistrations - No registrations found to delete.");
+            }
+
+            return users;
+        }
+
+        public IList<DataModels.User> GetUsersToMarkForDeletion(DateTime BaseDate)
+        {
+            var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
+            var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
+
+            var users = _context.Users
+                                .Where(x => !x.IsMarkedForDeletion
+                                        && !x.EmailAddress.EndsWith("@nice.org.uk")
+                                        && x.LastLoggedInDate < pendingCutOffDate
+                                        && x.LastLoggedInDate > cutoffDate
+                                    )
+                                .ToList();
+
+            if (!users.Any())
+            {
+                _logger.LogWarning("MarkAccountsForDeletion - No accounts found to mark for deletion.");
+            }
+
+            return users;
+        }
+
+        public IList<DataModels.User> GetUsersWithDormantAccountsToDelete(DateTime BaseDate)
+        {
+            var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
+
+            var users = _context.Users
+                                .Where(x => (x.LastLoggedInDate < cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate < cutoffDate))
+                                            && !x.EmailAddress.EndsWith("@nice.org.uk"))
+                                .ToList();
+
+            if (!users.Any())
+            {
+                _logger.LogWarning("DeleteDormantAccounts - No accounts found for deletion.");
+            }
+
+            return users;
+        }
+
+        public void MarkUsersForDeletion(List<DataModels.User> users)
+        {
+            users.ForEach(x => x.IsMarkedForDeletion = true);
+
+            _context.SaveChanges();
+
+        }
+
+        public void DeleteUsers(List<DataModels.User> users)
+        {
+            users.ForEach(async x => await DeleteUser(x.UserId));
         }
 
         /// <summary>

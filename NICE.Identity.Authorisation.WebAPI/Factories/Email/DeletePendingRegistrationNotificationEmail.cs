@@ -4,7 +4,7 @@ using System;
 
 namespace NICE.Identity.Authorisation.WebAPI.Factories
 {
-    public class DeletePendingRegistrationsNotificationEmail : EmailGenerator, IEmailGenerator
+    public class DeletePendingRegistrationNotificationEmail : EmailGenerator, IEmailGenerator
     {
         private readonly String _title;
         private readonly String _subject;
@@ -12,7 +12,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
         private readonly String _textBody;
         private readonly string _tabs;
 
-        public DeletePendingRegistrationsNotificationEmail(string HTMLTemplate, string TextTemplate) : base(HTMLTemplate, TextTemplate)
+        public DeletePendingRegistrationNotificationEmail(string HTMLTemplate, string TextTemplate) : base(HTMLTemplate, TextTemplate)
         {
             _tabs = "\t\t\t\t\t\t\t\t\t\t\t";
 

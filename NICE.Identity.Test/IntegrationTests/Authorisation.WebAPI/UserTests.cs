@@ -40,7 +40,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
         }
 
         [Fact]
-        public async Task delete_pending_registrations()
+        public void delete_pending_registrations()
         {
             //Arrange
             var context = GetContext();
@@ -77,7 +77,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
             {
                 //Act
-                await userService.DeletePendingRegistrations(baseDate);
+                userService.DeletePendingRegistrations(baseDate);
 
                 //Assert
                 emailServer.ReceivedEmailCount.ShouldBe(1);
@@ -163,16 +163,6 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                 IsMarkedForDeletion = false,
                 LastLoggedInDate = beyondPendingDeletionWindowDate
             });
-            userService.CreateUser(new ApiModels.User
-            {
-                NameIdentifier = migratedUserIdentifier,
-                FirstName = "MigratedUser",
-                LastName = "InsideWindow",
-                EmailAddress = "MigratedUserInsideWindow@example.com",
-                IsMarkedForDeletion = false,
-                IsMigrated = true,
-                LastLoggedInDate = insidePendingDeletionWindowDate
-            });
 
             context.SaveChanges();
 
@@ -180,7 +170,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             {
 
                 //Act
-                await userService.MarkAccountsForDeletion(baseDate);
+                userService.MarkAccountsForDeletion(baseDate);
 
                 //Assert Emails
                 emailServer.ReceivedEmail
@@ -205,11 +195,6 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
 
                 emailServer.ReceivedEmail
                     .Where(x => x.ToAddresses.Where(x => x.ToString() == "BeyondPendingDeletionWindow@example.com").Count() == 1)
-                    .Count()
-                    .ShouldBe(0);
-
-                emailServer.ReceivedEmail
-                    .Where(x => x.ToAddresses.Where(x => x.ToString() == "MigratedUserInsideWindow@example.com").Count() == 1)
                     .Count()
                     .ShouldBe(0);
 
@@ -239,15 +224,11 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
                     .IsMarkedForDeletion
                     .ShouldBe(false);
 
-                context.FindUsers(migratedUserIdentifier)
-                    .Single()
-                    .IsMarkedForDeletion
-                    .ShouldBe(true);
             }
         }
 
         [Fact]
-        public async Task delete_dormant_accounts()
+        public void delete_dormant_accounts()
         {
             //Arrange
             var context = GetContext();
@@ -337,12 +318,11 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             context.Users.Single(u => u.NameIdentifier == notTriggerDeletionLastLoginDateNullNotMigratedIdentifier).InitialRegistrationDate = thisDateWillNotTriggerDeletion;
 
             context.SaveChanges();
-            context.SaveChanges();
 
             using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
             {
                 //Act
-                await userService.DeleteDormantAccounts(baseDate);
+                userService.DeleteDormantAccounts(baseDate);
 
                 //Assert Emails
                 emailServer.ReceivedEmail

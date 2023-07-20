@@ -27,11 +27,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     {
         private readonly ILogger<UsersController> _logger;
         private readonly IUsersService _usersService;
+        private readonly IEmailService _emailService;
 
-        public UsersController(IUsersService usersService, ILogger<UsersController> logger)
+        public UsersController(IUsersService usersService, IEmailService emailService, ILogger<UsersController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
         /// <summary>
@@ -462,16 +464,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// This endpoint is intended to be hit once per day at 8am, by a scheduled event.
         /// </summary>
         /// <returns></returns>
-        [HttpDelete("DeleteAllOverAgeWithNotification")]
+        [HttpDelete("DeletePendingRegistrations")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-        public async Task<IActionResult> DeleteAllOverAgeWithNotification()
+        public async Task<IActionResult> DeletePendingRegistrations()
         {
             try
             {
-                await _usersService.DeletePendingRegistrations(DateTime.Now);
+                _usersService.DeletePendingRegistrations(DateTime.Now);
+
                 return Ok();
             }
             catch (Exception e)
@@ -493,7 +496,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                await _usersService.DeleteDormantAccounts(DateTime.Now);
+                _usersService.DeleteDormantAccounts(DateTime.Now);
 
                 return Ok();
             }
@@ -507,7 +510,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         /// Delete dormant accounts
         /// </summary>
         /// <returns></returns>
-        [HttpDelete("MarkAccountsForDeletion")]
+        [HttpGet("MarkAccountsForDeletion")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
@@ -516,32 +519,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                await _usersService.MarkAccountsForDeletion(DateTime.Now);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
-            }
-        }
-
-        /// <summary>
-        /// Runs all the data retention policy processes in a single api call
-        /// </summary>
-        /// <returns></returns>
-        [HttpDelete("UserAccountDeletion")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
-        public async Task<IActionResult> UserAccountDeletion()
-        {
-            try
-            {
-                await _usersService.MarkAccountsForDeletion(DateTime.Now);
-                await _usersService.DeletePendingRegistrations(DateTime.Now);
-                await _usersService.DeleteDormantAccounts(DateTime.Now);
+                _usersService.MarkAccountsForDeletion(DateTime.Now);
 
                 return Ok();
             }

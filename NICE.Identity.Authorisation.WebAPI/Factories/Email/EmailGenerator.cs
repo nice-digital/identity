@@ -7,7 +7,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
 {
     public interface IEmailGenerator
     {
-        public MimeMessage GenerateEmail(DataModels.User user);
+        public MimeMessage GenerateEmail(User user);
     }
 
     public abstract class EmailGenerator

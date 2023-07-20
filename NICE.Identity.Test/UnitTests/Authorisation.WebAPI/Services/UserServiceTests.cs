@@ -14,6 +14,7 @@ using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Xunit;
 using Xunit.Sdk;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Hosting;
 
 namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 {
@@ -360,6 +361,22 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
             var user = new ApiModels.User { NameIdentifier = nameIdentifier, EmailAddress = newUserEmailAddress };
             var createdUser = userService.CreateUser(user);
+            
+            //now add some related data to test that related entities are deleted too.
+            var userToBeDeleted = context.Users.Single(u => u.NameIdentifier == nameIdentifier);
+            const int organisationId = 1;
+            const int roleId = 1;
+            const int termsVersionId = 1;
+            context.Organisations.Add(new DataModels.Organisation(organisationId, "org 1"));
+            context.Roles.Add(new DataModels.Role() { Name = "Director", RoleId = roleId });
+            context.TermsVersions.Add(new DataModels.TermsVersion() { TermsVersionId = termsVersionId, VersionDate = DateTime.Now });
+
+            context.UserRoles.Add(new DataModels.UserRole() { RoleId = roleId, UserId = userToBeDeleted.UserId });
+            context.Jobs.Add(new DataModels.Job() { IsLead = false, OrganisationId = organisationId, UserId = userToBeDeleted.UserId });
+            context.UserEmailHistory.Add(new DataModels.UserEmailHistory() {UserId = userToBeDeleted.UserId, EmailAddress = "oldAddress@example.com"});
+            context.UserAcceptedTermsVersions.Add(new DataModels.UserAcceptedTermsVersion() { TermsVersionId = 1, UserAcceptedDate = DateTime.Now, UserId = userToBeDeleted.UserId });
+
+            context.SaveChanges();
 
             //Act
             var deleteReturn = await userService.DeleteUser(createdUser.UserId.Value);
@@ -367,9 +384,46 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Assert
             var deletedUser = userService.GetUser(createdUser.UserId.Value);
             deletedUser.ShouldBe(null);
-            deleteReturn.ShouldBe(1);
+            deleteReturn.ShouldBe(5); //one for each attached record (UserRole, Job, UserEmailHistory, UserAcceptedTermsVersion) and one for the user
+
+            context.Organisations
+                   .Where(x => x.OrganisationId == organisationId)
+                   .SingleOrDefault()
+                   .ShouldNotBeNull();
+
+            context.Roles
+                   .Where(x => x.RoleId == roleId)
+                   .SingleOrDefault()
+                   .ShouldNotBeNull();
+
+            context.TermsVersions
+                   .Where(x => x.TermsVersionId == termsVersionId)
+                   .SingleOrDefault()
+                   .ShouldNotBeNull();
+
+            context.UserRoles
+                   .Where(x => x.UserId == userToBeDeleted.UserId)
+                   .Any()
+                   .ShouldBe(false);
+
+            context.Jobs
+                   .Where(x => x.UserId == userToBeDeleted.UserId)
+                   .Any()
+                   .ShouldBe(false);
+
+            context.UserEmailHistory
+                   .Where(x => x.UserId == userToBeDeleted.UserId)
+                   .Any()
+                   .ShouldBe(false);
+
+            context.UserAcceptedTermsVersions
+                   .Where(x => x.UserId == userToBeDeleted.UserId)
+                   .Any()
+                   .ShouldBe(false);
+
+
         }
-        
+
         [Fact]
         public void Get_roles_for_user_by_website()
         {
@@ -661,52 +715,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        context.UserRoles.First(ur => ur.User.UserId == user.UserId).Role.Name.ShouldBe("TestRole1");
         }
 
-		[Fact]
-        public async Task TestPendingRegistrationDeletion()
-        {
-	        //Arrange
-	        var context = GetContext();
-	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
-	        const string user1NameIdentifier = "auth|user1";
-	        const string user2NameIdentifier = "auth|user2";
-
-            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-
-            userService.CreateUser(new ApiModels.User
-	        {
-		        NameIdentifier = user1NameIdentifier,
-		        FirstName = "FirstName1",
-		        LastName = "LastName1",
-		        EmailAddress = "user1@example.com",
-                HasVerifiedEmailAddress = false
-	        });
-	        userService.CreateUser(new ApiModels.User
-	        {
-		        NameIdentifier = user2NameIdentifier,
-		        FirstName = "User to be deleted",
-		        LastName = "",
-		        EmailAddress = "user2@example.com",
-		        HasVerifiedEmailAddress = false
-	        });
-            context.Users.Single(u => u.NameIdentifier == user2NameIdentifier).InitialRegistrationDate = baseDate.AddDays(-31);
-            context.SaveChanges();
-            //now add some related data to test that related entities are deleted too.
-            var userToBeDeleted = context.Users.Single(u => u.NameIdentifier == user2NameIdentifier);
-            const int organisationId = 1;
-            context.Organisations.Add(new DataModels.Organisation(organisationId, "org 1"));
-            context.Jobs.Add(new DataModels.Job(){ IsLead = false, OrganisationId = organisationId, UserId = userToBeDeleted.UserId });
-            context.TermsVersions.Add(new DataModels.TermsVersion() {TermsVersionId = 1, VersionDate = DateTime.Now});
-            context.UserAcceptedTermsVersions.Add(new DataModels.UserAcceptedTermsVersion(){ TermsVersionId = 1, UserAcceptedDate = DateTime.Now, UserId = userToBeDeleted.UserId });
-            context.SaveChanges();
-
-            //Act
-            await userService.DeletePendingRegistrations(baseDate);
-
-	        //Assert
-	        context.Users.Count().ShouldBe(1);
-	        context.Users.Single().NameIdentifier.ShouldBe(user1NameIdentifier);
-        }
-
         [Fact]
         public async Task GetUserWithSingleEmailAuditRecord()
         {
@@ -928,6 +936,306 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             user.HasVerifiedEmailAddress.ShouldBeTrue();
             user.IsMarkedForDeletion.ShouldBeFalse();
             user.LastLoggedInDate.Value.ShouldBe(DateTime.UtcNow, TimeSpan.FromSeconds(10));
+
+        }
+
+        [Fact]
+        public void Get_users_pending_registration_to_delete()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
+
+            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
+
+            const string userToBeKeptIdentifier = "auth|userToBeKept";
+            const string userToBeDeletedIdentifier = "auth|userToBeDeleted";
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = userToBeKeptIdentifier,
+                FirstName = "User To",
+                LastName = "Be Kept",
+                EmailAddress = "userToBeKept@example.com",
+                HasVerifiedEmailAddress = false
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = userToBeDeletedIdentifier,
+                FirstName = "User to",
+                LastName = "Be Deleted",
+                EmailAddress = "userToBeDeleted@example.com",
+                HasVerifiedEmailAddress = false
+            });
+
+            context.Users.Single(u => u.NameIdentifier == userToBeKeptIdentifier).InitialRegistrationDate = baseDate.AddDays(-30);
+            context.Users.Single(u => u.NameIdentifier == userToBeDeletedIdentifier).InitialRegistrationDate = baseDate.AddDays(-31);
+
+            context.SaveChanges();
+
+            //Act
+            IList<DataModels.User> users = userService.GetUsersPendingRegistrationToDelete(baseDate);
+
+            //Assert
+            users.Where(x => x.NameIdentifier == userToBeKeptIdentifier)
+                 .SingleOrDefault()
+                 .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == userToBeDeletedIdentifier)
+                 .SingleOrDefault()
+                 .ShouldNotBeNull();
+        }
+
+        [Fact]
+        public void get_users_to_mark_for_deletion()
+        {
+
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
+
+            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts;
+
+            var beforePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(31);
+            var insidePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
+            var beyondPendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(-1);
+
+            var niceEmployeeIdentifier = "auth|niceEmployee";
+            var alreadyPendingIdentifier = "auth|alreadyPendingDeletion";
+            var pendingDeletionIdentifier = "auth|pendingDeletion";
+            var notPendingDeletion = "auth|notPendingDeletion";
+            var beyondPendingDeletionWindowIdentifier = "auth|beyondPendingDeletionWindow";
+            var lastLoginDateNullIdentifier = "auth|lastLoginDateNull";
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = niceEmployeeIdentifier,
+                EmailAddress = "NiceEmployee@nice.org.uk",
+                IsMarkedForDeletion = false,
+                LastLoggedInDate = insidePendingDeletionWindowDate
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = alreadyPendingIdentifier,
+                EmailAddress = "AlreadyPendingDeletion@example.com",
+                IsMarkedForDeletion = true,
+                LastLoggedInDate = insidePendingDeletionWindowDate
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = pendingDeletionIdentifier,
+                EmailAddress = "PendingDeletion@example.com",
+                IsMarkedForDeletion = false,
+                LastLoggedInDate = insidePendingDeletionWindowDate
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = notPendingDeletion,
+                EmailAddress = "NotPendingDeletion@example.com",
+                IsMarkedForDeletion = false,
+                LastLoggedInDate = beforePendingDeletionWindowDate
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = beyondPendingDeletionWindowIdentifier,
+                EmailAddress = "BeyondPendingDeletionWindow@example.com",
+                IsMarkedForDeletion = false,
+                LastLoggedInDate = beyondPendingDeletionWindowDate
+            });
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = lastLoginDateNullIdentifier,
+                EmailAddress = "lastLoginDateNull@example.com",
+                IsMarkedForDeletion = false,
+                LastLoggedInDate = null
+            });
+
+            context.SaveChanges();
+
+            //Act
+            var users = userService.GetUsersToMarkForDeletion(baseDate);
+
+            //Assert Flags
+            users.Where(x => x.NameIdentifier == niceEmployeeIdentifier)
+                 .SingleOrDefault()
+                 .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == alreadyPendingIdentifier)
+                 .SingleOrDefault()
+                 .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == pendingDeletionIdentifier)
+                 .SingleOrDefault()
+                 .ShouldNotBeNull();
+
+            users.Where(x => x.NameIdentifier == notPendingDeletion)
+                 .SingleOrDefault()
+                 .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == beyondPendingDeletionWindowIdentifier)
+                 .SingleOrDefault()
+                 .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == lastLoginDateNullIdentifier)
+                 .SingleOrDefault()
+                 .ShouldBeNull();
+        }
+
+        [Fact]
+        public void get_users_with_dormant_accounts_to_delete()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
+
+            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts;
+
+            var thisDateWillTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(-1);
+            var thisDateWillNotTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
+
+            var niceEmployeeDontDeleteIdentifier = "auth|niceEmployeeDontDeleteIdentifier";
+            var triggerDeletionIdentifier = "auth|triggerDeletion";
+            var notTriggerDeletionIdentifier = "auth|notTriggerDeletion";
+            var triggerDeletionLastLoginDateNullIdentifier = "auth|triggerDeletionLastLoginDateNull";
+            var notTriggerDeletionLastLoginDateNullIdentifier = "auth|notTriggerDeletionLastLoginDateNull";
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = niceEmployeeDontDeleteIdentifier,
+                EmailAddress = "NiceEmployeeDontDelete@nice.org.uk",
+                LastLoggedInDate = thisDateWillTriggerDeletion
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = triggerDeletionIdentifier,
+                EmailAddress = "TriggerDeletion@example.com",
+                LastLoggedInDate = thisDateWillTriggerDeletion
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = notTriggerDeletionIdentifier,
+                EmailAddress = "NotTriggerDeletion@example.com",
+                LastLoggedInDate = thisDateWillNotTriggerDeletion
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = triggerDeletionLastLoginDateNullIdentifier,
+                EmailAddress = "TriggerDeletionLastLoginDateNullMigrated@example.com",
+                LastLoggedInDate = null
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = notTriggerDeletionLastLoginDateNullIdentifier,
+                EmailAddress = "NotTriggerDeletionLastLoginDateNullMigrated@example.com",
+                LastLoggedInDate = null
+            });
+
+            context.Users.Single(u => u.NameIdentifier == triggerDeletionLastLoginDateNullIdentifier).InitialRegistrationDate = thisDateWillTriggerDeletion;
+            context.Users.Single(u => u.NameIdentifier == notTriggerDeletionLastLoginDateNullIdentifier).InitialRegistrationDate = thisDateWillNotTriggerDeletion;
+
+            context.SaveChanges();
+
+            //Act
+            var users = userService.GetUsersWithDormantAccountsToDelete(baseDate);
+
+            //Assert
+            users.Where(x => x.NameIdentifier == niceEmployeeDontDeleteIdentifier)
+                .SingleOrDefault()
+                .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == triggerDeletionIdentifier)
+                .SingleOrDefault()
+                .ShouldNotBeNull();
+
+            users.Where(x => x.NameIdentifier == notTriggerDeletionIdentifier)
+                .SingleOrDefault()
+                .ShouldBeNull();
+
+            users.Where(x => x.NameIdentifier == triggerDeletionLastLoginDateNullIdentifier)
+                .SingleOrDefault()
+                .ShouldNotBeNull();
+
+            users.Where(x => x.NameIdentifier == notTriggerDeletionLastLoginDateNullIdentifier)
+                .SingleOrDefault()
+                .ShouldBeNull();
+        }
+
+        [Fact]
+        public void delete_users()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|deleteThisUserOne",
+                FirstName = "Delete This User",
+                EmailAddress = "deleteThisUserOne@example.com"
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|deleteThisUserTwo",
+                FirstName = "Delete This User",
+                EmailAddress = "deleteThisUserTwo@example.com"
+            });
+
+            context.SaveChanges();
+
+            var users = context.FindUsers("Delete This User");
+
+            //Act
+            userService.DeleteUsers(users);
+
+            //Assert
+            context.FindUsers("Delete This User")
+                .Any()
+                .ShouldBe(false);
+
+        }
+
+        [Fact]
+        public void mark_users_for_deletion()
+        {
+            //Arrange
+            var context = GetContext();
+            var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|markThisUserForDeletionOne",
+                FirstName = "Mark This User For Deletion",
+                IsMarkedForDeletion = false,
+                EmailAddress = "markThisUserForDeletionOne@example.com"
+            });
+
+            userService.CreateUser(new ApiModels.User
+            {
+                NameIdentifier = "auth|markThisUserForDeletionTwo",
+                FirstName = "Mark This User For Deletion",
+                IsMarkedForDeletion = false,
+                EmailAddress = "markThisUserForDeletionTwo@example.com"
+            });
+
+            context.SaveChanges();
+
+            var users = context.FindUsers("Mark This User For Deletion");
+
+            //Act
+            userService.MarkUsersForDeletion(users);
+
+            //Assert
+            context.Users
+                .Where(x => x.IsMarkedForDeletion)
+                .Count()
+                .ShouldBe(2);
 
         }
     }
