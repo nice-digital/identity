@@ -150,7 +150,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
 
             var emailGenerationUser = "auth|emailGenerationUser_" + Guid.NewGuid();
 
-            //Create Environment
             environmentService.CreateEnvironment(new ApiModels.Environment
             {
                 Name = "Live",
@@ -158,7 +157,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             });
             var environment = context.Environments.Single();
 
-            //Create Services
             serviceService.CreateService(new ApiModels.Service
             {
                 Name = "ServiceOne"
@@ -171,7 +169,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             });
             var serviceTwo = context.Services.Where(s => s.Name == "ServiceTwo").Single();
 
-            //Create Websites
             websiteService.CreateWebsite(new ApiModels.Website
             {
                 EnvironmentId = environment.EnvironmentId,
@@ -188,7 +185,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             });
             var websiteTwo = context.Websites.Where(x => x.Host == "www.WebsiteTwo.org.uk").Single();
 
-            //Create Role
             roleService.CreateRole(new ApiModels.Role
             {
                 Name = "ServiceOneRole",
@@ -205,7 +201,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             });
             var serviceTwoRole = roleService.GetRoles().Where(x => x.Name == "ServicetTwoRole").Single();
 
-            //Create User
             userService.CreateUser(new ApiModels.User
             {
                 NameIdentifier = emailGenerationUser,
@@ -215,7 +210,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             });
             var arrangeUser = context.FindUsers(emailGenerationUser).Single();
 
-            //Apply Roles to user
             var roles = new List<Identity.Authorisation.WebAPI.ApiModels.UserRole> {
                 new ApiModels.UserRole { UserId = arrangeUser.UserId, RoleId = serviceOneRole.RoleId },
                 new ApiModels.UserRole { UserId = arrangeUser.UserId, RoleId = serviceTwoRole.RoleId }
@@ -223,10 +217,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
 
             userService.UpdateRolesForUser(arrangeUser.UserId, roles);
 
-            //Fetch the user again with all their various roles should be there
             var actUser = context.FindUsers(emailGenerationUser).Single();
 
-            //Create email generator
             var emailGenerator = new PendingDormantAccountRemovalNotificationEmailGenerator(_htmlTemplate, _textTemplate);
 
             //Act
@@ -280,7 +272,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
 
             var emailGenerationUser = "auth|emailGenerationUser_" + Guid.NewGuid();
 
-            //Create User
             userService.CreateUser(new ApiModels.User
             {
                 NameIdentifier = emailGenerationUser,
@@ -289,10 +280,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                 EmailAddress = "EmailGenerationUser@example.com"
             });
 
-            //Fetch the user again with all their various roles should be there
             var actUser = context.FindUsers(emailGenerationUser).Single();
 
-            //Create email generator
             var emailGenerator = new PendingDormantAccountRemovalNotificationEmailGenerator(_htmlTemplate, _textTemplate);
 
             //Act

@@ -27,13 +27,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
     {
         private readonly ILogger<UsersController> _logger;
         private readonly IUsersService _usersService;
-        private readonly IEmailService _emailService;
 
         public UsersController(IUsersService usersService, IEmailService emailService, ILogger<UsersController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
-            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
         /// <summary>

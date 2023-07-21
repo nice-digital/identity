@@ -77,6 +77,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             return GetEmail(user, _title, _subject, dynamicHtmlBody, dynamicTextBody);
 
         }
-
     }
 }

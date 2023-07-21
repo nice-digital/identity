@@ -46,7 +46,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             }
 
             return message;
-
         }
 
         private string substitutePlaceholders(string template, string title, string body)
@@ -54,6 +53,5 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             return template.Replace("<%%%TITLE%%%>", title)
                            .Replace("<%%%BODY%%%>", body);
         }
-
     }
 }

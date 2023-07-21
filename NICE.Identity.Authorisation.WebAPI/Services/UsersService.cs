@@ -479,7 +479,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             try
             {
 
-                _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.GeneralConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
+                _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.AccountDeletionConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
 
                 var users = GetUsersPendingRegistrationToDelete(BaseDate);
                 _emailService.SendPendingRegistrationDeletedEmail(users.ToList());
@@ -534,7 +534,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public List<DataModels.User> GetUsersPendingRegistrationToDelete(DateTime BaseDate)
         {
-            var dateToKeepRegistrationsFrom = BaseDate.AddDays(-AppSettings.GeneralConfig.DaysToKeepPendingRegistrations);
+            var dateToKeepRegistrationsFrom = BaseDate.AddDays(-AppSettings.AccountDeletionConfig.DaysToKeepPendingRegistrations);
 
             var users = _context.Users.Where(u => !u.HasVerifiedEmailAddress &&
                                                   u.InitialRegistrationDate.HasValue &&
@@ -551,7 +551,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public IList<DataModels.User> GetUsersToMarkForDeletion(DateTime BaseDate)
         {
-            var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
+            var cutoffDate = BaseDate.AddMonths(-AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts);
             var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
 
             var users = _context.Users
@@ -572,7 +572,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public IList<DataModels.User> GetUsersWithDormantAccountsToDelete(DateTime BaseDate)
         {
-            var cutoffDate = BaseDate.AddMonths(-AppSettings.GeneralConfig.MonthsToKeepDormantAccounts);
+            var cutoffDate = BaseDate.AddMonths(-AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts);
 
             var users = _context.Users
                                 .Where(x => (x.LastLoggedInDate < cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate < cutoffDate))

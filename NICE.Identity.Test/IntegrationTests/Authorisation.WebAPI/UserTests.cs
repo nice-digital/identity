@@ -34,8 +34,8 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Port = _localSmtpPort;
             Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.SenderAddress = "sender@example.com";
 
-            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts = 36;
-            Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.DaysToKeepPendingRegistrations = 30;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts = 36;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.AccountDeletionConfig.DaysToKeepPendingRegistrations = 30;
 
         }
 
@@ -47,7 +47,7 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, new SmtpClient());
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
-            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
+            var baseDate = new DateTime(2020, 6, 1); 
 
             const string user1NameIdentifier = "auth|user1";
             const string user2NameIdentifier = "auth|user2";
@@ -104,8 +104,8 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, new SmtpClient());
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
-            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts;
+            var baseDate = new DateTime(2020, 6, 1); 
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts;
             
             var beforePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(31);
             var insidePendingDeletionWindowDate = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
@@ -235,8 +235,8 @@ namespace NICE.Identity.Test.IntegrationTests.Authorisation.WebAPI
             var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, new SmtpClient());
             var userService = new UsersService(context, _userServiceLogger.Object, _providerManagementService.Object, emailService);
 
-            var baseDate = new DateTime(2020, 6, 1); //Arbitrary Base Date
-            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.GeneralConfig.MonthsToKeepDormantAccounts;
+            var baseDate = new DateTime(2020, 6, 1); 
+            var monthsTillDormant = Identity.Authorisation.WebAPI.Configuration.AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts;
             
             var thisDateWillTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(-1);
             var thisDateWillNotTriggerDeletion = baseDate.AddMonths(-monthsTillDormant).AddDays(1);
