@@ -502,7 +502,7 @@
         "CronScheduleDeletePendingRegistrations": {
             "Default": "cron(0 8 * * ? *)",
             "NoEcho": "false",
-            "Description": "Schedule to hit the API",
+            "Description": "Schedule to hit the API for deleting pending registrations",
             "Type": "String",
             "MinLength": "10",
             "MaxLength": "150"
@@ -510,7 +510,7 @@
         "CronScheduleDeleteDormantAccounts": {
             "Default": "cron(0 8 * * ? *)",
             "NoEcho": "false",
-            "Description": "Schedule to hit the API",
+            "Description": "Schedule to hit the API for deleting dormant accounts",
             "Type": "String",
             "MinLength": "10",
             "MaxLength": "150"
@@ -518,7 +518,7 @@
         "CronScheduleMarkAccountsForDeletion": {
             "Default": "cron(0 8 * * ? *)",
             "NoEcho": "false",
-            "Description": "Schedule to hit the API",
+            "Description": "Schedule to hit the API for marking accounts for deletion",
             "Type": "String",
             "MinLength": "10",
             "MaxLength": "150"
