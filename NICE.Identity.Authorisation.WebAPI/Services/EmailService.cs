@@ -29,6 +29,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         {
             _webHostEnvironment = webHostEnvironment;
             _smtpClient = smtpClient;
+            _logger = logger;
         }
 
         /// <summary>

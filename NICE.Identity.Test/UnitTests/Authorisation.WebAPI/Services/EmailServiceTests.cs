@@ -104,6 +104,38 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             }
 
         }
+        
+        [Fact]
+        public void send_pending_registration_deleted_email_failure()
+        {
+            //Arrange
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Server = null;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Port = 0;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.SenderAddress = "invalidemailaddress";
+
+            var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, _smtpClient);
+
+            const string userOneIdentifier = "auth|userOne";
+
+            var users = new List<User>() {
+                new User {
+                    NameIdentifier = userOneIdentifier,
+                    EmailAddress = "UserOne@example.com" }
+            };
+
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendPendingRegistrationDeletedEmail(users);
+
+                //Assert
+                emailServer.ReceivedEmail
+                    .Where(x => x.ToAddresses.Where(x => x.ToString() == "UserOne@example.com").Count() == 1)
+                    .Count()
+                    .ShouldBe(0);
+            }
+
+        }
 
         [Fact]
         public void send_marked_for_deletion_email()
@@ -141,6 +173,42 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     .Where(x => x.ToAddresses.Where(x => x.ToString() == "UserTwo@example.com").Count() == 1)
                     .Count()
                     .ShouldBe(1);
+            }
+        }
+
+        [Fact]
+        public void send_marked_for_deletion_email_failure()
+        {
+
+            //Arrange
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Server = null;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.Port = 0;
+            Identity.Authorisation.WebAPI.Configuration.AppSettings.EmailConfig.SenderAddress = "invalidemailaddress";
+            var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, new SmtpClient());
+
+            const string userOneIdentifier = "auth|userOne";
+            const string userTwoIdentifier = "auth|userTwo";
+
+            var users = new List<User>() {
+                new User {
+                    NameIdentifier = userOneIdentifier,
+                    EmailAddress = "UserOne@example.com",
+                    IsMarkedForDeletion = true }
+            };
+
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendMarkedForDeletionEmail(users);
+
+                //Assert Emails
+                emailServer.ReceivedEmail
+                    .Where(x => x.ToAddresses.Where(x => x.ToString() == "UserOne@example.com").Count() == 1)
+                    .Count()
+                    .ShouldBe(0);
+
+                users[0].IsMarkedForDeletion.ShouldBe(false);
+
             }
         }
 
