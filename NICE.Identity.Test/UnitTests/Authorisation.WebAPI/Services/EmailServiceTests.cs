@@ -187,7 +187,6 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, new SmtpClient());
 
             const string userOneIdentifier = "auth|userOne";
-            const string userTwoIdentifier = "auth|userTwo";
 
             var users = new List<User>() {
                 new User {
