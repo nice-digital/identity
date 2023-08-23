@@ -55,8 +55,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Emails\BasicTemplate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Emails\BasicTemplate.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
