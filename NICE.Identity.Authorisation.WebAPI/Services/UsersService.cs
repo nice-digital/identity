@@ -36,9 +36,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
         Task UpdateFieldsDueToLogin(string userToUpdateIdentifier);
-        void DeletePendingRegistrations(DateTime BaseDate);
+        Task DeletePendingRegistrations(DateTime BaseDate);
         void MarkAccountsForDeletion(DateTime BaseDate);
-        void DeleteDormantAccounts(DateTime BaseDate);
+        Task DeleteDormantAccounts(DateTime BaseDate);
     }
 
 	public class UsersService : IUsersService
@@ -474,18 +474,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return await _context.DeleteAllUsers();
         }
 
-        public void DeletePendingRegistrations(DateTime BaseDate)
+        public async Task DeletePendingRegistrations(DateTime BaseDate)
         {
             try
             {
-
                 _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.AccountDeletionConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
 
                 var users = GetUsersPendingRegistrationToDelete(BaseDate);
                 _emailService.SendPendingRegistrationDeletedEmail(users.ToList());
-                DeleteUsers(users.ToList());
+                await DeleteUsers(users);
 
-                _logger.LogWarning($"DeletePendingRegistrations - Total registrations deleted : {users.Count()}");
+                _logger.LogWarning($"DeletePendingRegistrations - Total registrations deleted : {users.Count}");
             }
             catch (Exception e)
             {
@@ -497,14 +496,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         public void MarkAccountsForDeletion(DateTime BaseDate)
         {
             try {
-				
                 _logger.LogWarning($"MarkAccountsForDeletion - Marking accounts for deletion");
 
                 var users = GetUsersToMarkForDeletion(BaseDate);
-                MarkUsersForDeletion(users.ToList());
+                MarkUsersForDeletion(users);
                 _emailService.SendMarkedForDeletionEmail(users.ToList());
 
-                _logger.LogWarning($"MarkAccountsPendingDeletion - Total accounts marked for deletion : {users.Count()}");
+                _logger.LogWarning($"MarkAccountsPendingDeletion - Total accounts marked for deletion : {users.Count}");
             }
             catch (Exception e)
             {
@@ -513,7 +511,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			}
 		}
 
-        public void DeleteDormantAccounts(DateTime BaseDate)
+        public async Task DeleteDormantAccounts(DateTime BaseDate)
         {
             try
             {
@@ -521,9 +519,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
                 var users = GetUsersWithDormantAccountsToDelete(BaseDate);
                 _emailService.SendDormantAccountDeletedEmail(users.ToList());
-                DeleteUsers(users.ToList());
+                await DeleteUsers(users);
 
-                _logger.LogWarning($"DeleteDormantAccounts - Total accounts deleted : {users.Count()}");
+                _logger.LogWarning($"DeleteDormantAccounts - Total accounts deleted : {users.Count}");
             }
             catch (Exception e)
             {
@@ -587,17 +585,21 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             return users;
         }
 
-        public void MarkUsersForDeletion(List<DataModels.User> users)
+        public void MarkUsersForDeletion(IList<DataModels.User> users)
         {
-            users.ForEach(x => x.IsMarkedForDeletion = true);
-
+            foreach (var user in users)
+            {
+                user.IsMarkedForDeletion = true;
+            }
             _context.SaveChanges();
-
         }
 
-        public void DeleteUsers(List<DataModels.User> users)
+        public async Task DeleteUsers(IList<DataModels.User> users)
         {
-            users.ForEach(async x => await DeleteUser(x.UserId));
+            foreach (var user in users)
+            {
+                await DeleteUser(user.UserId);
+            }
         }
 
         /// <summary>

@@ -459,11 +459,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// This endpoint is intended to be hit once per day at 8am, by a scheduled event.
+        /// Removes any account where the user has signed up but has not completed their registration by following the link in the email. The time they have to do this is configurable, defaulted to 30 days.
         /// </summary>
         /// <returns></returns>
         [HttpDelete("DeletePendingRegistrations")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
@@ -471,7 +471,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                _usersService.DeletePendingRegistrations(DateTime.Now);
+                await _usersService.DeletePendingRegistrations(DateTime.Now);
 
                 return Ok();
             }
@@ -482,7 +482,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete dormant accounts
+        /// Removes any account where the user has not logged in for a number of months. The time they have to do this is configurable, defaulted to 36 months.
         /// </summary>
         /// <returns></returns>
         [HttpDelete("DeleteDormantAccounts")]
@@ -494,7 +494,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         {
             try
             {
-                _usersService.DeleteDormantAccounts(DateTime.Now);
+                await _usersService.DeleteDormantAccounts(DateTime.Now);
 
                 return Ok();
             }
@@ -505,7 +505,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete dormant accounts
+        /// Marks any account which is in it's last month of dormancy for deletion.
         /// </summary>
         /// <returns></returns>
         [HttpGet("MarkAccountsForDeletion")]
