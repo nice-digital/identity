@@ -14,6 +14,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
         private readonly string _textBody;
         private readonly string _tabs;
         private readonly string _tabsLevelTwo;
+        private readonly string _contactUsSubject;
 
         public PendingDormantAccountRemovalNotificationEmailGenerator(string HTMLTemplate, string TextTemplate) : base(HTMLTemplate, TextTemplate)
         {
@@ -22,6 +23,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
 
             _title = "Your dormant NICE Account will be deleted soon";
             _subject = "Pending dormant account deletion";
+            _contactUsSubject = "Help with dormant NICE account";
             _htmlBody = "\r\n" +
                         $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
                         $"{_tabs}<br /><br />\r\n" +
@@ -74,7 +76,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             dynamicHtmlBody = dynamicHtmlBody.Replace("<%%%SERVICELIST%%%>", "\r\n");
             dynamicTextBody = dynamicTextBody.Replace("<%%%SERVICELIST%%%>", "\r\n");
 
-            return GetEmail(user, _title, _subject, dynamicHtmlBody, dynamicTextBody);
+            return GetEmail(user, _title, _subject, dynamicHtmlBody, dynamicTextBody, _contactUsSubject);
 
         }
     }

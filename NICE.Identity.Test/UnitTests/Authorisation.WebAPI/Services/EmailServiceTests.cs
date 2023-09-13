@@ -64,7 +64,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     .Where(x => x.HeaderData.Contains("text/html"))
                     .Single()
                     .BodyData
-                    .ShouldBe("<html>\r\n<head>\r\n    <Title>EmailTitle</Title>\r\n</head>\r\n<body>\r\n    HtmlEmailBody\r\n</body>\r\n</html>");
+                    .ShouldBe("<html>\r\n<head>\r\n    <Title>EmailTitle</Title>\r\n</head>\r\n<body>\r\n    HtmlEmailBody\r\n    <a href=\"mailto:contactus@example.com?subject=Test%20contact%20us%20subject\">Contact Us</a>\r\n</body>\r\n</html>");
             }
         }
 

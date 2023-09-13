@@ -25,7 +25,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
         private readonly Mock<IProviderManagementService> _providerManagementService;
         private readonly Mock<IEmailService> _emailService;
 
-        readonly private string _htmlTemplate = "<html><head><Title><%%%TITLE%%%></Title></head><body><%%%BODY%%%></body></html>";
+        readonly private string _htmlTemplate = "<html><head><Title><%%%TITLE%%%></Title></head><body><%%%BODY%%%><a href=\"mailto:contactus@example.com?subject=<%%%CONTACT_US_SUBJECT%%%>\">Contact Us</a></body></html>";
         readonly private string _textTemplate = "Title - <%%%TITLE%%%>; Body - <%%%BODY%%%>";
         readonly private string _fromAddress = "sender@example.com";
         private readonly string _tabs;
@@ -73,6 +73,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             //Assert
             var expectedTitle = "Your unverified NICE Account has been deleted";
             var expectedSubject = "Unverified account removal";
+            var expectedContactUsSubject = "NICE accounts activation help";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
@@ -81,8 +82,15 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                                         "\r\n" +
                                         "We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the NICE website.\r\n";
 
-            var expectedHTMLBody = _htmlTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedHtmlInnerBody);
-            var expectedTextBody = _textTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedTextInnerBody);
+            var expectedHTMLBody = _htmlTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedHtmlInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
+
+            var expectedTextBody = _textTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedTextInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
 
             email.Subject.ShouldBe(expectedSubject);
             email.From.Mailboxes.First().Address.ShouldBe(_fromAddress);
@@ -118,6 +126,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             //Assert
             var expectedTitle = "Your dormant NICE Account has been deleted";
             var expectedSubject = "Dormant account deletion";
+            var expectedContactUsSubject = "Help with dormant NICE account";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
@@ -126,8 +135,15 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                                         "\r\n" +
                                         "If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the NICE website.\r\n";
 
-            var expectedHTMLBody = _htmlTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedHtmlInnerBody);
-            var expectedTextBody = _textTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedTextInnerBody);
+            var expectedHTMLBody = _htmlTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedHtmlInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
+
+            var expectedTextBody = _textTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedTextInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
 
             email.Subject.ShouldBe(expectedSubject);
             email.From.Mailboxes.First().Address.ShouldBe(_fromAddress);
@@ -227,6 +243,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             //Assert
             var expectedTitle = "Your dormant NICE Account will be deleted soon";
             var expectedSubject = "Pending dormant account deletion";
+            var expectedContactUsSubject = "Help with dormant NICE account";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
@@ -248,8 +265,15 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                                         "ServiceTwo\r\n" + 
                                         "\r\n";
 
-            var expectedHTMLBody = _htmlTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedHtmlInnerBody);
-            var expectedTextBody = _textTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedTextInnerBody);
+            var expectedHTMLBody = _htmlTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedHtmlInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
+
+            var expectedTextBody = _textTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedTextInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
 
             email.Subject.ShouldBe(expectedSubject);
             email.From.Mailboxes.First().Address.ShouldBe(_fromAddress);
@@ -290,6 +314,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             //Assert
             var expectedTitle = "Your dormant NICE Account will be deleted soon";
             var expectedSubject = "Pending dormant account deletion";
+            var expectedContactUsSubject = "Help with dormant NICE account";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
@@ -302,8 +327,15 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                                         "\r\n" +
                                         "If you wish to retain your NICE account, you must sign-in within 30 calendar days from today on the NICE website.\r\n";
 
-            var expectedHTMLBody = _htmlTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedHtmlInnerBody);
-            var expectedTextBody = _textTemplate.Replace("<%%%TITLE%%%>", expectedTitle).Replace("<%%%BODY%%%>", expectedTextInnerBody);
+            var expectedHTMLBody = _htmlTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedHtmlInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
+
+            var expectedTextBody = _textTemplate
+                .Replace("<%%%TITLE%%%>", expectedTitle)
+                .Replace("<%%%BODY%%%>", expectedTextInnerBody)
+                .Replace("<%%%CONTACT_US_SUBJECT%%%>", Uri.EscapeDataString(expectedContactUsSubject));
 
             email.Subject.ShouldBe(expectedSubject);
             email.From.Mailboxes.First().Address.ShouldBe(_fromAddress);
