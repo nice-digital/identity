@@ -21,10 +21,10 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             _htmlBody = "\r\n" +
                         $"{_tabs}Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                         $"{_tabs}<br /><br />\r\n" +
-                        $"{_tabs}If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.If you need help you can contact usThis email has been generated automatically. Please do not reply.\r\n";
+                        $"{_tabs}If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n";
             _textBody = "Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                         "\r\n" +
-                        "If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the NICE website.If you need help you can contact usThis email has been generated automatically. Please do not reply.\r\n";
+                        "If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the NICE website.\r\n";
         }
 
         public MimeMessage GenerateEmail(User user)
