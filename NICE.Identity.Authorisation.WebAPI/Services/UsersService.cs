@@ -553,6 +553,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
 
             var users = _context.Users
+                                .Include(x => x.UserRoles)
+                                .ThenInclude(y => y.Role.Website.Service)
                                 .Where(x => !x.IsMarkedForDeletion
                                         && !x.EmailAddress.EndsWith("@nice.org.uk")
                                         && x.LastLoggedInDate < pendingCutOffDate
