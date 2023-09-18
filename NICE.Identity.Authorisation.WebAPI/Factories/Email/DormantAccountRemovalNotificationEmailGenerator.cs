@@ -19,7 +19,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
 
             _title = "Your dormant NICE Account has been deleted";
             _contactUsSubject = "Help with dormant NICE account";
-            _subject = "Dormant account deletion";
+            _subject = "Your dormant NICE Account has been deleted";
             _htmlBody = "\r\n" +
                         $"{_tabs}Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                         $"{_tabs}<br /><br />\r\n" +

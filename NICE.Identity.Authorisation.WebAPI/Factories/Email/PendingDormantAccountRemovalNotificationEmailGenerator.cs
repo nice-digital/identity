@@ -22,7 +22,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             _tabsLevelTwo = _tabs + "\t\t";
 
             _title = "Your dormant NICE Account will be deleted soon";
-            _subject = "Pending dormant account deletion";
+            _subject = "Your dormant NICE Account will be deleted soon";
             _contactUsSubject = "Help with dormant NICE account";
             _htmlBody = "\r\n" +
                         $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
