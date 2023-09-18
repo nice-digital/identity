@@ -23,7 +23,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             _htmlBody = "\r\n" +
                         $"{_tabs}Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
                         $"{_tabs}<br /><br />\r\n" +
-                        $"{_tabs}We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n";
+                        $"{_tabs}We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n" +
+                        $"{_tabs}<br /><br />\r\n"; 
             _textBody = "Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
                         "\r\n" +
                         "We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the NICE website.\r\n";

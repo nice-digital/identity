@@ -23,7 +23,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             _htmlBody = "\r\n" +
                         $"{_tabs}Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                         $"{_tabs}<br /><br />\r\n" +
-                        $"{_tabs}If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n";
+                        $"{_tabs}If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n" +
+                        $"{_tabs}<br /><br />\r\n";
             _textBody = "Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                         "\r\n" +
                         "If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the NICE website.\r\n";
