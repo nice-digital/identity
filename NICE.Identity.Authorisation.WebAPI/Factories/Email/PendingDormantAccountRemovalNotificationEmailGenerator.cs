@@ -73,8 +73,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             }
 
             //if the service list placeholders still exist by this point, then no services have been found, replace them.
-            dynamicHtmlBody = dynamicHtmlBody.Replace("<%%%SERVICE_LIST%%%>", "<br /><br />\r\n");
-            dynamicTextBody = dynamicTextBody.Replace("<%%%SERVICE_LIST%%%>", "<br /><br />\r\n");
+            dynamicHtmlBody = dynamicHtmlBody.Replace("<%%%SERVICE_LIST%%%>", $"\r\n{_tabs}<br /><br />\r\n");
+            dynamicTextBody = dynamicTextBody.Replace("<%%%SERVICE_LIST%%%>", "\r\n");
 
             return GetEmail(user, _title, _subject, dynamicHtmlBody, dynamicTextBody, _contactUsSubject);
 

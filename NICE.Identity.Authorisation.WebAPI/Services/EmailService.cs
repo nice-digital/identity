@@ -91,14 +91,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         {
             users.ForEach(x =>
             {
-                try
+                if (!x.IsMigrated)
                 {
-                    SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
-                }
-                catch (Exception e)
-                {
-                    x.IsMarkedForDeletion = false;
-                    _logger.LogError($"Failed to send pending deletion email - exception: {e}");
+                    try
+                    {
+                        SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
+                    }
+                    catch (Exception e)
+                    {
+                        x.IsMarkedForDeletion = false;
+                        _logger.LogError($"Failed to send pending deletion email - exception: {e}");
+                    }
                 }
             });
         }
@@ -107,7 +110,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         {
             Users.ForEach(x =>
             {
-                if (x.LastLoggedInDate != null || (x.LastLoggedInDate == null && !x.IsMigrated))
+                if (!x.IsMigrated)
                 {
                     try
                     {

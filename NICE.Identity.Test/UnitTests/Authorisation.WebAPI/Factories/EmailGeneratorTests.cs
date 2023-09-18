@@ -73,11 +73,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             //Assert
             var expectedTitle = "Your unverified NICE Account has been deleted";
             var expectedSubject = "Unverified account removal";
-            var expectedContactUsSubject = "NICE accounts activation help";
+            var expectedContactUsSubject = "Unverified account removal";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
-                                        $"{_tabs}We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n";
+                                        $"{_tabs}We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n" +
+                                        $"{_tabs}<br /><br />\r\n";
             var expectedTextInnerBody = "Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
                                         "\r\n" +
                                         "We have deleted your details in compliance with GDPR. If you still want to register for a NICE account using this email address, you will have to re-submit your details on the NICE website.\r\n";
@@ -125,12 +126,13 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
 
             //Assert
             var expectedTitle = "Your dormant NICE Account has been deleted";
-            var expectedSubject = "Dormant account deletion";
+            var expectedSubject = "Your dormant NICE Account has been deleted";
             var expectedContactUsSubject = "Help with dormant NICE account";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
-                                        $"{_tabs}If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n";
+                                        $"{_tabs}If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n" +
+                                        $"{_tabs}<br /><br />\r\n";
             var expectedTextInnerBody = "Your NICE Account has not been used for 3 years. Unfortunately, we had to delete your details in compliance with GDPR.\r\n" +
                                         "\r\n" +
                                         "If you want to re-register for a NICE Account using this email address, you will have to re-submit your details on the NICE website.\r\n";
@@ -242,7 +244,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
 
             //Assert
             var expectedTitle = "Your dormant NICE Account will be deleted soon";
-            var expectedSubject = "Pending dormant account deletion";
+            var expectedSubject = "Your dormant NICE Account will be deleted soon";
             var expectedContactUsSubject = "Help with dormant NICE account";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
@@ -250,7 +252,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
                                         $"{_tabs}We must delete inactive accounts in line with our data retention policy and to comply with GDPR. We cannot retain your details if you have not used the account to interact with NICE for 3 years or longer.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
                                         $"{_tabs}If you wish to retain your NICE account, you must sign-in within 30 calendar days from today on the <a href=\"https://www.nice.org.uk\">NICE website</a>. Otherwise, you may lose access to the following NICE systems:\r\n" +
-                                        $"{_tabs}<br /><br />\r\n" +
+                                        $"{_tabs}<br />\r\n" +
                                         $"{_tabs}<ul>\r\n" +
                                         $"{_tabsLevelTwo}<li>ServiceOne</li>\r\n" +
                                         $"{_tabsLevelTwo}<li>ServiceTwo</li>\r\n" +
@@ -313,14 +315,15 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
 
             //Assert
             var expectedTitle = "Your dormant NICE Account will be deleted soon";
-            var expectedSubject = "Pending dormant account deletion";
+            var expectedSubject = "Your dormant NICE Account will be deleted soon";
             var expectedContactUsSubject = "Help with dormant NICE account";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
                                         $"{_tabs}We must delete inactive accounts in line with our data retention policy and to comply with GDPR. We cannot retain your details if you have not used the account to interact with NICE for 3 years or longer.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +
-                                        $"{_tabs}If you wish to retain your NICE account, you must sign-in within 30 calendar days from today on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n";
+                                        $"{_tabs}If you wish to retain your NICE account, you must sign-in within 30 calendar days from today on the <a href=\"https://www.nice.org.uk\">NICE website</a>.\r\n" +
+                                        $"{_tabs}<br /><br />\r\n";
             var expectedTextInnerBody = "Your NICE Account has not been used for 3 years so it is either dormant or no longer required.\r\n" +
                                         "\r\n" +
                                         "We must delete inactive accounts in line with our data retention policy and to comply with GDPR. We cannot retain your details if you have not used the account to interact with NICE for 3 years or longer.\r\n" +
