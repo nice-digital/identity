@@ -73,7 +73,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Factories
             //Assert
             var expectedTitle = "Your unverified NICE Account has been deleted";
             var expectedSubject = "Unverified account removal";
-            var expectedContactUsSubject = "Unverified account removal";
+            var expectedContactUsSubject = "NICE accounts deletion help";
             var expectedHtmlInnerBody = "\r\n" +
                                         $"{_tabs}Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
                                         $"{_tabs}<br /><br />\r\n" +

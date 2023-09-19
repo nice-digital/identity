@@ -18,7 +18,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             _tabs = "\t\t\t\t\t\t\t\t\t\t\t";
 
             _title = "Your unverified NICE Account has been deleted";
-            _contactUsSubject = "Unverified account removal";
+            _contactUsSubject = "NICE accounts deletion help";
             _subject = "Unverified account removal";
             _htmlBody = "\r\n" +
                         $"{_tabs}Your account has been pending activation for 30 days. Unfortunately, the time allowed for activating your account has elapsed.\r\n" +
