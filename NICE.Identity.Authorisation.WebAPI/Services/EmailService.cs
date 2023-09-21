@@ -74,11 +74,11 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         
         public void SendPendingRegistrationDeletedEmail(List<User> users)
         {
-            users.ForEach(x =>
+            users.ForEach(user =>
             {
                 try
                 {
-                    SendEmail<DeletePendingRegistrationNotificationEmail>(x);
+                    SendEmail<DeletePendingRegistrationNotificationEmail>(user);
                 }
                 catch (Exception e)
                 {
@@ -89,17 +89,17 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public void SendMarkedForDeletionEmail(List<User> users)
         {
-            users.ForEach(x =>
+            users.ForEach(user =>
             {
-                if (!x.IsMigrated)
+                if (!user.IsMigrated)
                 {
                     try
                     {
-                        SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(x);
+                        SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(user);
                     }
                     catch (Exception e)
                     {
-                        x.IsMarkedForDeletion = false;
+                        user.IsMarkedForDeletion = false;
                         _logger.LogError($"Failed to send pending deletion email - exception: {e}");
                     }
                 }
@@ -108,13 +108,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 
         public void SendDormantAccountDeletedEmail(List<User> Users)
         {
-            Users.ForEach(x =>
+            Users.ForEach(user =>
             {
-                if (!x.IsMigrated)
+                if (!user.IsMigrated)
                 {
                     try
                     {
-                        SendEmail<DormantAccountRemovalNotificationEmailGenerator>(x);
+                        SendEmail<DormantAccountRemovalNotificationEmailGenerator>(user);
 
                     }
                     catch (Exception e)

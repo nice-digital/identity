@@ -28,7 +28,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
         private readonly ILogger<UsersController> _logger;
         private readonly IUsersService _usersService;
 
-        public UsersController(IUsersService usersService, IEmailService emailService, ILogger<UsersController> logger)
+        public UsersController(IUsersService usersService, ILogger<UsersController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));

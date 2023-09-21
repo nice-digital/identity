@@ -22,12 +22,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Factories
             _emailTextTemplate = emailTextTemplate;
 
         }
-
-        protected MimeMessage GetEmail(string title, string subject, string htmlBody, string textBody, string contactUsSubject)
-        {
-            return GetEmail(null, title, subject, htmlBody, textBody, contactUsSubject);
-        }
-
+        
         protected MimeMessage GetEmail(User user, string title, string subject, string htmlBody, string textBody, string contactUsSubject)
         {
             var bodyBuilder = new BodyBuilder();

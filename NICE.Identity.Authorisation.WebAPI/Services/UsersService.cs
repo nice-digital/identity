@@ -90,14 +90,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		}
 
 		public User GetUser(int userId)
-		{
-			var user = _context.Users
-				.Include(u => u.UserEmailHistory)
-					.ThenInclude(u => u.ArchivedByUser)
-				.Where(u => u.UserId.Equals(userId))
-				.FirstOrDefault();
-			
-			return user != null ? new User(user) : null;
+        {
+            var user = _context.Users
+                .Include(u => u.UserEmailHistory)
+                .ThenInclude(u => u.ArchivedByUser)
+                .Where(u => u.UserId.Equals(userId))
+                .FirstOrDefault();
+
+            return user != null ? new User(user) : null;
 		}
 
 		public IList<User> GetUsers(string filter = null)
@@ -553,12 +553,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
 
             var users = _context.Users
-                                .Include(x => x.UserRoles)
-                                .ThenInclude(y => y.Role.Website.Service)
-                                .Where(x => !x.IsMarkedForDeletion
-                                        && !x.EmailAddress.EndsWith("@nice.org.uk")
-                                        && x.LastLoggedInDate < pendingCutOffDate
-                                        && x.LastLoggedInDate > cutoffDate
+                                .Include(user => user.UserRoles)
+                                .ThenInclude(userRole => userRole.Role.Website.Service)
+                                .Where(user => !user.IsMarkedForDeletion
+                                        && !user.EmailAddress.EndsWith("@nice.org.uk")
+                                        && user.LastLoggedInDate < pendingCutOffDate
+                                        && user.LastLoggedInDate > cutoffDate
                                     )
                                 .ToList();
 
@@ -575,8 +575,8 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
             var cutoffDate = BaseDate.AddMonths(-AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts);
 
             var users = _context.Users
-                                .Where(x => (x.LastLoggedInDate < cutoffDate || (x.LastLoggedInDate == null && x.InitialRegistrationDate < cutoffDate))
-                                            && !x.EmailAddress.EndsWith("@nice.org.uk"))
+                                .Where(user => (user.LastLoggedInDate < cutoffDate || (user.LastLoggedInDate == null && user.InitialRegistrationDate < cutoffDate))
+                                            && !user.EmailAddress.EndsWith("@nice.org.uk"))
                                 .ToList();
 
             if (!users.Any())
@@ -617,15 +617,15 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         /// <param name="userToUpdateIdentifier"></param>
         public async Task UpdateFieldsDueToLogin(string userToUpdateIdentifier)
         {
-            var user = _context.Users.SingleOrDefault(x => x.NameIdentifier == userToUpdateIdentifier);
+            var userToUpdate = _context.Users.SingleOrDefault(u => u.NameIdentifier == userToUpdateIdentifier);
 
-            user.LastLoggedInDate = DateTime.UtcNow;
-            user.IsLockedOut = false;
-            user.IsInAuthenticationProvider = true;
-            user.HasVerifiedEmailAddress = true;
-            user.IsMarkedForDeletion = false;
+            userToUpdate.LastLoggedInDate = DateTime.UtcNow;
+            userToUpdate.IsLockedOut = false;
+            userToUpdate.IsInAuthenticationProvider = true;
+            userToUpdate.HasVerifiedEmailAddress = true;
+            userToUpdate.IsMarkedForDeletion = false;
 
-            _context.Users.Update(user);
+            _context.Users.Update(userToUpdate);
 
             await _context.SaveChangesAsync();
             

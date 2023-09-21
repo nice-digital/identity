@@ -43,26 +43,28 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var emailService = new EmailService(_webHostEnvironment, _emailServiceLogger.Object, _smtpClient);
             var user = new User() { EmailAddress = "address@example.com" };
 
-            using var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort);
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
 
-            //Act
-            emailService.SendEmail<TestEmailGenerator>(user);
+                //Act
+                emailService.SendEmail<TestEmailGenerator>(user);
 
-            //Assert
-            var email = emailServer.ReceivedEmail.Single();
+                //Assert
+                var email = emailServer.ReceivedEmail.Single();
 
-            email.FromAddress.ToString().ShouldBe("sender@example.com");
-            email.ToAddresses.Single().ToString().ShouldBe("address@example.com");
+                email.FromAddress.ToString().ShouldBe("sender@example.com");
+                email.ToAddresses.Single().ToString().ShouldBe("address@example.com");
 
-            email.MessageParts
-                .Single(x => x.HeaderData.Contains("text/plain"))
-                .BodyData
-                .ShouldBe("Title - EmailTitle; Body - TextEmailBody");
+                email.MessageParts
+                    .Single(x => x.HeaderData.Contains("text/plain"))
+                    .BodyData
+                    .ShouldBe("Title - EmailTitle; Body - TextEmailBody");
 
-            email.MessageParts
-                .Single(x => x.HeaderData.Contains("text/html"))
-                .BodyData
-                .ShouldBe("<html>\r\n<head>\r\n    <Title>EmailTitle</Title>\r\n</head>\r\n<body>\r\n    HtmlEmailBody\r\n    <a href=\"mailto:contactus@example.com?subject=Test%20contact%20us%20subject\">Contact Us</a>\r\n</body>\r\n</html>");
+                email.MessageParts
+                    .Single(x => x.HeaderData.Contains("text/html"))
+                    .BodyData
+                    .ShouldBe("<html>\r\n<head>\r\n    <Title>EmailTitle</Title>\r\n</head>\r\n<body>\r\n    HtmlEmailBody\r\n    <a href=\"mailto:contactus@example.com?subject=Test%20contact%20us%20subject\">Contact Us</a>\r\n</body>\r\n</html>");
+            }
         }
 
         [Fact]
@@ -80,18 +82,20 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     EmailAddress = "UserTwo@example.com" },
             };
 
-            using var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort);
-            //Act
-            emailService.SendPendingRegistrationDeletedEmail(users);
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendPendingRegistrationDeletedEmail(users);
 
-            //Assert
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserOne@example.com") == 1)
-                .ShouldBe(1);
-                
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserTwo@example.com") == 1)
-                .ShouldBe(1);
+                //Assert
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserOne@example.com") == 1)
+                    .ShouldBe(1);
+
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserTwo@example.com") == 1)
+                    .ShouldBe(1);
+            }
         }
         
         [Fact]
@@ -110,15 +114,16 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     EmailAddress = "UserOne@example.com" }
             };
 
-            using var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort);
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendPendingRegistrationDeletedEmail(users);
 
-            //Act
-            emailService.SendPendingRegistrationDeletedEmail(users);
-
-            //Assert
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserOne@example.com") == 1)
-                .ShouldBe(0);
+                //Assert
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserOne@example.com") == 1)
+                    .ShouldBe(0);
+            }
         }
 
         [Fact]
@@ -139,18 +144,20 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     IsMigrated = false }
             };
 
-            using var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort);
-            //Act
-            emailService.SendMarkedForDeletionEmail(users);
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendMarkedForDeletionEmail(users);
 
-            //Assert Emails
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "Migrated@example.com") == 1)
-                .ShouldBe(0);
+                //Assert Emails
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "Migrated@example.com") == 1)
+                    .ShouldBe(0);
 
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "NotMigrated@example.com") == 1)
-                .ShouldBe(1);
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "NotMigrated@example.com") == 1)
+                    .ShouldBe(1);
+            }
         }
 
         [Fact]
@@ -170,14 +177,16 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     IsMarkedForDeletion = false }
             };
 
-            using var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort);
-            //Act
-            emailService.SendMarkedForDeletionEmail(users);
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendMarkedForDeletionEmail(users);
 
-            //Assert Emails
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserOne@example.com") == 1)
-                .ShouldBe(0);
+                //Assert Emails
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "UserOne@example.com") == 1)
+                    .ShouldBe(0);
+            }
 
             users[0].IsMarkedForDeletion.ShouldBe(false);
         }
@@ -202,18 +211,20 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                     IsMigrated = false },
             };
 
-            using var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort);
-            //Act
-            emailService.SendDormantAccountDeletedEmail(users);
+            using (var emailServer = netDumbster.smtp.SimpleSmtpServer.Start(_localSmtpPort))
+            {
+                //Act
+                emailService.SendDormantAccountDeletedEmail(users);
 
-            //Assert Emails
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "Migrated@example.com") == 1)
-                .ShouldBe(0);
+                //Assert Emails
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "Migrated@example.com") == 1)
+                    .ShouldBe(0);
 
-            emailServer.ReceivedEmail
-                .Count(x => x.ToAddresses.Count(y => y.ToString() == "NotMigrated@example.com") == 1)
-                .ShouldBe(1);
+                emailServer.ReceivedEmail
+                    .Count(x => x.ToAddresses.Count(y => y.ToString() == "NotMigrated@example.com") == 1)
+                    .ShouldBe(1);
+            }
         }
     }
 }
