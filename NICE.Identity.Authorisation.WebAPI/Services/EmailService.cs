@@ -1,7 +1,9 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Hosting;
-using MimeKit;
+using Microsoft.Extensions.Logging;
 using NICE.Identity.Authorisation.WebAPI.Configuration;
+using NICE.Identity.Authorisation.WebAPI.DataModels;
+using NICE.Identity.Authorisation.WebAPI.Factories;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,81 +13,116 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 {
 	public interface IEmailService
 	{
-		void SendPendingAccountRemovalNotifications(IList<string> toEmailAddresses);
-	}
+        void SendDormantAccountDeletedEmail(List<User> Users);
+        void SendMarkedForDeletionEmail(List<User> users);
+        void SendPendingRegistrationDeletedEmail(List<User> users);
+        void SendEmail<T>(User user) where T : IEmailGenerator;
+    }
 
-	public class EmailService : IEmailService
-	{
-		private readonly string _notificationEmailHTMLPath;
-		private readonly string _notificationEmailTextPath;
+    public class EmailService : IEmailService
+    {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ISmtpClient _smtpClient;
+        private readonly ILogger<EmailService> _logger;
 
-		public EmailService(IWebHostEnvironment webHostEnvironment)
-		{
-			var pathToEmails = Path.Combine(webHostEnvironment.ContentRootPath, "Emails");
-			_notificationEmailHTMLPath = Path.Combine(pathToEmails, "account_removal.html");
-			_notificationEmailTextPath = Path.Combine(pathToEmails, "account_removal.txt");
-		}
+        public EmailService(IWebHostEnvironment webHostEnvironment, ILogger<EmailService> logger, ISmtpClient smtpClient)
+        {
+            _webHostEnvironment = webHostEnvironment;
+            _smtpClient = smtpClient;
+            _logger = logger;
+        }
 
-		public void SendPendingAccountRemovalNotifications(IList<string> toEmailAddresses)
-		{
-			if (toEmailAddresses == null || !toEmailAddresses.Any())
-				return;
+        /// <summary>
+        /// SendEmail using MailKit (because Microsoft's SMTPClient is deprecated and they recommend MailKit.
+        /// </summary>
+        /// <param name="user">a user to send the email to</param>
+        public void SendEmail<T>(User user) where T : IEmailGenerator
+        {
+            if (user == null) return;
 
-			toEmailAddresses = toEmailAddresses.Select(e => e.Trim()).Distinct().ToList();
-			
-			var useAllowList = (AppSettings.EmailConfig.Allowlist != null && AppSettings.EmailConfig.Allowlist.Any());
-			if (useAllowList)
+            //Get generator based on template
+            var pathToEmailTemplates = Path.Combine(_webHostEnvironment.ContentRootPath, "Emails");
+
+            var htmlTemplate = File.ReadAllText(Path.Combine(pathToEmailTemplates, "BasicTemplate.html"));
+            var textTemplate = File.ReadAllText(Path.Combine(pathToEmailTemplates, "BasicTemplate.txt"));
+
+            var emailGenerator = (T) Activator.CreateInstance(typeof(T), args: new[] { htmlTemplate, textTemplate });
+
+            //Create connection to SMTP Server
+            _smtpClient.Connect(AppSettings.EmailConfig.Server, AppSettings.EmailConfig.Port, false);
+				
+            if (!string.IsNullOrEmpty(AppSettings.EmailConfig.Username) && !string.IsNullOrEmpty(AppSettings.EmailConfig.Password))
 			{
-				toEmailAddresses = toEmailAddresses.Where(emailAddress => AppSettings.EmailConfig.Allowlist.Contains(emailAddress, StringComparer.OrdinalIgnoreCase)).ToList();
+                _smtpClient.Authenticate(AppSettings.EmailConfig.Username, AppSettings.EmailConfig.Password);
 			}
 
-			if (!toEmailAddresses.Any())
-			{
-				return;
-			}
+            //Check allow list
+            var useAllowList = (AppSettings.EmailConfig.Allowlist != null && AppSettings.EmailConfig.Allowlist.Any());
+            if (useAllowList)
+            {
+                if (!AppSettings.EmailConfig.Allowlist.Contains(user.EmailAddress, StringComparer.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+            }
 
-			var bodyBuilder = new BodyBuilder();
-			bodyBuilder.HtmlBody = File.ReadAllText(_notificationEmailHTMLPath);
-			bodyBuilder.TextBody = File.ReadAllText(_notificationEmailTextPath);
-			var messageBody = bodyBuilder.ToMessageBody();
+            //Send
+            _smtpClient.Send(emailGenerator.GenerateEmail(user));
 
-			const string subject = "Unverified account removal";
-			
-			SendEmail(toEmailAddresses, subject, messageBody);
+            _smtpClient.Disconnect(true);
 		}
+        
+        public void SendPendingRegistrationDeletedEmail(List<User> users)
+        {
+            users.ForEach(user =>
+            {
+                try
+                {
+                    SendEmail<DeletePendingRegistrationNotificationEmail>(user);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Failed to send delete registrations older than notification email - exception: {e}");
+                }
+            });
+        }
 
-		/// <summary>
-		/// SendEmail using MailKit (because Microsoft's SMTPClient is deprecated and they recommend MailKit.
-		/// </summary>
-		/// <param name="toEmailAddresses">this is a list of single recipients, one email per address i.e.  it's NOT sending a single email to multiple recipients</param>
-		/// <param name="subject"></param>
-		/// <param name="body">in MimeEntity format - so it can include HTML and Text only versions - and text only is good for accessibility.</param>
-		private static void SendEmail(IEnumerable<string> toEmailAddresses, string subject, MimeEntity body)
-		{
-			using (var client = new SmtpClient())
-			{
-				client.Connect(AppSettings.EmailConfig.Server, AppSettings.EmailConfig.Port, false);
-				if (!string.IsNullOrEmpty(AppSettings.EmailConfig.Username) && !string.IsNullOrEmpty(AppSettings.EmailConfig.Password))
-				{
-					client.Authenticate(AppSettings.EmailConfig.Username, AppSettings.EmailConfig.Password);
-				}
+        public void SendMarkedForDeletionEmail(List<User> users)
+        {
+            users.ForEach(user =>
+            {
+                if (!user.IsMigrated)
+                {
+                    try
+                    {
+                        SendEmail<PendingDormantAccountRemovalNotificationEmailGenerator>(user);
+                    }
+                    catch (Exception e)
+                    {
+                        user.IsMarkedForDeletion = false;
+                        _logger.LogError($"Failed to send pending deletion email - exception: {e}");
+                    }
+                }
+            });
+        }
 
-				var message = new MimeMessage();
-				message.From.Add(MailboxAddress.Parse(AppSettings.EmailConfig.SenderAddress));
-				message.Subject = subject;
-				message.Body = body;
+        public void SendDormantAccountDeletedEmail(List<User> Users)
+        {
+            Users.ForEach(user =>
+            {
+                if (!user.IsMigrated)
+                {
+                    try
+                    {
+                        SendEmail<DormantAccountRemovalNotificationEmailGenerator>(user);
 
-				foreach (var emailAddress in toEmailAddresses)
-				{
-					message.To.Clear();
-					message.To.Add(MailboxAddress.Parse(emailAddress));
-
-					client.Send(message);
-				}
-
-				client.Disconnect(true);
-			}
-		}
-
-	}
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError($"Failed to send dormant account removal notification email - exception: {e}");
+                    }
+                }
+            });
+        }
+    }
 }

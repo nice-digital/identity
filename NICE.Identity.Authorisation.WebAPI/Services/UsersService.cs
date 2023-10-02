@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Auth0.ManagementApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NICE.Identity.Authentication.Sdk;
 using NICE.Identity.Authentication.Sdk.Domain;
 using NICE.Identity.Authorisation.WebAPI.ApiModels;
+using NICE.Identity.Authorisation.WebAPI.Configuration;
 using NICE.Identity.Authorisation.WebAPI.DataModels;
+using NICE.Identity.Authorisation.WebAPI.Factories;
 using NICE.Identity.Authorisation.WebAPI.Repositories;
 using Role = NICE.Identity.Authorisation.WebAPI.DataModels.Role;
 using User = NICE.Identity.Authorisation.WebAPI.ApiModels.User;
@@ -30,9 +33,12 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
         IList<UserRole> GetRolesForUser(int userId);
         IList<UserRole> UpdateRolesForUser(int userId, List<UserRole> userRolesToUpdate);
 		Task<int> DeleteAllUsers();
-		Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration);
 		IList<User> GetUsersByOrganisationId(int organisationId);
         UsersAndJobIdsForOrganisation GetUsersAndJobIdsByOrganisationId(int organisationId);
+        Task UpdateFieldsDueToLogin(string userToUpdateIdentifier);
+        Task DeletePendingRegistrations(DateTime BaseDate);
+        void MarkAccountsForDeletion(DateTime BaseDate);
+        Task DeleteDormantAccounts(DateTime BaseDate);
     }
 
 	public class UsersService : IUsersService
@@ -84,14 +90,14 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 		}
 
 		public User GetUser(int userId)
-		{
-			var user = _context.Users
-				.Include(u => u.UserEmailHistory)
-					.ThenInclude(u => u.ArchivedByUser)
-				.Where(u => u.UserId.Equals(userId))
-				.FirstOrDefault();
-			
-			return user != null ? new User(user) : null;
+        {
+            var user = _context.Users
+                .Include(u => u.UserEmailHistory)
+                .ThenInclude(u => u.ArchivedByUser)
+                .Where(u => u.UserId.Equals(userId))
+                .FirstOrDefault();
+
+            return user != null ? new User(user) : null;
 		}
 
 		public IList<User> GetUsers(string filter = null)
@@ -217,11 +223,13 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 					return 0;
                 var userRolesToDelete = _context.UserRoles.Where(u => u.UserId == userId);
                 var userAcceptedTermsVersionToDelete = _context.UserAcceptedTermsVersions.Where(u => u.UserId == userId);
-				var userEmailHistoryToDelete = _context.UserEmailHistory.Where(ueh => ueh.UserId.HasValue && ueh.UserId.Value.Equals(userId));
+				var userEmailHistoryToDelete = _context.UserEmailHistory.Where(ueh => ueh.UserId.Equals(userId));
+                var userJobsToDelete = _context.Jobs.Where(ueh => ueh.UserId.Equals(userId));
 
                 _context.UserRoles.RemoveRange(userRolesToDelete);
                 _context.UserAcceptedTermsVersions.RemoveRange(userAcceptedTermsVersionToDelete);
 				_context.UserEmailHistory.RemoveRange(userEmailHistoryToDelete);
+                _context.Jobs.RemoveRange(userJobsToDelete);
                 _context.Users.RemoveRange(userToDelete);
 
                 if (userToDelete.IsInAuthenticationProvider)
@@ -466,41 +474,161 @@ namespace NICE.Identity.Authorisation.WebAPI.Services
 			return await _context.DeleteAllUsers();
         }
 
-        public async Task DeleteRegistrationsOlderThan(bool notify, int daysToKeepPendingRegistration)
+        public async Task DeletePendingRegistrations(DateTime BaseDate)
         {
-            _logger.LogWarning($"DeleteRegistrationsOlderThan - Deleting Registrations Older Than {daysToKeepPendingRegistration} days. Notify via email: {notify}"); //extra logging here in order to verify that the scheduled task is running via kibana.
-
-	        var allUsersWithPendingRegistrationsOverAge = _context.GetPendingUsersOverAge(daysToKeepPendingRegistration).ToList();
-
-	        if (!allUsersWithPendingRegistrationsOverAge.Any())
-	        {
-		        _logger.LogWarning("DeleteRegistrationsOlderThan - No records found to delete. exiting");
-		        return;
-	        }
-
-	        var uniqueEmailAddresses = allUsersWithPendingRegistrationsOverAge.Select(u => u.EmailAddress).Distinct().ToList();
-	        if (uniqueEmailAddresses.Count()  != allUsersWithPendingRegistrationsOverAge.Count())
-	        {
-                _logger.LogWarning("Pending registrations exist for the same email address.");
-	        }
-
-	        //1. delete user accounts: allUsersWithPendingRegistrationsOverAge
-	        var recordsDeleted = await _context.DeleteUsers(allUsersWithPendingRegistrationsOverAge);
-
-	        //2. delete user account in auth0
-            foreach (var user in allUsersWithPendingRegistrationsOverAge)
+            try
             {
-	            await _providerManagementService.DeleteUser(user.NameIdentifier);
-            }
+                _logger.LogWarning($"DeletePendingRegistrations - Deleting Registrations Older Than {AppSettings.AccountDeletionConfig.DaysToKeepPendingRegistrations} days."); //extra logging here in order to verify that the scheduled task is running via kibana.
 
-            //3. send notification to the email addresses, one email per email address.
-            if (notify)
+                var users = GetUsersPendingRegistrationToDelete(BaseDate);
+                _emailService.SendPendingRegistrationDeletedEmail(users.ToList());
+                await DeleteUsers(users);
+
+                _logger.LogWarning($"DeletePendingRegistrations - Total registrations deleted : {users.Count}");
+            }
+            catch (Exception e)
             {
-	            _emailService.SendPendingAccountRemovalNotifications(uniqueEmailAddresses);
+                _logger.LogError($"Failed to delete pending registrations - exception: {e}");
+                throw new Exception($"Failed to delete pending registrations - exception: {e}", e);
             }
-
-            _logger.LogWarning($"DeleteRegistrationsOlderThan - Total records deleted : {recordsDeleted}");
         }
 
-	}
+        public void MarkAccountsForDeletion(DateTime BaseDate)
+        {
+            try {
+                _logger.LogWarning($"MarkAccountsForDeletion - Marking accounts for deletion");
+
+                var users = GetUsersToMarkForDeletion(BaseDate);
+                MarkUsersForDeletion(users);
+                _emailService.SendMarkedForDeletionEmail(users.ToList());
+
+                _logger.LogWarning($"MarkAccountsPendingDeletion - Total accounts marked for deletion : {users.Count}");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to mark accounts for deletion - exception: {e}");
+                throw new Exception($"Failed to mark accounts for deletion - exception: {e}", e);
+			}
+		}
+
+        public async Task DeleteDormantAccounts(DateTime BaseDate)
+        {
+            try
+            {
+                _logger.LogWarning($"DeleteDormantAccounts - Deleting dormant accounts");
+
+                var users = GetUsersWithDormantAccountsToDelete(BaseDate);
+                _emailService.SendDormantAccountDeletedEmail(users.ToList());
+                await DeleteUsers(users);
+
+                _logger.LogWarning($"DeleteDormantAccounts - Total accounts deleted : {users.Count}");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete dormant accounts - exception: {e}");
+                throw new Exception($"Failed to delete dormant accounts - exception: {e}", e);
+            }
+        }
+
+        public List<DataModels.User> GetUsersPendingRegistrationToDelete(DateTime BaseDate)
+        {
+            var dateToKeepRegistrationsFrom = BaseDate.AddDays(-AppSettings.AccountDeletionConfig.DaysToKeepPendingRegistrations);
+
+            var users = _context.Users.Where(u => !u.HasVerifiedEmailAddress &&
+                                                  u.InitialRegistrationDate.HasValue &&
+                                                  u.InitialRegistrationDate.Value < dateToKeepRegistrationsFrom)
+                                      .ToList();
+
+            if (!users.Any())
+            {
+                _logger.LogWarning("DeletePendingRegistrations - No registrations found to delete.");
+            }
+
+            return users;
+        }
+
+        public IList<DataModels.User> GetUsersToMarkForDeletion(DateTime BaseDate)
+        {
+            var cutoffDate = BaseDate.AddMonths(-AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts);
+            var pendingCutOffDate = cutoffDate.AddMonths(1); //Accounts in their last month before deletion
+
+            var users = _context.Users
+                                .Include(user => user.UserRoles)
+                                .ThenInclude(userRole => userRole.Role.Website.Service)
+                                .Where(user => !user.IsMarkedForDeletion
+                                        && !user.EmailAddress.EndsWith("@nice.org.uk")
+                                        && user.LastLoggedInDate < pendingCutOffDate
+                                        && user.LastLoggedInDate > cutoffDate
+                                    )
+                                .ToList();
+
+            if (!users.Any())
+            {
+                _logger.LogWarning("MarkAccountsForDeletion - No accounts found to mark for deletion.");
+            }
+
+            return users;
+        }
+
+        public IList<DataModels.User> GetUsersWithDormantAccountsToDelete(DateTime BaseDate)
+        {
+            var cutoffDate = BaseDate.AddMonths(-AppSettings.AccountDeletionConfig.MonthsToKeepDormantAccounts);
+
+            var users = _context.Users
+                                .Where(user => (user.LastLoggedInDate < cutoffDate || (user.LastLoggedInDate == null && user.InitialRegistrationDate < cutoffDate))
+                                            && !user.EmailAddress.EndsWith("@nice.org.uk"))
+                                .ToList();
+
+            if (!users.Any())
+            {
+                _logger.LogWarning("DeleteDormantAccounts - No accounts found for deletion.");
+            }
+
+            return users;
+        }
+
+        public void MarkUsersForDeletion(IList<DataModels.User> users)
+        {
+            foreach (var user in users)
+            {
+                user.IsMarkedForDeletion = true;
+            }
+            _context.SaveChanges();
+        }
+
+        public async Task DeleteUsers(IList<DataModels.User> users)
+        {
+            foreach (var user in users)
+            {
+                await DeleteUser(user.UserId);
+            }
+        }
+
+        /// <summary>
+        /// The fields updated on login are the LastLoggedInDate, IsLockedOut, IsInAuthenticationProvider and HasVerifiedEmail address
+        ///
+        /// IsLockedOut and IsInAuthentication provider are set to false and true respectively, as the user is logging in from auth0, so that must be the case.
+        ///
+        /// likewise HasVerifiedEmail is set here as again, they'd be unable to login without verifying.
+        /// Also, currently when the user clicks on the activate link in the email, it updates the auth0 db, but doesn't update our database - hence our db is potentially out of sync on this property
+        /// until the user logs in, and we can't make it sync with our db currentl without exposing our api directly to the user, which we don't want to do.
+        /// todo: when the profile site is up, handle the activate link in there, then redirect to confirmation page on s3. a page on the profile site can hit the api server side.
+        /// </summary>
+        /// <param name="userToUpdateIdentifier"></param>
+        public async Task UpdateFieldsDueToLogin(string userToUpdateIdentifier)
+        {
+            var userToUpdate = _context.Users.SingleOrDefault(u => u.NameIdentifier == userToUpdateIdentifier);
+
+            userToUpdate.LastLoggedInDate = DateTime.UtcNow;
+            userToUpdate.IsLockedOut = false;
+            userToUpdate.IsInAuthenticationProvider = true;
+            userToUpdate.HasVerifiedEmailAddress = true;
+            userToUpdate.IsMarkedForDeletion = false;
+
+            _context.Users.Update(userToUpdate);
+
+            await _context.SaveChangesAsync();
+            
+        }
+    }
 }

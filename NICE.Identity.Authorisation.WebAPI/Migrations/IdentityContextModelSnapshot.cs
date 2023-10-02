@@ -223,6 +223,9 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                     b.Property<bool>("IsLockedOut")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsMigrated")
                         .HasColumnType("bit");
 
@@ -283,7 +286,6 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("ArchivedByUserId")
-                        .IsRequired()
                         .HasColumnName("ArchivedByUserID")
                         .HasColumnType("int");
 
@@ -296,8 +298,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .HasColumnType("nvarchar(320)")
                         .HasMaxLength(320);
 
-                    b.Property<int?>("UserId")
-                        .IsRequired()
+                    b.Property<int>("UserId")
                         .HasColumnName("UserID")
                         .HasColumnType("int");
 
@@ -434,8 +435,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Migrations
                         .WithMany("ArchivedUserEmailHistory")
                         .HasForeignKey("ArchivedByUserId")
                         .HasConstraintName("FK_UserEmailHistory_ArchivedByUser_Users")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NICE.Identity.Authorisation.WebAPI.DataModels.User", "User")
                         .WithMany("UserEmailHistory")

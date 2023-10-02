@@ -457,5 +457,77 @@ namespace NICE.Identity.Authorisation.WebAPI.Controllers
                 return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
             }
         }
+
+        /// <summary>
+        /// Removes any account where the user has signed up but has not completed their registration by following the link in the email. The time they have to do this is configurable, defaulted to 30 days.
+        /// </summary>
+        /// <param name="baseDate">The date to base the action from. If left blank defaults to today.</param>
+        /// <returns></returns>
+        [HttpDelete("DeletePendingRegistrations")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> DeletePendingRegistrations([FromQuery] DateTime? baseDate)
+        {
+            try
+            {
+                await _usersService.DeletePendingRegistrations(baseDate ?? DateTime.Now);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Removes any account where the user has not logged in for a number of months. The time they have to do this is configurable, defaulted to 36 months.
+        /// </summary>
+        /// <param name="baseDate">The date to base the action from. If left blank defaults to today.</param>
+        /// <returns></returns>
+        [HttpDelete("DeleteDormantAccounts")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> DeleteDormantAccounts([FromQuery] DateTime? baseDate)
+        {
+            try
+            {
+                await _usersService.DeleteDormantAccounts(baseDate ?? DateTime.Now);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Marks any account which is in it's last month of dormancy for deletion.
+        /// </summary>
+        /// <param name="baseDate">The date to base the action from. If left blank defaults to today.</param>
+        /// <returns></returns>
+        [HttpGet("MarkAccountsForDeletion")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Policies.API.UserAdministration)]
+        public async Task<IActionResult> MarkAccountsForDeletion([FromQuery] DateTime? baseDate)
+        {
+            try
+            {
+                _usersService.MarkAccountsForDeletion(baseDate ?? DateTime.Now);
+                 
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ProblemDetails { Status = 500, Title = $"{e.Message}" });
+            }
+        }
     }
 }

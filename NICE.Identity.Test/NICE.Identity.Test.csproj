@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="netDumbster" Version="3.0.1" />
     <PackageReference Include="Shouldly" Version="3.0.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.console" Version="2.4.1">
@@ -50,6 +51,15 @@
   <ItemGroup>
     <ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
     <ProjectReference Include="..\NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Emails\BasicTemplate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Emails\BasicTemplate.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

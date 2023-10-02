@@ -1,0 +1,557 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "1c8ab4c8-737e-4ac8-b0aa-172772600e2f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 140,
+                    "y": 240
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "e0264643-8852-4291-801d-f5c7c130afbf": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 240
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "ba8b4c6b-1a32-4abf-b8e4-f721e5ae685b": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 310
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "fa6da305-1f82-4f1a-957a-3cdb89e28621": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 380
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "3b057f1b-f5e7-45ed-91ed-6b725bf34e8c": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 310
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "9c3d0697-773e-47a4-8e1f-7f60b3b116cf": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 380
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "7f4597ba-f24a-43c1-8818-b5965d3e9dee": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 240
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "dc3629ad-7329-4766-ac0b-0f65b2620da9": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 160
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "7a161e3d-12f1-45e9-89f9-3c593c393f96": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 270,
+                    "y": 160
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "dc3629ad-7329-4766-ac0b-0f65b2620da9"
+                ]
+            }
+        }
+    },
+    "Resources": {
+        "ConnectionToAuthForToken": {
+            "Type": "AWS::Events::Connection",
+            "Properties": {
+                "AuthorizationType": "OAUTH_CLIENT_CREDENTIALS",
+                "AuthParameters": {
+                    "OAuthParameters": {
+                        "ClientParameters": {
+                            "ClientID": {
+                                "Ref": "ClientID"
+                            },
+                            "ClientSecret": {
+                                "Ref": "ClientSecret"
+                            }
+                        },
+                        "AuthorizationEndpoint": {
+                            "Ref": "AuthorizationEndpoint"
+                        },
+                        "HttpMethod": "POST",
+                        "OAuthHttpParameters": {
+                            "BodyParameters": [
+                                {
+                                    "Key": "audience",
+                                    "Value": {
+                                        "Ref": "Audience"
+                                    },
+                                    "IsValueSecret": false
+                                },
+                                {
+                                    "Key": "grant_type",
+                                    "Value": "client_credentials",
+                                    "IsValueSecret": false
+                                }
+                            ]
+                        }
+                    },
+                    "InvocationHttpParameters": {}
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "1c8ab4c8-737e-4ac8-b0aa-172772600e2f"
+                }
+            }
+        },
+        "DeleteOldPendingRegistrationsInIDAMRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "Delete pending registrations in IDAM",
+                "ScheduleExpression": {
+                    "Ref": "CronScheduleDeletePendingRegistrations"
+                },
+                "State": {
+                    "Ref": "RuleStateDeletePendingRegistrations"
+                },
+                "Targets": [
+                    {
+                        "Id": "IDAM_API_Target",
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "APIDestinationToIDAMAPIDeletePendingRegistrations",
+                                "Arn"
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "RoleForIDAMRules",
+                                "Arn"
+                            ]
+                        },
+                        "HttpParameters": {
+                            "PathParameterValues": [],
+                            "HeaderParameters": {},
+                            "QueryStringParameters": {}
+                        },
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 1
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "7f4597ba-f24a-43c1-8818-b5965d3e9dee"
+                }
+            }
+        },
+        "MarkAccountsForDeletionInIDAMRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "Mark Accounts For Deletion in IDAM",
+                "ScheduleExpression": {
+                    "Ref": "CronScheduleMarkAccountsForDeletion"
+                },
+                "State": {
+                    "Ref": "RuleStateMarkAccountsForDeletion"
+                },
+                "Targets": [
+                    {
+                        "Id": "IDAM_API_Target",
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "APIDestinationToIDAMAPIMarkAccountsForDeletion",
+                                "Arn"
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "RoleForIDAMRules",
+                                "Arn"
+                            ]
+                        },
+                        "HttpParameters": {
+                            "PathParameterValues": [],
+                            "HeaderParameters": {},
+                            "QueryStringParameters": {}
+                        },
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 1
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "9c3d0697-773e-47a4-8e1f-7f60b3b116cf"
+                }
+            }
+        },
+        "DeleteDormantAccountsInIDAMRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "Delete Dormant Accounts in IDAM",
+                "ScheduleExpression": {
+                    "Ref": "CronScheduleDeleteDormantAccounts"
+                },
+                "State": {
+                    "Ref": "RuleStateDeleteDormantAccounts"
+                },
+                "Targets": [
+                    {
+                        "Id": "IDAM_API_Target",
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "APIDestinationToIDAMAPIDeleteDormantAccounts",
+                                "Arn"
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "RoleForIDAMRules",
+                                "Arn"
+                            ]
+                        },
+                        "HttpParameters": {
+                            "PathParameterValues": [],
+                            "HeaderParameters": {},
+                            "QueryStringParameters": {}
+                        },
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 1
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "3b057f1b-f5e7-45ed-91ed-6b725bf34e8c"
+                }
+            }
+        },
+        "RoleForIDAMRules": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "Description": "Role for running the IDAM Scheduled Events Api Destination",
+                "Path": "/service-role/"
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "dc3629ad-7329-4766-ac0b-0f65b2620da9"
+                }
+            }
+        },
+        "PolicyToWriteEventForIDAMScheduledEvents": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "PolicyForIDAMScheduledEvents",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "events:InvokeApiDestination"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "APIDestinationToIDAMAPIDeletePendingRegistrations",
+                                        "Arn"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "events:InvokeApiDestination"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "APIDestinationToIDAMAPIDeleteDormantAccounts",
+                                        "Arn"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "events:InvokeApiDestination"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "APIDestinationToIDAMAPIMarkAccountsForDeletion",
+                                        "Arn"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "RoleForIDAMRules"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "7a161e3d-12f1-45e9-89f9-3c593c393f96"
+                }
+            }
+        },
+        "APIDestinationToIDAMAPIDeletePendingRegistrations": {
+            "Type": "AWS::Events::ApiDestination",
+            "Properties": {
+                "ConnectionArn": {
+                    "Fn::GetAtt": [
+                        "ConnectionToAuthForToken",
+                        "Arn"
+                    ]
+                },
+                "Description": "The IDAM API to hit to delete expired pending registrations",
+                "InvocationEndpoint": {
+                    "Ref": "InvocationEndpointDeletePendingRegistrations"
+                },
+                "HttpMethod": "DELETE",
+                "InvocationRateLimitPerSecond": 1
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "e0264643-8852-4291-801d-f5c7c130afbf"
+                }
+            },
+            "DependsOn": [
+                "ConnectionToAuthForToken"
+            ]
+        },
+        "APIDestinationToIDAMAPIDeleteDormantAccounts": {
+            "Type": "AWS::Events::ApiDestination",
+            "Properties": {
+                "ConnectionArn": {
+                    "Fn::GetAtt": [
+                        "ConnectionToAuthForToken",
+                        "Arn"
+                    ]
+                },
+                "Description": "The IDAM API to hit to delete dormant accounts",
+                "InvocationEndpoint": {
+                    "Ref": "InvocationEndpointDeleteDormantAccounts"
+                },
+                "HttpMethod": "DELETE",
+                "InvocationRateLimitPerSecond": 1
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "ba8b4c6b-1a32-4abf-b8e4-f721e5ae685b"
+                }
+            },
+            "DependsOn": [
+                "ConnectionToAuthForToken"
+            ]
+        },
+        "APIDestinationToIDAMAPIMarkAccountsForDeletion": {
+            "Type": "AWS::Events::ApiDestination",
+            "Properties": {
+                "ConnectionArn": {
+                    "Fn::GetAtt": [
+                        "ConnectionToAuthForToken",
+                        "Arn"
+                    ]
+                },
+                "Description": "The IDAM API to hit to mark accounts for deletion",
+                "InvocationEndpoint": {
+                    "Ref": "InvocationEndpointMarkAccountsForDeletion"
+                },
+                "HttpMethod": "GET",
+                "InvocationRateLimitPerSecond": 1
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "fa6da305-1f82-4f1a-957a-3cdb89e28621"
+                }
+            },
+            "DependsOn": [
+                "ConnectionToAuthForToken"
+            ]
+        }
+    },
+    "Parameters": {
+        "ClientID": {
+            "NoEcho": "false",
+            "Description": "Client_id to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "50"
+        },
+        "ClientSecret": {
+            "NoEcho": "true",
+            "Description": "Client_secret to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "100"
+        },
+        "AuthorizationEndpoint": {
+            "NoEcho": "false",
+            "Description": "AuthorizationEndpoint to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "100"
+        },
+        "Audience": {
+            "NoEcho": "false",
+            "Description": "Audience to get the client credentials token",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "100"
+        },
+        "InvocationEndpointDeletePendingRegistrations": {
+            "NoEcho": "false",
+            "Description": "IDAM API endpoint for deleting pending registrations",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "InvocationEndpointDeleteDormantAccounts": {
+            "NoEcho": "false",
+            "Description": "IDAM API endpoint for deleting dormant accounts",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "InvocationEndpointMarkAccountsForDeletion": {
+            "NoEcho": "false",
+            "Description": "IDAM API endpoint to mark accounts for deletion",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "CronScheduleDeletePendingRegistrations": {
+            "Default": "cron(0 8 * * ? *)",
+            "NoEcho": "false",
+            "Description": "Schedule to hit the API for deleting pending registrations",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "CronScheduleDeleteDormantAccounts": {
+            "Default": "cron(0 8 * * ? *)",
+            "NoEcho": "false",
+            "Description": "Schedule to hit the API for deleting dormant accounts",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "CronScheduleMarkAccountsForDeletion": {
+            "Default": "cron(0 8 * * ? *)",
+            "NoEcho": "false",
+            "Description": "Schedule to hit the API for marking accounts for deletion",
+            "Type": "String",
+            "MinLength": "10",
+            "MaxLength": "150"
+        },
+        "RuleStateDeletePendingRegistrations": {
+            "Default": "DISABLED",
+            "NoEcho": "false",
+            "Description": "Delete pending registrations scheduled event state.",
+            "Type": "String",
+            "AllowedValues": [
+                "DISABLED",
+                "ENABLED"
+            ]
+        },
+        "RuleStateDeleteDormantAccounts": {
+            "Default": "DISABLED",
+            "NoEcho": "false",
+            "Description": "Delete dormant accounts scheduled event state.",
+            "Type": "String",
+            "AllowedValues": [
+                "DISABLED",
+                "ENABLED"
+            ]
+        },
+        "RuleStateMarkAccountsForDeletion": {
+            "Default": "DISABLED",
+            "NoEcho": "false",
+            "Description": "Mark accounts for deletion scheduled event state.",
+            "Type": "String",
+            "AllowedValues": [
+                "DISABLED",
+                "ENABLED"
+            ]
+        }
+    }
+}
