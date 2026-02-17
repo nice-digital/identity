@@ -11,15 +11,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="netDumbster" Version="3.0.1" />
@@ -44,16 +44,16 @@
     </Reference>
   </ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
+		<ProjectReference Include="..\NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj" />
+	</ItemGroup>
+
   <ItemGroup>
     <Folder Include="DiffTools\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NICE.Identity.Authentication.Sdk\NICE.Identity.Authentication.Sdk.csproj" />
-    <ProjectReference Include="..\NICE.Identity.Authorisation.WebAPI\NICE.Identity.Authorisation.WebAPI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+	<ItemGroup>
     <None Update="Emails\BasicTemplate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
