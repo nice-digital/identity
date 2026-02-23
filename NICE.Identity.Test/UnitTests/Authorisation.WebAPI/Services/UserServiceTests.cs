@@ -369,7 +369,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             context.UserRoles.Add(new DataModels.UserRole() { RoleId = roleId, UserId = userToBeDeleted.UserId });
             context.Jobs.Add(new DataModels.Job() { IsLead = false, OrganisationId = organisationId, UserId = userToBeDeleted.UserId });
-            context.UserEmailHistory.Add(new DataModels.UserEmailHistory() {UserId = userToBeDeleted.UserId, EmailAddress = "oldAddress@example.com"});
+            context.UserEmailHistory.Add(new DataModels.UserEmailHistory() {UserId = userToBeDeleted.UserId, EmailAddress = "oldAddress@example.com", ArchivedDateUTC = DateTime.Now });
             context.UserAcceptedTermsVersions.Add(new DataModels.UserAcceptedTermsVersion() { TermsVersionId = 1, UserAcceptedDate = DateTime.Now, UserId = userToBeDeleted.UserId });
 
             context.SaveChanges();
