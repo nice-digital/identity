@@ -70,7 +70,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var nameIdentifier = Guid.NewGuid().ToString();
 
             var context = GetContext();
-            context.Users.Add(new DataModels.User { NameIdentifier = nameIdentifier });
+            context.Users.Add(new DataModels.User { NameIdentifier = nameIdentifier, EmailAddress = "test@nice.org.uk"});
             context.SaveChanges();
 
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
@@ -222,10 +222,10 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 		        Host = "test.nice.org.uk"
 	        });
 	        context.Roles.Add(new DataModels.Role() { RoleId = 1, WebsiteId = 1, Name = "TestRole" });
-	        context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "user with role" });
+	        context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "user with role", EmailAddress = "test@nice.org.uk" });
 	        context.UserRoles.Add(new DataModels.UserRole() { UserRoleId = 1, RoleId = 1, UserId = 1 });
 
-	        context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "user without role" });
+	        context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "user without role", EmailAddress = "test@nice.org.uk" });
 
             context.SaveChanges();
         }
@@ -309,7 +309,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             var changedEmailAddress = "changed.email.address@email.com";
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
-            var user = new ApiModels.User(){ EmailAddress = originalEmailAddress, FirstName = "Joe"};
+            var user = new ApiModels.User(){ EmailAddress = originalEmailAddress, FirstName = "Joe", NameIdentifier = "user with role" };
             var createdUserId = userService.CreateUser(user).UserId;
 
             //Act
@@ -369,7 +369,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 
             context.UserRoles.Add(new DataModels.UserRole() { RoleId = roleId, UserId = userToBeDeleted.UserId });
             context.Jobs.Add(new DataModels.Job() { IsLead = false, OrganisationId = organisationId, UserId = userToBeDeleted.UserId });
-            context.UserEmailHistory.Add(new DataModels.UserEmailHistory() {UserId = userToBeDeleted.UserId, EmailAddress = "oldAddress@example.com"});
+            context.UserEmailHistory.Add(new DataModels.UserEmailHistory() {UserId = userToBeDeleted.UserId, EmailAddress = "oldAddress@example.com", ArchivedDateUTC = DateTime.Now });
             context.UserAcceptedTermsVersions.Add(new DataModels.UserAcceptedTermsVersion() { TermsVersionId = 1, UserAcceptedDate = DateTime.Now, UserId = userToBeDeleted.UserId });
 
             context.SaveChanges();
@@ -527,12 +527,12 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             //Arrange
             var context = GetContext();
             var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
-            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1});
-            context.Services.Add(new DataModels.Service(){ServiceId = 1});
-            context.Websites.Add(new DataModels.Website(){WebsiteId = 1, ServiceId = 1, EnvironmentId = 1});
+            context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test" });
+            context.Services.Add(new DataModels.Service(){ServiceId = 1, Name = "Service" });
+            context.Websites.Add(new DataModels.Website(){WebsiteId = 1, ServiceId = 1, EnvironmentId = 1, Host = "dev.nice.org.uk" });
             context.Roles.Add(new DataModels.Role() { RoleId = 1, Name = "TestRole1"});
             context.Roles.Add(new DataModels.Role() { RoleId = 2, Name = "TestRole2"});
-            context.Users.Add(new DataModels.User(){UserId = 1});
+            context.Users.Add(new DataModels.User(){UserId = 1, EmailAddress = "alice@nice.org.uk", NameIdentifier = "user with role" });
             context.SaveChanges();
 
             //Act
@@ -563,8 +563,8 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             });
             context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole1"});
             context.Roles.Add(new DataModels.Role() {RoleId = 2, WebsiteId = 1, Name = "TestRole2"});
-            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1"});
-            context.Users.Add(new DataModels.User(){UserId = 2, NameIdentifier = "auth|user2"});
+            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1", EmailAddress = "test@nice.org.uk" });
+            context.Users.Add(new DataModels.User(){UserId = 2, NameIdentifier = "auth|user2", EmailAddress = "test@nice.org.uk" });
             context.SaveChanges();
 
             //Act
@@ -589,7 +589,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
                 WebsiteId = 1, EnvironmentId = 1, ServiceId = 1, Host = "test.nice.org.uk"
             });
             context.Roles.Add(new DataModels.Role() {RoleId = 1, WebsiteId = 1, Name = "TestRole"});
-            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1"});
+            context.Users.Add(new DataModels.User(){UserId = 1, NameIdentifier = "auth|user1", EmailAddress = "test@nice.org.uk" });
             context.UserRoles.Add(new DataModels.UserRole() { UserRoleId = 1, RoleId = 1, UserId = 1});
             context.SaveChanges();
 
@@ -646,7 +646,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        var existingEmailAddress = "existing.user.account@nice.org.uk";
 	        var existingFirstName = "Phil";
 	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
-	        context.Users.Add(new DataModels.User() { EmailAddress = existingEmailAddress, FirstName = existingFirstName, LastName = "Connors"});
+	        context.Users.Add(new DataModels.User() { EmailAddress = existingEmailAddress, FirstName = existingFirstName, LastName = "Connors", NameIdentifier = "auth|phil" });
             context.SaveChanges();
 
 	        //Act
@@ -675,7 +675,7 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
 	        var existingEmailAddress = "existing.user.account@nice.org.uk";
 	        var existingFirstName = "Phil";
 	        var userService = new UsersService(context, _logger.Object, _providerManagementService.Object, _emailService.Object);
-	        context.Users.Add(new DataModels.User() { EmailAddress = existingEmailAddress, FirstName = existingFirstName, LastName = "Connors" });
+	        context.Users.Add(new DataModels.User() { EmailAddress = existingEmailAddress, FirstName = existingFirstName, LastName = "Connors", NameIdentifier = "auth|phil" });
 	        context.Environments.Add(new DataModels.Environment() { EnvironmentId = 1, Name = "Test" });
 	        context.Services.Add(new DataModels.Service() { ServiceId = 1, Name = "Service" });
 	        context.Websites.Add(new DataModels.Website()
@@ -871,9 +871,9 @@ namespace NICE.Identity.Test.UnitTests.Authorisation.WebAPI.Services
             context.Organisations.Add(new DataModels.Organisation() { OrganisationId = organisationId, Name = "My Organisation" });
             context.Organisations.Add(new DataModels.Organisation() { OrganisationId = 2, Name = "Another org" });
 
-            context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "auth|alice" });
-            context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "auth|bob" });
-            context.Users.Add(new DataModels.User() { UserId = 3, NameIdentifier = "auth|carol" });
+            context.Users.Add(new DataModels.User() { UserId = 1, NameIdentifier = "auth|alice", EmailAddress = "alice@nice.org.uk" });
+            context.Users.Add(new DataModels.User() { UserId = 2, NameIdentifier = "auth|bob", EmailAddress = "bob@nice.org.uk" });
+            context.Users.Add(new DataModels.User() { UserId = 3, NameIdentifier = "auth|carol", EmailAddress = "carol@nice.org.uk" });
 
             context.Jobs.Add(new DataModels.Job() { UserId = 1, OrganisationId = 1 });
             context.Jobs.Add(new DataModels.Job() { UserId = 2, OrganisationId = 1 });
