@@ -55,7 +55,7 @@ namespace NICE.Identity.Authorisation.WebAPI.Repositories
         internal IEnumerable<User> GetUsersByOrganisationId(int organisationId)
         {
             return Jobs.Where(jobs => jobs.OrganisationId.Equals(organisationId))
-                           .Include(users => users)
+                           .Include(x => x.User)
                             .Select(x => x.User)
                            .ToList();
         }
